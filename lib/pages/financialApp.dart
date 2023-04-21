@@ -21,12 +21,16 @@ class FinancialApp extends StatelessWidget {
               child: const Text('Register'),
             ),
             const SizedBox(height: 16.0),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(minimumSize: const Size(180, 40)),
-              onPressed: () {
-                Navigator.pushNamed(context, '/login');
-              },
-              child: const Text('Login'),
+            Hero(
+              tag: "login-button",
+              child: ElevatedButton(
+                style:
+                    ElevatedButton.styleFrom(minimumSize: const Size(180, 40)),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/login');
+                },
+                child: const Text('Login'),
+              ),
             ),
           ],
         ),

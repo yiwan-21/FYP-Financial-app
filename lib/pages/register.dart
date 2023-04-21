@@ -42,8 +42,12 @@ class Register extends StatelessWidget {
               ),
               const SizedBox(height: 32.0),
               ElevatedButton(
+                style:
+                    ElevatedButton.styleFrom(minimumSize: const Size(180, 40)),
                 child: const Text('Register'),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushNamed(context, '/home');
+                },
               ),
             ],
           ),

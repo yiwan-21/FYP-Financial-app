@@ -36,7 +36,7 @@ class Login extends StatelessWidget {
                 onPressed: () {},
                 style: ButtonStyle(
                   overlayColor: MaterialStateColor.resolveWith(
-                      (states) => Color.fromARGB(255, 218, 217, 217)),
+                      (states) => const Color.fromARGB(255, 231, 227, 225)),
                 ),
                 child: const Text(
                   'Forgot Password?',
@@ -46,13 +46,18 @@ class Login extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 24.0),
-              ElevatedButton(
-                child: const Text('Login'),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/home');
-                },
-              ),
+              const SizedBox(height: 18.0),
+              Hero(
+                tag: "login-button",
+                child: ElevatedButton(
+                  style:
+                    ElevatedButton.styleFrom(minimumSize: const Size(180, 40)),
+                  child: const Text('Login'),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/home');
+                  },
+                ),
+              )
             ],
           ),
         ),
