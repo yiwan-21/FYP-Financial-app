@@ -199,7 +199,7 @@ class _EditTransactionState extends State<EditTransaction> {
                     ),
                     const SizedBox(width: 12),
                     CustomSwitch(
-                      isIncome: false,
+                      isIncome: !_isExpense,
                       onToggle: (value) {
                         setState(() {
                           _isExpense = value;
@@ -300,10 +300,17 @@ class _CustomSwitchState extends State<CustomSwitch>
       vsync: this,
       duration: const Duration(milliseconds: 100),
     );
-    _animation = Tween<Offset>(
-      begin: const Offset(0.1, 0),
-      end: const Offset(3.2, 0),
-    ).animate(_controller);
+    if (widget.isIncome) {
+      _animation = Tween<Offset>(
+        begin: const Offset(3.2, 0),
+        end: const Offset(0.1, 0),
+      ).animate(_controller);
+    } else {
+      _animation = Tween<Offset>(
+        begin: const Offset(0.1, 0),
+        end: const Offset(3.2, 0),
+      ).animate(_controller);
+    }
     _value = widget.isIncome;
   }
 
