@@ -8,11 +8,11 @@ class Analytics extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.topCenter,
-      padding: const EdgeInsets.only(top: 24),
+      margin: const EdgeInsets.only(top: 24),
       child: Column(
         children: const [
           Text(
-            "Monthly Spending", 
+            "Monthly Spending",
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 24),
