@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants.dart';
 
 class Transaction extends StatefulWidget {
   final String title;
@@ -6,8 +7,9 @@ class Transaction extends StatefulWidget {
   final double amount;
   final DateTime date;
   final bool isExpense;
+  final String category;
 
-  Transaction(this.title, this.amount, this.date, this.isExpense,
+  Transaction(this.title, this.amount, this.date, this.isExpense, this.category,
       {this.notes, super.key});
 
   @override
@@ -31,6 +33,7 @@ class _TransactionState extends State<Transaction>
       'amount': widget.amount,
       'date': widget.date,
       'isExpense': widget.isExpense,
+      'category': widget.category,
     });
   }
 
@@ -54,27 +57,31 @@ class _TransactionState extends State<Transaction>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Container(
-                    margin: const EdgeInsets.only(left: 15),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          widget.title,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                  Row(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Constants.getCategoryIcon(widget.category),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            widget.title,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        Text(
-                          widget.date.toString().substring(0, 10),
-                          style: const TextStyle(
-                            color: Colors.black54,
+                          Text(
+                            widget.date.toString().substring(0, 10),
+                            style: const TextStyle(
+                              color: Colors.black54,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                    ],
                   ),
                   Container(
                     padding: const EdgeInsets.all(10),
@@ -106,14 +113,7 @@ class _TransactionState extends State<Transaction>
                                     ? "No Notes"
                                     : "Notes: ${widget.notes}",
                               ),
-                              const Text("Category: No Category"),
-                              const Text("Category: No Category"),
-                              const Text("Category: No Category"),
-                              const Text("Category: No Category"),
-                              const Text("Category: No Category"),
-                              const Text("Category: No Category"),
-                              const Text("Category: No Category"),
-                              const Text("Category: No Category"),
+                              Text("Category: ${widget.category}"),
                             ],
                           ),
                         ),

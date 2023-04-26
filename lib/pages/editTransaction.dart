@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../constants.dart';
 
 class EditTransaction extends StatefulWidget {
   const EditTransaction({super.key});
@@ -14,27 +15,13 @@ class _EditTransactionState extends State<EditTransaction> {
   String? _notes;
   double _amount = 0;
   bool _isExpense = true;
-  final List<String> _categories = [
-    'Food',
-    'Transportation',
-    'Rental',
-    'Water&Electricity Bill',
-    'Internet Bill',
-    'Other Utility Bill',
-    'Education',
-    'Personal Items',
-    'Game',
-    'Gifts',
-    'Donations',
-    'Others'
-  ];
-  String _selectedCategory = '';
+  String _category = '';
   DateTime _date = DateTime.now();
+  List<String> _categoryList = [];
 
   @override
   void initState() {
     super.initState();
-    _selectedCategory = _categories[0];
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -59,6 +46,10 @@ class _EditTransactionState extends State<EditTransaction> {
     _amount = args['amount'];
     _date = args['date'];
     _isExpense = args['isExpense'];
+    _category = args['category'];
+    _notes = args['notes'];
+    _categoryList =
+        _isExpense ? Constants.expenseCategories : Constants.incomeCategories;
 
     return Scaffold(
       appBar: AppBar(
@@ -210,14 +201,20 @@ class _EditTransactionState extends State<EditTransaction> {
                 ),
                 const SizedBox(height: 18.0),
                 DropdownButtonFormField<String>(
-                  value: _selectedCategory,
+                  value: _category,
                   onChanged: (value) {
                     setState(() {
-                      _selectedCategory = value!;
+                      _category = value!;
                     });
                   },
-                  items: _categories
-                      .map((category) => DropdownMenuItem(
+                  // items: _categoryList.map((String value) {
+                  //   print('${_isExpense} - ${_categoryList}');
+                  //   return DropdownMenuItem<String>(
+                  //     value: value,
+                  //     child: Text(value),
+                  //   );
+                  // }).toList(),
+                  items: _categoryList.map((category) => DropdownMenuItem(
                             value: category,
                             child: Text(category),
                           ))
@@ -295,21 +292,20 @@ class _CustomSwitchState extends State<CustomSwitch>
 
   @override
   void initState() {
+    const duration = Duration(milliseconds: 100);
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 100),
+      duration: duration,
     );
+    _animation = Tween<Offset>(
+      begin: const Offset(0.1, 0),
+      end: const Offset(3.2, 0),
+    ).animate(_controller);
     if (widget.isIncome) {
-      _animation = Tween<Offset>(
-        begin: const Offset(3.2, 0),
-        end: const Offset(0.1, 0),
-      ).animate(_controller);
-    } else {
-      _animation = Tween<Offset>(
-        begin: const Offset(0.1, 0),
-        end: const Offset(3.2, 0),
-      ).animate(_controller);
+      _controller.duration = const Duration(milliseconds: 0);
+      _controller.forward();
+      _controller.duration = duration;
     }
     _value = widget.isIncome;
   }

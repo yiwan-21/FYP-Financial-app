@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../components/categoryChart.dart';
 import '../components/transaction.dart';
+import '../constants.dart';
 
 class Tracker extends StatefulWidget {
   const Tracker({super.key});
@@ -11,26 +12,39 @@ class Tracker extends StatefulWidget {
 
 class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
   final List<Transaction> transactions = [
-    Transaction('Salary', 50000000.00, DateTime.now(), false, notes: "Yay!"),
-    Transaction('Weekly Groceries', 16.53, DateTime.now(), false),
+    Transaction('Salary', 50000000.00, DateTime.now(), false, 'Savings',
+        notes: "Yay!"),
+    Transaction('Weekly Groceries', 16.53, DateTime.now(), false, 'Food'),
     Transaction(
       'New Shoes',
       69.99,
       DateTime.now(),
       true,
+      'Other Expenses',
       notes: "Notes",
     ),
-    Transaction('Weekly Groceries', 16.53, DateTime.now(), false),
-    Transaction('New Shoes', 69.99, DateTime.now(), true),
-    Transaction('Weekly Groceries', 16.53, DateTime.now(), false),
-    Transaction('New Shoes', 69.99, DateTime.now(), true),
-    Transaction('Weekly Groceries', 16.53, DateTime.now(), false),
-    Transaction('New Shoes', 69.99, DateTime.now(), true),
-    Transaction('Weekly Groceries', 16.53, DateTime.now(), false),
-    Transaction('New Shoes', 69.99, DateTime.now(), true),
-    Transaction('Weekly Groceries', 16.53, DateTime.now(), false),
-    Transaction('New Shoes', 69.99, DateTime.now(), true),
-    Transaction('Weekly Groceries', 16.53, DateTime.now(), false),
+    Transaction('Rental', 16.53, DateTime.now(), false, 'Rental'),
+    Transaction('Bill', 69.99, DateTime.now(), true, 'Bill'),
+    Transaction('Education', 16.53, DateTime.now(), false, 'Education'),
+    Transaction(
+        'Personal Items', 69.99, DateTime.now(), true, 'Personal Items'),
+    Transaction('Weekly Groceries', 16.53, DateTime.now(), false, 'test'),
+    Transaction('New Shoes', 69.99, DateTime.now(), true, 'test'),
+    Transaction('Weekly Groceries', 16.53, DateTime.now(), false, 'test'),
+    Transaction('New Shoes', 69.99, DateTime.now(), true, 'test'),
+    Transaction('Weekly Groceries', 16.53, DateTime.now(), false, 'test'),
+    Transaction('New Shoes', 69.99, DateTime.now(), true, 'test'),
+    Transaction('Weekly Groceries', 16.53, DateTime.now(), false, 'test'),
+  ];
+
+  final List<double> categoriesValue = [
+    10,
+    20,
+    3,
+    5,
+    8,
+    7,
+    3,
   ];
 
   bool _isVisible = false;
@@ -82,13 +96,16 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
             visible: !_isVisible,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: const [
-                SizedBox(height: 24),
-                Text(
+              children: [
+                const SizedBox(height: 24),
+                const Text(
                   "Spending Categories",
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                CategoryChart(),
+                CategoryChart(
+                  Constants.expenseCategories,
+                  categoriesValue,
+                ),
               ],
             ),
           ),
@@ -118,7 +135,8 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
             child: SingleChildScrollView(
               child: Column(
                 children: transactions.map((tx) {
-                  return Transaction(tx.title, tx.amount, tx.date, tx.isExpense,
+                  return Transaction(
+                      tx.title, tx.amount, tx.date, tx.isExpense, tx.category,
                       notes: tx.notes);
                 }).toList(),
               ),

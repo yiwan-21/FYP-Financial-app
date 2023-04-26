@@ -24,8 +24,8 @@ class _HomeState extends State<Home> {
     "Home": const HomeContent(),
     "Tracker": const Tracker(),
     "Financial Analytics": const Analytics(),
-    "Budgeting Tool": const Budgeting(),
     "Savings Goal": const Goal(),
+    "Budgeting Tool": const Budgeting(),
   };
 
   @override
@@ -66,13 +66,13 @@ class _HomeState extends State<Home> {
             label: 'Analytics',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance_wallet_outlined),
-            label: 'Budgeting',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.star),
             label: 'Goal',
           ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.account_balance_wallet_outlined),
+          //   label: 'Budgeting',
+          // ),
         ],
         onTap: _onItemTapped,
       ),

@@ -14,19 +14,21 @@ class _AddTransactionState extends State<AddTransaction> {
   String? _notes;
   double _amount = 0;
   bool _isExpense = true;
-  final List<String> _categories = [
+  final List<String> _expenseCategories = [
     'Food',
     'Transportation',
     'Rental',
-    'Water&Electricity Bill',
-    'Internet Bill',
-    'Other Utility Bill',
+    'Bill',
     'Education',
     'Personal Items',
-    'Game',
-    'Gifts',
-    'Donations',
-    'Others'
+    'Other Expenses'
+  ];
+  final List<String> _incomeCategories = [
+    'Savings',
+    'Pocket Money',
+    'Part-time Job',
+    'Scholarship/PTPTN/Sponsorship Programme',
+    'Other Income'
   ];
   String _selectedCategory = '';
   DateTime _date = DateTime.now();
@@ -34,7 +36,7 @@ class _AddTransactionState extends State<AddTransaction> {
   @override
   void initState() {
     super.initState();
-    _selectedCategory = _categories[0];
+    _selectedCategory = _expenseCategories[0];
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -127,7 +129,7 @@ class _AddTransactionState extends State<AddTransaction> {
                     suffixIcon: Icon(Icons.calendar_today),
                     fillColor: Colors.white,
                     filled: true,
-                     focusedBorder: OutlineInputBorder(
+                    focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(width: 1.5),
                     ),
                     enabledBorder: OutlineInputBorder(
@@ -205,7 +207,7 @@ class _AddTransactionState extends State<AddTransaction> {
                       _selectedCategory = value!;
                     });
                   },
-                  items: _categories
+                  items: _expenseCategories
                       .map((category) => DropdownMenuItem(
                             value: category,
                             child: Text(category),
