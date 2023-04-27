@@ -39,7 +39,7 @@ class _EditTransactionState extends State<EditTransaction> {
     final Map<String, dynamic> args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     // run once
-    if (_id == ''){
+    if (_id == '') {
       setState(() {
         _id = args['id'];
         _title = args['title'];
@@ -48,8 +48,9 @@ class _EditTransactionState extends State<EditTransaction> {
         _isExpense = args['isExpense'];
         _category = args['category'];
         _notes = args['notes'];
-        _categoryList =
-            _isExpense ? Constants.expenseCategories : Constants.incomeCategories;
+        _categoryList = _isExpense
+            ? Constants.expenseCategories
+            : Constants.incomeCategories;
       });
     }
 
@@ -95,7 +96,7 @@ class _EditTransactionState extends State<EditTransaction> {
                 ),
                 const SizedBox(height: 18.0),
                 TextFormField(
-                  initialValue: _notes?? "",
+                  initialValue: _notes ?? "",
                   decoration: const InputDecoration(
                     labelText: 'Notes',
                     labelStyle: TextStyle(color: Colors.black),
@@ -217,13 +218,6 @@ class _EditTransactionState extends State<EditTransaction> {
                       _category = value!;
                     });
                   },
-                  // items: _categoryList.map((String value) {
-                  //   print('${_isExpense} - ${_categoryList}');
-                  //   return DropdownMenuItem<String>(
-                  //     value: value,
-                  //     child: Text(value),
-                  //   );
-                  // }).toList(),
                   items: _categoryList
                       .map((category) => DropdownMenuItem(
                             value: category,
@@ -261,12 +255,10 @@ class _EditTransactionState extends State<EditTransaction> {
                     child: const Text('Edit Transaction'),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        // Form is valid, do something
+                        // Form is valid
                         _formKey.currentState!.save();
-                        // For example, submit the form to a server
-                        // If the server returns no errors...
                         Navigator.pop(
-                          context, 
+                          context,
                           Transaction(
                             _id,
                             _title,
