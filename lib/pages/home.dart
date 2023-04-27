@@ -41,7 +41,9 @@ class _HomeState extends State<Home> {
           ),
           IconButton(
             icon: const Icon(Icons.account_circle),
-            onPressed: () {},
+            onPressed: () {
+               Navigator.pushNamed(context, '/profile');
+            },
           ),
         ],
       ),
@@ -85,8 +87,6 @@ class HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: const Text('Home')
-    );
+    return Container(child: const Text('Home'));
   }
 }
