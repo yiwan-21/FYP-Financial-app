@@ -220,7 +220,6 @@ class _AddTransactionState extends State<AddTransaction> {
                   alignment: Alignment.bottomRight,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      // backgroundColor: Color.fromRGBO(0, 0, 0, 1),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(4.0),
                       ),

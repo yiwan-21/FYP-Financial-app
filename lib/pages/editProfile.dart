@@ -67,6 +67,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
               key: _formKey,
               child: Column(
                 children: <Widget>[
+                  const SizedBox(height: 18.0),
                   TextFormField(
                     initialValue: _name,
                     decoration: const InputDecoration(
@@ -184,6 +185,14 @@ class _EditProfileFormState extends State<EditProfileForm> {
                             if (value == null || value.isEmpty) {
                               return 'Please enter a new password';
                             }
+                            if (value.length < 6) {
+                              return 'Password must be at least 6 characters.';
+                            }
+                            if (!RegExp(
+                                    r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$')
+                                .hasMatch(value)) {
+                              return 'Password must contain at least one uppercase letter,\none lowercase letter, one number and one special character.';
+                            }
                             return null;
                           },
                           onChanged: (value) {
@@ -229,7 +238,6 @@ class _EditProfileFormState extends State<EditProfileForm> {
                     alignment: Alignment.bottomRight,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        // backgroundColor: Color.fromRGBO(0, 0, 0, 1),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(4.0),
                         ),
@@ -240,6 +248,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           // Submit form data to server or database
+
                           _formKey.currentState!.save();
                           Navigator.pop(context);
                         }

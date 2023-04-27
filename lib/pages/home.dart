@@ -39,12 +39,20 @@ class _HomeState extends State<Home> {
             icon: const Icon(Icons.notifications),
             onPressed: () {},
           ),
-          IconButton(
-            icon: const Icon(Icons.account_circle),
-            onPressed: () {
-               Navigator.pushNamed(context, '/profile');
+          GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, '/profile');
             },
+            child: const CircleAvatar(
+              radius: 12,
+              backgroundColor: Colors.pink,
+              child: Icon(Icons.account_circle,color: Colors.white,),
+              // backgroundImage: AssetImage('assets/images/avatar.png'),
+            ),
           ),
+          const SizedBox(
+            width: 12,
+          )
         ],
       ),
       body: Center(child: _pages.values.elementAt(_selectedIndex)),
