@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../constants.dart';
+import '../components/transaction.dart';
 
 class EditTransaction extends StatefulWidget {
   const EditTransaction({super.key});
@@ -11,6 +12,7 @@ class EditTransaction extends StatefulWidget {
 
 class _EditTransactionState extends State<EditTransaction> {
   final _formKey = GlobalKey<FormState>();
+  String _id = '';
   String _title = '';
   String? _notes;
   double _amount = 0;
@@ -19,15 +21,10 @@ class _EditTransactionState extends State<EditTransaction> {
   DateTime _date = DateTime.now();
   List<String> _categoryList = [];
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _selectDate(BuildContext context, DateTime initialValue) async {
     final DateTime? picked = await showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
+        initialDate: initialValue,
         firstDate: DateTime(2020),
         lastDate: DateTime(2025));
     if (picked != null) {
@@ -39,17 +36,22 @@ class _EditTransactionState extends State<EditTransaction> {
 
   @override
   Widget build(BuildContext context) {
-    // get title, amount, date, isExpense from Navigator.pushNamed
     final Map<String, dynamic> args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    _title = args['title'];
-    _amount = args['amount'];
-    _date = args['date'];
-    _isExpense = args['isExpense'];
-    _category = args['category'];
-    _notes = args['notes'];
-    _categoryList =
-        _isExpense ? Constants.expenseCategories : Constants.incomeCategories;
+    // run once
+    if (_id == ''){
+      setState(() {
+        _id = args['id'];
+        _title = args['title'];
+        _amount = args['amount'];
+        _date = args['date'];
+        _isExpense = args['isExpense'];
+        _category = args['category'];
+        _notes = args['notes'];
+        _categoryList =
+            _isExpense ? Constants.expenseCategories : Constants.incomeCategories;
+      });
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -93,7 +95,7 @@ class _EditTransactionState extends State<EditTransaction> {
                 ),
                 const SizedBox(height: 18.0),
                 TextFormField(
-                  initialValue: _notes,
+                  initialValue: _notes?? "",
                   decoration: const InputDecoration(
                     labelText: 'Notes',
                     labelStyle: TextStyle(color: Colors.black),
@@ -120,7 +122,7 @@ class _EditTransactionState extends State<EditTransaction> {
                 TextFormField(
                   readOnly: true,
                   onTap: () {
-                    _selectDate(context);
+                    _selectDate(context, _date);
                   },
                   decoration: const InputDecoration(
                     labelText: 'Date',
@@ -193,7 +195,15 @@ class _EditTransactionState extends State<EditTransaction> {
                       isIncome: !_isExpense,
                       onToggle: (value) {
                         setState(() {
-                          _isExpense = value;
+                          _isExpense = !value;
+                          _categoryList = _isExpense
+                              ? Constants.expenseCategories
+                              : Constants.incomeCategories;
+                          if (_categoryList.contains(args['category'])) {
+                            _category = args['category'];
+                          } else {
+                            _category = _categoryList[0];
+                          }
                         });
                       },
                     ),
@@ -214,7 +224,8 @@ class _EditTransactionState extends State<EditTransaction> {
                   //     child: Text(value),
                   //   );
                   // }).toList(),
-                  items: _categoryList.map((category) => DropdownMenuItem(
+                  items: _categoryList
+                      .map((category) => DropdownMenuItem(
                             value: category,
                             child: Text(category),
                           ))
@@ -253,6 +264,19 @@ class _EditTransactionState extends State<EditTransaction> {
                         // Form is valid, do something
                         _formKey.currentState!.save();
                         // For example, submit the form to a server
+                        // If the server returns no errors...
+                        Navigator.pop(
+                          context, 
+                          Transaction(
+                            _id,
+                            _title,
+                            _amount,
+                            _date,
+                            _isExpense,
+                            _category,
+                            notes: _notes,
+                          ),
+                        );
                       }
                     },
                   ),

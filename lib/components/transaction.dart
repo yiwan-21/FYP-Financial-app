@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 
 class Transaction extends StatefulWidget {
-  final String title;
+  String id;
+  String title;
   String? notes;
-  final double amount;
-  final DateTime date;
-  final bool isExpense;
-  final String category;
+  double amount;
+  DateTime date;
+  bool isExpense;
+  String category;
 
-  Transaction(this.title, this.amount, this.date, this.isExpense, this.category,
+  Transaction(this.id, this.title, this.amount, this.date, this.isExpense, this.category,
       {this.notes, super.key});
 
   @override
@@ -28,12 +29,26 @@ class _TransactionState extends State<Transaction>
 
   void _navigateToEdit() {
     Navigator.pushNamed(context, '/tracker/edit', arguments: {
+      'id': widget.id,
       'title': widget.title,
       'notes': widget.notes,
       'amount': widget.amount,
       'date': widget.date,
       'isExpense': widget.isExpense,
       'category': widget.category,
+    }).then((tx) => {
+      if (tx != null && tx is Transaction) {
+        setState(() {
+          widget.title = tx.title;
+          widget.notes = tx.notes;
+          widget.amount = tx.amount;
+          widget.date = tx.date;
+          widget.isExpense = tx.isExpense;
+          widget.category = tx.category;
+        }),
+        // print(widget.amount),
+        // print(tx.amount),
+      }
     });
   }
 

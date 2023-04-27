@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../constants.dart';
+import '../components/transaction.dart';
 
 class AddTransaction extends StatefulWidget {
   const AddTransaction({super.key});
@@ -10,34 +12,14 @@ class AddTransaction extends StatefulWidget {
 
 class _AddTransactionState extends State<AddTransaction> {
   final _formKey = GlobalKey<FormState>();
+  String _id = '';
   String _title = '';
   String? _notes;
   double _amount = 0;
   bool _isExpense = true;
-  final List<String> _expenseCategories = [
-    'Food',
-    'Transportation',
-    'Rental',
-    'Bill',
-    'Education',
-    'Personal Items',
-    'Other Expenses'
-  ];
-  final List<String> _incomeCategories = [
-    'Savings',
-    'Pocket Money',
-    'Part-time Job',
-    'Scholarship/PTPTN/Sponsorship Programme',
-    'Other Income'
-  ];
-  String _selectedCategory = '';
   DateTime _date = DateTime.now();
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedCategory = _expenseCategories[0];
-  }
+  List<String> _categoryList = Constants.expenseCategories;
+  String _category = Constants.expenseCategories[0];
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -193,7 +175,11 @@ class _AddTransactionState extends State<AddTransaction> {
                       isIncome: false,
                       onToggle: (value) {
                         setState(() {
-                          _isExpense = value;
+                          _isExpense = !value;
+                          _categoryList = _isExpense
+                              ? Constants.expenseCategories
+                              : Constants.incomeCategories;
+                          _category = _categoryList[0];
                         });
                       },
                     ),
@@ -201,13 +187,13 @@ class _AddTransactionState extends State<AddTransaction> {
                 ),
                 const SizedBox(height: 18.0),
                 DropdownButtonFormField<String>(
-                  value: _selectedCategory,
+                  value: _category,
                   onChanged: (value) {
                     setState(() {
-                      _selectedCategory = value!;
+                      _category = value!;
                     });
                   },
-                  items: _expenseCategories
+                  items: _categoryList
                       .map((category) => DropdownMenuItem(
                             value: category,
                             child: Text(category),
@@ -247,6 +233,19 @@ class _AddTransactionState extends State<AddTransaction> {
                         // Form is valid, do something
                         _formKey.currentState!.save();
                         // For example, submit the form to a server
+                        Navigator.pop(
+                          context, 
+                          Transaction(
+                            _id,
+                            _title,
+                            _amount,
+                            _date,
+                            _isExpense,
+                            _category,
+                            notes: _notes,
+                          ),
+                        );
+
                       }
                     },
                   ),
