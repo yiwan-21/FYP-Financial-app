@@ -10,7 +10,8 @@ class Transaction extends StatefulWidget {
   bool isExpense;
   String category;
 
-  Transaction(this.id, this.title, this.amount, this.date, this.isExpense, this.category,
+  Transaction(this.id, this.title, this.amount, this.date, this.isExpense,
+      this.category,
       {this.notes, super.key});
 
   @override
@@ -37,19 +38,18 @@ class _TransactionState extends State<Transaction>
       'isExpense': widget.isExpense,
       'category': widget.category,
     }).then((tx) => {
-      if (tx != null && tx is Transaction) {
-        setState(() {
-          widget.title = tx.title;
-          widget.notes = tx.notes;
-          widget.amount = tx.amount;
-          widget.date = tx.date;
-          widget.isExpense = tx.isExpense;
-          widget.category = tx.category;
-        }),
-        // print(widget.amount),
-        // print(tx.amount),
-      }
-    });
+          if (tx != null && tx is Transaction)
+            {
+              setState(() {
+                widget.title = tx.title;
+                widget.notes = tx.notes;
+                widget.amount = tx.amount;
+                widget.date = tx.date;
+                widget.isExpense = tx.isExpense;
+                widget.category = tx.category;
+              }),
+            }
+        });
   }
 
   @override
