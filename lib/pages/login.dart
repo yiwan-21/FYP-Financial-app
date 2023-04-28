@@ -11,7 +11,7 @@ class Login extends StatelessWidget {
       ),
       body: Center(
         child: Container(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -54,7 +54,7 @@ class Login extends StatelessWidget {
                     ElevatedButton.styleFrom(minimumSize: const Size(180, 40)),
                   child: const Text('Login'),
                   onPressed: () {
-                    Navigator.pushNamed(context, '/home');
+                    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
                   },
                 ),
               )
