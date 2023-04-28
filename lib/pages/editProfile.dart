@@ -4,7 +4,7 @@ class EditProfileForm extends StatefulWidget {
   const EditProfileForm({super.key});
 
   @override
-  _EditProfileFormState createState() => _EditProfileFormState();
+  State<EditProfileForm> createState() => _EditProfileFormState();
 }
 
 class _EditProfileFormState extends State<EditProfileForm> {
@@ -53,12 +53,12 @@ class _EditProfileFormState extends State<EditProfileForm> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> _args =
+    final Map<String, dynamic> args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     // on first load
     if (_email == '') {
-      _name = _args['name'];
-      _email = _args['email'];
+      _name = args['name'];
+      _email = args['email'];
     }
 
     return Scaffold(
@@ -237,8 +237,8 @@ class _EditProfileFormState extends State<EditProfileForm> {
                         },
                         onChanged: (value) {
                           _validateConfirmPassword(value);
-                          _confirmPassword = value!;
-                          _password = value!;
+                          _confirmPassword = value;
+                          _password = value;
                         },
                       ),
                     ],
