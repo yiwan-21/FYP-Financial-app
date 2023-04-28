@@ -11,7 +11,7 @@ class Tracker extends StatefulWidget {
 }
 
 class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
-  final List<Transaction> transactions = [
+  final List<Transaction> _transactions = [
     Transaction('T13', 'New Shoes', 69.99, DateTime.now(), true, 'Other Expenses',notes: "Notes"),
     Transaction('T12', 'New Shoes', 69.99, DateTime.now(), true, 'Other Expenses',notes: "Notes"),
     Transaction('T11', 'Weekly Groceries', 16.53, DateTime.now(), false, 'Savings'),
@@ -115,7 +115,7 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
                   Navigator.pushNamed(context, '/tracker/add').then((value) {
                     if (value != null && value is Transaction) {
                       setState(() {
-                        transactions.add(value);
+                        _transactions.add(value);
                       });
                     }
                   });
@@ -131,7 +131,7 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
             child: SingleChildScrollView(
               child: Column(
                 verticalDirection: VerticalDirection.up,
-                children: transactions,
+                children: _transactions,
               ),
             ),
           ),
