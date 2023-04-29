@@ -61,7 +61,7 @@ class _TransactionState extends State<Transaction>
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         curve: Curves.fastOutSlowIn,
-        height: _expanded ? 150 : 75,
+        height: _expanded ? 200 : 75,
         child: Card(
           elevation: _expanded ? 8 : 2,
           color: widget.isExpense
@@ -108,7 +108,7 @@ class _TransactionState extends State<Transaction>
                           horizontal: 10,
                         ),
                         child: Text(
-                          '${widget.isExpense ? "-" : "+"}  RM${widget.amount.toStringAsFixed(2)}',
+                          '${widget.isExpense ? "-" : "+"}${widget.amount.toStringAsFixed(2)}',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 20,
@@ -152,7 +152,7 @@ class _TransactionState extends State<Transaction>
                               width: 70,
                               child: Text("Category: "),
                             ),
-                            Text(widget.category),
+                            Flexible(child: Text(widget.category)),
                           ],
                         ),
                         const SizedBox(height: 5),
