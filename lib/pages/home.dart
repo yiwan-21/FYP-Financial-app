@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'tracker.dart';
 import 'analytics.dart';
 import 'budgeting.dart';
 import 'goal.dart';
+import 'profile.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -13,10 +16,17 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _selectedIndex = 0;
+  File? _profileImage;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+    });
+  }
+
+  void _onImageChange(File? profileImage) {
+    setState(() {
+      _profileImage = profileImage;
     });
   }
 
@@ -39,12 +49,26 @@ class _HomeState extends State<Home> {
             icon: const Icon(Icons.notifications),
             onPressed: () {},
           ),
-          IconButton(
-            icon: const Icon(Icons.account_circle),
-            onPressed: () {},
-          ),
+          Builder(builder: (BuildContext context) {
+            return GestureDetector(
+              onTap: () {
+                Scaffold.of(context).openEndDrawer();
+              },
+              child: CircleAvatar(
+                radius: 12,
+                backgroundColor: Colors.pink,
+                backgroundImage: _profileImage == null ? null : FileImage(_profileImage!),
+                child:  _profileImage == null ? const Icon(
+                  Icons.account_circle,
+                  color: Colors.white,
+                ) : null,
+              ),
+            );
+          }),
+          const SizedBox(width: 12),
         ],
       ),
+      endDrawer: Profile(profileImage: _profileImage, onImageChange: _onImageChange,),
       body: Center(child: _pages.values.elementAt(_selectedIndex)),
       bottomNavigationBar: BottomNavigationBar(
         showUnselectedLabels: true,
@@ -85,8 +109,6 @@ class HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: const Text('Home')
-    );
+    return Container(child: const Text('Home'));
   }
 }

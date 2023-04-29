@@ -8,7 +8,7 @@ class CategoryChart extends StatefulWidget {
   const CategoryChart(this.categories, this.values, {super.key});
 
   @override
-  _CategoryChartState createState() => _CategoryChartState();
+  State<StatefulWidget> createState() => _CategoryChartState();
 }
 
 class _CategoryChartState extends State<CategoryChart> {

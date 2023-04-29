@@ -11,21 +11,20 @@ class Tracker extends StatefulWidget {
 }
 
 class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
-  final List<Transaction> transactions = [
-    Transaction('T14', 'Weekly Groceries', 16.53, DateTime.now(), false, 'test'),
-    Transaction('T13', 'New Shoes', 69.99, DateTime.now(), true, 'test'),
-    Transaction('T12', 'Weekly Groceries', 16.53, DateTime.now(), false, 'test'),
-    Transaction('T11', 'New Shoes', 69.99, DateTime.now(), true, 'test'),
-    Transaction('T10', 'Weekly Groceries', 16.53, DateTime.now(), false, 'test'),
-    Transaction('T9', 'New Shoes', 69.99, DateTime.now(), true, 'test'),
-    Transaction('T8', 'Weekly Groceries', 16.53, DateTime.now(), false, 'test'),
-    Transaction('T7', 'Personal Items', 69.99, DateTime.now(), true, 'Personal Items'),
-    Transaction('T6', 'Education', 16.53, DateTime.now(), false, 'Education'),
-    Transaction('T4', 'Rental', 16.53, DateTime.now(), false, 'Rental'),
-    Transaction('T5', 'Bill', 69.99, DateTime.now(), true, 'Bill'),
-    Transaction('T3', 'New Shoes', 69.99, DateTime.now(), true, 'Other Expenses', notes: "Notes"),
-    Transaction('T2', 'Weekly Groceries', 16.53, DateTime.now(), false, 'Food'),
-    Transaction('T1', 'Salary', 50000000.00, DateTime.now(), false, 'Savings', notes: "Yay!"),
+  final List<Transaction> _transactions = [
+    Transaction('T13', 'New Shoes', 69.99, DateTime.now(), true, 'Other Expenses',notes: "Notes"),
+    Transaction('T12', 'New Shoes', 69.99, DateTime.now(), true, 'Other Expenses',notes: "Notes"),
+    Transaction('T11', 'Weekly Groceries', 16.53, DateTime.now(), false, 'Savings'),
+    Transaction('T10', 'Salary', 50000000.00, DateTime.now(), false, 'Savings',notes: "Yay!"),
+    Transaction('T9', 'New Shoes', 69.99, DateTime.now(), true, 'Other Expenses',notes: "Notes"),
+    Transaction('T8', 'Weekly Groceries', 16.53, DateTime.now(), false, 'Savings'),
+    Transaction('T7', 'Salary', 50000000.00, DateTime.now(), false, 'Savings',notes: "Yay!"),
+    Transaction('T6', 'New Shoes', 69.99, DateTime.now(), true, 'Other Expenses',notes: "Notes"),
+    Transaction('T5', 'Weekly Groceries', 16.53, DateTime.now(), false, 'Savings'),
+    Transaction('T4', 'Salary', 50000000.00, DateTime.now(), false, 'Savings',notes: "Yay!"),
+    Transaction('T3', 'New Shoes', 69.99, DateTime.now(), true, 'Other Expenses',notes: "Notes"),
+    Transaction('T2', 'Weekly Groceries', 16.53, DateTime.now(), false, 'Savings'),
+    Transaction('T1', 'Salary', 50000000.00, DateTime.now(), false, 'Savings',notes: "Yay!"),
   ];
 
   final List<double> categoriesValue = [
@@ -116,7 +115,7 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
                   Navigator.pushNamed(context, '/tracker/add').then((value) {
                     if (value != null && value is Transaction) {
                       setState(() {
-                        transactions.add(value);
+                        _transactions.add(value);
                       });
                     }
                   });
@@ -132,7 +131,7 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
             child: SingleChildScrollView(
               child: Column(
                 verticalDirection: VerticalDirection.up,
-                children: transactions,
+                children: _transactions,
               ),
             ),
           ),

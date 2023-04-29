@@ -46,7 +46,7 @@ class Register extends StatelessWidget {
                     ElevatedButton.styleFrom(minimumSize: const Size(180, 40)),
                 child: const Text('Register'),
                 onPressed: () {
-                  Navigator.pushNamed(context, '/home');
+                  Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
                 },
               ),
             ],
