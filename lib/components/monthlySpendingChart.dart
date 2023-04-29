@@ -13,8 +13,9 @@ class _MonthlySpendingChartState extends State<MonthlySpendingChart> {
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        AspectRatio(
-          aspectRatio: 1.70,
+        SizedBox(
+          height: 250,
+          width: 500,
           child: Padding(
             padding: const EdgeInsets.only(
               right: 18,

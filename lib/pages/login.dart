@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../constants.dart';
 
 class Login extends StatelessWidget {
   const Login({super.key});
@@ -9,8 +10,16 @@ class Login extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Login'),
       ),
-      body: Center(
+      body: Container(
+        alignment: Alignment.center,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/images/background.jpg"),
+            fit: BoxFit.cover,
+          ),
+        ),
         child: Container(
+          width: Constants.isMobile(context) ? null : 500,
           padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -50,11 +59,12 @@ class Login extends StatelessWidget {
               Hero(
                 tag: "login-button",
                 child: ElevatedButton(
-                  style:
-                    ElevatedButton.styleFrom(minimumSize: const Size(180, 40)),
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(180, 40)),
                   child: const Text('Login'),
                   onPressed: () {
-                    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, '/home', (route) => false);
                   },
                 ),
               )

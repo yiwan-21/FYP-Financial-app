@@ -18,8 +18,8 @@ class _CategoryChartState extends State<CategoryChart> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        AspectRatio(
-          aspectRatio: 2,
+        SizedBox(
+          height: 190,
           child: PieChart(
             PieChartData(
               sections: getSections(),
