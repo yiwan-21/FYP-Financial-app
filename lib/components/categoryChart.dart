@@ -89,15 +89,13 @@ class _CategoryChartState extends State<CategoryChart> {
   Color getColor(int index) {
     // Define a list of colors to use
     const List<Color> colors = [
-      Color.fromRGBO(34, 116, 171, 1),
+      Color.fromRGBO(246, 214, 153, 1),
+      Color.fromRGBO(255, 174, 164, 1),
+      Color.fromRGBO(231, 93, 111, 1),
+      Color.fromRGBO(174, 74, 174, 1),
+      Color.fromRGBO(31, 120, 190, 1),
       Colors.lightBlue,
       Color.fromRGBO(128, 221, 220, 1),
-      // Color.fromRGBO(230, 246, 157, 1),
-      Color.fromRGBO(255, 255, 224, 1),
-      Color.fromRGBO(255, 174, 164, 1),
-      Color.fromRGBO(231,93,111, 1),
-      Color.fromRGBO(184, 109, 219, 1),
-      // Color.fromRGBO(245, 185, 130, 1),
     ];
 
     // If the index is out of range, return a random color
