@@ -6,19 +6,17 @@ class Analytics extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.topCenter,
-      margin: const EdgeInsets.only(top: 24),
-      child: Column(
-        children: const [
-          Text(
-            "Monthly Spending",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 24),
-          MonthlySpendingChart(),
-        ],
-      ),
+    return ListView(
+      children: const [
+        SizedBox(height: 24),
+        Text(
+          "Monthly Spending",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 24),
+        MonthlySpendingChart(),
+      ],
     );
   }
 }

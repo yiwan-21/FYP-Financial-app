@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../constants.dart';
 
@@ -60,7 +61,7 @@ class _TransactionState extends State<Transaction>
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         curve: Curves.fastOutSlowIn,
-        height: _expanded ? 150 : 75,
+        height: _expanded ? 200 : 75,
         child: Card(
           elevation: _expanded ? 8 : 2,
           color: widget.isExpense
@@ -98,43 +99,84 @@ class _TransactionState extends State<Transaction>
                       ),
                     ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    margin: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 15,
-                    ),
-                    child: Text(
-                      '${widget.isExpense ? "-" : "+"}  RM${widget.amount.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              _expanded
-                  ? Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.only(left: 15, bottom: 15),
-                        child: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.notes == null
-                                    ? "No Notes"
-                                    : "Notes: ${widget.notes}",
-                              ),
-                              Text("Category: ${widget.category}"),
-                            ],
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 10,
+                        ),
+                        child: Text(
+                          '${widget.isExpense ? "-" : "+"}${widget.amount.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.black,
                           ),
                         ),
                       ),
-                    )
-                  : Container(),
+                      Container(
+                        margin: const EdgeInsets.only(right: 10),
+                        child: Icon(
+                            _expanded ? Icons.expand_less : Icons.expand_more),
+                      )
+                    ],
+                  ),
+                ],
+              ),
+              if (_expanded)
+                Expanded(
+                  child: Container(
+                    padding:
+                        const EdgeInsets.only(left: 15, bottom: 15, right: 15),
+                    child: ListView(
+                      children: [
+                        Container(
+                          alignment: Alignment.topRight,
+                          child: const Text(
+                            "Double tap to edit",
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 70,
+                              child: Text("Category: "),
+                            ),
+                            Flexible(child: Text(widget.category)),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 70,
+                              child: Text("Notes: "),
+                            ),
+                            Flexible(
+                              child: SizedBox(
+                                width: 300,
+                                child: Text(widget.notes == null
+                                    ? "-"
+                                    : "${widget.notes}"),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                )
             ],
           ),
         ),
