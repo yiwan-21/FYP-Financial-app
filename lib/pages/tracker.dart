@@ -60,12 +60,15 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
     return ListView(
       children: [
         Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 24),
-            const Text(
-              "Spending Categories",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Container(
+              alignment: Constants.isMobile(context) ? Alignment.center : Alignment.centerLeft,
+              padding: EdgeInsets.symmetric(horizontal: Constants.isMobile(context) ? 0 : 8),
+              child:  const Text(
+                "Spending Categories",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,),
+              ),
             ),
             CategoryChart(
               Constants.expenseCategories,

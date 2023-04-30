@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import '../constants.dart';
 
 class CategoryChart extends StatefulWidget {
   final List<String> categories;
@@ -16,35 +17,49 @@ class _CategoryChartState extends State<CategoryChart> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 190,
-          child: PieChart(
-            PieChartData(
-              sections: getSections(),
-              centerSpaceRadius: 40,
-              sectionsSpace: 0,
-              pieTouchData: PieTouchData(
-                touchCallback: (event, response) {
-                  setState(() {
-                    if (response != null) {
-                      touchedIndex =
-                          response.touchedSection!.touchedSectionIndex;
-                    } else {
-                      touchedIndex = -1;
-                    }
-                  });
-                },
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth: Constants.isMobile(context) ? double.infinity : 768,
+        maxHeight: Constants.isMobile(context) ? 300 : double.infinity,
+      ),
+      child: Flex(
+        direction:
+            Constants.isMobile(context) ? Axis.vertical : Axis.horizontal,
+        children: [
+          Flexible(
+            flex: Constants.isMobile(context) ? 2 : 1,
+            child: SizedBox(
+              height: Constants.isMobile(context) ? 200 : 220,
+              child: PieChart(
+                PieChartData(
+                  sections: getSections(),
+                  centerSpaceRadius: Constants.isMobile(context) ? 40 : 50,
+                  sectionsSpace: 0,
+                  pieTouchData: PieTouchData(
+                    touchCallback: (event, response) {
+                      setState(() {
+                        if (response != null) {
+                          touchedIndex =
+                              response.touchedSection!.touchedSectionIndex;
+                        } else {
+                          touchedIndex = -1;
+                        }
+                      });
+                    },
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(children: getLegend()),
-        ),
-      ],
+          Flexible(
+            // flex: Constants.isMobile(context) ? 1 : 2,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(children: getLegend()),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -73,17 +88,16 @@ class _CategoryChartState extends State<CategoryChart> {
 
   Color getColor(int index) {
     // Define a list of colors to use
-    List<Color> colors = [
-      Colors.red,
-      Colors.orange,
-      Colors.yellow,
-      Colors.green,
+    const List<Color> colors = [
+      Color.fromRGBO(34, 116, 171, 1),
       Colors.lightBlue,
-      Colors.purpleAccent,
-      Colors.brown,
-      Colors.amber,
-      Colors.greenAccent,
-      Colors.cyan,
+      Color.fromRGBO(128, 221, 220, 1),
+      // Color.fromRGBO(230, 246, 157, 1),
+      Color.fromRGBO(255, 255, 224, 1),
+      Color.fromRGBO(255, 174, 164, 1),
+      Color.fromRGBO(231,93,111, 1),
+      Color.fromRGBO(184, 109, 219, 1),
+      // Color.fromRGBO(245, 185, 130, 1),
     ];
 
     // If the index is out of range, return a random color
