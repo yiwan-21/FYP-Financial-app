@@ -11,35 +11,26 @@ class GrowingTree extends StatefulWidget {
 
 class _GrowingTreeState extends State<GrowingTree>
     with SingleTickerProviderStateMixin {
-  final List<String> images = [
-    'assets/images/growing_1.png',
-    'assets/images/growing_2.png',
-    'assets/images/growing_3.png',
-    'assets/images/growing_4.png',
-    'assets/images/growing_5.png',
-    'assets/images/growing_6.png',
+  final List<ImageProvider> images = const[
+    AssetImage('assets/images/growing_1.png'),
+    AssetImage('assets/images/growing_2.png'),
+    AssetImage('assets/images/growing_3.png'),
+    AssetImage('assets/images/growing_4.png'),
+    AssetImage('assets/images/growing_5.png'),
+    AssetImage('assets/images/growing_6.png'),
   ];
   late AnimationController _controller;
-  late Animation<double> _animation;
   int _index = 0;
 
   @override
   void initState() {
     super.initState();
     _index = (widget.progress / 20).floor();
-    
+
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 400),
+      duration: Duration(milliseconds: (_index * 300)),
       vsync: this,
-    );
-
-    _animation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(_controller);
-
-    // _controller.forward();
-    // _controller.repeat();
+    )..forward();
   }
 
   @override
@@ -50,47 +41,15 @@ class _GrowingTreeState extends State<GrowingTree>
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          // _index = (_index + 1) % images.length;
-        });
-      },
-      child: Stack(
-        children: [
-          Center(
-            child: Image.asset(
-              images[_index],
-              height: 300,
-            ),
-          ),
-          Center(
-            child: FadeTransition(
-              opacity: _animation,
-              child: IgnorePointer(
-                child: Image.asset(
-                  images[(_index + 1) % images.length],
-                  fit: BoxFit.cover,
-                  height: 300,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (BuildContext context, Widget? child) {
+        return Image(
+          image: images[(_controller.value * _index).floor() % images.length],
+          height: 300,
+          fit: BoxFit.cover,
+        );
+      }
     );
-  //   return TweenAnimationBuilder<double>(
-  //     tween: Tween(begin: 0.0, end: progress),
-  //     duration: Duration(milliseconds: 500),
-  //     builder: (BuildContext context, double value, Widget? child) {
-  //       return ClipRect(
-  //         child: Align(
-  //           alignment: Alignment.bottomCenter,
-  //           heightFactor: value,
-  //           child: Image(image: AssetImage("assets/images/growingTree.jpg")),
-  //         ),
-  //       );
-  //     },
-  //   );
   }
 }
