@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../constants.dart';
-
 class Goal extends StatefulWidget {
   final String goalId;
   final String goalTitle;
@@ -22,13 +20,12 @@ class _GoalState extends State<Goal> {
       elevation: 5,
       color: Colors.white,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+        margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
         alignment: Alignment.centerLeft,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   widget.goalTitle,
@@ -39,30 +36,60 @@ class _GoalState extends State<Goal> {
                     color: Colors.black,
                   ),
                 ),
-                Container(
-                  margin: const EdgeInsets.only(top: 10),
-                  height: 15,
-                  width: Constants.isMobile(context) ? 200 : 400,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: LinearProgressIndicator(
-                      value: _progress,
-                      backgroundColor: Colors.grey[200],
-                      valueColor:
-                          const AlwaysStoppedAnimation<Color>(Colors.green),
-                    ),
+                Text(
+                  'RM ${widget.amount.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Colors.black,
                   ),
-                )
+                ),
               ],
             ),
-            Text(
-              widget.amount.toStringAsFixed(2),
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 28,
-                color: Colors.black,
-              ),
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 30, bottom: 10),
+                      height: 5.2,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(5),
+                        child: LinearProgressIndicator(
+                          value: _progress,
+                          backgroundColor: Colors.grey[200],
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              Color.fromRGBO(246, 214, 153, 1)),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                
+                Text(
+                  widget.date.toString().substring(0, 10),
+                  textAlign: TextAlign.left,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: Colors.black,
+                  ),
+                ),
+                
+                GestureDetector(
+                  onTap: () {
+                    // Handle button tap
+                  },
+                  child: const Icon(Icons.arrow_forward_ios),
+                ),
+              ],
+            )
           ],
         ),
       ),
