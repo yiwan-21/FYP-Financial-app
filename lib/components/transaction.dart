@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../constants.dart';
 
@@ -20,7 +19,7 @@ class Transaction extends StatefulWidget {
 }
 
 class _TransactionState extends State<Transaction>
-    with SingleTickerProviderStateMixin {
+     {
   bool _expanded = false;
 
   void _toggleExpanded() {

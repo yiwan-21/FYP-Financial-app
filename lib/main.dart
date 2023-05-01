@@ -6,6 +6,7 @@ import 'pages/home.dart';
 import 'pages/addTransaction.dart';
 import 'pages/editTransaction.dart';
 import 'pages/editProfile.dart';
+import 'pages/addGoal.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const EditProfileForm(),
         '/tracker/add': (context) => const AddTransaction(),
         '/tracker/edit': (context) => const EditTransaction(),
+        '/goal/add': (context) => const AddGoal(),
       },
     );
   }
