@@ -7,6 +7,8 @@ import 'pages/addTransaction.dart';
 import 'pages/editTransaction.dart';
 import 'pages/editProfile.dart';
 import 'pages/addGoal.dart';
+import 'pages/goalProgress.dart';
+import 'pages/addGoalProgress.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,6 +34,8 @@ class MyApp extends StatelessWidget {
         '/tracker/add': (context) => const AddTransaction(),
         '/tracker/edit': (context) => const EditTransaction(),
         '/goal/add': (context) => const AddGoal(),
+        '/goal/progress': (context) => const GoalProgress(),
+        '/goal/progress/add': (context) => const AddGoalProgress(),
       },
     );
   }

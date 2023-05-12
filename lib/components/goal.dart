@@ -84,7 +84,7 @@ class _GoalState extends State<Goal> {
                 
                 GestureDetector(
                   onTap: () {
-                    // Handle button tap
+                    Navigator.pushNamed(context, '/goal/progress');
                   },
                   child: const Icon(Icons.arrow_forward_ios),
                 ),

@@ -47,7 +47,7 @@ class _GrowingTreeState extends State<GrowingTree>
         return Image(
           image: images[(_controller.value * _index).floor() % images.length],
           height: 300,
-          fit: BoxFit.cover,
+          fit: BoxFit.fitHeight,
         );
       }
     );
