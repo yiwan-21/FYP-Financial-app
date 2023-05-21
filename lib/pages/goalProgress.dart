@@ -223,7 +223,7 @@ class _GoalProgressState extends State<GoalProgress>
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey)),
-                            Text('RM $_remaining',
+                            Text('RM ${_remaining.toStringAsFixed(2)}',
                                 style: const TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
