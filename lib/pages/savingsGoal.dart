@@ -58,7 +58,6 @@ class _SavingsGoalState extends State<SavingsGoal> {
               child: const Icon(Icons.add, size: 30),
             ),
           ),
-          //  GrowingTree(progress: 60),
         ],
       ),
     );

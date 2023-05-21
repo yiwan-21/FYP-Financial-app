@@ -11,7 +11,7 @@ class GrowingTree extends StatefulWidget {
 
 class _GrowingTreeState extends State<GrowingTree>
     with SingleTickerProviderStateMixin {
-  final List<ImageProvider> images = const[
+  final List<ImageProvider> images = const [
     AssetImage('assets/images/growing_1.png'),
     AssetImage('assets/images/growing_2.png'),
     AssetImage('assets/images/growing_3.png'),
@@ -21,6 +21,10 @@ class _GrowingTreeState extends State<GrowingTree>
   ];
   late AnimationController _controller;
   int _index = 0;
+  int _newIndex = 0;
+  // first load: _growing = true
+  // updates after first load: _growing = false
+  bool _growing = true;
 
   @override
   void initState() {
@@ -34,6 +38,22 @@ class _GrowingTreeState extends State<GrowingTree>
   }
 
   @override
+  void didUpdateWidget(GrowingTree oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final newIndex = (widget.progress / 20).floor();
+    if (_index != newIndex) {
+      setState(() {
+        _growing = false;
+        _newIndex = newIndex;
+      });
+      _controller.reset();
+      _controller.forward();
+      _index = newIndex;
+    }
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -42,14 +62,16 @@ class _GrowingTreeState extends State<GrowingTree>
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _controller,
-      builder: (BuildContext context, Widget? child) {
-        return Image(
-          image: images[(_controller.value * _index).floor() % images.length],
-          height: 300,
-          fit: BoxFit.fitHeight,
-        );
-      }
-    );
+        animation: _controller,
+        builder: (BuildContext context, Widget? child) {
+          return Image(
+            // if growing: show images from 0 to index
+            image: _growing ? images[(_controller.value * _index).floor() % images.length] 
+              // if not growing: show images from index to newIndex
+              : images[(_controller.value * (_newIndex - _index) + _index).floor() % images.length], 
+            height: 300,
+            fit: BoxFit.fitHeight,
+          );
+        });
   }
 }
