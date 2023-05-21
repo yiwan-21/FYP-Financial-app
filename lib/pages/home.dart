@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'tracker.dart';
 import 'analytics.dart';
 import 'budgeting.dart';
-import 'goal.dart';
+import 'savingsGoal.dart';
 import 'profile.dart';
 
 class Home extends StatefulWidget {
@@ -34,7 +34,7 @@ class _HomeState extends State<Home> {
     "Home": const HomeContent(),
     "Tracker": const Tracker(),
     "Financial Analytics": const Analytics(),
-    "Savings Goal": const Goal(),
+    "Savings Goal": const SavingsGoal(),
     "Budgeting Tool": const Budgeting(),
   };
 

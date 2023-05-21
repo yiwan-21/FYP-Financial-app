@@ -82,7 +82,7 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                "Recent Transactions (RM)",
+                "Transactions (RM)",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               FloatingActionButton.small(

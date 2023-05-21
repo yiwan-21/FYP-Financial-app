@@ -11,20 +11,22 @@ class MonthlySpendingChart extends StatefulWidget {
 class _MonthlySpendingChartState extends State<MonthlySpendingChart> {
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        SizedBox(
-          height: 250,
-          width: 500,
-          child: Padding(
-            padding: const EdgeInsets.only(
-              right: 18,
-              left: 6,
+    return Center(
+      child: Stack(
+        children: <Widget>[
+          SizedBox(
+            height: 250,
+            width: 500,
+            child: Padding(
+              padding: const EdgeInsets.only(
+                right: 18,
+                left: 6,
+              ),
+              child: LineChart(mainData()),
             ),
-            child: LineChart(mainData()),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -129,7 +131,7 @@ class _MonthlySpendingChartState extends State<MonthlySpendingChart> {
             FlSpot(4, 1),
             FlSpot(5, 3),
           ],
-          isCurved: true,
+          // isCurved: true,
           color: Colors.orange,
           barWidth: 3,
           isStrokeCapRound: true,
