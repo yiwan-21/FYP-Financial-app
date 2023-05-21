@@ -3,16 +3,20 @@ class Goal extends StatefulWidget {
   final String goalId;
   final String goalTitle;
   final double amount;
+  final double saved;
   final DateTime date;
 
-  const Goal(this.goalId, this.goalTitle, this.amount, this.date, {super.key});
+  const Goal(this.goalId, this.goalTitle, this.amount, this.saved, this.date, {super.key});
 
   @override
   State<Goal> createState() => _GoalState();
 }
 
 class _GoalState extends State<Goal> {
-  final double _progress = 0.5;
+  
+  double getProgress() {
+    return widget.saved / widget.amount;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +61,7 @@ class _GoalState extends State<Goal> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(5),
                         child: LinearProgressIndicator(
-                          value: _progress,
+                          value: getProgress(),
                           backgroundColor: Colors.grey[200],
                           valueColor: const AlwaysStoppedAnimation<Color>(
                               Color.fromRGBO(246, 214, 153, 1)),
@@ -84,7 +88,14 @@ class _GoalState extends State<Goal> {
                 
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushNamed(context, '/goal/progress');
+                    Navigator.pushNamed(
+                      context, 
+                      '/goal/progress', 
+                      arguments: {
+                        'totalAmount': widget.amount, 
+                        'saved': widget.saved,
+                      },
+                    );
                   },
                   child: const Icon(Icons.arrow_forward_ios),
                 ),

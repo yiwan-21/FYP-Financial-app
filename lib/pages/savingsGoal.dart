@@ -12,9 +12,9 @@ class SavingsGoal extends StatefulWidget {
 class _SavingsGoalState extends State<SavingsGoal> {
   // List<double> _progressList = [1];
   final List<Goal> _goals = [
-    Goal('G1', 'Buy Food', 49.99, DateTime.now()),
-    Goal('G2', 'Trip', 2000.00, DateTime.now()),
-    Goal('G3', 'Sleep', 69.98, DateTime.now()),
+    Goal('G1', 'Buy Food', 49.99, 30.00, DateTime.now()),
+    Goal('G2', 'Trip', 2000.00, 500.00, DateTime.now()),
+    Goal('G3', 'Sleep', 69.98, 10.00, DateTime.now()),
   ];
 
   @override

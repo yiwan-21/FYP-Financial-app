@@ -185,6 +185,7 @@ class _AddGoalState extends State<AddGoal> {
                                 _id,
                                 _title,
                                 _amount,
+                                0,
                                 _date,
                               ));
                             }
