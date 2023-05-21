@@ -35,6 +35,14 @@ class _GrowingTreeState extends State<GrowingTree>
       duration: Duration(milliseconds: (_index * 300)),
       vsync: this,
     )..forward();
+
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed && !_growing) {
+        setState(() {
+          _index = _newIndex;
+        });
+      }
+    });
   }
 
   @override
@@ -49,7 +57,6 @@ class _GrowingTreeState extends State<GrowingTree>
       });
       _controller.reset();
       _controller.forward();
-      _index = newIndex;
     }
   }
 

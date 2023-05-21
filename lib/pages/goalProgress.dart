@@ -61,14 +61,13 @@ class _GoalProgressState extends State<GoalProgress>
         body: TabBarView(
           children: [
             // Widget for the first tab
-            Container(
-              alignment: Alignment.topCenter,
-              child: ListView(
-                children: [
-                  GrowingTree(progress: _progress),
-                  const SizedBox(height: 30),
-                  Container(
+            CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(child: GrowingTree(progress: _progress)),
+                SliverToBoxAdapter(
+                  child: Container(
                     alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(vertical: 30),
                     child: ElevatedButton(
                       onPressed: _remaining == 0
                           ? null
@@ -194,9 +193,9 @@ class _GoalProgressState extends State<GoalProgress>
                       ),
                     ),
                   ),
-                  const SizedBox(height: 35),
-                  Container(
-                    alignment: Alignment.center,
+                ),
+                SliverToBoxAdapter(
+                  child: Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -208,15 +207,15 @@ class _GoalProgressState extends State<GoalProgress>
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey)),
-                            Text('RM $_saved',
+                            Text('RM ${_saved.toStringAsFixed(2)}',
                                 style: const TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
                                 )),
                           ],
                         ),
-                        const SizedBox(width: 30),
-                        Column(
+                        _remaining == 0 ? Container() : const SizedBox(width: 30),
+                        _remaining == 0 ? Container() : Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text('REMAINING',
@@ -234,14 +233,17 @@ class _GoalProgressState extends State<GoalProgress>
                       ],
                     ),
                   ),
-                  const SizedBox(height: 50),
-                  Container(
+                ),
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Container(
                     alignment: Alignment.bottomCenter,
+                    padding: const EdgeInsets.only(bottom: 30, top: 50),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             const SizedBox(height: 30),
                             const Text('Daily',
@@ -258,7 +260,7 @@ class _GoalProgressState extends State<GoalProgress>
                         ),
                         const SizedBox(width: 30),
                         Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             const Text('SAVINGS PLANS',
                                 style: TextStyle(
@@ -280,7 +282,7 @@ class _GoalProgressState extends State<GoalProgress>
                         ),
                         const SizedBox(width: 30),
                         Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             const SizedBox(height: 30),
                             const Text('Monthly',
@@ -298,20 +300,24 @@ class _GoalProgressState extends State<GoalProgress>
                       ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
             // Widget for the second tab
-            Wrap(
-              alignment: WrapAlignment.center,
-              children: List.generate(
-                _historyCard.length,
-                ((index) {
-                  final reversedIndex = _historyCard.length - index - 1;
-                  return Container(
-                    constraints: const BoxConstraints(maxWidth: 768),
-                    child: _historyCard[reversedIndex]);
-                }),
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 768,
+                ),
+                child: ListView(
+                  children: List.generate(
+                    _historyCard.length,
+                    ((index) {
+                      final reversedIndex = _historyCard.length - index - 1;
+                      return _historyCard[reversedIndex];
+                    }),
+                  ),
+                ),
               ),
             ),
           ],
