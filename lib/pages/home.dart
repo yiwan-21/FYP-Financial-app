@@ -8,6 +8,7 @@ import 'savingsGoal.dart';
 import 'profile.dart';
 import '../components/transaction.dart';
 import '../components/goal.dart';
+import 'analytics.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -173,13 +174,38 @@ class HomeContent extends StatelessWidget {
                   flex: MediaQuery.of(context).size.width < 768 ? 0 : 1,
                   child: Column(
                     children: [
-                      Goal('G1', 'Buy Food', 49.99, 30.00, DateTime.now()),
-                      const SizedBox(height: 40.0),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Padding(
-                            padding: EdgeInsets.only(left: 10.0),
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.only(left: 10.0, bottom: 10.0),
+                            child: Text(
+                              'Recent Goals',
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          // TextButton(
+                          //   onPressed: () {},
+                          //   child: const Text(
+                          //     'View All',
+                          //     style: TextStyle(
+                          //       fontSize: 16.0,
+                          //       fontWeight: FontWeight.bold,
+                          //       color: Colors.pink,
+                          //     ),
+                          //   ),
+                          // ),
+                        ],
+                      ),
+                      Goal('G1', 'Buy Food', 49.99, 30.00, DateTime.now()),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.only(left: 10.0, top: 40.0, bottom: 10.0),
                             child: Text(
                               'Recent Transactions',
                               style: TextStyle(
@@ -188,17 +214,17 @@ class HomeContent extends StatelessWidget {
                               ),
                             ),
                           ),
-                          TextButton(
-                            onPressed: () {},
-                            child: const Text(
-                              'View All',
-                              style: TextStyle(
-                                fontSize: 16.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.pink,
-                              ),
-                            ),
-                          ),
+                          // TextButton(
+                          //   onPressed: () {},
+                          //   child: const Text(
+                          //     'View All',
+                          //     style: TextStyle(
+                          //       fontSize: 16.0,
+                          //       fontWeight: FontWeight.bold,
+                          //       color: Colors.pink,
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
                       const SizedBox(height: 10.0),
@@ -217,8 +243,8 @@ class HomeContent extends StatelessWidget {
                 Flexible(
                   flex: MediaQuery.of(context).size.width < 768 ? 0 : 1,
                   child: Column(
-                    children: const [
-                      
+                    children: [
+                      ExpenseIncomeGraph(),
                     ],
                   ),
                 )
