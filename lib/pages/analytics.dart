@@ -25,31 +25,7 @@ class Analytics extends StatelessWidget {
       body: ListView(
         children: [
           const SizedBox(height: 24),
-          SfCartesianChart(
-            primaryXAxis: CategoryAxis(),
-            // Chart title
-            title: ChartTitle(text: 'Monthly Expense and Income'),
-            // Enable legend
-            legend: Legend(isVisible: true),
-            // Enable tooltip
-            tooltipBehavior: TooltipBehavior(enable: true),
-            series: <ChartSeries<ChartData, String>>[
-              LineSeries<ChartData, String>(
-                  dataSource: data,
-                  xValueMapper: (ChartData record, _) => record.month,
-                  yValueMapper: (ChartData record, _) => record.expense,
-                  name: 'Expense',
-                  // Enable data label
-                  dataLabelSettings: const DataLabelSettings(isVisible: true)),
-              LineSeries<ChartData, String>(
-                  dataSource: data,
-                  xValueMapper: (ChartData record, _) => record.month,
-                  yValueMapper: (ChartData record, _) => record.income,
-                  name: 'Income',
-                  // Enable data label
-                  dataLabelSettings: const DataLabelSettings(isVisible: true)),
-            ],
-          ),
+          ExpenseIncomeGraph(),
           const SizedBox(height: 24),
           SfCartesianChart(
             primaryXAxis: CategoryAxis(),
@@ -76,13 +52,12 @@ class Analytics extends StatelessWidget {
             ],
           ),
           Container(
-            constraints: BoxConstraints(maxWidth: 768),
+            constraints: const BoxConstraints(maxWidth: 768),
             child: const Center(
               child: Card(
                 elevation: 5,
                 color: Colors.white,
-                child: 
-                Padding(
+                child: Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Text(
                     'Autonommous Expenditure: Food, Transportation, Rental, Bill\nDiscretionary Expenditure: Education, Personal Items, Other Expenses',
@@ -110,4 +85,52 @@ class ChartData2 {
   final String month;
   final num autonomous;
   final num discretionary;
+}
+
+class ExpenseIncomeGraph extends StatelessWidget {
+  ExpenseIncomeGraph({super.key});
+
+  final List<ChartData> data = [
+    ChartData('Jan', 35, 11),
+    ChartData('Feb', 28, 22),
+    ChartData('Mar', 34, 30),
+    ChartData('Apr', 32, 70),
+    ChartData('May', 40, 60)
+  ];
+
+  final List<ChartData2> data2 = [
+    ChartData2('Jan', 50, 55),
+    ChartData2('Feb', 80, 75),
+    ChartData2('Mar', 35, 45),
+    ChartData2('Apr', 65, 50),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return SfCartesianChart(
+      primaryXAxis: CategoryAxis(),
+      // Chart title
+      title: ChartTitle(text: 'Monthly Expense and Income'),
+      // Enable legend
+      legend: Legend(isVisible: true),
+      // Enable tooltip
+      tooltipBehavior: TooltipBehavior(enable: true),
+      series: <ChartSeries<ChartData, String>>[
+        LineSeries<ChartData, String>(
+            dataSource: data,
+            xValueMapper: (ChartData record, _) => record.month,
+            yValueMapper: (ChartData record, _) => record.expense,
+            name: 'Expense',
+            // Enable data label
+            dataLabelSettings: const DataLabelSettings(isVisible: true)),
+        LineSeries<ChartData, String>(
+            dataSource: data,
+            xValueMapper: (ChartData record, _) => record.month,
+            yValueMapper: (ChartData record, _) => record.income,
+            name: 'Income',
+            // Enable data label
+            dataLabelSettings: const DataLabelSettings(isVisible: true)),
+      ],
+    );
+  }
 }
