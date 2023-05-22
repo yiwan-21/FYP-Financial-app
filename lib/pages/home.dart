@@ -6,6 +6,8 @@ import 'analytics.dart';
 import 'budgeting.dart';
 import 'savingsGoal.dart';
 import 'profile.dart';
+import '../components/transaction.dart';
+import '../components/goal.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -57,18 +59,24 @@ class _HomeState extends State<Home> {
               child: CircleAvatar(
                 radius: 12,
                 backgroundColor: Colors.pink,
-                backgroundImage: _profileImage == null ? null : FileImage(_profileImage!),
-                child:  _profileImage == null ? const Icon(
-                  Icons.account_circle,
-                  color: Colors.white,
-                ) : null,
+                backgroundImage:
+                    _profileImage == null ? null : FileImage(_profileImage!),
+                child: _profileImage == null
+                    ? const Icon(
+                        Icons.account_circle,
+                        color: Colors.white,
+                      )
+                    : null,
               ),
             );
           }),
           const SizedBox(width: 12),
         ],
       ),
-      endDrawer: Profile(profileImage: _profileImage, onImageChange: _onImageChange,),
+      endDrawer: Profile(
+        profileImage: _profileImage,
+        onImageChange: _onImageChange,
+      ),
       body: Center(child: _pages.values.elementAt(_selectedIndex)),
       bottomNavigationBar: BottomNavigationBar(
         showUnselectedLabels: true,
@@ -105,10 +113,118 @@ class _HomeState extends State<Home> {
 }
 
 class HomeContent extends StatelessWidget {
-  const HomeContent({super.key});
+  final File? profileImage;
+
+  const HomeContent({this.profileImage, super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container(child: const Text('Home'));
+    return Container(
+        alignment: Alignment.center,
+        margin: const EdgeInsets.all(20.0),
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 20.0,
+                  backgroundImage:
+                      profileImage == null ? null : FileImage(profileImage!),
+                  child: profileImage == null
+                      ? const Icon(
+                          Icons.account_circle,
+                          color: Colors.white,
+                          size: 40.0,
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 20.0),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Hello,",
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const Text(
+                      "John Doe",
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 20.0),
+            Flex(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              direction: MediaQuery.of(context).size.width < 768
+                  ? Axis.vertical
+                  : Axis.horizontal,
+              children: [
+                Flexible(
+                  flex: MediaQuery.of(context).size.width < 768 ? 0 : 1,
+                  child: Column(
+                    children: [
+                      Goal('G1', 'Buy Food', 49.99, 30.00, DateTime.now()),
+                      const SizedBox(height: 40.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(left: 10.0),
+                            child: Text(
+                              'Recent Transactions',
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {},
+                            child: const Text(
+                              'View All',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.pink,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10.0),
+                      Transaction('T1', 'New Short', 49.99, DateTime.now(), true,
+                          'Other Expenses',
+                          notes: "Notes"),
+                      Transaction('T2', 'Groceries', 10.00, DateTime.now(), false,
+                          'Savings'),
+                      Transaction('T3', 'New Shoes', 69.98, DateTime.now(), true,
+                          'Other Expenses',
+                          notes: "Notes"),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20.0),
+                Flexible(
+                  flex: MediaQuery.of(context).size.width < 768 ? 0 : 1,
+                  child: Column(
+                    children: const [
+                      
+                    ],
+                  ),
+                )
+              ],
+            )
+          ],
+        ));
   }
 }
