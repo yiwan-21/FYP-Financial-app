@@ -14,7 +14,7 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  String _name = 'shock eh';
+  String _name = 'John Doe';
   final String _email = 'financialAxpp@example.com';
 
 // Pick from gallery
@@ -67,6 +67,13 @@ class _ProfileState extends State<Profile> {
                 backgroundImage: widget.profileImage == null
                     ? null
                     : FileImage(widget.profileImage!),
+                child: widget.profileImage == null
+                    ? const Icon(
+                        Icons.account_circle,
+                        color: Colors.white,
+                        size: 140.0,
+                      )
+                    : null,
               ),
               Positioned(
                 bottom: 0.0,
