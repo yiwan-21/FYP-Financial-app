@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "368968416992",
+    "project_id": "fyp-financial-app",
+    "storage_bucket": "fyp-financial-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:368968416992:android:4a97e092bece2304671a85",
+        "android_client_info": {
+          "package_name": "com.example.financial_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjQ6EW26mMzxy7QrJJQtUFEu0ZPY6I6vo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

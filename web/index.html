@@ -38,7 +38,32 @@
   </script>
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter.js" defer></script>
+
+  <!-- <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js"></script> -->
+  <script>
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAYKKuHLL4Hm2V4I3fiFQdcFQC-oTY82Zw",
+      authDomain: "fyp-financial-app.firebaseapp.com",
+      projectId: "fyp-financial-app",
+      storageBucket: "fyp-financial-app.appspot.com",
+      messagingSenderId: "368968416992",
+      appId: "1:368968416992:web:efbd4f20534b8718671a85",
+      measurementId: "G-822XJSCHP3"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+
+    const auth = getAuth(app);
+  </script>
+
 </head>
+
 <body>
   <script>
     window.addEventListener('load', function(ev) {

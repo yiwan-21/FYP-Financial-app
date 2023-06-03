@@ -1,7 +1,7 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import '../firebaseInstance.dart';
 
 class Profile extends StatefulWidget {
   File? profileImage;
@@ -14,8 +14,17 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  String _name = 'John Doe';
-  final String _email = 'financialAxpp@example.com';
+  String _name = '';
+  String _email = '';
+
+@override
+void initState() {
+  super.initState();
+  setState(() {
+    _email = FirebaseInstance.auth.currentUser!.email!;
+    _name= FirebaseInstance.auth.currentUser!.displayName!;
+  });
+}
 
 // Pick from gallery
   void gallaryImage() async {
@@ -171,6 +180,17 @@ class _ProfileState extends State<Profile> {
             _email,
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 100),
+          Center(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(minimumSize: const Size(180, 40)),
+              onPressed: () {
+                FirebaseInstance.auth.signOut();
+                Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+              }, 
+              child: const Text('Logout'),
+            ),
           ),
         ],
       ),

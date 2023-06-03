@@ -1,15 +1,31 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'pages/financialApp.dart';
 import 'pages/login.dart';
 import 'pages/register.dart';
-import 'pages/home.dart';
+import 'pages/navigation.dart';
 import 'pages/addTransaction.dart';
 import 'pages/editTransaction.dart';
 import 'pages/editProfile.dart';
 import 'pages/addGoal.dart';
 import 'pages/goalProgress.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: "AIzaSyAYKKuHLL4Hm2V4I3fiFQdcFQC-oTY82Zw",
+        projectId: "fyp-financial-app",
+        storageBucket: "fyp-financial-app.appspot.com",
+        messagingSenderId: "368968416992",
+        appId: "1:368968416992:web:efbd4f20534b8718671a85",
+      ),
+    );
+  } else {
+    await Firebase.initializeApp();
+  }
   runApp(const MyApp());
 }
 
@@ -28,7 +44,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const FinancialApp(),
         '/login': (context) => const Login(),
         '/register': (context) => const Register(),
-        '/home': (context) => const Home(),
+        '/home': (context) => const Navigation(),
         '/profile': (context) => const EditProfileForm(),
         '/tracker/add': (context) => const AddTransaction(),
         '/tracker/edit': (context) => const EditTransaction(),
