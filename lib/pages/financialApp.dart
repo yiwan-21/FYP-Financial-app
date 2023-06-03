@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../constants.dart';
 
 class FinancialApp extends StatelessWidget {
   const FinancialApp({super.key});
