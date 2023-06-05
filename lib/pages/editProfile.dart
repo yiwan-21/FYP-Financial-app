@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../constants.dart';
+import '../providers/userProvider.dart';
 
 class EditProfileForm extends StatefulWidget {
   const EditProfileForm({super.key});
@@ -12,7 +14,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
   final _formKey = GlobalKey<FormState>();
   String _name = '';
   String _email = '';
-  String _password = 'test';
+  String _password = '';
   String _newPassword = '';
   String _currentPassword = '';
   String _confirmPassword = '';
@@ -51,17 +53,18 @@ class _EditProfileFormState extends State<EditProfileForm> {
       });
     }
   }
+  
+  @override
+  void initState() {
+    super.initState();
+    final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
+    _name = userProvider.name;
+    _email = userProvider.email;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    // on first load
-    if (_email == '') {
-      _name = args['name'];
-      _email = args['email'];
-    }
-
+    final UserProvider userProvider = Provider.of<UserProvider>(context);
     return Scaffold(
         appBar: AppBar(
           title: const Text('Edit Profile'),
@@ -280,11 +283,12 @@ class _EditProfileFormState extends State<EditProfileForm> {
                             ),
                           ),
                           child: const Text('Save'),
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               // Submit form data to server or database
                               _formKey.currentState!.save();
-                              Navigator.pop(context, _name);
+                              userProvider.updateName(_name);
+                              Navigator.pop(context);
                             }
                           },
                         ),
