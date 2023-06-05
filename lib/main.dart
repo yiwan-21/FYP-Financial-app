@@ -1,3 +1,4 @@
+import 'package:financial_app/firebaseInstance.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,8 @@ import 'pages/editTransaction.dart';
 import 'pages/editProfile.dart';
 import 'pages/addGoal.dart';
 import 'pages/goalProgress.dart';
+
+final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,25 +44,98 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  bool isLoggedIn() {
+    return FirebaseInstance.auth.currentUser != null;
+  }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'Flutter layout demo',
       theme: ThemeData(
         primarySwatch: Colors.pink,
       ),
-      routes: {
-        '/': (context) => const FinancialApp(),
-        '/login': (context) => const Login(),
-        '/register': (context) => const Register(),
-        '/home': (context) => const Navigation(),
-        '/profile': (context) => const EditProfileForm(),
-        '/tracker/add': (context) => const AddTransaction(),
-        '/tracker/edit': (context) => const EditTransaction(),
-        '/goal/add': (context) => const AddGoal(),
-        '/goal/progress': (context) => const GoalProgress(),
+      // home: const Navigation(),
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case RouteName.titlePage:
+            if (isLoggedIn()) {
+              return MaterialPageRoute(builder: (_) => const Navigation());
+            } else {
+              return MaterialPageRoute(builder: (_) => const FinancialApp());
+            }
+          case RouteName.login:
+            if (isLoggedIn()) {
+              return MaterialPageRoute(builder: (_) => const Navigation());
+            } else {
+              return MaterialPageRoute(builder: (_) => const Login());
+            }
+          case RouteName.register:
+            if (isLoggedIn()) {
+              return MaterialPageRoute(builder: (_) => const Navigation());
+            } else {
+              return MaterialPageRoute(builder: (_) => const Register());
+            }
+          case RouteName.home:
+            if (isLoggedIn()) {
+              return MaterialPageRoute(builder: (_) => const Navigation());
+            } else {
+              return MaterialPageRoute(builder: (_) => const FinancialApp());
+            }
+          case RouteName.editProfile:
+            if (isLoggedIn()) {
+              return MaterialPageRoute(builder: (_) => const EditProfileForm());
+            } else {
+              return MaterialPageRoute(builder: (_) => const FinancialApp());
+            }
+          case RouteName.addTransaction:
+            if (isLoggedIn()) {
+              return MaterialPageRoute(builder: (_) => const AddTransaction());
+            } else {
+              return MaterialPageRoute(builder: (_) => const FinancialApp());
+            }
+          case RouteName.editTransaction:
+            if (isLoggedIn()) {
+              return MaterialPageRoute(builder: (_) => const EditTransaction());
+            } else {
+              return MaterialPageRoute(builder: (_) => const FinancialApp());
+            }
+          case RouteName.addGoal:
+            if (isLoggedIn()) {
+              return MaterialPageRoute(builder: (_) => const AddGoal());
+            } else {
+              return MaterialPageRoute(builder: (_) => const FinancialApp());
+            }
+          case RouteName.goalProgress:
+            if (isLoggedIn()) {
+              return MaterialPageRoute(builder: (_) => const GoalProgress());
+            } else {
+              return MaterialPageRoute(builder: (_) => const FinancialApp());
+            }
+          default:
+            return MaterialPageRoute(
+              builder: (context) => Scaffold(
+                body: Center(
+                  child: Text('No route defined for ${settings.name}'),
+                ),
+              ),
+            );
+        }
       },
     );
   }
+}
+
+class RouteName {
+  static const titlePage = '/';
+  static const login = '/login';
+  static const register = '/register';
+  static const home = '/home';
+  static const editProfile = '/profile';
+  static const addTransaction = '/tracker/add';
+  static const editTransaction = '/tracker/edit';
+  static const addGoal = '/goal/add';
+  static const goalProgress = '/goal/progress';
 }
