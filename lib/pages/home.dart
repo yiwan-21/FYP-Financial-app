@@ -1,10 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'analytics.dart';
 import '../components/transaction.dart';
 import '../components/goal.dart';
-import '../firebaseInstance.dart';
+import '../providers/userProvider.dart';
 
 class Home extends StatefulWidget {
   final File? profileImage;
@@ -15,14 +16,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  String _name = '';
-  @override
-  void initState() {
-    super.initState();
-    _name = FirebaseInstance.auth.currentUser!.displayName!;
-  }
-
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -35,8 +28,9 @@ class _HomeState extends State<Home> {
               children: [
                 CircleAvatar(
                   radius: 20.0,
-                  backgroundImage:
-                      widget.profileImage == null ? null : FileImage(widget.profileImage!),
+                  backgroundImage: widget.profileImage == null
+                      ? null
+                      : FileImage(widget.profileImage!),
                   child: widget.profileImage == null
                       ? const Icon(
                           Icons.account_circle,
@@ -57,12 +51,16 @@ class _HomeState extends State<Home> {
                         color: Colors.grey[600],
                       ),
                     ),
-                    Text(
-                      _name,
-                      style: const TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Consumer<UserProvider>(
+                      builder: (context, userProvider, _) {
+                        return Text(
+                          userProvider.name,
+                          style: const TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -110,7 +108,8 @@ class _HomeState extends State<Home> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: const [
                           Padding(
-                            padding: EdgeInsets.only(left: 10.0, top: 40.0, bottom: 10.0),
+                            padding: EdgeInsets.only(
+                                left: 10.0, top: 40.0, bottom: 10.0),
                             child: Text(
                               'Recent Transactions',
                               style: TextStyle(
@@ -133,13 +132,13 @@ class _HomeState extends State<Home> {
                         ],
                       ),
                       const SizedBox(height: 10.0),
-                      Transaction('T1', 'New Short', 49.99, DateTime.now(), true,
-                          'Other Expenses',
+                      Transaction('T1', 'New Short', 49.99, DateTime.now(),
+                          true, 'Other Expenses',
                           notes: "Notes"),
-                      Transaction('T2', 'Groceries', 10.00, DateTime.now(), false,
-                          'Savings'),
-                      Transaction('T3', 'New Shoes', 69.98, DateTime.now(), true,
-                          'Other Expenses',
+                      Transaction('T2', 'Groceries', 10.00, DateTime.now(),
+                          false, 'Savings'),
+                      Transaction('T3', 'New Shoes', 69.98, DateTime.now(),
+                          true, 'Other Expenses',
                           notes: "Notes"),
                     ],
                   ),

@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import '../providers/userProvider.dart';
 import '../firebaseInstance.dart';
 
 class Profile extends StatefulWidget {
@@ -14,17 +16,8 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  String _name = '';
-  String _email = '';
-
-@override
-void initState() {
-  super.initState();
-  setState(() {
-    _email = FirebaseInstance.auth.currentUser!.email!;
-    _name= FirebaseInstance.auth.currentUser!.displayName!;
-  });
-}
+  final String _name = '';
+  final String _email = '';
 
 // Pick from gallery
   void gallaryImage() async {
@@ -77,12 +70,12 @@ void initState() {
                     ? null
                     : FileImage(widget.profileImage!),
                 child: widget.profileImage == null
-                ? const Icon(
-                    Icons.account_circle,
-                    color: Colors.white,
-                    size: 140.0,
-                  )
-                : null,
+                    ? const Icon(
+                        Icons.account_circle,
+                        color: Colors.white,
+                        size: 140.0,
+                      )
+                    : null,
               ),
               Positioned(
                 bottom: 0.0,
@@ -153,33 +146,32 @@ void initState() {
           ),
           const SizedBox(height: 45),
           Align(
-              alignment: Alignment.centerRight,
-              child: IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/profile', arguments: {
-                    'name': _name,
-                    'email': _email,
-                  }).then((name) => {
-                        if (name != null && name is String)
-                          {
-                            setState(() {
-                              _name = name;
-                            })
-                          }
-                      });
-                },
-              )),
-          Text(
-            _name,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            alignment: Alignment.centerRight,
+            child: IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                Navigator.pushNamed(context, '/profile');
+              },
+            ),
+          ),
+          Consumer<UserProvider>(
+            builder: (context, userProvider, _) {
+              return Text(
+                userProvider.name,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              );
+            },
           ),
           const SizedBox(height: 30),
-          Text(
-            _email,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Consumer<UserProvider>(
+            builder: (context, userProvider, _) {
+              return Text(
+                userProvider.email,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              );
+            },
           ),
           const SizedBox(height: 100),
           Center(
@@ -187,8 +179,9 @@ void initState() {
               style: ElevatedButton.styleFrom(minimumSize: const Size(180, 40)),
               onPressed: () {
                 FirebaseInstance.auth.signOut();
-                Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-              }, 
+                Navigator.pushNamedAndRemoveUntil(
+                    context, '/', (route) => false);
+              },
               child: const Text('Logout'),
             ),
           ),
