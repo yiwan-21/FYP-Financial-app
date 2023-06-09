@@ -20,6 +20,7 @@ class _HomeState extends State<Home> {
   Future<List<TrackerTransaction>> _getTransactions() async {
     List<TrackerTransaction> _transactions = [];
     await FirebaseInstance.firestore.collection('transactions')
+      .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
       .orderBy('date', descending: true)
       .limit(3)
       .get()
@@ -29,7 +30,7 @@ class _HomeState extends State<Home> {
             transaction.id,
             transaction['userID'],
             transaction['title'],
-            transaction['amount'],
+            transaction['amount'].toDouble(),
             transaction['date'].toDate(),
             transaction['isExpense'],
             transaction['category'],

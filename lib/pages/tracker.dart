@@ -33,6 +33,7 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
   Future<List<TrackerTransaction>> _getTransactions() async {
     List<TrackerTransaction> _transactionData = [];
     await FirebaseInstance.firestore.collection('transactions')
+      .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
       .orderBy('date', descending: false)
       .get()
       .then((event) {
@@ -41,7 +42,7 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
             transaction.id,
             transaction['userID'],
             transaction['title'],
-            transaction['amount'],
+            transaction['amount'].toDouble(),
             transaction['date'].toDate(),
             transaction['isExpense'],
             transaction['category'],
