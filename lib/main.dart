@@ -4,15 +4,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import './providers/userProvider.dart';
-import 'pages/financialApp.dart';
-import 'pages/login.dart';
-import 'pages/register.dart';
-import 'pages/navigation.dart';
-import 'pages/addTransaction.dart';
-import 'pages/editTransaction.dart';
-import 'pages/editProfile.dart';
-import 'pages/addGoal.dart';
-import 'pages/goalProgress.dart';
+import './providers/transactionProvider.dart';
+import './pages/financialApp.dart';
+import './pages/login.dart';
+import './pages/register.dart';
+import './pages/navigation.dart';
+import './pages/addTransaction.dart';
+import './pages/editTransaction.dart';
+import './pages/editProfile.dart';
+import './pages/addGoal.dart';
+import './pages/goalProgress.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -35,6 +36,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => TransactionProvider()),
       ],
       child: const MyApp(),
     ),
