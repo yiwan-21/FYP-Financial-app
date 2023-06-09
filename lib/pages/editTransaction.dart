@@ -1,5 +1,7 @@
+import 'package:financial_app/providers/transactionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../constants.dart';
 import '../components/transaction.dart';
 
@@ -21,6 +23,22 @@ class _EditTransactionState extends State<EditTransaction> {
   DateTime _date = DateTime.now();
   List<String> _categoryList = [];
 
+  @override
+  void initState() {
+    super.initState();
+    final TransactionProvider transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
+    _id = transactionProvider.getId;
+    _title = transactionProvider.getTitle;
+    _notes = transactionProvider.getNotes;
+    _amount = transactionProvider.getAmount;
+    _date = transactionProvider.getDate;
+    _isExpense = transactionProvider.getIsExpense;
+    _category = transactionProvider.getCategory;
+    _categoryList = _isExpense
+        ? Constants.expenseCategories
+        : Constants.incomeCategories;
+  }
+
   Future<void> _selectDate(BuildContext context, DateTime initialValue) async {
     final DateTime? picked = await showDatePicker(
         context: context,
@@ -36,24 +54,6 @@ class _EditTransactionState extends State<EditTransaction> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> args =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    // run once
-    if (_id == '') {
-      setState(() {
-        _id = args['id'];
-        _title = args['title'];
-        _amount = args['amount'];
-        _date = args['date'];
-        _isExpense = args['isExpense'];
-        _category = args['category'];
-        _notes = args['notes'];
-        _categoryList = _isExpense
-            ? Constants.expenseCategories
-            : Constants.incomeCategories;
-      });
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Transaction'),
@@ -219,13 +219,14 @@ class _EditTransactionState extends State<EditTransaction> {
                       CustomSwitch(
                         isIncome: !_isExpense,
                         onToggle: (value) {
+                          final TransactionProvider transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
                           setState(() {
                             _isExpense = !value;
                             _categoryList = _isExpense
                                 ? Constants.expenseCategories
                                 : Constants.incomeCategories;
-                            if (_categoryList.contains(args['category'])) {
-                              _category = args['category'];
+                            if (_categoryList.contains(transactionProvider.getCategory)) {
+                              _category = transactionProvider.getCategory;
                             } else {
                               _category = _categoryList[0];
                             }

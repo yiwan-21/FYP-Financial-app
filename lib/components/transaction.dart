@@ -1,4 +1,6 @@
+import 'package:financial_app/providers/transactionProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../constants.dart';
 
 class Transaction extends StatefulWidget {
@@ -28,16 +30,17 @@ class _TransactionState extends State<Transaction>
     });
   }
 
-  void _navigateToEdit() {
-    Navigator.pushNamed(context, '/tracker/edit', arguments: {
-      'id': widget.id,
-      'title': widget.title,
-      'notes': widget.notes,
-      'amount': widget.amount,
-      'date': widget.date,
-      'isExpense': widget.isExpense,
-      'category': widget.category,
-    }).then((tx) => {
+  void _navigateToEdit(transactionProvider) {
+    transactionProvider.setTransaction(
+      widget.id,
+      widget.title,
+      widget.amount,
+      widget.date,
+      widget.isExpense,
+      widget.category,
+      notes: widget.notes,
+    );
+    Navigator.pushNamed(context, '/tracker/edit').then((tx) => {
           if (tx != null && tx is Transaction)
             {
               setState(() {
@@ -54,9 +57,10 @@ class _TransactionState extends State<Transaction>
 
   @override
   Widget build(BuildContext context) {
+    final TransactionProvider transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
     return GestureDetector(
       onTap: _toggleExpanded,
-      onDoubleTap: _navigateToEdit,
+      onDoubleTap: () => _navigateToEdit(transactionProvider),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         curve: Curves.fastOutSlowIn,
