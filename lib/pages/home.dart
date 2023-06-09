@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:financial_app/firebaseInstance.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'analytics.dart';
@@ -16,6 +17,29 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  Future<List<TrackerTransaction>> _getTransactions() async {
+    List<TrackerTransaction> _transactions = [];
+    await FirebaseInstance.firestore.collection('transactions')
+      .orderBy('date', descending: true)
+      .limit(3)
+      .get()
+      .then((event) {
+        for (var transaction in event.docs) {
+          _transactions.add(TrackerTransaction(
+            transaction.id,
+            transaction['userID'],
+            transaction['title'],
+            transaction['amount'],
+            transaction['date'].toDate(),
+            transaction['isExpense'],
+            transaction['category'],
+            notes: transaction['notes'],
+          ));
+        }
+      });
+    return _transactions;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -132,14 +156,43 @@ class _HomeState extends State<Home> {
                         ],
                       ),
                       const SizedBox(height: 10.0),
-                      Transaction('T1', 'New Short', 49.99, DateTime.now(),
-                          true, 'Other Expenses',
-                          notes: "Notes"),
-                      Transaction('T2', 'Groceries', 10.00, DateTime.now(),
-                          false, 'Savings'),
-                      Transaction('T3', 'New Shoes', 69.98, DateTime.now(),
-                          true, 'Other Expenses',
-                          notes: "Notes"),
+                      FutureBuilder(
+                        future: _getTransactions(),
+                        builder:(context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: snapshot.data!.length,
+                              itemBuilder: (context, index) {
+                                return TrackerTransaction(
+                                  snapshot.data![index].id,
+                                  snapshot.data![index].userID,
+                                  snapshot.data![index].title,
+                                  snapshot.data![index].amount,
+                                  snapshot.data![index].date,
+                                  snapshot.data![index].isExpense,
+                                  snapshot.data![index].category,
+                                  notes: snapshot.data![index].notes,
+                                );
+                              },
+                            );
+                          } else {
+                            return Container();
+                          }
+                          
+                        },
+                      ),
+                      // _transactions.isEmpty
+                      //   ? const Text('No transactions found')
+                      //   : 
+                      // TrackerTransaction('T1', 'New Short', 49.99, DateTime.now(),
+                      //     true, 'Other Expenses',
+                      //     notes: "Notes"),
+                      // TrackerTransaction('T2', 'Groceries', 10.00, DateTime.now(),
+                      //     false, 'Savings'),
+                      // TrackerTransaction('T3', 'New Shoes', 69.98, DateTime.now(),
+                      //     true, 'Other Expenses',
+                      //     notes: "Notes"),
                     ],
                   ),
                 ),

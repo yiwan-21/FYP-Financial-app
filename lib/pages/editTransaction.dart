@@ -1,3 +1,4 @@
+import 'package:financial_app/firebaseInstance.dart';
 import 'package:financial_app/providers/transactionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,7 +15,6 @@ class EditTransaction extends StatefulWidget {
 
 class _EditTransactionState extends State<EditTransaction> {
   final _formKey = GlobalKey<FormState>();
-  String _id = '';
   String _title = '';
   String? _notes;
   double _amount = 0;
@@ -27,7 +27,6 @@ class _EditTransactionState extends State<EditTransaction> {
   void initState() {
     super.initState();
     final TransactionProvider transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
-    _id = transactionProvider.getId;
     _title = transactionProvider.getTitle;
     _notes = transactionProvider.getNotes;
     _amount = transactionProvider.getAmount;
@@ -284,8 +283,10 @@ class _EditTransactionState extends State<EditTransaction> {
                             _formKey.currentState!.save();
                             Navigator.pop(
                               context,
-                              Transaction(
-                                _id,
+                              TrackerTransaction(
+                                FirebaseInstance.auth.currentUser!.uid,
+                                // to be remove later
+                                'userID',
                                 _title,
                                 _amount,
                                 _date,

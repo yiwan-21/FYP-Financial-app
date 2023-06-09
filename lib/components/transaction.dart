@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
 
-class Transaction extends StatefulWidget {
+class TrackerTransaction extends StatefulWidget {
   String id;
+  String userID;
   String title;
   String? notes;
   double amount;
@@ -12,15 +13,27 @@ class Transaction extends StatefulWidget {
   bool isExpense;
   String category;
 
-  Transaction(this.id, this.title, this.amount, this.date, this.isExpense,
+  TrackerTransaction(this.id, this.userID, this.title, this.amount, this.date, this.isExpense,
       this.category,
       {this.notes, super.key});
 
   @override
-  State<Transaction> createState() => _TransactionState();
+  State<TrackerTransaction> createState() => _TrackerTransactionState();
+
+  Map<String, dynamic> toCollection() {
+    return {
+      'userID': userID,
+      'title': title,
+      'notes': notes,
+      'amount': amount,
+      'date': date,
+      'isExpense': isExpense,
+      'category': category,
+    };
+  }
 }
 
-class _TransactionState extends State<Transaction>
+class _TrackerTransactionState extends State<TrackerTransaction>
      {
   bool _expanded = false;
 
@@ -41,7 +54,7 @@ class _TransactionState extends State<Transaction>
       notes: widget.notes,
     );
     Navigator.pushNamed(context, '/tracker/edit').then((tx) => {
-          if (tx != null && tx is Transaction)
+          if (tx != null && tx is TrackerTransaction)
             {
               setState(() {
                 widget.title = tx.title;

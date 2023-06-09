@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../components/transaction.dart';
 import '../constants.dart';
+import '../firebaseInstance.dart';
 import '../components/transaction.dart';
 
 class AddTransaction extends StatefulWidget {
@@ -256,18 +258,19 @@ class _AddTransactionState extends State<AddTransaction> {
                             // Form is valid, do something
                             _formKey.currentState!.save();
                             // For example, submit the form to a server
-                            Navigator.pop(
-                              context,
-                              Transaction(
-                                _id,
-                                _title,
-                                _amount,
-                                _date,
-                                _isExpense,
-                                _category,
-                                notes: _notes,
-                              ),
+                            final new_transaction = TrackerTransaction(
+                              _id,
+                              FirebaseInstance.auth.currentUser!.uid,
+                              _title,
+                              _amount,
+                              _date,
+                              _isExpense,
+                              _category,
+                              notes: _notes,
                             );
+
+                            FirebaseInstance.firestore.collection("transactions").add(new_transaction.toCollection());
+                            Navigator.pop(context, new_transaction);
                           }
                         },
                       ),

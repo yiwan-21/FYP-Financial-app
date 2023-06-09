@@ -1,3 +1,4 @@
+import 'package:financial_app/firebaseInstance.dart';
 import 'package:flutter/material.dart';
 import '../components/categoryChart.dart';
 import '../components/transaction.dart';
@@ -11,39 +12,7 @@ class Tracker extends StatefulWidget {
 }
 
 class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
-  final List<Transaction> _transactions = [
-    Transaction(
-        'T1', 'New Short', 49.99, DateTime.now(), true, 'Other Expenses',
-        notes: "Notes"),
-    Transaction(
-        'T2', 'Groceries', 10.00, DateTime.now(), false, 'Savings'),
-    Transaction(
-        'T3', 'New Shoes', 69.98, DateTime.now(), true, 'Other Expenses',
-        notes: "Notes"),
-    Transaction('T4', 'Salary', 90.00, DateTime.now(), false, 'Savings',
-        notes: "Yay!"),
-    Transaction(
-        'T5', 'Groceries', 20.53, DateTime.now(), false, 'Savings'),
-    Transaction(
-        'T6', 'New Shoes', 169.99, DateTime.now(), true, 'Other Expenses',
-        notes: "Notes"),
-    Transaction('T7', 'Salary', 1000.00, DateTime.now(), false, 'Savings',
-        notes: "Yay!"),
-    Transaction(
-        'T8', 'New Clothes', 169.99, DateTime.now(), true, 'Other Expenses',
-        notes: "Notes"),
-    Transaction(
-        'T9', 'Groceries', 16.53, DateTime.now(), false, 'Savings'),
-    Transaction('T10', 'Salary', 3000.00, DateTime.now(), false, 'Savings',
-        notes: "Yay!"),
-    Transaction(
-        'T11', 'New Jeans', 269.99, DateTime.now(), true, 'Other Expenses',
-        notes: "Notes"),
-    Transaction(
-        'T12', 'Groceries', 12.99, DateTime.now(), false, 'Savings'),
-    Transaction('T13', 'Salary', 5000.00, DateTime.now(), false, 'Savings',
-        notes: "Yay!"),
-  ];
+  final List<TrackerTransaction> _transactions = [];
 
   final List<double> categoriesValue = [
     10,
@@ -54,6 +23,34 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
     7,
     3,
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _getTransactions();
+  }
+
+  Future<List<TrackerTransaction>> _getTransactions() async {
+    List<TrackerTransaction> _transactionData = [];
+    await FirebaseInstance.firestore.collection('transactions')
+      .orderBy('date', descending: false)
+      .get()
+      .then((event) {
+        for (var transaction in event.docs) {
+          _transactionData.add(TrackerTransaction(
+            transaction.id,
+            transaction['userID'],
+            transaction['title'],
+            transaction['amount'],
+            transaction['date'].toDate(),
+            transaction['isExpense'],
+            transaction['category'],
+            notes: transaction['notes'],
+          ));
+        }
+      });
+    return _transactionData;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +86,7 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
                 backgroundColor: Colors.grey,
                 onPressed: () {
                   Navigator.pushNamed(context, '/tracker/add').then((value) {
-                    if (value != null && value is Transaction) {
+                    if (value != null && value is TrackerTransaction) {
                       setState(() {
                         _transactions.add(value);
                       });
@@ -101,27 +98,36 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
             ],
           ),
         ),
-        Wrap(
-          children: List.generate(
-            _transactions.length,
-            (index) {
-              final reversedIndex = _transactions.length - index - 1;
-              if (Constants.isDesktop(context)) {
-                return SizedBox(
-                  width: MediaQuery.of(context).size.width / 3,
-                  child: _transactions[reversedIndex],
-                );
-              }
-              else if (Constants.isTablet(context)) {
-                return SizedBox(
-                  width: MediaQuery.of(context).size.width / 2,
-                  child: _transactions[reversedIndex],
-                );
-              } else {
-                return _transactions[reversedIndex];
-              }
-            },
-          ),
+        FutureBuilder(
+          future: _getTransactions(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
+              return Wrap(
+                children: List.generate(
+                  snapshot.data!.length,
+                  (index) {
+                    final reversedIndex = snapshot.data!.length - index - 1;
+                    if (Constants.isDesktop(context)) {
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width / 3,
+                        child: snapshot.data![reversedIndex],
+                      );
+                    }
+                    else if (Constants.isTablet(context)) {
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width / 2,
+                        child: snapshot.data![reversedIndex],
+                      );
+                    } else {
+                      return snapshot.data![reversedIndex];
+                    }
+                  },
+                ),
+              );
+            } else {
+              return Container();
+            }
+          }
         ),
       ],
     );
