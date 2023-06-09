@@ -15,6 +15,7 @@ class EditTransaction extends StatefulWidget {
 
 class _EditTransactionState extends State<EditTransaction> {
   final _formKey = GlobalKey<FormState>();
+  String _id = '';
   String _title = '';
   String? _notes;
   double _amount = 0;
@@ -26,16 +27,17 @@ class _EditTransactionState extends State<EditTransaction> {
   @override
   void initState() {
     super.initState();
-    final TransactionProvider transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
+    final TransactionProvider transactionProvider =
+        Provider.of<TransactionProvider>(context, listen: false);
+    _id = transactionProvider.getId;
     _title = transactionProvider.getTitle;
     _notes = transactionProvider.getNotes;
     _amount = transactionProvider.getAmount;
     _date = transactionProvider.getDate;
     _isExpense = transactionProvider.getIsExpense;
     _category = transactionProvider.getCategory;
-    _categoryList = _isExpense
-        ? Constants.expenseCategories
-        : Constants.incomeCategories;
+    _categoryList =
+        _isExpense ? Constants.expenseCategories : Constants.incomeCategories;
   }
 
   Future<void> _selectDate(BuildContext context, DateTime initialValue) async {
@@ -218,13 +220,16 @@ class _EditTransactionState extends State<EditTransaction> {
                       CustomSwitch(
                         isIncome: !_isExpense,
                         onToggle: (value) {
-                          final TransactionProvider transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
+                          final TransactionProvider transactionProvider =
+                              Provider.of<TransactionProvider>(context,
+                                  listen: false);
                           setState(() {
                             _isExpense = !value;
                             _categoryList = _isExpense
                                 ? Constants.expenseCategories
                                 : Constants.incomeCategories;
-                            if (_categoryList.contains(transactionProvider.getCategory)) {
+                            if (_categoryList
+                                .contains(transactionProvider.getCategory)) {
                               _category = transactionProvider.getCategory;
                             } else {
                               _category = _categoryList[0];
@@ -281,20 +286,22 @@ class _EditTransactionState extends State<EditTransaction> {
                           if (_formKey.currentState!.validate()) {
                             // Form is valid
                             _formKey.currentState!.save();
-                            Navigator.pop(
-                              context,
-                              TrackerTransaction(
-                                FirebaseInstance.auth.currentUser!.uid,
-                                // to be remove later
-                                'userID',
-                                _title,
-                                _amount,
-                                _date,
-                                _isExpense,
-                                _category,
-                                notes: _notes,
-                              ),
+                            final edited_Transaction = TrackerTransaction(
+                              _id,
+                              FirebaseInstance.auth.currentUser!.uid,
+                              _title,
+                              _amount,
+                              _date,
+                              _isExpense,
+                              _category,
+                              notes: _notes,
                             );
+
+                            FirebaseInstance.firestore
+                                .collection("transactions")
+                                .doc(_id)
+                                .update(edited_Transaction.toCollection());
+                            Navigator.pop(context, edited_Transaction);
                           }
                         },
                       ),
