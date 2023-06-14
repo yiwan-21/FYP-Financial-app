@@ -1,3 +1,4 @@
+import 'package:financial_app/firebaseInstance.dart';
 import 'package:flutter/material.dart';
 import '../constants.dart';
 import '../components/growingTree.dart';
@@ -10,12 +11,29 @@ class SavingsGoal extends StatefulWidget {
 }
 
 class _SavingsGoalState extends State<SavingsGoal> {
-  // List<double> _progressList = [1];
-  final List<Goal> _goals = [
-    Goal('G1', 'Buy Food', 49.99, 30.00, DateTime.now()),
-    Goal('G2', 'Trip', 3000.00, 2000.00, DateTime.now()),
-    Goal('G3', 'Sleep', 69.98, 10.00, DateTime.now()),
-  ];
+  final List<Goal> _goals = [];
+
+  Future<List<Goal>> _getGoals() async {
+    final List<Goal> goalData = [];
+    await FirebaseInstance.firestore.collection('goals')
+      .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+      .orderBy('targetDate', descending: false)
+      .get()
+      .then((goals) => {
+        for (var goal in goals.docs) {
+          goalData.add(Goal(
+            goal.id,
+            goal['userID'],
+            goal['title'],
+            goal['amount'].toDouble(),
+            goal['saved'].toDouble(),
+            goal['targetDate'].toDate(),
+            goal['pinned'],
+          )),
+        }
+      });
+    return goalData;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,13 +47,22 @@ class _SavingsGoalState extends State<SavingsGoal> {
             child: ListView(
               children: [
                 const SizedBox(height: 12),
-                Wrap(
-                  children: List.generate(
-                    _goals.length,
-                    (index) {
-                      return _goals[index];
-                    },
-                  ),
+                FutureBuilder(
+                  future: _getGoals(),
+                  builder: ((context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
+                      return Wrap(
+                        children: List.generate(
+                          snapshot.data!.length,
+                          (index) {
+                            return snapshot.data![index];
+                          }
+                        )
+                      );
+                    } else {
+                      return Container();
+                    }
+                  }),
                 ),
               ],
             ),

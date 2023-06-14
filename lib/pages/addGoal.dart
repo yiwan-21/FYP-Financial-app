@@ -1,3 +1,4 @@
+import 'package:financial_app/firebaseInstance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../constants.dart';
@@ -181,13 +182,18 @@ class _AddGoalState extends State<AddGoal> {
                             if (_formKey.currentState!.validate()) {
                               // Submit form data to server or database
                               _formKey.currentState!.save();
-                              Navigator.pop(context, Goal(
+                              final new_goal = Goal(
                                 _id,
+                                FirebaseInstance.auth.currentUser!.uid,
                                 _title,
                                 _amount,
                                 0,
                                 _date,
-                              ));
+                                false,
+                              );
+
+                              FirebaseInstance.firestore.collection('goals').add(new_goal.toCollection());
+                              Navigator.pop(context, new_goal);
                             }
                           },
                         ),

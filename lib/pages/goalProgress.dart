@@ -1,7 +1,9 @@
+import 'package:financial_app/firebaseInstance.dart';
+import 'package:financial_app/providers/goalProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../components/growingTree.dart';
-import '../constants.dart';
 
 class GoalProgress extends StatefulWidget {
   const GoalProgress({super.key});
@@ -12,36 +14,65 @@ class GoalProgress extends StatefulWidget {
 
 class _GoalProgressState extends State<GoalProgress>
     with SingleTickerProviderStateMixin {
-  final double _totalAmount = 3000;
-  double _saved = 2000;
-  double _remaining = 1000;
-  double _addAmount = 0;
+  String _id = '';
+  double _totalAmount = 0;
+  double _saved = 0;
+  double _remaining = 0;
+  bool _pinned = false;
+
+  double _progress = 0;
   double _daily = 0;
   double _weekly = 0;
   double _monthly = 0;
-
-  double _progress = 0;
-  final List<HistoryCard> _historyCard = [
-    HistoryCard(amount: 2000, date: DateTime.now()),
-  ];
+  double _addAmount = 0;
   final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
+    final GoalProvider goalProvider =
+        Provider.of<GoalProvider>(context, listen: false);
+    _id = goalProvider.getId;
+    _totalAmount = goalProvider.getAmount;
+    _saved = goalProvider.getSaved;
+    _remaining = goalProvider.getRemaining;
+    _pinned = goalProvider.getPinned;
+
     _progress = _saved / _totalAmount * 100;
     _daily = _remaining / 30;
     _weekly = _remaining / 4;
     _monthly = _remaining;
   }
 
-  void _onAddAmount() {
+  void _updateProgress() {
     setState(() {
       _progress = _saved / _totalAmount * 100;
       _daily = _remaining / 30;
       _weekly = _remaining / 4;
       _monthly = _remaining;
     });
+  }
+
+  Future<List<HistoryCard>> _getHistory() async {
+    final List<HistoryCard> history = [];
+    await FirebaseInstance.firestore
+        .collection('goals')
+        .doc(_id)
+        .collection('history')
+        .orderBy('date', descending: true)
+        .get()
+        .then((value) => {
+              for (var historyData in value.docs)
+                {
+                  history.add(
+                    HistoryCard(
+                      historyData['amount'],
+                      historyData['date'].toDate(),
+                    ),
+                  ),
+                }
+            });
+    return history;
   }
 
   @override
@@ -57,6 +88,43 @@ class _GoalProgressState extends State<GoalProgress>
               Tab(text: 'History'),
             ],
           ),
+          actions: [
+            IconButton(
+              // push_pin with a slash
+              icon: Icon(
+                _pinned ? Icons.push_pin : Icons.push_pin_outlined,
+                semanticLabel: _pinned ? 'Unpin' : 'Pin',
+              ),
+              onPressed: () async {
+                if (!_pinned) {
+                  await FirebaseInstance.firestore
+                      .collection('goals')
+                      .where('userID',
+                          isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+                      .where('pinned', isEqualTo: true)
+                      .get()
+                      .then((value) => {
+                            for (var goal in value.docs)
+                              {
+                                FirebaseInstance.firestore
+                                    .collection('goals')
+                                    .doc(goal.id)
+                                    .update({'pinned': false}),
+                              }
+                          });
+                }
+                setState(() {
+                  _pinned = !_pinned;
+                });
+                Provider.of<GoalProvider>(context, listen: false)
+                    .setPinned(_pinned);
+                FirebaseInstance.firestore
+                    .collection('goals')
+                    .doc(_id)
+                    .update({'pinned': _pinned});
+              },
+            )
+          ],
         ),
         body: TabBarView(
           children: [
@@ -168,11 +236,24 @@ class _GoalProgressState extends State<GoalProgress>
                                               setState(() {
                                                 _saved += _addAmount;
                                                 _remaining -= _addAmount;
-                                                _historyCard.add(HistoryCard(
-                                                    amount: _addAmount,
-                                                    date: DateTime.now()));
                                               });
-                                              _onAddAmount();
+                                              _updateProgress();
+                                              Provider.of<GoalProvider>(context,
+                                                      listen: false)
+                                                  .setSaved(_saved);
+                                              FirebaseInstance.firestore
+                                                  .collection('goals')
+                                                  .doc(_id)
+                                                  .update({'saved': _saved});
+                                              FirebaseInstance.firestore
+                                                  .collection('goals')
+                                                  .doc(_id)
+                                                  .collection('history')
+                                                  .add({
+                                                'amount': _addAmount,
+                                                'date': DateTime.now(),
+                                              });
+
                                               Navigator.pop(context);
                                             }
                                           },
@@ -214,22 +295,27 @@ class _GoalProgressState extends State<GoalProgress>
                                 )),
                           ],
                         ),
-                        _remaining == 0 ? Container() : const SizedBox(width: 30),
-                        _remaining == 0 ? Container() : Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('REMAINING',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey)),
-                            Text('RM ${_remaining.toStringAsFixed(2)}',
-                                style: const TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.bold,
-                                )),
-                          ],
-                        ),
+                        _remaining == 0
+                            ? Container()
+                            : const SizedBox(width: 30),
+                        _remaining == 0
+                            ? Container()
+                            : Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text('REMAINING',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey)),
+                                  Text('RM ${_remaining.toStringAsFixed(2)}',
+                                      style: const TextStyle(
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                      )),
+                                ],
+                              ),
                       ],
                     ),
                   ),
@@ -309,14 +395,25 @@ class _GoalProgressState extends State<GoalProgress>
                 constraints: const BoxConstraints(
                   maxWidth: 768,
                 ),
-                child: ListView(
-                  children: List.generate(
-                    _historyCard.length,
-                    ((index) {
-                      final reversedIndex = _historyCard.length - index - 1;
-                      return _historyCard[reversedIndex];
-                    }),
-                  ),
+                child: FutureBuilder(
+                  future: _getHistory(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done &&
+                        snapshot.data != null) {
+                      return ListView(
+                        children: List.generate(
+                          snapshot.data!.length,
+                          (index) {
+                            return snapshot.data![index];
+                          },
+                        ),
+                      );
+                    } else {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                  },
                 ),
               ),
             ),
@@ -331,7 +428,7 @@ class HistoryCard extends StatelessWidget {
   final double amount;
   final DateTime date;
 
-  const HistoryCard({required this.amount, required this.date, super.key});
+  const HistoryCard(this.amount, this.date, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -350,7 +447,7 @@ class HistoryCard extends StatelessWidget {
               ),
             ),
             Text(
-              '+ $amount',
+              '+ ${amount.toStringAsFixed(2)}',
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
