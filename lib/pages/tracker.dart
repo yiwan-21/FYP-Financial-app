@@ -14,16 +14,6 @@ class Tracker extends StatefulWidget {
 class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
   final List<TrackerTransaction> _transactions = [];
 
-  final List<double> categoriesValue = [
-    10,
-    20,
-    3,
-    5,
-    8,
-    7,
-    3,
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -68,10 +58,7 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,),
               ),
             ),
-            CategoryChart(
-              Constants.expenseCategories,
-              categoriesValue,
-            ),
+            const CategoryChart(),
           ],
         ),
         Container(
