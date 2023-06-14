@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:financial_app/firebaseInstance.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -39,6 +40,31 @@ class _HomeState extends State<Home> {
         }
       });
     return _transactions;
+  }
+
+  Future<List<Goal>> _getGoals() async {
+    final List<Goal> goalData = [];
+
+    await FirebaseInstance.firestore.collection('goals')
+      .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+      .orderBy('pinned', descending: true)
+      .orderBy('targetDate', descending: false)
+      .limit(1)
+      .get()
+      .then((value) => {
+        for (var goal in value.docs) {
+          goalData.add(Goal(
+            goal.id,
+            goal['userID'],
+            goal['title'],
+            goal['amount'].toDouble(),
+            goal['saved'].toDouble(),
+            goal['targetDate'].toDate(),
+            goal['pinned'],
+          )),
+        }
+      });
+    return goalData;
   }
 
   @override
@@ -128,7 +154,21 @@ class _HomeState extends State<Home> {
                           // ),
                         ],
                       ),
-                      Goal('G1', 'Buy Food', 49.99, 30.00, DateTime.now()),
+                      FutureBuilder(
+                        future: _getGoals(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: snapshot.data!.length,
+                              itemBuilder: (context, index) {
+                                return snapshot.data![index];
+                              }
+                            );
+                          } else {
+                            return Container();
+                          }
+                      }),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: const [

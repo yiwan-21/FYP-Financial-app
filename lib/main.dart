@@ -1,4 +1,5 @@
 import 'package:financial_app/firebaseInstance.dart';
+import 'package:financial_app/providers/goalProvider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
+        ChangeNotifierProvider(create: (_) => GoalProvider()),
       ],
       child: const MyApp(),
     ),
