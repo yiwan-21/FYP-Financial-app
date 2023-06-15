@@ -241,7 +241,7 @@ class _HomeState extends State<Home> {
                 Flexible(
                   flex: MediaQuery.of(context).size.width < 768 ? 0 : 1,
                   child: Column(
-                    children: [
+                    children: const [
                       ExpenseIncomeGraph(),
                     ],
                   ),

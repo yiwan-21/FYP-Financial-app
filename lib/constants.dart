@@ -34,6 +34,21 @@ class Constants {
     'Other Income'
   ];
 
+  static const List<String> monthLabels = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+
   static Icon getCategoryIcon(String category) {
     switch (category) {
       case 'Food':
