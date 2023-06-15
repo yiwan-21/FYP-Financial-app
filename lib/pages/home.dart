@@ -2,12 +2,17 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:financial_app/firebaseInstance.dart';
+import 'package:financial_app/providers/navigationProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'analytics.dart';
 import '../components/transaction.dart';
 import '../components/goal.dart';
 import '../providers/userProvider.dart';
+
+const TrackerIndex = 1;
+const AnalyticsIndex = 2;
+const GoalIndex = 3; 
 
 class Home extends StatefulWidget {
   final File? profileImage;
@@ -130,8 +135,9 @@ class _HomeState extends State<Home> {
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
-                          Padding(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Padding(
                             padding: EdgeInsets.only(left: 10.0, bottom: 10.0),
                             child: Text(
                               'Recent Goals',
@@ -141,17 +147,19 @@ class _HomeState extends State<Home> {
                               ),
                             ),
                           ),
-                          // TextButton(
-                          //   onPressed: () {},
-                          //   child: const Text(
-                          //     'View All',
-                          //     style: TextStyle(
-                          //       fontSize: 16.0,
-                          //       fontWeight: FontWeight.bold,
-                          //       color: Colors.pink,
-                          //     ),
-                          //   ),
-                          // ),
+                          TextButton(
+                            onPressed: () {
+                              Provider.of<NavigationProvider>(context, listen: false).setCurrentIndex(GoalIndex);
+                            },
+                            child: const Text(
+                              'View All',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.pink,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                       FutureBuilder(
@@ -169,12 +177,13 @@ class _HomeState extends State<Home> {
                             return Container();
                           }
                       }),
+                      const SizedBox(height: 40.0),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
-                          Padding(
-                            padding: EdgeInsets.only(
-                                left: 10.0, top: 40.0, bottom: 10.0),
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(left: 10.0, bottom: 10.0),
                             child: Text(
                               'Recent Transactions',
                               style: TextStyle(
@@ -183,20 +192,21 @@ class _HomeState extends State<Home> {
                               ),
                             ),
                           ),
-                          // TextButton(
-                          //   onPressed: () {},
-                          //   child: const Text(
-                          //     'View All',
-                          //     style: TextStyle(
-                          //       fontSize: 16.0,
-                          //       fontWeight: FontWeight.bold,
-                          //       color: Colors.pink,
-                          //     ),
-                          //   ),
-                          // ),
+                          TextButton(
+                            onPressed: () {
+                              Provider.of<NavigationProvider>(context, listen: false).setCurrentIndex(TrackerIndex);
+                            },
+                            child: const Text(
+                              'View All',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.pink,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 10.0),
                       FutureBuilder(
                         future: _getTransactions(),
                         builder:(context, snapshot) {
@@ -218,22 +228,11 @@ class _HomeState extends State<Home> {
                               },
                             );
                           } else {
-                            return Container();
+                            return const Text('No transactions found');
                           }
                           
                         },
                       ),
-                      // _transactions.isEmpty
-                      //   ? const Text('No transactions found')
-                      //   : 
-                      // TrackerTransaction('T1', 'New Short', 49.99, DateTime.now(),
-                      //     true, 'Other Expenses',
-                      //     notes: "Notes"),
-                      // TrackerTransaction('T2', 'Groceries', 10.00, DateTime.now(),
-                      //     false, 'Savings'),
-                      // TrackerTransaction('T3', 'New Shoes', 69.98, DateTime.now(),
-                      //     true, 'Other Expenses',
-                      //     notes: "Notes"),
                     ],
                   ),
                 ),
