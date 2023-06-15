@@ -1,11 +1,12 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../firebaseInstance.dart';
 import '../constants.dart';
 
 class CategoryChart extends StatefulWidget {
-  const CategoryChart({super.key});
+  final bool? isStateUpdated;
+
+  const CategoryChart({this.isStateUpdated, super.key});
 
   @override
   State<StatefulWidget> createState() => _CategoryChartState();
@@ -20,6 +21,20 @@ class _CategoryChartState extends State<CategoryChart> {
   void initState() {
     super.initState();
     _futureMap = _getTransactionData();
+  }
+
+  @override
+  void didUpdateWidget (covariant CategoryChart oldWidget) {
+    if (widget.isStateUpdated != null && widget.isStateUpdated!) {
+      _updateTransactionsData();
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  void _updateTransactionsData() {
+    setState(() {
+      _futureMap = _getTransactionData();
+    });
   }
 
   Future<Map<String, double>> _getTransactionData() async {
