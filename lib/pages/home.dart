@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:financial_app/firebaseInstance.dart';
@@ -15,14 +16,30 @@ const AnalyticsIndex = 2;
 const GoalIndex = 3; 
 
 class Home extends StatefulWidget {
-  final File? profileImage;
-  const Home({this.profileImage, super.key});
+  const Home({super.key});
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
+  Future<File> _profileImage = Future<File>.value(File(''));
+
+  @override
+  void initState() {
+    super.initState();
+    _profileImage = _getProfileImage();
+  }
+
+  Future<File> _getProfileImage() async {
+    final ref = FirebaseInstance.storage.ref('profile/${FirebaseInstance.auth.currentUser!.uid}');
+    
+    const oneMegabyte = 1024 * 1024;
+    final Uint8List? data = await ref.getData(oneMegabyte);
+    final file = File.fromRawPath(data!);
+    return file;
+  }
+
   Future<List<TrackerTransaction>> _getTransactions() async {
     List<TrackerTransaction> _transactions = [];
     await FirebaseInstance.firestore.collection('transactions')
@@ -82,18 +99,26 @@ class _HomeState extends State<Home> {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  radius: 20.0,
-                  backgroundImage: widget.profileImage == null
-                      ? null
-                      : FileImage(widget.profileImage!),
-                  child: widget.profileImage == null
-                      ? const Icon(
+                FutureBuilder(
+                  future: _profileImage,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
+                      return CircleAvatar(
+                        radius: 20.0,
+                        backgroundImage: FileImage(snapshot.data!),
+                      );
+                    } else {
+                      return const CircleAvatar(
+                        radius: 20.0,
+                        child: Icon(
                           Icons.account_circle,
                           color: Colors.white,
                           size: 40.0,
-                        )
-                      : null,
+                        ),
+                      );
+
+                    }
+                  }
                 ),
                 const SizedBox(width: 20.0),
                 Column(

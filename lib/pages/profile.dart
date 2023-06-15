@@ -20,7 +20,7 @@ class _ProfileState extends State<Profile> {
   final String _email = '';
 
 // Pick from gallery
-  void gallaryImage() async {
+  void galleryImage() async {
     final picker = ImagePicker();
     final pickedImage = await picker.pickImage(
       source: ImageSource.gallery,
@@ -28,6 +28,8 @@ class _ProfileState extends State<Profile> {
     if (pickedImage != null) {
       final pickedImageFile = File(pickedImage.path);
       widget.onImageChange(pickedImageFile);
+      final storageRef = FirebaseInstance.storage.ref('profile/${FirebaseInstance.auth.currentUser!.uid}');
+      await storageRef.putFile(pickedImageFile);
     }
     Navigator.pop(context);
   }
@@ -41,6 +43,8 @@ class _ProfileState extends State<Profile> {
     if (pickedImage != null) {
       final pickedImageFile = File(pickedImage.path);
       widget.onImageChange(pickedImageFile);
+      final storageRef = FirebaseInstance.storage.ref('profile/${FirebaseInstance.auth.currentUser!.uid}');
+      await storageRef.putFile(pickedImageFile);
     }
     Navigator.pop(context);
   }
@@ -106,7 +110,7 @@ class _ProfileState extends State<Profile> {
                                   ),
                                 ),
                                 TextButton.icon(
-                                  onPressed: gallaryImage,
+                                  onPressed: galleryImage,
                                   label: const Text(
                                     'Gallery',
                                     style: TextStyle(
