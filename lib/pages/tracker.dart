@@ -12,33 +12,31 @@ class Tracker extends StatefulWidget {
 }
 
 class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
-  final List<TrackerTransaction> _transactions = [];
-
-  final List<double> categoriesValue = [
-    10,
-    20,
-    3,
-    5,
-    8,
-    7,
-    3,
-  ];
+  bool _isStateUpdated = false;
+  Future<List<TrackerTransaction>> _transactions = Future.value([]);
 
   @override
   void initState() {
     super.initState();
-    _getTransactions();
+    _transactions = _getTransactions();
+  }
+
+  void _updateTransactions() {
+    setState(() {
+      _isStateUpdated = true;
+      _transactions = _getTransactions();
+    });
   }
 
   Future<List<TrackerTransaction>> _getTransactions() async {
-    List<TrackerTransaction> _transactionData = [];
+    final List<TrackerTransaction> transactionData = [];
     await FirebaseInstance.firestore.collection('transactions')
       .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
       .orderBy('date', descending: false)
       .get()
       .then((event) {
         for (var transaction in event.docs) {
-          _transactionData.add(TrackerTransaction(
+          transactionData.add(TrackerTransaction(
             transaction.id,
             transaction['userID'],
             transaction['title'],
@@ -50,7 +48,7 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
           ));
         }
       });
-    return _transactionData;
+    return transactionData;
   }
 
   @override
@@ -68,10 +66,7 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,),
               ),
             ),
-            CategoryChart(
-              Constants.expenseCategories,
-              categoriesValue,
-            ),
+            CategoryChart(isStateUpdated: _isStateUpdated),
           ],
         ),
         Container(
@@ -88,9 +83,7 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
                 onPressed: () {
                   Navigator.pushNamed(context, '/tracker/add').then((value) {
                     if (value != null && value is TrackerTransaction) {
-                      setState(() {
-                        _transactions.add(value);
-                      });
+                      _updateTransactions();
                     }
                   });
                 },
@@ -100,7 +93,7 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
           ),
         ),
         FutureBuilder(
-          future: _getTransactions(),
+          future: _transactions,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
               return Wrap(
