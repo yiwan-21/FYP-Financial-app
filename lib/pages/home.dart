@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:financial_app/firebaseInstance.dart';
 import 'package:financial_app/providers/navigationProvider.dart';
 import 'package:flutter/material.dart';
@@ -12,11 +9,10 @@ import '../providers/userProvider.dart';
 
 const TrackerIndex = 1;
 const AnalyticsIndex = 2;
-const GoalIndex = 3; 
+const GoalIndex = 3;
 
 class Home extends StatefulWidget {
-  final File? profileImage;
-  const Home({this.profileImage, super.key});
+  const Home({super.key});
 
   @override
   State<Home> createState() => _HomeState();
@@ -25,50 +21,53 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   Future<List<TrackerTransaction>> _getTransactions() async {
     List<TrackerTransaction> _transactions = [];
-    await FirebaseInstance.firestore.collection('transactions')
-      .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-      .orderBy('date', descending: true)
-      .limit(3)
-      .get()
-      .then((event) {
-        for (var transaction in event.docs) {
-          _transactions.add(TrackerTransaction(
-            transaction.id,
-            transaction['userID'],
-            transaction['title'],
-            transaction['amount'].toDouble(),
-            transaction['date'].toDate(),
-            transaction['isExpense'],
-            transaction['category'],
-            notes: transaction['notes'],
-          ));
-        }
-      });
+    await FirebaseInstance.firestore
+        .collection('transactions')
+        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+        .orderBy('date', descending: true)
+        .limit(3)
+        .get()
+        .then((event) {
+      for (var transaction in event.docs) {
+        _transactions.add(TrackerTransaction(
+          transaction.id,
+          transaction['userID'],
+          transaction['title'],
+          transaction['amount'].toDouble(),
+          transaction['date'].toDate(),
+          transaction['isExpense'],
+          transaction['category'],
+          notes: transaction['notes'],
+        ));
+      }
+    });
     return _transactions;
   }
 
   Future<List<Goal>> _getGoals() async {
     final List<Goal> goalData = [];
 
-    await FirebaseInstance.firestore.collection('goals')
-      .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-      .orderBy('pinned', descending: true)
-      .orderBy('targetDate', descending: false)
-      .limit(1)
-      .get()
-      .then((value) => {
-        for (var goal in value.docs) {
-          goalData.add(Goal(
-            goal.id,
-            goal['userID'],
-            goal['title'],
-            goal['amount'].toDouble(),
-            goal['saved'].toDouble(),
-            goal['targetDate'].toDate(),
-            goal['pinned'],
-          )),
-        }
-      });
+    await FirebaseInstance.firestore
+        .collection('goals')
+        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+        .orderBy('pinned', descending: true)
+        .orderBy('targetDate', descending: false)
+        .limit(1)
+        .get()
+        .then((value) => {
+              for (var goal in value.docs)
+                {
+                  goalData.add(Goal(
+                    goal.id,
+                    goal['userID'],
+                    goal['title'],
+                    goal['amount'].toDouble(),
+                    goal['saved'].toDouble(),
+                    goal['targetDate'].toDate(),
+                    goal['pinned'],
+                  )),
+                }
+            });
     return goalData;
   }
 
@@ -82,18 +81,28 @@ class _HomeState extends State<Home> {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  radius: 20.0,
-                  backgroundImage: widget.profileImage == null
-                      ? null
-                      : FileImage(widget.profileImage!),
-                  child: widget.profileImage == null
-                      ? const Icon(
-                          Icons.account_circle,
-                          color: Colors.white,
-                          size: 40.0,
-                        )
-                      : null,
+                Consumer<UserProvider>(
+                  builder: (context, userProvider, _) {
+                    return FutureBuilder(
+                        future: userProvider.profileImage,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done &&
+                              snapshot.data != null) {
+                            return CircleAvatar(
+                                radius: 20.0,
+                                backgroundImage: NetworkImage(snapshot.data!));
+                          } else {
+                            return const CircleAvatar(
+                              radius: 20.0,
+                              child: Icon(
+                                Icons.account_circle,
+                                color: Colors.white,
+                                size: 40.0,
+                              ),
+                            );
+                          }
+                        });
+                  }
                 ),
                 const SizedBox(width: 20.0),
                 Column(
@@ -149,7 +158,9 @@ class _HomeState extends State<Home> {
                           ),
                           TextButton(
                             onPressed: () {
-                              Provider.of<NavigationProvider>(context, listen: false).setCurrentIndex(GoalIndex);
+                              Provider.of<NavigationProvider>(context,
+                                      listen: false)
+                                  .setCurrentIndex(GoalIndex);
                             },
                             child: const Text(
                               'View All',
@@ -163,20 +174,21 @@ class _HomeState extends State<Home> {
                         ],
                       ),
                       FutureBuilder(
-                        future: _getGoals(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
-                            return ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: snapshot.data!.length,
-                              itemBuilder: (context, index) {
-                                return snapshot.data![index];
-                              }
-                            );
-                          } else {
-                            return Container();
-                          }
-                      }),
+                          future: _getGoals(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                    ConnectionState.done &&
+                                snapshot.data != null) {
+                              return ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: snapshot.data!.length,
+                                  itemBuilder: (context, index) {
+                                    return snapshot.data![index];
+                                  });
+                            } else {
+                              return Container();
+                            }
+                          }),
                       const SizedBox(height: 40.0),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -194,7 +206,9 @@ class _HomeState extends State<Home> {
                           ),
                           TextButton(
                             onPressed: () {
-                              Provider.of<NavigationProvider>(context, listen: false).setCurrentIndex(TrackerIndex);
+                              Provider.of<NavigationProvider>(context,
+                                      listen: false)
+                                  .setCurrentIndex(TrackerIndex);
                             },
                             child: const Text(
                               'View All',
@@ -209,8 +223,10 @@ class _HomeState extends State<Home> {
                       ),
                       FutureBuilder(
                         future: _getTransactions(),
-                        builder:(context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                                  ConnectionState.done &&
+                              snapshot.data != null) {
                             return ListView.builder(
                               shrinkWrap: true,
                               itemCount: snapshot.data!.length,
@@ -230,7 +246,6 @@ class _HomeState extends State<Home> {
                           } else {
                             return const Text('No transactions found');
                           }
-                          
                         },
                       ),
                     ],

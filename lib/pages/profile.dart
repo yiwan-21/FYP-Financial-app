@@ -6,10 +6,7 @@ import '../providers/userProvider.dart';
 import '../firebaseInstance.dart';
 
 class Profile extends StatefulWidget {
-  File? profileImage;
-  final Function(File) onImageChange;
-
-  Profile({required this.profileImage, required this.onImageChange, super.key});
+  const Profile({super.key});
 
   @override
   State<Profile> createState() => _ProfileState();
@@ -20,14 +17,18 @@ class _ProfileState extends State<Profile> {
   final String _email = '';
 
 // Pick from gallery
-  void gallaryImage() async {
+  void galleryImage() async {
     final picker = ImagePicker();
     final pickedImage = await picker.pickImage(
       source: ImageSource.gallery,
     );
     if (pickedImage != null) {
       final pickedImageFile = File(pickedImage.path);
-      widget.onImageChange(pickedImageFile);
+      final storageRef = FirebaseInstance.storage
+          .ref('profile/${FirebaseInstance.auth.currentUser!.uid}');
+      await storageRef.putFile(pickedImageFile);
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      userProvider.updateProfileImage();
     }
     Navigator.pop(context);
   }
@@ -40,7 +41,11 @@ class _ProfileState extends State<Profile> {
     );
     if (pickedImage != null) {
       final pickedImageFile = File(pickedImage.path);
-      widget.onImageChange(pickedImageFile);
+      final storageRef = FirebaseInstance.storage
+          .ref('profile/${FirebaseInstance.auth.currentUser!.uid}');
+      await storageRef.putFile(pickedImageFile);
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      userProvider.updateProfileImage();
     }
     Navigator.pop(context);
   }
@@ -64,18 +69,28 @@ class _ProfileState extends State<Profile> {
           Stack(
             alignment: Alignment.center,
             children: [
-              CircleAvatar(
-                radius: 70.0,
-                backgroundImage: widget.profileImage == null
-                    ? null
-                    : FileImage(widget.profileImage!),
-                child: widget.profileImage == null
-                    ? const Icon(
-                        Icons.account_circle,
-                        color: Colors.white,
-                        size: 140.0,
-                      )
-                    : null,
+              Consumer<UserProvider>(
+                builder: (context, userProvider, _) {
+                  return FutureBuilder(
+                      future: userProvider.profileImage,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done &&
+                            snapshot.data != null) {
+                          return CircleAvatar(
+                              radius: 70.0,
+                              backgroundImage: NetworkImage(snapshot.data!));
+                        } else {
+                          return const CircleAvatar(
+                            radius: 70.0,
+                            child: Icon(
+                              Icons.account_circle,
+                              color: Colors.white,
+                              size: 140.0,
+                            ),
+                          );
+                        }
+                      });
+                }
               ),
               Positioned(
                 bottom: 0.0,
@@ -106,7 +121,7 @@ class _ProfileState extends State<Profile> {
                                   ),
                                 ),
                                 TextButton.icon(
-                                  onPressed: gallaryImage,
+                                  onPressed: galleryImage,
                                   label: const Text(
                                     'Gallery',
                                     style: TextStyle(
@@ -159,7 +174,8 @@ class _ProfileState extends State<Profile> {
               return Text(
                 userProvider.name,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               );
             },
           ),
@@ -169,7 +185,8 @@ class _ProfileState extends State<Profile> {
               return Text(
                 userProvider.email,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               );
             },
           ),
