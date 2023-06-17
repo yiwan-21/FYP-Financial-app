@@ -14,6 +14,18 @@ class TotalGoalProvider extends ChangeNotifier {
   Future<List<Goal>> get getGoals => _goals;
   Future<List<Goal>> get getPinnedGoal => _pinnedGoals;
 
+  Future<void> updateGoals() async {
+    _goals = _getGoals();
+    _pinnedGoals = _getPinnedGoal();
+    notifyListeners();
+  }
+
+  void reset() {
+    _goals = Future.value([]);
+    _pinnedGoals = Future.value([]);
+    notifyListeners();
+  }
+
   Future<List<Goal>> _getGoals() async {
     final List<Goal> goalData = [];
     await FirebaseInstance.firestore.collection('goals')
@@ -61,11 +73,5 @@ class TotalGoalProvider extends ChangeNotifier {
                 }
             });
     return goalData;
-  }
-
-  Future<void> updateGoals() async {
-    _goals = _getGoals();
-    _pinnedGoals = _getPinnedGoal();
-    notifyListeners();
   }
 }

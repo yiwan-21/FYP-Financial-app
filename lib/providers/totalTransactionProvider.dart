@@ -24,6 +24,13 @@ class TotalTransactionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void reset() {
+    _recentTransactions = Future.value([]);
+    _transactions = Future.value([]);
+    _pieChartData = Future.value({});
+    notifyListeners();
+  }
+
   Future<List<TrackerTransaction>> _getRecentTransactions() async {
     final List<TrackerTransaction> transactions = [];
     await FirebaseInstance.firestore
