@@ -23,14 +23,13 @@ class _AddGoalState extends State<AddGoal> {
   bool _pinned = false;
  
   Future<void> _selectDate(BuildContext context) async {
-    final firstDate = DateTime.now().add(const Duration(days: 7));
-    final lastDate = DateTime.now().add(const Duration(days: 5 * 365));
+    final firstDate = DateTime.now();
+    final lastDate = DateTime.now().add(const Duration(days: 30 * 365));
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _date.day == DateTime.now().day ? firstDate : _date,
       firstDate: firstDate,
       lastDate: lastDate,
-      
     );
     if (picked != null) {
       setState(() {
