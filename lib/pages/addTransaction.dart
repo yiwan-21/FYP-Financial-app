@@ -258,7 +258,7 @@ class _AddTransactionState extends State<AddTransaction> {
                             // Form is valid, do something
                             _formKey.currentState!.save();
                             // For example, submit the form to a server
-                            final new_transaction = TrackerTransaction(
+                            final newTransaction = TrackerTransaction(
                               _id,
                               FirebaseInstance.auth.currentUser!.uid,
                               _title,
@@ -269,8 +269,8 @@ class _AddTransactionState extends State<AddTransaction> {
                               notes: _notes,
                             );
 
-                            FirebaseInstance.firestore.collection("transactions").add(new_transaction.toCollection());
-                            Navigator.pop(context, new_transaction);
+                            FirebaseInstance.firestore.collection("transactions").add(newTransaction.toCollection());
+                            Navigator.pop(context, newTransaction);
                           }
                         },
                       ),

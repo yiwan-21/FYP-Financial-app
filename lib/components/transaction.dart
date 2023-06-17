@@ -1,3 +1,4 @@
+import 'package:financial_app/providers/totalTransactionProvider.dart';
 import 'package:financial_app/providers/transactionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -53,19 +54,23 @@ class _TrackerTransactionState extends State<TrackerTransaction>
       widget.category,
       notes: widget.notes,
     );
-    Navigator.pushNamed(context, '/tracker/edit').then((tx) => {
-          if (tx != null && tx is TrackerTransaction)
-            {
-              setState(() {
-                widget.title = tx.title;
-                widget.notes = tx.notes;
-                widget.amount = tx.amount;
-                widget.date = tx.date;
-                widget.isExpense = tx.isExpense;
-                widget.category = tx.category;
-              }),
-            }
-        });
+    
+    Navigator.pushNamed(context, '/tracker/edit').then((tx) {
+      if (tx != null) {
+        final totalTransactionProvider = Provider.of<TotalTransactionProvider>(context, listen: false);
+        totalTransactionProvider.updateTransactions();
+        if (tx is TrackerTransaction) {
+          setState(() {
+            widget.title = tx.title;
+            widget.notes = tx.notes;
+            widget.amount = tx.amount;
+            widget.date = tx.date;
+            widget.isExpense = tx.isExpense;
+            widget.category = tx.category;
+          });
+        }
+      }
+    });
   }
 
   @override

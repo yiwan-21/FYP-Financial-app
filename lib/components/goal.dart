@@ -1,4 +1,5 @@
 import 'package:financial_app/providers/goalProvider.dart';
+import 'package:financial_app/providers/totalGoalProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -57,12 +58,13 @@ class _GoalState extends State<Goal> {
           widget.targetDate,
           _pinned,
         );
-        Navigator.pushNamed(context, '/goal/progress').then((_) => {
+        Navigator.pushNamed(context, '/goal/progress').then((goal) => {
               _saved = goalProvider.getSaved,
               _pinned = goalProvider.getPinned,
               setState(() {
                 _progress = _saved / widget.amount;
               }),
+              Provider.of<TotalGoalProvider>(context, listen: false).updateGoals(),
             });
       },
       child: Card(

@@ -1,5 +1,6 @@
 import 'package:financial_app/firebaseInstance.dart';
 import 'package:financial_app/providers/goalProvider.dart';
+import 'package:financial_app/services/goal_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -90,34 +91,58 @@ class _GoalProgressState extends State<GoalProgress>
           ),
           actions: [
             IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () {
+                showDialog(
+                  context: context, 
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Delete Savings Goal'),
+                      content: const Text('Are you sure you want to delete this goal?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          }, 
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            await FirebaseInstance.firestore
+                                .collection("goals")
+                                .doc(_id)
+                                .delete()
+                                .then((_) {
+                                  // quit dialog box
+                                  Navigator.pop(context);
+                                  // quit goal progress page
+                                  // need to return something, because
+                                  // null returned will not update goal list
+                                  Navigator.pop(context, 'deleted');
+                                });
+                          }, 
+                          child: const Text('Delete'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+            IconButton(
               // push_pin with a slash
               icon: Icon(
                 _pinned ? Icons.push_pin : Icons.push_pin_outlined,
                 semanticLabel: _pinned ? 'Unpin' : 'Pin',
               ),
-              onPressed: () async {
+              onPressed: () {
                 if (!_pinned) {
-                  await FirebaseInstance.firestore
-                      .collection('goals')
-                      .where('userID',
-                          isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-                      .where('pinned', isEqualTo: true)
-                      .get()
-                      .then((value) => {
-                            for (var goal in value.docs)
-                              {
-                                FirebaseInstance.firestore
-                                    .collection('goals')
-                                    .doc(goal.id)
-                                    .update({'pinned': false}),
-                              }
-                          });
+                  GoalService.removeAllPin();
                 }
                 setState(() {
                   _pinned = !_pinned;
                 });
-                Provider.of<GoalProvider>(context, listen: false)
-                    .setPinned(_pinned);
+                Provider.of<GoalProvider>(context, listen: false).setPinned(_pinned);
                 FirebaseInstance.firestore
                     .collection('goals')
                     .doc(_id)
@@ -226,8 +251,7 @@ class _GoalProgressState extends State<GoalProgress>
                                           ),
                                           child: const Text('Save'),
                                           onPressed: () {
-                                            if (_formKey.currentState!
-                                                .validate()) {
+                                            if (_formKey.currentState!.validate()) {
                                               // Submit form data to server or database
                                               _formKey.currentState!.save();
                                               if (_addAmount > _remaining) {
@@ -238,9 +262,7 @@ class _GoalProgressState extends State<GoalProgress>
                                                 _remaining -= _addAmount;
                                               });
                                               _updateProgress();
-                                              Provider.of<GoalProvider>(context,
-                                                      listen: false)
-                                                  .setSaved(_saved);
+                                              Provider.of<GoalProvider>(context,listen: false).setSaved(_saved);
                                               FirebaseInstance.firestore
                                                   .collection('goals')
                                                   .doc(_id)
@@ -250,10 +272,9 @@ class _GoalProgressState extends State<GoalProgress>
                                                   .doc(_id)
                                                   .collection('history')
                                                   .add({
-                                                'amount': _addAmount,
-                                                'date': DateTime.now(),
-                                              });
-
+                                                    'amount': _addAmount,
+                                                    'date': DateTime.now(),
+                                                  });
                                               Navigator.pop(context);
                                             }
                                           },

@@ -1,6 +1,9 @@
 import 'package:financial_app/firebaseInstance.dart';
+import 'package:financial_app/providers/totalGoalProvider.dart';
+import 'package:financial_app/services/goal_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../constants.dart';
 import '../components/goal.dart';
 
@@ -17,6 +20,7 @@ class _AddGoalState extends State<AddGoal> {
   String _title = '';
   double _amount = 0;
   DateTime _date = DateTime.now();
+  bool _pinned = false;
  
   Future<void> _selectDate(BuildContext context) async {
     final firstDate = DateTime.now().add(const Duration(days: 7));
@@ -40,6 +44,20 @@ class _AddGoalState extends State<AddGoal> {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Add Goal'),
+          actions: [
+            IconButton(
+              // push_pin with a slash
+              icon: Icon(
+                _pinned ? Icons.push_pin : Icons.push_pin_outlined,
+                semanticLabel: _pinned ? 'Unpin' : 'Pin',
+              ),
+              onPressed: () async {
+                setState(() {
+                  _pinned = !_pinned;
+                });
+              },
+            )
+          ],
         ),
         body: Container(
           alignment: Constants.isMobile(context)
@@ -182,18 +200,21 @@ class _AddGoalState extends State<AddGoal> {
                             if (_formKey.currentState!.validate()) {
                               // Submit form data to server or database
                               _formKey.currentState!.save();
-                              final new_goal = Goal(
+                              final newGoal = Goal(
                                 _id,
                                 FirebaseInstance.auth.currentUser!.uid,
                                 _title,
                                 _amount,
                                 0,
                                 _date,
-                                false,
+                                _pinned,
                               );
-
-                              FirebaseInstance.firestore.collection('goals').add(new_goal.toCollection());
-                              Navigator.pop(context, new_goal);
+                              if (_pinned) {
+                                print(_pinned);
+                                GoalService.removeAllPin();
+                              }
+                              FirebaseInstance.firestore.collection('goals').add(newGoal.toCollection());
+                              Navigator.pop(context, newGoal);
                             }
                           },
                         ),
