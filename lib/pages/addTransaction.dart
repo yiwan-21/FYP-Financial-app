@@ -247,10 +247,10 @@ class _AddTransactionState extends State<AddTransaction> {
                     children: [
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
+                          fixedSize: const Size(150, 40),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(4.0),
                           ),
-                          padding: const EdgeInsets.all(20),
                         ),
                         child: const Text('Add Transaction'),
                         onPressed: () {
