@@ -22,6 +22,7 @@ class Constants {
     'Transportation',
     'Rental',
     'Bill',
+    'Savings Goal',
     'Education',
     'Personal Items',
     'Other Expenses'
@@ -59,6 +60,8 @@ class Constants {
         return const Icon(Icons.house);
       case 'Bill':
         return const Icon(Icons.event_note_outlined);
+      case 'Savings Goal':
+        return const Icon(Icons.star);
       case 'Education':
         return const Icon(Icons.cases_outlined);
       case 'Personal Items':
