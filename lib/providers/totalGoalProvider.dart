@@ -18,6 +18,7 @@ class TotalGoalProvider extends ChangeNotifier {
     final List<Goal> goalData = [];
     await FirebaseInstance.firestore.collection('goals')
       .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+      .orderBy('pinned', descending: true)
       .orderBy('targetDate', descending: false)
       .get()
       .then((goals) => {
@@ -62,7 +63,7 @@ class TotalGoalProvider extends ChangeNotifier {
     return goalData;
   }
 
-  void updateGoals() {
+  Future<void> updateGoals() async {
     _goals = _getGoals();
     _pinned_goals = _getPinnedGoal();
     notifyListeners();

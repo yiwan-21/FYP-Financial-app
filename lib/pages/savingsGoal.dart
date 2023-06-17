@@ -55,7 +55,7 @@ class _SavingsGoalState extends State<SavingsGoal> {
                 Navigator.pushNamed(context, '/goal/add')
                   .then((goal) {
                     if (goal != null && goal is Goal) {
-                      Provider.of<TotalGoalProvider>(context, listen: false).updateGoals();
+                      // Provider.of<TotalGoalProvider>(context, listen: false).updateGoals();
                     }
                   });
               },

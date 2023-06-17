@@ -77,6 +77,7 @@ class _GoalState extends State<Goal> {
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
                 children: [
                   Text(
                     widget.title,
@@ -87,13 +88,23 @@ class _GoalState extends State<Goal> {
                       color: Colors.black,
                     ),
                   ),
-                  Text(
-                    'RM ${widget.amount.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      color: Colors.black,
-                    ),
+
+                  Row(
+                    children: [
+                      if (_pinned) 
+                        const Padding(
+                          padding: EdgeInsets.only(right: 10),
+                          child: Icon(Icons.push_pin),
+                        ),
+                      Text(
+                        'RM ${widget.amount.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

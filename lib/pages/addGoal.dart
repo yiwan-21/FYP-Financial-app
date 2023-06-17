@@ -212,13 +212,14 @@ class _AddGoalState extends State<AddGoal> {
                                 .add(newGoal.toCollection())
                                 .then((value) {
                                   _id = value.id;
-                                  if (_pinned) {
-                                    GoalService.setPinned(_id, _pinned);
-                                  }
-                                })
-                                .then((_) {
-                                  Navigator.pop(context, newGoal);
                                 });
+                                if (_pinned) {
+                                  await GoalService.setPinned(_id, _pinned);
+                                }
+                                if (context.mounted) {
+                                  Provider.of<TotalGoalProvider>(context, listen: false).updateGoals();
+                                  Navigator.pop(context, newGoal);
+                                }
                             }
                           },
                         ),

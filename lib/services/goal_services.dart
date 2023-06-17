@@ -1,7 +1,7 @@
 import 'package:financial_app/firebaseInstance.dart';
 
 class GoalService {
-  static void setPinned(targetID, pinned) async {
+  static Future<void> setPinned(targetID, pinned) async {
     await FirebaseInstance.firestore
       .collection('goals')
       .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
