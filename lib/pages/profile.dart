@@ -194,10 +194,10 @@ class _ProfileState extends State<Profile> {
           Center(
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(minimumSize: const Size(180, 40)),
-              onPressed: () {
-                FirebaseInstance.auth.signOut();
-                Navigator.pushNamedAndRemoveUntil(
-                    context, '/', (route) => false);
+              onPressed: () async {
+                await FirebaseInstance.auth.signOut().then((_) {
+                  Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                });
               },
               child: const Text('Logout'),
             ),
