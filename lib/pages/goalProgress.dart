@@ -135,18 +135,20 @@ class _GoalProgressState extends State<GoalProgress>
                 _pinned ? Icons.push_pin : Icons.push_pin_outlined,
                 semanticLabel: _pinned ? 'Unpin' : 'Pin',
               ),
-              onPressed: () {
-                if (!_pinned) {
-                  GoalService.removeAllPin();
-                }
+              onPressed: () async {
                 setState(() {
                   _pinned = !_pinned;
                 });
-                Provider.of<GoalProvider>(context, listen: false).setPinned(_pinned);
-                FirebaseInstance.firestore
+                print("pinned: $_pinned");
+                if (_pinned) {
+                  GoalService.setPinned(_id, _pinned);
+                } else {
+                  FirebaseInstance.firestore
                     .collection('goals')
                     .doc(_id)
                     .update({'pinned': _pinned});
+                }
+                Provider.of<GoalProvider>(context, listen: false).setPinned(_pinned);
               },
             )
           ],

@@ -1,18 +1,24 @@
 import 'package:financial_app/firebaseInstance.dart';
 
 class GoalService {
-  static void removeAllPin() async {
+  static void setPinned(targetID, pinned) async {
     await FirebaseInstance.firestore
       .collection('goals')
       .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-      .where('pinned', isEqualTo: true)
       .get()
-      .then((value) => {
-        for (var goal in value.docs) {
-          FirebaseInstance.firestore
+      .then((goals) {
+        for (var goal in goals.docs) {
+          if (goal.id == targetID) {
+            FirebaseInstance.firestore
               .collection('goals')
               .doc(goal.id)
-              .update({'pinned': false}),
+              .update({'pinned': pinned});
+          } else {
+            FirebaseInstance.firestore
+              .collection('goals')
+              .doc(goal.id)
+              .update({'pinned': false});
+          }
         }
       });
   }

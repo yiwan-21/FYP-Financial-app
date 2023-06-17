@@ -51,7 +51,7 @@ class _AddGoalState extends State<AddGoal> {
                 _pinned ? Icons.push_pin : Icons.push_pin_outlined,
                 semanticLabel: _pinned ? 'Unpin' : 'Pin',
               ),
-              onPressed: () async {
+              onPressed: () {
                 setState(() {
                   _pinned = !_pinned;
                 });
@@ -196,7 +196,7 @@ class _AddGoalState extends State<AddGoal> {
                             ),
                           ),
                           child: const Text('Save'),
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               // Submit form data to server or database
                               _formKey.currentState!.save();
@@ -209,11 +209,17 @@ class _AddGoalState extends State<AddGoal> {
                                 _date,
                                 _pinned,
                               );
-                              if (_pinned) {
-                                GoalService.removeAllPin();
-                              }
-                              FirebaseInstance.firestore.collection('goals').add(newGoal.toCollection());
-                              Navigator.pop(context, newGoal);
+                              await FirebaseInstance.firestore.collection('goals')
+                                .add(newGoal.toCollection())
+                                .then((value) {
+                                  _id = value.id;
+                                  if (_pinned) {
+                                    GoalService.setPinned(_id, _pinned);
+                                  }
+                                })
+                                .then((_) {
+                                  Navigator.pop(context, newGoal);
+                                });
                             }
                           },
                         ),
