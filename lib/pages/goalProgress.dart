@@ -139,7 +139,6 @@ class _GoalProgressState extends State<GoalProgress>
                 setState(() {
                   _pinned = !_pinned;
                 });
-                print("pinned: $_pinned");
                 if (_pinned) {
                   GoalService.setPinned(_id, _pinned);
                 } else {
