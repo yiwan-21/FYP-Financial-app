@@ -21,58 +21,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Future<List<TrackerTransaction>> _getTransactions() async {
-    List<TrackerTransaction> _transactions = [];
-    await FirebaseInstance.firestore
-        .collection('transactions')
-        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-        .orderBy('date', descending: true)
-        .limit(3)
-        .get()
-        .then((event) {
-      for (var transaction in event.docs) {
-        _transactions.add(TrackerTransaction(
-          transaction.id,
-          transaction['userID'],
-          transaction['title'],
-          transaction['amount'].toDouble(),
-          transaction['date'].toDate(),
-          transaction['isExpense'],
-          transaction['category'],
-          notes: transaction['notes'],
-        ));
-      }
-    });
-    return _transactions;
-  }
-
-  // Future<List<Goal>> _getGoals() async {
-  //   final List<Goal> goalData = [];
-
-  //   await FirebaseInstance.firestore
-  //       .collection('goals')
-  //       .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-  //       .orderBy('pinned', descending: true)
-  //       .orderBy('targetDate', descending: false)
-  //       .limit(1)
-  //       .get()
-  //       .then((value) => {
-  //             for (var goal in value.docs)
-  //               {
-  //                 goalData.add(Goal(
-  //                   goal.id,
-  //                   goal['userID'],
-  //                   goal['title'],
-  //                   goal['amount'].toDouble(),
-  //                   goal['saved'].toDouble(),
-  //                   goal['targetDate'].toDate(),
-  //                   goal['pinned'],
-  //                 )),
-  //               }
-  //           });
-  //   return goalData;
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Container(
