@@ -210,7 +210,6 @@ class _AddGoalState extends State<AddGoal> {
                                 _pinned,
                               );
                               if (_pinned) {
-                                print(_pinned);
                                 GoalService.removeAllPin();
                               }
                               FirebaseInstance.firestore.collection('goals').add(newGoal.toCollection());
