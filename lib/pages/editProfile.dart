@@ -1,3 +1,4 @@
+import 'package:financial_app/firebaseInstance.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
@@ -14,46 +15,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
   final _formKey = GlobalKey<FormState>();
   String _name = '';
   String _email = '';
-  String _password = '';
-  String _newPassword = '';
-  String _currentPassword = '';
-  String _confirmPassword = '';
 
-  bool _currentPasswordError = false;
-  bool _newPasswordError = false;
-
-  void _validateCurrentPassword(String? value) {
-    if (value == null || value.isEmpty) {
-      setState(() {
-        _currentPasswordError = true;
-      });
-    } else if (value != _password) {
-      setState(() {
-        _currentPasswordError = true;
-      });
-    } else {
-      setState(() {
-        _currentPasswordError = false;
-      });
-    }
-  }
-
-  void _validateConfirmPassword(String? value) {
-    if (value == null || value.isEmpty) {
-      setState(() {
-        _newPasswordError = true;
-      });
-    } else if (value != _newPassword) {
-      setState(() {
-        _newPasswordError = true;
-      });
-    } else {
-      setState(() {
-        _newPasswordError = false;
-      });
-    }
-  }
-  
   @override
   void initState() {
     super.initState();
@@ -99,6 +61,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
               child: Form(
                 key: _formKey,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     const SizedBox(height: 18.0),
                     TextFormField(
@@ -154,124 +117,24 @@ class _EditProfileFormState extends State<EditProfileForm> {
                         _email = value!;
                       },
                     ),
-                    const SizedBox(height: 30.0),
-                    const Text(
-                      "Change Password",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 15.0),
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: 'Current Password',
-                        labelStyle: TextStyle(color: Colors.black),
-                        fillColor: Colors.white,
-                        filled: true,
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(width: 1.5),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(width: 1),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderSide: BorderSide(width: 1.5, color: Colors.red),
+                    const SizedBox(height: 24.0),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: const Size(150, 40),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4.0),
                         ),
                       ),
-                      obscureText: true,
-                      validator: (value) {
-                        if (_currentPasswordError) {
-                          return 'Incorrect current password';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        _validateCurrentPassword(value);
-                        _currentPassword = value;
+                      child: const Text('Reset Password'),
+                      onPressed: () async {
+                        await FirebaseInstance.auth.sendPasswordResetEmail(email: _email)
+                          .whenComplete(() {
+                            SnackBar snackBar = const SnackBar(content: Text('Password reset email sent'));
+                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                          });
                       },
                     ),
-                    const SizedBox(height: 18.0),
-                    Column(
-                      children: [
-                        TextFormField(
-                          decoration: const InputDecoration(
-                            labelText: 'New Password',
-                            labelStyle: TextStyle(color: Colors.black),
-                            fillColor: Colors.white,
-                            filled: true,
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(width: 1.5),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(width: 1),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(width: 1.5, color: Colors.red),
-                            ),
-                          ),
-                          obscureText: true,
-                          validator: (value) {
-                            if (_currentPassword == '') {
-                              return null;
-                            }
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a new password';
-                            }
-                            if (value.length < 6) {
-                              return 'Password must be at least 6 characters.';
-                            }
-                            if (!RegExp(
-                                    r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$')
-                                .hasMatch(value)) {
-                              return 'Password must contain at least one uppercase letter,\none lowercase letter, one number and one special character.';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            _newPassword = value;
-                          },
-                        ),
-                        const SizedBox(height: 18.0),
-                        TextFormField(
-                          decoration: const InputDecoration(
-                            labelText: 'Confirm New Password',
-                            labelStyle: TextStyle(color: Colors.black),
-                            fillColor: Colors.white,
-                            filled: true,
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(width: 1.5),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(width: 1),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(width: 1.5, color: Colors.red),
-                            ),
-                          ),
-                          obscureText: true,
-                          validator: (value) {
-                            if (_currentPassword == '') {
-                              return null;
-                            }
-                            if (value == null || value.isEmpty) {
-                              return 'Please re-enter your new password';
-                            } else if (_newPasswordError) {
-                              return 'new password does not match';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            _validateConfirmPassword(value);
-                            _confirmPassword = value;
-                            _password = value;
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 18.0),
+                    const SizedBox(height: 60.0),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
