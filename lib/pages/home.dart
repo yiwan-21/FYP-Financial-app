@@ -1,5 +1,7 @@
 import 'package:financial_app/firebaseInstance.dart';
 import 'package:financial_app/providers/navigationProvider.dart';
+import 'package:financial_app/providers/totalGoalProvider.dart';
+import 'package:financial_app/providers/totalTransactionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'analytics.dart';
@@ -44,32 +46,32 @@ class _HomeState extends State<Home> {
     return _transactions;
   }
 
-  Future<List<Goal>> _getGoals() async {
-    final List<Goal> goalData = [];
+  // Future<List<Goal>> _getGoals() async {
+  //   final List<Goal> goalData = [];
 
-    await FirebaseInstance.firestore
-        .collection('goals')
-        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-        .orderBy('pinned', descending: true)
-        .orderBy('targetDate', descending: false)
-        .limit(1)
-        .get()
-        .then((value) => {
-              for (var goal in value.docs)
-                {
-                  goalData.add(Goal(
-                    goal.id,
-                    goal['userID'],
-                    goal['title'],
-                    goal['amount'].toDouble(),
-                    goal['saved'].toDouble(),
-                    goal['targetDate'].toDate(),
-                    goal['pinned'],
-                  )),
-                }
-            });
-    return goalData;
-  }
+  //   await FirebaseInstance.firestore
+  //       .collection('goals')
+  //       .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+  //       .orderBy('pinned', descending: true)
+  //       .orderBy('targetDate', descending: false)
+  //       .limit(1)
+  //       .get()
+  //       .then((value) => {
+  //             for (var goal in value.docs)
+  //               {
+  //                 goalData.add(Goal(
+  //                   goal.id,
+  //                   goal['userID'],
+  //                   goal['title'],
+  //                   goal['amount'].toDouble(),
+  //                   goal['saved'].toDouble(),
+  //                   goal['targetDate'].toDate(),
+  //                   goal['pinned'],
+  //                 )),
+  //               }
+  //           });
+  //   return goalData;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -79,57 +81,53 @@ class _HomeState extends State<Home> {
         child: ListView(
           shrinkWrap: true,
           children: [
-            Row(
-              children: [
-                Consumer<UserProvider>(
-                  builder: (context, userProvider, _) {
-                    return FutureBuilder(
-                        future: userProvider.profileImage,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done &&
-                              snapshot.data != null) {
-                            return CircleAvatar(
-                                radius: 20.0,
-                                backgroundImage: NetworkImage(snapshot.data!));
-                          } else {
-                            return const CircleAvatar(
-                              radius: 20.0,
-                              child: Icon(
-                                Icons.account_circle,
-                                color: Colors.white,
-                                size: 40.0,
-                              ),
-                            );
-                          }
-                        });
-                  }
-                ),
-                const SizedBox(width: 20.0),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            Consumer<UserProvider>(
+              builder: (context, userProvider, _) {
+                return Row(
                   children: [
-                    Text(
-                      "Hello,",
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    Consumer<UserProvider>(
-                      builder: (context, userProvider, _) {
-                        return Text(
+                    FutureBuilder(
+                      future: userProvider.profileImage,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done &&
+                            snapshot.data != null) {
+                          return CircleAvatar(
+                              radius: 20.0,
+                              backgroundImage: NetworkImage(snapshot.data!));
+                        } else {
+                          return const CircleAvatar(
+                            radius: 20.0,
+                            child: Icon(
+                              Icons.account_circle,
+                              color: Colors.white,
+                              size: 40.0,
+                            ),
+                          );
+                        }
+                      }),
+                    const SizedBox(width: 20.0),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Hello,",
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        Text(
                           userProvider.name,
                           style: const TextStyle(
                             fontSize: 20.0,
                             fontWeight: FontWeight.bold,
                           ),
-                        );
-                      },
+                        ),
+                      ],
                     ),
                   ],
-                ),
-              ],
+                );
+              }
             ),
             const SizedBox(height: 20.0),
             Flex(
@@ -173,22 +171,24 @@ class _HomeState extends State<Home> {
                           ),
                         ],
                       ),
-                      FutureBuilder(
-                          future: _getGoals(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                    ConnectionState.done &&
-                                snapshot.data != null) {
-                              return ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: snapshot.data!.length,
-                                  itemBuilder: (context, index) {
-                                    return snapshot.data![index];
-                                  });
-                            } else {
-                              return Container();
-                            }
-                          }),
+                      Consumer<TotalGoalProvider>(
+                        builder: (context, totalGoalProvider, _) {
+                          return FutureBuilder(
+                              future: totalGoalProvider.getPinnedGoal,
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
+                                  return ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: snapshot.data!.length,
+                                      itemBuilder: (context, index) {
+                                        return snapshot.data![index];
+                                      });
+                                } else {
+                                  return Container();
+                                }
+                              });
+                        }
+                      ),
                       const SizedBox(height: 40.0),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -221,32 +221,36 @@ class _HomeState extends State<Home> {
                           ),
                         ],
                       ),
-                      FutureBuilder(
-                        future: _getTransactions(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                                  ConnectionState.done &&
-                              snapshot.data != null) {
-                            return ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: snapshot.data!.length,
-                              itemBuilder: (context, index) {
-                                return TrackerTransaction(
-                                  snapshot.data![index].id,
-                                  snapshot.data![index].userID,
-                                  snapshot.data![index].title,
-                                  snapshot.data![index].amount,
-                                  snapshot.data![index].date,
-                                  snapshot.data![index].isExpense,
-                                  snapshot.data![index].category,
-                                  notes: snapshot.data![index].notes,
+                      Consumer<TotalTransactionProvider>(
+                        builder: (context, totalTransactionProvider, _) {
+                          return FutureBuilder(
+                            future: totalTransactionProvider.getRecentTransactions,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                      ConnectionState.done &&
+                                  snapshot.data != null) {
+                                return ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount: snapshot.data!.length,
+                                  itemBuilder: (context, index) {
+                                    return TrackerTransaction(
+                                      snapshot.data![index].id,
+                                      snapshot.data![index].userID,
+                                      snapshot.data![index].title,
+                                      snapshot.data![index].amount,
+                                      snapshot.data![index].date,
+                                      snapshot.data![index].isExpense,
+                                      snapshot.data![index].category,
+                                      notes: snapshot.data![index].notes,
+                                    );
+                                  },
                                 );
-                              },
-                            );
-                          } else {
-                            return const Text('No transactions found');
-                          }
-                        },
+                              } else {
+                                return const Text('No transactions found');
+                              }
+                            },
+                          );
+                        }
                       ),
                     ],
                   ),

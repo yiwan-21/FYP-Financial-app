@@ -1,6 +1,8 @@
 import 'package:financial_app/firebaseInstance.dart';
 import 'package:financial_app/providers/goalProvider.dart';
 import 'package:financial_app/providers/navigationProvider.dart';
+import 'package:financial_app/providers/totalGoalProvider.dart';
+import 'package:financial_app/providers/totalTransactionProvider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -41,6 +43,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
         ChangeNotifierProvider(create: (_) => GoalProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
+        ChangeNotifierProvider(create: (_) => TotalTransactionProvider()),
+        ChangeNotifierProvider(create: (_) => TotalGoalProvider()),
       ],
       child: const MyApp(),
     ),

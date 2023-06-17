@@ -58,6 +58,47 @@ class _EditTransactionState extends State<EditTransaction> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Edit Transaction'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () {
+              showDialog(
+                context: context, 
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Delete Transaction'),
+                    content: const Text('Are you sure you want to delete this transaction?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        }, 
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          await FirebaseInstance.firestore
+                              .collection("transactions")
+                              .doc(_id)
+                              .delete()
+                              .then((_) {
+                                // quit dialog box
+                                Navigator.pop(context);
+                                // quit edit transaction page
+                                // need to return something, because
+                                // null returned will not update transaction list
+                                Navigator.pop(context, 'deteled');
+                              });
+                        }, 
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: Container(
         alignment: Constants.isMobile(context)
@@ -282,11 +323,11 @@ class _EditTransactionState extends State<EditTransaction> {
                           padding: const EdgeInsets.all(20),
                         ),
                         child: const Text('Edit Transaction'),
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             // Form is valid
                             _formKey.currentState!.save();
-                            final edited_Transaction = TrackerTransaction(
+                            final editedTransaction = TrackerTransaction(
                               _id,
                               FirebaseInstance.auth.currentUser!.uid,
                               _title,
@@ -297,11 +338,13 @@ class _EditTransactionState extends State<EditTransaction> {
                               notes: _notes,
                             );
 
-                            FirebaseInstance.firestore
+                            await FirebaseInstance.firestore
                                 .collection("transactions")
                                 .doc(_id)
-                                .update(edited_Transaction.toCollection());
-                            Navigator.pop(context, edited_Transaction);
+                                .update(editedTransaction.toCollection())
+                                .then((_) {
+                                  Navigator.pop(context, editedTransaction);
+                                });
                           }
                         },
                       ),

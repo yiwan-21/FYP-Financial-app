@@ -1,122 +1,80 @@
+import 'package:financial_app/providers/totalTransactionProvider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import '../firebaseInstance.dart';
+import 'package:provider/provider.dart';
 import '../constants.dart';
 
 class CategoryChart extends StatefulWidget {
-  final bool? isStateUpdated;
-
-  const CategoryChart({this.isStateUpdated, super.key});
+  const CategoryChart({super.key});
 
   @override
   State<StatefulWidget> createState() => _CategoryChartState();
 }
 
 class _CategoryChartState extends State<CategoryChart> {
-  List<String> _categories = [];
-  Future<Map<String, double>> _futureMap = Future.value({});
   int touchedIndex = -1;
 
   @override
-  void initState() {
-    super.initState();
-    _futureMap = _getTransactionData();
-  }
-
-  @override
-  void didUpdateWidget (covariant CategoryChart oldWidget) {
-    if (widget.isStateUpdated != null && widget.isStateUpdated!) {
-      _updateTransactionsData();
-    }
-    super.didUpdateWidget(oldWidget);
-  }
-
-  void _updateTransactionsData() {
-    setState(() {
-      _futureMap = _getTransactionData();
-    });
-  }
-
-  Future<Map<String, double>> _getTransactionData() async {
-    Map<String, double> data = {};
-    await FirebaseInstance.firestore
-        .collection('transactions')
-        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-        .where('isExpense', isEqualTo: true)
-        .orderBy('date', descending: false)
-        .get()
-        .then((value) {
-      for (var transaction in value.docs) {
-        final category = transaction['category'];
-        final amount = transaction['amount'].toDouble();
-        if (data.containsKey(category)) {
-          data[category] = data[category]! + amount;
-        } else {
-          data[category] = amount;
-        }
-      }
-    });
-    _categories = data.keys.toList();
-    return data;
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _futureMap,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done &&
-              snapshot.data != null) {
-            return ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: Constants.isMobile(context) ? double.infinity : 768,
-                maxHeight: Constants.isMobile(context) ? 300 : double.infinity,
-              ),
-              child: Flex(
-                direction: Constants.isMobile(context)
-                    ? Axis.vertical
-                    : Axis.horizontal,
-                children: [
-                  Flexible(
-                    flex: Constants.isMobile(context) ? 2 : 1,
-                    child: SizedBox(
-                      height: Constants.isMobile(context) ? 200 : 220,
-                      child: PieChart(
-                        PieChartData(
-                          sections: getSections(snapshot.data!),
-                          centerSpaceRadius:
-                              Constants.isMobile(context) ? 40 : 50,
-                          sectionsSpace: 0,
-                          pieTouchData: PieTouchData(
-                            touchCallback: (event, response) {
-                              setState(() {
-                                if (response != null) {
-                                  touchedIndex = response
-                                      .touchedSection!.touchedSectionIndex;
-                                } else {
-                                  touchedIndex = -1;
-                                }
-                              });
-                            },
+    return Consumer<TotalTransactionProvider>(
+      builder: (context, totalTransactionProvider, _) {
+        return FutureBuilder(
+            future: totalTransactionProvider.getPieChartData,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done &&
+                  snapshot.data != null) {
+                return ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: Constants.isMobile(context) ? double.infinity : 768,
+                    maxHeight: Constants.isMobile(context) ? 300 : double.infinity,
+                  ),
+                  child: Flex(
+                    direction: Constants.isMobile(context)
+                        ? Axis.vertical
+                        : Axis.horizontal,
+                    children: [
+                      Flexible(
+                        flex: Constants.isMobile(context) ? 2 : 1,
+                        child: SizedBox(
+                          height: Constants.isMobile(context) ? 200 : 220,
+                          child: PieChart(
+                            PieChartData(
+                              sections: getSections(snapshot.data!),
+                              centerSpaceRadius:
+                                  Constants.isMobile(context) ? 40 : 50,
+                              sectionsSpace: 0,
+                              pieTouchData: PieTouchData(
+                                touchCallback: (event, response) {
+                                  setState(() {
+                                    if (response != null) {
+                                      touchedIndex = response
+                                          .touchedSection!.touchedSectionIndex;
+                                    } else {
+                                      touchedIndex = -1;
+                                    }
+                                  });
+                                },
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                      Flexible(
+                        // flex: Constants.isMobile(context) ? 1 : 2,
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(children: getLegend(snapshot.data!.keys.toList())),
+                        ),
+                      ),
+                    ],
                   ),
-                  Flexible(
-                    // flex: Constants.isMobile(context) ? 1 : 2,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Column(children: getLegend()),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          } else {
-            return Container();
-          }
-        });
+                );
+              } else {
+                return Container();
+              }
+            });
+      }
+    );
   }
 
   List<PieChartSectionData> getSections(objData) {
@@ -168,10 +126,10 @@ class _CategoryChartState extends State<CategoryChart> {
     return colors[index];
   }
 
-  List<Widget> getLegend() {
+  List<Widget> getLegend(categories) {
     List<Widget> legend = [];
 
-    int numRows = (_categories.length / 2).ceil();
+    int numRows = (categories.length / 2).ceil();
 
     for (int i = 0; i < numRows; i++) {
       List<Widget> rowChildren = [];
@@ -179,7 +137,7 @@ class _CategoryChartState extends State<CategoryChart> {
       for (int j = 0; j < 2; j++) {
         int index = i * 2 + j;
 
-        if (index >= _categories.length) {
+        if (index >= categories.length) {
           break;
         }
 
@@ -198,7 +156,7 @@ class _CategoryChartState extends State<CategoryChart> {
                 const SizedBox(width: 10, height: 25),
                 Expanded(
                   child: Text(
-                    _categories[index],
+                    categories[index],
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
