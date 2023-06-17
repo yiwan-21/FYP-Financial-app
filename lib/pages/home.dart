@@ -1,4 +1,3 @@
-import 'package:financial_app/firebaseInstance.dart';
 import 'package:financial_app/providers/navigationProvider.dart';
 import 'package:financial_app/providers/totalGoalProvider.dart';
 import 'package:financial_app/providers/totalTransactionProvider.dart';
@@ -6,12 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'analytics.dart';
 import '../components/transaction.dart';
-import '../components/goal.dart';
 import '../providers/userProvider.dart';
 
-const TrackerIndex = 1;
-const AnalyticsIndex = 2;
-const GoalIndex = 3;
+const trackerIndex = 1;
+const analyticsIndex = 2;
+const goalIndex = 3;
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -40,7 +38,8 @@ class _HomeState extends State<Home> {
                             snapshot.data != null) {
                           return CircleAvatar(
                               radius: 20.0,
-                              backgroundImage: NetworkImage(snapshot.data!));
+                              backgroundImage: NetworkImage(snapshot.data!),
+                            );
                         } else {
                           return const CircleAvatar(
                             radius: 20.0,
@@ -106,7 +105,7 @@ class _HomeState extends State<Home> {
                             onPressed: () {
                               Provider.of<NavigationProvider>(context,
                                       listen: false)
-                                  .setCurrentIndex(GoalIndex);
+                                  .setCurrentIndex(goalIndex);
                             },
                             child: const Text(
                               'View All',
@@ -156,7 +155,7 @@ class _HomeState extends State<Home> {
                             onPressed: () {
                               Provider.of<NavigationProvider>(context,
                                       listen: false)
-                                  .setCurrentIndex(TrackerIndex);
+                                  .setCurrentIndex(trackerIndex);
                             },
                             child: const Text(
                               'View All',

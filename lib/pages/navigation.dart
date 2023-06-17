@@ -64,14 +64,14 @@ class _NavigationState extends State<Navigation> {
                               snapshot.data != null) {
                             return CircleAvatar(
                                 radius: 12.0,
-                                backgroundImage: NetworkImage(snapshot.data!));
+                                backgroundImage: NetworkImage(snapshot.data!)
+                              );
                           } else {
                             return const CircleAvatar(
                               radius: 12.0,
                               child: Icon(
                                 Icons.account_circle,
                                 color: Colors.white,
-                                size: 40.0,
                               ),
                             );
                           }
