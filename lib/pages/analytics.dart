@@ -1,7 +1,7 @@
-import 'package:financial_app/constants.dart';
-import 'package:financial_app/firebaseInstance.dart';
-import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:flutter/material.dart';
+import '../constants.dart';
+import '../firebase_instance.dart';
 
 const int MONTH_COUNT = 5;
 const List<String> AUTONOMOUS = ['Food', 'Transportation', 'Rental', 'Bill'];

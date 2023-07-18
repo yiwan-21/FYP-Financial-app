@@ -1,49 +1,34 @@
-import 'package:financial_app/firebaseInstance.dart';
-import 'package:financial_app/providers/transactionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import '../constants.dart';
+import '../firebase_instance.dart';
 import '../components/transaction.dart';
+import '../components/custom_switch.dart';
+import '../services/transaction_service.dart';
 
-class EditTransaction extends StatefulWidget {
-  const EditTransaction({super.key});
+class AddTransaction extends StatefulWidget {
+  const AddTransaction({super.key});
 
   @override
-  State<EditTransaction> createState() => _EditTransactionState();
+  State<AddTransaction> createState() => _AddTransactionState();
 }
 
-class _EditTransactionState extends State<EditTransaction> {
+class _AddTransactionState extends State<AddTransaction> {
+  final TransactionService _transactionService = TransactionService();
   final _formKey = GlobalKey<FormState>();
   String _id = '';
   String _title = '';
   String? _notes;
   double _amount = 0;
   bool _isExpense = true;
-  String _category = '';
   DateTime _date = DateTime.now();
-  List<String> _categoryList = [];
+  List<String> _categoryList = Constants.expenseCategories;
+  String _category = Constants.expenseCategories[0];
 
-  @override
-  void initState() {
-    super.initState();
-    final TransactionProvider transactionProvider =
-        Provider.of<TransactionProvider>(context, listen: false);
-    _id = transactionProvider.getId;
-    _title = transactionProvider.getTitle;
-    _notes = transactionProvider.getNotes;
-    _amount = transactionProvider.getAmount;
-    _date = transactionProvider.getDate;
-    _isExpense = transactionProvider.getIsExpense;
-    _category = transactionProvider.getCategory;
-    _categoryList =
-        _isExpense ? Constants.expenseCategories : Constants.incomeCategories;
-  }
-
-  Future<void> _selectDate(BuildContext context, DateTime initialValue) async {
+  Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
         context: context,
-        initialDate: initialValue,
+        initialDate: DateTime.now(),
         firstDate: DateTime(2020),
         lastDate: DateTime(2025));
     if (picked != null) {
@@ -53,52 +38,31 @@ class _EditTransactionState extends State<EditTransaction> {
     }
   }
 
+  Future<void> addTransaction() async {
+    if (_formKey.currentState!.validate()) {
+      // Form is valid
+      _formKey.currentState!.save();
+      final newTransaction = TrackerTransaction(
+        _id,
+        FirebaseInstance.auth.currentUser!.uid,
+        _title,
+        _amount,
+        _date,
+        _isExpense,
+        _category,
+        notes: _notes,
+      );
+      await _transactionService.addTransaction(newTransaction).then((_) {
+        Navigator.pop(context, newTransaction);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Transaction'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () {
-              showDialog(
-                context: context, 
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('Delete Transaction'),
-                    content: const Text('Are you sure you want to delete this transaction?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        }, 
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          await FirebaseInstance.firestore
-                              .collection("transactions")
-                              .doc(_id)
-                              .delete()
-                              .then((_) {
-                                // quit dialog box
-                                Navigator.pop(context);
-                                // quit edit transaction page
-                                // need to return something, because
-                                // null returned will not update transaction list
-                                Navigator.pop(context, 'deteled');
-                              });
-                        }, 
-                        child: const Text('Delete'),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-          ),
-        ],
+        title: const Text('Add Transaction'),
       ),
       body: Container(
         alignment: Constants.isMobile(context)
@@ -132,7 +96,6 @@ class _EditTransactionState extends State<EditTransaction> {
               child: Column(
                 children: <Widget>[
                   TextFormField(
-                    initialValue: _title,
                     decoration: const InputDecoration(
                       labelText: 'Title',
                       labelStyle: TextStyle(color: Colors.black),
@@ -162,7 +125,6 @@ class _EditTransactionState extends State<EditTransaction> {
                   ),
                   const SizedBox(height: 18.0),
                   TextFormField(
-                    initialValue: _notes ?? "",
                     decoration: const InputDecoration(
                       labelText: 'Notes',
                       labelStyle: TextStyle(color: Colors.black),
@@ -189,7 +151,7 @@ class _EditTransactionState extends State<EditTransaction> {
                   TextFormField(
                     readOnly: true,
                     onTap: () {
-                      _selectDate(context, _date);
+                      _selectDate(context);
                     },
                     decoration: const InputDecoration(
                       labelText: 'Date',
@@ -216,7 +178,6 @@ class _EditTransactionState extends State<EditTransaction> {
                     children: [
                       Expanded(
                         child: TextFormField(
-                          initialValue: _amount.toString(),
                           decoration: const InputDecoration(
                             labelText: 'Amount',
                             labelStyle: TextStyle(color: Colors.black),
@@ -259,22 +220,14 @@ class _EditTransactionState extends State<EditTransaction> {
                       ),
                       const SizedBox(width: 12),
                       CustomSwitch(
-                        isIncome: !_isExpense,
+                        isIncome: false,
                         onToggle: (value) {
-                          final TransactionProvider transactionProvider =
-                              Provider.of<TransactionProvider>(context,
-                                  listen: false);
                           setState(() {
                             _isExpense = !value;
                             _categoryList = _isExpense
                                 ? Constants.expenseCategories
                                 : Constants.incomeCategories;
-                            if (_categoryList
-                                .contains(transactionProvider.getCategory)) {
-                              _category = transactionProvider.getCategory;
-                            } else {
-                              _category = _categoryList[0];
-                            }
+                            _category = _categoryList[0];
                           });
                         },
                       ),
@@ -282,7 +235,6 @@ class _EditTransactionState extends State<EditTransaction> {
                   ),
                   const SizedBox(height: 18.0),
                   DropdownButtonFormField<String>(
-                    isExpanded: true,
                     value: _category,
                     onChanged: (value) {
                       setState(() {
@@ -316,38 +268,14 @@ class _EditTransactionState extends State<EditTransaction> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          fixedSize: const Size(150, 40),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4.0),
+                          style: ElevatedButton.styleFrom(
+                            fixedSize: const Size(150, 40),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
                           ),
-                        ),
-                        child: const Text('Edit Transaction'),
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            // Form is valid
-                            _formKey.currentState!.save();
-                            final editedTransaction = TrackerTransaction(
-                              _id,
-                              FirebaseInstance.auth.currentUser!.uid,
-                              _title,
-                              _amount,
-                              _date,
-                              _isExpense,
-                              _category,
-                              notes: _notes,
-                            );
-
-                            await FirebaseInstance.firestore
-                                .collection("transactions")
-                                .doc(_id)
-                                .update(editedTransaction.toCollection())
-                                .then((_) {
-                                  Navigator.pop(context, editedTransaction);
-                                });
-                          }
-                        },
-                      ),
+                          child: const Text('Add Transaction'),
+                          onPressed: addTransaction),
                       if (!Constants.isMobile(context))
                         const SizedBox(width: 12),
                       if (!Constants.isMobile(context))
@@ -368,140 +296,6 @@ class _EditTransactionState extends State<EditTransaction> {
                 ],
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class CustomSwitch extends StatefulWidget {
-  const CustomSwitch({
-    Key? key,
-    required this.onToggle,
-    this.isIncome = false,
-  }) : super(key: key);
-
-  final Color activeColor = const Color.fromARGB(255, 185, 246, 202);
-  final Color inactiveColor = const Color.fromARGB(255, 255, 176, 176);
-  final List<String> labels = const ['Income', 'Expense'];
-  final ValueChanged<bool> onToggle;
-  final bool isIncome;
-
-  @override
-  State<CustomSwitch> createState() => _CustomSwitchState();
-}
-
-class _CustomSwitchState extends State<CustomSwitch>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<Offset> _animation;
-
-  bool _value = false;
-
-  @override
-  void initState() {
-    const duration = Duration(milliseconds: 100);
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: duration,
-    );
-    _animation = Tween<Offset>(
-      begin: const Offset(0.1, 0),
-      end: const Offset(3.2, 0),
-    ).animate(_controller);
-    if (widget.isIncome) {
-      _controller.duration = const Duration(milliseconds: 0);
-      _controller.forward();
-      _controller.duration = duration;
-    }
-    _value = widget.isIncome;
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _toggle() {
-    _value = !_value;
-    widget.onToggle(_value);
-
-    if (_value) {
-      _controller.forward();
-    } else {
-      _controller.reverse();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _toggle,
-      child: Container(
-        width: 125.0,
-        height: 34.0,
-        decoration: BoxDecoration(
-          border: _value
-              ? Border.all(color: Colors.green[600]!, width: 2.0)
-              : Border.all(color: Colors.red[600]!, width: 2.0),
-          borderRadius: BorderRadius.circular(16.0),
-          color: _value ? widget.activeColor : widget.inactiveColor,
-        ),
-        child: Padding(
-          padding: _value
-              ? const EdgeInsets.only(left: 14.0)
-              : const EdgeInsets.only(right: 14.0),
-          child: Stack(
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  widget.labels[0],
-                  style: TextStyle(
-                    color: _value ? Colors.black : widget.inactiveColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  widget.labels[1],
-                  style: TextStyle(
-                    color: _value ? widget.activeColor : Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              AnimatedBuilder(
-                animation: _controller,
-                builder: (BuildContext context, Widget? child) {
-                  return SlideTransition(
-                    position: _animation,
-                    child: Container(
-                      width: 25.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        border: _value
-                            ? Border.all(color: Colors.green[600]!, width: 2.0)
-                            : Border.all(color: Colors.red[600]!, width: 2.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.6),
-                            blurRadius: 4.0,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
           ),
         ),
       ),

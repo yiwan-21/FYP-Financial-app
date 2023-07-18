@@ -1,7 +1,7 @@
-import 'package:financial_app/providers/goalProvider.dart';
-import 'package:financial_app/providers/totalGoalProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../providers/goal_provider.dart';
+import '../providers/total_goal_provider.dart';
 
 class Goal extends StatefulWidget {
   final String goalId;

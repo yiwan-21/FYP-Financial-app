@@ -1,11 +1,10 @@
 import 'dart:io';
-import 'package:financial_app/providers/totalGoalProvider.dart';
-import 'package:financial_app/providers/totalTransactionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import '../providers/userProvider.dart';
-import '../firebaseInstance.dart';
+import '../firebase_instance.dart';
+import '../providers/user_provider.dart';
+import '../services/auth.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -17,6 +16,11 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   final String _name = '';
   final String _email = '';
+
+  void signout() {
+    Auth auth = Auth();
+    auth.signout(context);
+  }
 
 // Pick from gallery
   void galleryImage() async {
@@ -71,30 +75,27 @@ class _ProfileState extends State<Profile> {
           Stack(
             alignment: Alignment.center,
             children: [
-              Consumer<UserProvider>(
-                builder: (context, userProvider, _) {
-                  return FutureBuilder(
-                      future: userProvider.profileImage,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done &&
-                            snapshot.data != null) {
-                          return CircleAvatar(
-                              radius: 70.0,
-                              backgroundImage: NetworkImage(snapshot.data!)
-                            );
-                        } else {
-                          return const CircleAvatar(
+              Consumer<UserProvider>(builder: (context, userProvider, _) {
+                return FutureBuilder(
+                    future: userProvider.profileImage,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done &&
+                          snapshot.data != null) {
+                        return CircleAvatar(
                             radius: 70.0,
-                            child: Icon(
-                              Icons.account_circle,
-                              color: Colors.white,
-                              size: 140.0,
-                            ),
-                          );
-                        }
-                      });
-                }
-              ),
+                            backgroundImage: NetworkImage(snapshot.data!));
+                      } else {
+                        return const CircleAvatar(
+                          radius: 70.0,
+                          child: Icon(
+                            Icons.account_circle,
+                            color: Colors.white,
+                            size: 140.0,
+                          ),
+                        );
+                      }
+                    });
+              }),
               Positioned(
                 bottom: 0.0,
                 right: 75,
@@ -197,15 +198,7 @@ class _ProfileState extends State<Profile> {
           Center(
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(minimumSize: const Size(180, 40)),
-              onPressed: () async {
-                await Provider.of<UserProvider>(context, listen: false)
-                  .signOut()
-                  .then((_) {
-                    Provider.of<TotalTransactionProvider>(context, listen: false).reset();
-                    Provider.of<TotalGoalProvider>(context, listen: false).reset();
-                    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-                });
-              },
+              onPressed: signout,
               child: const Text('Logout'),
             ),
           ),

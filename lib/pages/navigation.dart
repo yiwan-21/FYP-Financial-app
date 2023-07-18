@@ -1,13 +1,13 @@
-import 'package:financial_app/providers/navigationProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'home.dart';
-import 'tracker.dart';
-import 'analytics.dart';
-import 'budgeting.dart';
-import 'savingsGoal.dart';
-import 'profile.dart';
-import '../providers/userProvider.dart';
+import '../pages/home.dart';
+import '../pages/tracker.dart';
+import '../pages/analytics.dart';
+import '../pages/budgeting.dart';
+import '../pages/savings_goal.dart';
+import '../pages/profile.dart';
+import '../providers/user_provider.dart';
+import '../providers/navigation_provider.dart';
 
 class Navigation extends StatefulWidget {
   const Navigation({super.key});

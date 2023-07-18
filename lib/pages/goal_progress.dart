@@ -1,13 +1,13 @@
-import 'package:financial_app/components/custom_alert_dialog.dart';
-import 'package:financial_app/components/transaction.dart';
-import 'package:financial_app/firebaseInstance.dart';
-import 'package:financial_app/providers/goalProvider.dart';
-import 'package:financial_app/providers/totalTransactionProvider.dart';
-import 'package:financial_app/services/goal_services.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../components/growingTree.dart';
+import '../firebase_instance.dart';
+import '../components/custom_alert_dialog.dart';
+import '../components/goal_history_card.dart';
+import '../components/transaction.dart';
+import '../components/growing_tree.dart';
+import '../providers/goal_provider.dart';
+import '../providers/total_transaction_provider.dart';
+import '../services/goal_service.dart';
 
 class GoalProgress extends StatefulWidget {
   const GoalProgress({super.key});
@@ -18,6 +18,7 @@ class GoalProgress extends StatefulWidget {
 
 class _GoalProgressState extends State<GoalProgress>
     with SingleTickerProviderStateMixin {
+  final GoalService _goalService = GoalService();
   String _id = '';
   String _title = '';
   double _totalAmount = 0;
@@ -48,7 +49,7 @@ class _GoalProgressState extends State<GoalProgress>
     _remaining = goalProvider.getRemaining;
     _pinned = goalProvider.getPinned;
 
-    _history = _getHistory();
+    _history = _goalService.getHistory(_id);
 
     _progress = _saved / _totalAmount * 100;
     _daily = _remaining / 30;
@@ -67,30 +68,8 @@ class _GoalProgressState extends State<GoalProgress>
 
   void _updateHistory() {
     setState(() {
-      _history = _getHistory();
+      _history = _goalService.getHistory(_id);
     });
-  }
-
-  Future<List<HistoryCard>> _getHistory() async {
-    final List<HistoryCard> history = [];
-    await FirebaseInstance.firestore
-        .collection('goals')
-        .doc(_id)
-        .collection('history')
-        .orderBy('date', descending: true)
-        .get()
-        .then((value) => {
-              for (var historyData in value.docs)
-                {
-                  history.add(
-                    HistoryCard(
-                      historyData['amount'],
-                      historyData['date'].toDate(),
-                    ),
-                  ),
-                }
-            });
-    return history;
   }
 
   void _onSave(double value) async {
@@ -103,21 +82,22 @@ class _GoalProgressState extends State<GoalProgress>
     });
     _updateProgress();
     Provider.of<GoalProvider>(context,listen: false).setSaved(_saved);
-    await FirebaseInstance.firestore
-        .collection('goals')
-        .doc(_id)
-        .update({'saved': _saved});
-    await FirebaseInstance.firestore
-        .collection('goals')
-        .doc(_id)
-        .collection('history')
-        .add({
-          'amount': value,
-          'date': DateTime.now(),
-        })
+    await _goalService.updateGoalSavedAmount(_id, _saved);
+    await _goalService.addHistory(_id, value)
         .then((_) {
           _updateHistory();
         });
+  }
+
+  void deleteGoal() async {
+    await _goalService.deleteGoal(_id).then((_) {
+      // quit dialog box
+      Navigator.pop(context);
+      // quit goal progress page
+      // need to return something, because
+      // null returned will not update goal list
+      Navigator.pop(context, 'deleted');
+    });
   }
 
   void _checkedFunction(double value) async {
@@ -170,20 +150,7 @@ class _GoalProgressState extends State<GoalProgress>
                           child: const Text('Cancel'),
                         ),
                         TextButton(
-                          onPressed: () async {
-                            await FirebaseInstance.firestore
-                                .collection("goals")
-                                .doc(_id)
-                                .delete()
-                                .then((_) {
-                                  // quit dialog box
-                                  Navigator.pop(context);
-                                  // quit goal progress page
-                                  // need to return something, because
-                                  // null returned will not update goal list
-                                  Navigator.pop(context, 'deleted');
-                                });
-                          }, 
+                          onPressed: deleteGoal, 
                           child: const Text('Delete'),
                         ),
                       ],
@@ -203,7 +170,7 @@ class _GoalProgressState extends State<GoalProgress>
                   _pinned = !_pinned;
                 });
                 if (_pinned) {
-                  GoalService.setPinned(_id, _pinned);
+                  _goalService.setPinned(_id, _pinned);
                 } else {
                   FirebaseInstance.firestore
                     .collection('goals')
@@ -397,42 +364,6 @@ class _GoalProgressState extends State<GoalProgress>
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class HistoryCard extends StatelessWidget {
-  final double amount;
-  final DateTime date;
-
-  const HistoryCard(this.amount, this.date, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              date.toString().substring(0, 10),
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            Text(
-              '+ ${amount.toStringAsFixed(2)}',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            )
           ],
         ),
       ),

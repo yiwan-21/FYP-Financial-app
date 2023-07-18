@@ -1,7 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../firebaseInstance.dart';
 import '../constants.dart';
+import '../services/auth.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -17,44 +16,8 @@ class _RegisterState extends State<Register> {
   String _password = '';
 
   void signup() async {
-    try {
-      await FirebaseInstance.auth.createUserWithEmailAndPassword(
-        email: _email,
-        password: _password,
-      ).then((userCredential) async {
-        userCredential.user!.updateDisplayName(_name);
-        await userCredential.user!.sendEmailVerification()
-          .whenComplete(() {
-            AlertDialog alert = AlertDialog(
-              title: const Text("Email Verification"),
-              content: const Text("A verification email has been sent to your email address."),
-              actions: [
-                TextButton(
-                  child: const Text("OK"),
-                  onPressed: () {
-                    Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-                  },
-                ),
-              ],
-            );
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return alert;
-              },
-            );
-          });
-      });
-
-    } on FirebaseAuthException catch (e) {
-      String msg = e.message!;
-      if (e.code == 'invalid-email') {
-        msg = 'Invalid email address.';
-      }
-      SnackBar snackBar =
-          SnackBar(content: Text('${e.code}: $msg'));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }
+    Auth auth = Auth(); 
+    auth.signup(_email, _password, _name, context);
   }
 
   @override
@@ -82,7 +45,7 @@ class _RegisterState extends State<Register> {
                 children: <Widget>[
                   TextFormField(
                       decoration: const InputDecoration(
-                        labelText: 'Userame',
+                        labelText: 'Username',
                         prefixIcon: Icon(Icons.person),
                         border: OutlineInputBorder(),
                       ),

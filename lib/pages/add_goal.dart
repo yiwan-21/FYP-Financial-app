@@ -1,11 +1,11 @@
-import 'package:financial_app/firebaseInstance.dart';
-import 'package:financial_app/providers/totalGoalProvider.dart';
-import 'package:financial_app/services/goal_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../firebase_instance.dart';
 import '../constants.dart';
 import '../components/goal.dart';
+import '../providers/total_goal_provider.dart';
+import '../services/goal_service.dart';
 
 class AddGoal extends StatefulWidget {
   const AddGoal({super.key});
@@ -15,13 +15,14 @@ class AddGoal extends StatefulWidget {
 }
 
 class _AddGoalState extends State<AddGoal> {
+  final GoalService _goalService = GoalService();
   final _formKey = GlobalKey<FormState>();
   String _id = '';
   String _title = '';
   double _amount = 0;
   DateTime _date = DateTime.now();
   bool _pinned = false;
- 
+
   Future<void> _selectDate(BuildContext context) async {
     final firstDate = DateTime.now();
     final lastDate = DateTime.now().add(const Duration(days: 30 * 365));
@@ -35,6 +36,32 @@ class _AddGoalState extends State<AddGoal> {
       setState(() {
         _date = picked;
       });
+    }
+  }
+
+  Future<void> addGoal() async {
+    if (_formKey.currentState!.validate()) {
+      // Submit form data to server or database
+      _formKey.currentState!.save();
+      final newGoal = Goal(
+        _id,
+        FirebaseInstance.auth.currentUser!.uid,
+        _title,
+        _amount,
+        0,
+        _date,
+        _pinned,
+      );
+      await _goalService.addGoal(newGoal).then((value) {
+        _id = value.id;
+      });
+      if (_pinned) {
+        await _goalService.setPinned(_id, _pinned);
+      }
+      if (context.mounted) {
+        Provider.of<TotalGoalProvider>(context, listen: false).updateGoals();
+        Navigator.pop(context, newGoal);
+      }
     }
   }
 
@@ -119,30 +146,30 @@ class _AddGoalState extends State<AddGoal> {
                     ),
                     const SizedBox(height: 24.0),
                     TextFormField(
-                    readOnly: true,
-                    onTap: () {
-                      _selectDate(context);
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Target Date',
-                      labelStyle: TextStyle(color: Colors.black),
-                      suffixIcon: Icon(Icons.calendar_today),
-                      fillColor: Colors.white,
-                      filled: true,
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1.5),
+                      readOnly: true,
+                      onTap: () {
+                        _selectDate(context);
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Target Date',
+                        labelStyle: TextStyle(color: Colors.black),
+                        suffixIcon: Icon(Icons.calendar_today),
+                        fillColor: Colors.white,
+                        filled: true,
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(width: 1.5),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(width: 1),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(width: 1.5, color: Colors.red),
+                        ),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1.5, color: Colors.red),
+                      controller: TextEditingController(
+                        text: _date.toString().substring(0, 10),
                       ),
                     ),
-                    controller: TextEditingController(
-                      text: _date.toString().substring(0, 10),
-                    ),
-                  ),
                     const SizedBox(height: 24.0),
                     TextFormField(
                       decoration: const InputDecoration(
@@ -188,41 +215,14 @@ class _AddGoalState extends State<AddGoal> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            fixedSize: const Size(100, 40),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0),
+                            style: ElevatedButton.styleFrom(
+                              fixedSize: const Size(100, 40),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4.0),
+                              ),
                             ),
-                          ),
-                          child: const Text('Save'),
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              // Submit form data to server or database
-                              _formKey.currentState!.save();
-                              final newGoal = Goal(
-                                _id,
-                                FirebaseInstance.auth.currentUser!.uid,
-                                _title,
-                                _amount,
-                                0,
-                                _date,
-                                _pinned,
-                              );
-                              await FirebaseInstance.firestore.collection('goals')
-                                .add(newGoal.toCollection())
-                                .then((value) {
-                                  _id = value.id;
-                                });
-                                if (_pinned) {
-                                  await GoalService.setPinned(_id, _pinned);
-                                }
-                                if (context.mounted) {
-                                  Provider.of<TotalGoalProvider>(context, listen: false).updateGoals();
-                                  Navigator.pop(context, newGoal);
-                                }
-                            }
-                          },
-                        ),
+                            child: const Text('Save'),
+                            onPressed: addGoal),
                         const SizedBox(width: 12),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
