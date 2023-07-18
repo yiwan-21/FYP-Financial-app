@@ -1,8 +1,8 @@
-import 'package:financial_app/providers/totalTransactionProvider.dart';
-import 'package:financial_app/providers/transactionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
+import '../providers/total_transaction_provider.dart';
+import '../providers/transaction_provider.dart';
 
 class TrackerTransaction extends StatefulWidget {
   String id;

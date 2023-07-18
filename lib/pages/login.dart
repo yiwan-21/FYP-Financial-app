@@ -1,11 +1,11 @@
-import 'package:financial_app/providers/totalGoalProvider.dart';
-import 'package:financial_app/providers/totalTransactionProvider.dart';
-import 'package:financial_app/providers/userProvider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../firebaseInstance.dart';
+import '../firebase_instance.dart';
 import '../constants.dart';
+import '../providers/total_goal_provider.dart';
+import '../providers/total_transaction_provider.dart';
+import '../providers/user_provider.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});

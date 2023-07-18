@@ -1,11 +1,11 @@
-import 'package:financial_app/providers/navigationProvider.dart';
-import 'package:financial_app/providers/totalGoalProvider.dart';
-import 'package:financial_app/providers/totalTransactionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'analytics.dart';
 import '../components/transaction.dart';
-import '../providers/userProvider.dart';
+import '../pages/analytics.dart';
+import '../providers/navigation_provider.dart';
+import '../providers/total_goal_provider.dart';
+import '../providers/total_transaction_provider.dart';
+import '../providers/user_provider.dart';
 
 const trackerIndex = 1;
 const analyticsIndex = 2;

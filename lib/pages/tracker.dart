@@ -1,9 +1,9 @@
-import 'package:financial_app/providers/totalTransactionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../components/categoryChart.dart';
-import '../components/transaction.dart';
 import '../constants.dart';
+import '../components/category_chart.dart';
+import '../components/transaction.dart';
+import '../providers/total_transaction_provider.dart';
 
 class Tracker extends StatefulWidget {
   const Tracker({super.key});

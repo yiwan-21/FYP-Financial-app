@@ -1,4 +1,4 @@
-import 'package:financial_app/firebaseInstance.dart';
+import '../firebase_instance.dart';
 
 class GoalService {
   static Future<void> setPinned(targetID, pinned) async {

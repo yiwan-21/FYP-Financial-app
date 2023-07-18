@@ -1,8 +1,8 @@
-import 'package:financial_app/firebaseInstance.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../firebase_instance.dart';
 import '../constants.dart';
-import '../providers/userProvider.dart';
+import '../providers/user_provider.dart';
 
 class EditProfileForm extends StatefulWidget {
   const EditProfileForm({super.key});

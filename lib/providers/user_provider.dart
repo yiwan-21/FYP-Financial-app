@@ -1,6 +1,6 @@
-import 'package:financial_app/firebaseInstance.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../firebase_instance.dart';
 
 class UserProvider extends ChangeNotifier {
   User _user = FirebaseInstance.auth.currentUser!;

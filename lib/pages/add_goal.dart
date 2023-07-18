@@ -1,11 +1,11 @@
-import 'package:financial_app/firebaseInstance.dart';
-import 'package:financial_app/providers/totalGoalProvider.dart';
-import 'package:financial_app/services/goal_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../firebase_instance.dart';
 import '../constants.dart';
 import '../components/goal.dart';
+import '../providers/total_goal_provider.dart';
+import '../services/goal_services.dart';
 
 class AddGoal extends StatefulWidget {
   const AddGoal({super.key});

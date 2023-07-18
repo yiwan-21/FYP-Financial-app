@@ -1,10 +1,10 @@
-import 'package:financial_app/firebaseInstance.dart';
-import 'package:financial_app/providers/transactionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../firebase_instance.dart';
 import '../constants.dart';
 import '../components/transaction.dart';
+import '../providers/transaction_provider.dart';
 
 class EditTransaction extends StatefulWidget {
   const EditTransaction({super.key});

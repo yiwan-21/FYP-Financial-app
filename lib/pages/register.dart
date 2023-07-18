@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../firebaseInstance.dart';
+import '../firebase_instance.dart';
 import '../constants.dart';
 
 class Register extends StatefulWidget {
@@ -82,7 +82,7 @@ class _RegisterState extends State<Register> {
                 children: <Widget>[
                   TextFormField(
                       decoration: const InputDecoration(
-                        labelText: 'Userame',
+                        labelText: 'Username',
                         prefixIcon: Icon(Icons.person),
                         border: OutlineInputBorder(),
                       ),

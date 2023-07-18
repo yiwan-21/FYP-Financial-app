@@ -1,6 +1,6 @@
-import 'package:financial_app/components/transaction.dart';
-import 'package:financial_app/firebaseInstance.dart';
 import 'package:flutter/material.dart';
+import '../firebase_instance.dart';
+import '../components/transaction.dart';
 
 class TotalTransactionProvider extends ChangeNotifier {
   Future<List<TrackerTransaction>> _recentTransactions = Future.value([]);

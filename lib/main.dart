@@ -1,23 +1,23 @@
-import 'package:financial_app/firebaseInstance.dart';
-import 'package:financial_app/providers/goalProvider.dart';
-import 'package:financial_app/providers/navigationProvider.dart';
-import 'package:financial_app/providers/totalGoalProvider.dart';
-import 'package:financial_app/providers/totalTransactionProvider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import './providers/userProvider.dart';
-import './providers/transactionProvider.dart';
-import './pages/financialApp.dart';
+import './firebase_instance.dart';
+import './pages/financial_app.dart';
 import './pages/login.dart';
 import './pages/register.dart';
 import './pages/navigation.dart';
-import './pages/addTransaction.dart';
-import './pages/editTransaction.dart';
-import './pages/editProfile.dart';
-import './pages/addGoal.dart';
-import './pages/goalProgress.dart';
+import './pages/add_transaction.dart';
+import './pages/edit_transaction.dart';
+import './pages/edit_profile.dart';
+import './pages/add_goal.dart';
+import './pages/goal_progress.dart';
+import './providers/goal_provider.dart';
+import './providers/navigation_provider.dart';
+import './providers/total_goal_provider.dart';
+import './providers/total_transaction_provider.dart';
+import './providers/user_provider.dart';
+import './providers/transaction_provider.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 

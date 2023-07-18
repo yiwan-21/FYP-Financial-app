@@ -1,7 +1,7 @@
-import 'package:financial_app/providers/totalGoalProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../components/goal.dart';
+import '../providers/total_goal_provider.dart';
 
 class SavingsGoal extends StatefulWidget {
   const SavingsGoal({super.key});

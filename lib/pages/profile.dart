@@ -1,11 +1,11 @@
 import 'dart:io';
-import 'package:financial_app/providers/totalGoalProvider.dart';
-import 'package:financial_app/providers/totalTransactionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import '../providers/userProvider.dart';
-import '../firebaseInstance.dart';
+import '../firebase_instance.dart';
+import '../providers/user_provider.dart';
+import '../providers/total_goal_provider.dart';
+import '../providers/total_transaction_provider.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});

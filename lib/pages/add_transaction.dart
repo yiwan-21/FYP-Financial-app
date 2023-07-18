@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../components/transaction.dart';
 import '../constants.dart';
-import '../firebaseInstance.dart';
-import '../components/transaction.dart';
+import '../firebase_instance.dart';
 
 class AddTransaction extends StatefulWidget {
   const AddTransaction({super.key});

@@ -1,6 +1,6 @@
-import 'package:financial_app/components/goal.dart';
-import 'package:financial_app/firebaseInstance.dart';
 import 'package:flutter/material.dart';
+import '../firebase_instance.dart';
+import '../components/goal.dart';
 
 class TotalGoalProvider extends ChangeNotifier {
   Future<List<Goal>> _goals = Future.value([]);

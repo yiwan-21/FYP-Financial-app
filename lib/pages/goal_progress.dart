@@ -1,13 +1,12 @@
-import 'package:financial_app/components/custom_alert_dialog.dart';
-import 'package:financial_app/components/transaction.dart';
-import 'package:financial_app/firebaseInstance.dart';
-import 'package:financial_app/providers/goalProvider.dart';
-import 'package:financial_app/providers/totalTransactionProvider.dart';
-import 'package:financial_app/services/goal_services.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../components/growingTree.dart';
+import '../firebase_instance.dart';
+import '../components/custom_alert_dialog.dart';
+import '../components/transaction.dart';
+import '../components/growing_tree.dart';
+import '../providers/goal_provider.dart';
+import '../providers/total_transaction_provider.dart';
+import '../services/goal_services.dart';
 
 class GoalProgress extends StatefulWidget {
   const GoalProgress({super.key});
