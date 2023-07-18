@@ -1,11 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../firebase_instance.dart';
 import '../constants.dart';
-import '../providers/total_goal_provider.dart';
-import '../providers/total_transaction_provider.dart';
-import '../providers/user_provider.dart';
+import '../services/auth.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -21,29 +18,9 @@ class _LoginState extends State<Login> {
   String _password = '';
   String _emailReset = '';
 
-  void login() async {
-    try {
-      await FirebaseInstance.auth.signInWithEmailAndPassword(
-        email: _email,
-        password: _password,
-      ).whenComplete(() {
-        Provider.of<UserProvider>(context, listen: false).init();
-        Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
-        Provider.of<TotalGoalProvider>(context, listen: false).updateGoals();
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
-      });
-    } on FirebaseAuthException catch (e) {
-      String msg = e.message!;
-      if (e.code == 'user-not-found') {
-        msg = 'No user found for that email.';
-      } else if (e.code == 'wrong-password') {
-        msg = 'Wrong password provided for that user.';
-      } else if (e.code == 'invalid-email') {
-        msg = 'Invalid email address.';
-      }
-      SnackBar snackBar = SnackBar(content: Text(msg));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }
+  void login() {
+    Auth auth = Auth();;
+    auth.login(_email, _password, context);
   }
 
   @override

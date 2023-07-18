@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../components/transaction.dart';
 import '../constants.dart';
 import '../firebase_instance.dart';
+import '../components/transaction.dart';
+import '../components/custom_switch.dart';
+import '../services/transaction_service.dart';
 
 class AddTransaction extends StatefulWidget {
   const AddTransaction({super.key});
@@ -12,6 +14,7 @@ class AddTransaction extends StatefulWidget {
 }
 
 class _AddTransactionState extends State<AddTransaction> {
+  final TransactionService _transactionService = TransactionService();
   final _formKey = GlobalKey<FormState>();
   String _id = '';
   String _title = '';
@@ -31,6 +34,26 @@ class _AddTransactionState extends State<AddTransaction> {
     if (picked != null) {
       setState(() {
         _date = picked;
+      });
+    }
+  }
+
+  Future<void> addTransaction() async {
+    if (_formKey.currentState!.validate()) {
+      // Form is valid
+      _formKey.currentState!.save();
+      final newTransaction = TrackerTransaction(
+        _id,
+        FirebaseInstance.auth.currentUser!.uid,
+        _title,
+        _amount,
+        _date,
+        _isExpense,
+        _category,
+        notes: _notes,
+      );
+      await _transactionService.addTransaction(newTransaction).then((_) {
+        Navigator.pop(context, newTransaction);
       });
     }
   }
@@ -245,34 +268,14 @@ class _AddTransactionState extends State<AddTransaction> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          fixedSize: const Size(150, 40),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4.0),
+                          style: ElevatedButton.styleFrom(
+                            fixedSize: const Size(150, 40),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
                           ),
-                        ),
-                        child: const Text('Add Transaction'),
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            // Form is valid, do something
-                            _formKey.currentState!.save();
-                            // For example, submit the form to a server
-                            final newTransaction = TrackerTransaction(
-                              _id,
-                              FirebaseInstance.auth.currentUser!.uid,
-                              _title,
-                              _amount,
-                              _date,
-                              _isExpense,
-                              _category,
-                              notes: _notes,
-                            );
-
-                            FirebaseInstance.firestore.collection("transactions").add(newTransaction.toCollection());
-                            Navigator.pop(context, newTransaction);
-                          }
-                        },
-                      ),
+                          child: const Text('Add Transaction'),
+                          onPressed: addTransaction),
                       if (!Constants.isMobile(context))
                         const SizedBox(width: 12),
                       if (!Constants.isMobile(context))
@@ -293,136 +296,6 @@ class _AddTransactionState extends State<AddTransaction> {
                 ],
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class CustomSwitch extends StatefulWidget {
-  const CustomSwitch({
-    Key? key,
-    required this.onToggle,
-    this.isIncome = false,
-  }) : super(key: key);
-
-  final Color activeColor = const Color.fromARGB(255, 185, 246, 202);
-  final Color inactiveColor = const Color.fromARGB(255, 255, 176, 176);
-  final List<String> labels = const ['Income', 'Expense'];
-  final ValueChanged<bool> onToggle;
-  final bool isIncome;
-
-  @override
-  State<CustomSwitch> createState() => _CustomSwitchState();
-}
-
-class _CustomSwitchState extends State<CustomSwitch>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<Offset> _animation;
-
-  bool _value = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-    );
-    _animation = Tween<Offset>(
-      begin: const Offset(0.1, 0),
-      end: const Offset(3.2, 0),
-    ).animate(_controller);
-    _value = widget.isIncome;
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _toggle() {
-    _value = !_value;
-    widget.onToggle(_value);
-
-    if (_value) {
-      _controller.forward();
-    } else {
-      _controller.reverse();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _toggle,
-      child: Container(
-        width: 125.0,
-        height: 34.0,
-        decoration: BoxDecoration(
-          border: _value
-              ? Border.all(color: Colors.green[600]!, width: 2.0)
-              : Border.all(color: Colors.red[600]!, width: 2.0),
-          borderRadius: BorderRadius.circular(16.0),
-          color: _value ? widget.activeColor : widget.inactiveColor,
-        ),
-        child: Padding(
-          padding: _value
-              ? const EdgeInsets.only(left: 14.0)
-              : const EdgeInsets.only(right: 14.0),
-          child: Stack(
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  widget.labels[0],
-                  style: TextStyle(
-                    color: _value ? Colors.black : widget.inactiveColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  widget.labels[1],
-                  style: TextStyle(
-                    color: _value ? widget.activeColor : Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              AnimatedBuilder(
-                animation: _controller,
-                builder: (BuildContext context, Widget? child) {
-                  return SlideTransition(
-                    // alignment:
-                    //     _value ? Alignment.centerRight : Alignment.centerLeft,
-                    position: _animation,
-                    child: Container(
-                      width: 25.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        border: _value
-                            ? Border.all(color: Colors.green[600]!, width: 2.0)
-                            : Border.all(color: Colors.red[600]!, width: 2.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.6),
-                            blurRadius: 4.0,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
           ),
         ),
       ),
