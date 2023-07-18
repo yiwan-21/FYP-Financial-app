@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:financial_app/providers/totalGoalProvider.dart';
+import 'package:financial_app/providers/totalTransactionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -78,7 +80,8 @@ class _ProfileState extends State<Profile> {
                             snapshot.data != null) {
                           return CircleAvatar(
                               radius: 70.0,
-                              backgroundImage: NetworkImage(snapshot.data!));
+                              backgroundImage: NetworkImage(snapshot.data!)
+                            );
                         } else {
                           return const CircleAvatar(
                             radius: 70.0,
@@ -195,8 +198,12 @@ class _ProfileState extends State<Profile> {
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(minimumSize: const Size(180, 40)),
               onPressed: () async {
-                await FirebaseInstance.auth.signOut().then((_) {
-                  Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+                await Provider.of<UserProvider>(context, listen: false)
+                  .signOut()
+                  .then((_) {
+                    Provider.of<TotalTransactionProvider>(context, listen: false).reset();
+                    Provider.of<TotalGoalProvider>(context, listen: false).reset();
+                    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
                 });
               },
               child: const Text('Logout'),

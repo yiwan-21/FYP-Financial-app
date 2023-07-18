@@ -1,5 +1,8 @@
+import 'package:financial_app/components/custom_alert_dialog.dart';
+import 'package:financial_app/components/transaction.dart';
 import 'package:financial_app/firebaseInstance.dart';
 import 'package:financial_app/providers/goalProvider.dart';
+import 'package:financial_app/providers/totalTransactionProvider.dart';
 import 'package:financial_app/services/goal_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,17 +19,22 @@ class GoalProgress extends StatefulWidget {
 class _GoalProgressState extends State<GoalProgress>
     with SingleTickerProviderStateMixin {
   String _id = '';
+  String _title = '';
   double _totalAmount = 0;
   double _saved = 0;
   double _remaining = 0;
   bool _pinned = false;
 
+  Future<List<HistoryCard>> _history = Future.value([]);
+
   double _progress = 0;
   double _daily = 0;
   double _weekly = 0;
   double _monthly = 0;
-  double _addAmount = 0;
-  final _formKey = GlobalKey<FormState>();
+
+  final String _dialogTitle = 'Add Saved Amount';
+  final String _contentLabel = 'Amount';
+  final String _checkboxLabel = 'Add an expense record';
 
   @override
   void initState() {
@@ -34,10 +42,13 @@ class _GoalProgressState extends State<GoalProgress>
     final GoalProvider goalProvider =
         Provider.of<GoalProvider>(context, listen: false);
     _id = goalProvider.getId;
+    _title = goalProvider.getTitle;
     _totalAmount = goalProvider.getAmount;
     _saved = goalProvider.getSaved;
     _remaining = goalProvider.getRemaining;
     _pinned = goalProvider.getPinned;
+
+    _history = _getHistory();
 
     _progress = _saved / _totalAmount * 100;
     _daily = _remaining / 30;
@@ -51,6 +62,12 @@ class _GoalProgressState extends State<GoalProgress>
       _daily = _remaining / 30;
       _weekly = _remaining / 4;
       _monthly = _remaining;
+    });
+  }
+
+  void _updateHistory() {
+    setState(() {
+      _history = _getHistory();
     });
   }
 
@@ -76,13 +93,59 @@ class _GoalProgressState extends State<GoalProgress>
     return history;
   }
 
+  void _onSave(double value) async {
+    if (value > _remaining) {
+      value = _remaining;
+    }
+    setState(() {
+      _saved += value;
+      _remaining -= value;
+    });
+    _updateProgress();
+    Provider.of<GoalProvider>(context,listen: false).setSaved(_saved);
+    await FirebaseInstance.firestore
+        .collection('goals')
+        .doc(_id)
+        .update({'saved': _saved});
+    await FirebaseInstance.firestore
+        .collection('goals')
+        .doc(_id)
+        .collection('history')
+        .add({
+          'amount': value,
+          'date': DateTime.now(),
+        })
+        .then((_) {
+          _updateHistory();
+        });
+  }
+
+  void _checkedFunction(double value) async {
+    final TrackerTransaction transaction = TrackerTransaction(
+      '',
+      FirebaseInstance.auth.currentUser!.uid,
+      'Goal: $_title',
+      value,
+      DateTime.now(),
+      true,
+      'Savings Goal',
+      notes: 'Auto Generated: Saved RM ${value.toStringAsFixed(2)} for $_title',
+    );
+    await FirebaseInstance.firestore
+      .collection('transactions')
+      .add(transaction.toCollection())
+      .then((_) {
+        Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Progress'),
+          title: Text(_title),
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Plant'),
@@ -135,18 +198,19 @@ class _GoalProgressState extends State<GoalProgress>
                 _pinned ? Icons.push_pin : Icons.push_pin_outlined,
                 semanticLabel: _pinned ? 'Unpin' : 'Pin',
               ),
-              onPressed: () {
-                if (!_pinned) {
-                  GoalService.removeAllPin();
-                }
+              onPressed: () async {
                 setState(() {
                   _pinned = !_pinned;
                 });
-                Provider.of<GoalProvider>(context, listen: false).setPinned(_pinned);
-                FirebaseInstance.firestore
+                if (_pinned) {
+                  GoalService.setPinned(_id, _pinned);
+                } else {
+                  FirebaseInstance.firestore
                     .collection('goals')
                     .doc(_id)
                     .update({'pinned': _pinned});
+                }
+                Provider.of<GoalProvider>(context, listen: false).setPinned(_pinned);
               },
             )
           ],
@@ -168,118 +232,13 @@ class _GoalProgressState extends State<GoalProgress>
                               showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      elevation: 1,
-                                      titlePadding: const EdgeInsets.only(
-                                          top: 12, left: 16),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 16, vertical: 20),
-                                      actionsPadding: const EdgeInsets.only(
-                                          bottom: 12, right: 16),
-                                      title: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          const Text('Add Saved Amount'),
-                                          IconButton(
-                                            iconSize: 20,
-                                            splashRadius: 20,
-                                            icon: const Icon(Icons.close),
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                      content: Form(
-                                        key: _formKey,
-                                        child: TextFormField(
-                                          decoration: const InputDecoration(
-                                            labelText: 'Amount',
-                                            labelStyle:
-                                                TextStyle(color: Colors.black),
-                                            fillColor: Colors.white,
-                                            filled: true,
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide:
-                                                  BorderSide(width: 1.5),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(width: 1),
-                                            ),
-                                            errorBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  width: 1.5,
-                                                  color: Colors.red),
-                                            ),
-                                          ),
-                                          keyboardType: const TextInputType
-                                              .numberWithOptions(decimal: true),
-                                          inputFormatters: <TextInputFormatter>[
-                                            FilteringTextInputFormatter.allow(
-                                                RegExp(r'^\d+\.?\d{0,2}')),
-                                          ],
-                                          validator: (value) {
-                                            if (value!.isEmpty) {
-                                              return 'Please enter an amount';
-                                            }
-                                            if (double.tryParse(value) ==
-                                                null) {
-                                              return 'Please enter a valid amount';
-                                            }
-                                            return null;
-                                          },
-                                          onChanged: (value) {
-                                            _addAmount =
-                                                double.tryParse(value) == null
-                                                    ? 0
-                                                    : double.parse(value);
-                                          },
-                                        ),
-                                      ),
-                                      actions: [
-                                        ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            fixedSize: const Size(100, 40),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(4.0),
-                                            ),
-                                          ),
-                                          child: const Text('Save'),
-                                          onPressed: () {
-                                            if (_formKey.currentState!.validate()) {
-                                              // Submit form data to server or database
-                                              _formKey.currentState!.save();
-                                              if (_addAmount > _remaining) {
-                                                _addAmount = _remaining;
-                                              }
-                                              setState(() {
-                                                _saved += _addAmount;
-                                                _remaining -= _addAmount;
-                                              });
-                                              _updateProgress();
-                                              Provider.of<GoalProvider>(context,listen: false).setSaved(_saved);
-                                              FirebaseInstance.firestore
-                                                  .collection('goals')
-                                                  .doc(_id)
-                                                  .update({'saved': _saved});
-                                              FirebaseInstance.firestore
-                                                  .collection('goals')
-                                                  .doc(_id)
-                                                  .collection('history')
-                                                  .add({
-                                                    'amount': _addAmount,
-                                                    'date': DateTime.now(),
-                                                  });
-                                              Navigator.pop(context);
-                                            }
-                                          },
-                                        ),
-                                      ],
+                                    return CustomAlertDialog(
+                                      _dialogTitle, 
+                                      _contentLabel, 
+                                      _checkboxLabel,
+                                      true,
+                                      _onSave,
+                                      _checkedFunction,
                                     );
                                   });
                             },
@@ -417,7 +376,7 @@ class _GoalProgressState extends State<GoalProgress>
                   maxWidth: 768,
                 ),
                 child: FutureBuilder(
-                  future: _getHistory(),
+                  future: _history,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done &&
                         snapshot.data != null) {

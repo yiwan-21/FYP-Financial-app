@@ -23,14 +23,13 @@ class _AddGoalState extends State<AddGoal> {
   bool _pinned = false;
  
   Future<void> _selectDate(BuildContext context) async {
-    final firstDate = DateTime.now().add(const Duration(days: 7));
-    final lastDate = DateTime.now().add(const Duration(days: 5 * 365));
+    final firstDate = DateTime.now();
+    final lastDate = DateTime.now().add(const Duration(days: 30 * 365));
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _date.day == DateTime.now().day ? firstDate : _date,
       firstDate: firstDate,
       lastDate: lastDate,
-      
     );
     if (picked != null) {
       setState(() {
@@ -51,7 +50,7 @@ class _AddGoalState extends State<AddGoal> {
                 _pinned ? Icons.push_pin : Icons.push_pin_outlined,
                 semanticLabel: _pinned ? 'Unpin' : 'Pin',
               ),
-              onPressed: () async {
+              onPressed: () {
                 setState(() {
                   _pinned = !_pinned;
                 });
@@ -196,7 +195,7 @@ class _AddGoalState extends State<AddGoal> {
                             ),
                           ),
                           child: const Text('Save'),
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               // Submit form data to server or database
                               _formKey.currentState!.save();
@@ -209,11 +208,18 @@ class _AddGoalState extends State<AddGoal> {
                                 _date,
                                 _pinned,
                               );
-                              if (_pinned) {
-                                GoalService.removeAllPin();
-                              }
-                              FirebaseInstance.firestore.collection('goals').add(newGoal.toCollection());
-                              Navigator.pop(context, newGoal);
+                              await FirebaseInstance.firestore.collection('goals')
+                                .add(newGoal.toCollection())
+                                .then((value) {
+                                  _id = value.id;
+                                });
+                                if (_pinned) {
+                                  await GoalService.setPinned(_id, _pinned);
+                                }
+                                if (context.mounted) {
+                                  Provider.of<TotalGoalProvider>(context, listen: false).updateGoals();
+                                  Navigator.pop(context, newGoal);
+                                }
                             }
                           },
                         ),

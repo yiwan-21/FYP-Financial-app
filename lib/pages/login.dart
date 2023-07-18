@@ -1,5 +1,9 @@
+import 'package:financial_app/providers/totalGoalProvider.dart';
+import 'package:financial_app/providers/totalTransactionProvider.dart';
+import 'package:financial_app/providers/userProvider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../firebaseInstance.dart';
 import '../constants.dart';
 
@@ -22,7 +26,12 @@ class _LoginState extends State<Login> {
       await FirebaseInstance.auth.signInWithEmailAndPassword(
         email: _email,
         password: _password,
-      ).whenComplete(() => Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false));
+      ).whenComplete(() {
+        Provider.of<UserProvider>(context, listen: false).init();
+        Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
+        Provider.of<TotalGoalProvider>(context, listen: false).updateGoals();
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      });
     } on FirebaseAuthException catch (e) {
       String msg = e.message!;
       if (e.code == 'user-not-found') {

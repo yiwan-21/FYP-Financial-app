@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class UserProvider extends ChangeNotifier {
-  final User _user = FirebaseInstance.auth.currentUser!;
+  User _user = FirebaseInstance.auth.currentUser!;
   Future<String?> _profileImage = Future.value('');
   String _name = '';
   String _email = '';
@@ -18,6 +18,14 @@ class UserProvider extends ChangeNotifier {
   String get name => _name;
   String get email => _email;
   Future<String?> get profileImage => _profileImage;
+
+  void init() {
+    _user = FirebaseInstance.auth.currentUser!;
+    _name = _user.displayName!;
+    _email = _user.email!;
+    _profileImage = getProfileImage();
+    notifyListeners();
+  }
 
   Future<void> reload() async {
     await _user.reload();
@@ -55,6 +63,9 @@ class UserProvider extends ChangeNotifier {
 
   Future<void> signOut() async {
     await FirebaseInstance.auth.signOut();
+    _name = '';
+    _email = '';
+    _profileImage = Future.value(null);
     notifyListeners();
   }
 }

@@ -4,20 +4,33 @@ import 'package:flutter/material.dart';
 
 class TotalGoalProvider extends ChangeNotifier {
   Future<List<Goal>> _goals = Future.value([]);
-  Future<List<Goal>> _pinned_goals = Future.value([]);
+  Future<List<Goal>> _pinnedGoals = Future.value([]);
 
   TotalGoalProvider() {
     _goals = _getGoals();
-    _pinned_goals = _getPinnedGoal();
+    _pinnedGoals = _getPinnedGoal();
   }
 
   Future<List<Goal>> get getGoals => _goals;
-  Future<List<Goal>> get getPinnedGoal => _pinned_goals;
+  Future<List<Goal>> get getPinnedGoal => _pinnedGoals;
+
+  Future<void> updateGoals() async {
+    _goals = _getGoals();
+    _pinnedGoals = _getPinnedGoal();
+    notifyListeners();
+  }
+
+  void reset() {
+    _goals = Future.value([]);
+    _pinnedGoals = Future.value([]);
+    notifyListeners();
+  }
 
   Future<List<Goal>> _getGoals() async {
     final List<Goal> goalData = [];
     await FirebaseInstance.firestore.collection('goals')
       .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+      .orderBy('pinned', descending: true)
       .orderBy('targetDate', descending: false)
       .get()
       .then((goals) => {
@@ -60,11 +73,5 @@ class TotalGoalProvider extends ChangeNotifier {
                 }
             });
     return goalData;
-  }
-
-  void updateGoals() {
-    _goals = _getGoals();
-    _pinned_goals = _getPinnedGoal();
-    notifyListeners();
   }
 }

@@ -103,7 +103,6 @@ class _ExpenseIncomeGraphState extends State<ExpenseIncomeGraph> {
           for (var transaction in value.docs) {
             monthIndex = DateTime.parse(transaction['date'].toDate().toString()).month - (DateTime.now().month - (MONTH_COUNT - 1)),
             if (monthIndex >= 0) {
-              // print("$monthIndex: ${transaction['title']}"),
               if (transaction['isExpense']) {
                 lineData[monthIndex].addExpense(transaction['amount'].toDouble())
               } else {
