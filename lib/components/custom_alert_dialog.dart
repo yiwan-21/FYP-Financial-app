@@ -40,7 +40,7 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Text('Add Saved Amount'),
+          Text(widget.title),
           IconButton(
             iconSize: 20,
             splashRadius: 20,
@@ -57,18 +57,18 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Amount',
-                labelStyle: TextStyle(color: Colors.black),
+              decoration: InputDecoration(
+                labelText: widget.contentLabel,
+                labelStyle: const TextStyle(color: Colors.black),
                 fillColor: Colors.white,
                 filled: true,
-                focusedBorder: OutlineInputBorder(
+                focusedBorder: const OutlineInputBorder(
                   borderSide: BorderSide(width: 1.5),
                 ),
-                enabledBorder: OutlineInputBorder(
+                enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(width: 1),
                 ),
-                errorBorder: OutlineInputBorder(
+                errorBorder: const OutlineInputBorder(
                   borderSide: BorderSide(width: 1.5, color: Colors.red),
                 ),
               ),
@@ -102,7 +102,7 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
                     });
                   },
                 ),
-                const Text('Add an expense record'),
+                Text(widget.checkboxLabel),
               ],
             ),
           ],

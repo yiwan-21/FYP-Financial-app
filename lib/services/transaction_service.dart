@@ -1,28 +1,31 @@
 import '../firebase_instance.dart';
+import '../constant/constant.dart';
 import '../components/transaction.dart';
+import '../components/expense_income_graph.dart';
+import '../components/auto_dis_chart.dart';
 
 class TransactionService {
-  Future<dynamic> addTransaction(newTransaction) async {
+  static Future<dynamic> addTransaction(newTransaction) async {
     return await FirebaseInstance.firestore
       .collection("transactions")
       .add(newTransaction.toCollection());
   }
 
-  Future<void> updateTransaction(TrackerTransaction editedTransaction) async {
+  static Future<void> updateTransaction(TrackerTransaction editedTransaction) async {
     return await FirebaseInstance.firestore
       .collection("transactions")
       .doc(editedTransaction.id)
       .update(editedTransaction.toCollection());
   }
 
-  Future<void> deleteTransaction(transactionId) async {
+  static Future<void> deleteTransaction(transactionId) async {
     return await FirebaseInstance.firestore
       .collection("transactions")
       .doc(transactionId)
       .delete();
   }
 
-  Future<List<TrackerTransaction>> getRecentTransactions() async {
+  static Future<List<TrackerTransaction>> getRecentTransactions() async {
     final List<TrackerTransaction> transactions = [];
     await FirebaseInstance.firestore
         .collection('transactions')
@@ -47,14 +50,13 @@ class TransactionService {
     return transactions;
   }
 
-  Future<List<TrackerTransaction>> getAllTransactions() async {
+  static Future<List<TrackerTransaction>> getAllTransactions() async {
     final List<TrackerTransaction> transactionData = [];
     await FirebaseInstance.firestore
         .collection('transactions')
         .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
         .orderBy('date', descending: false)
-        .get()
-        .then((event) {
+        .get().then((event) {
       for (var transaction in event.docs) {
         transactionData.add(TrackerTransaction(
           transaction.id,
@@ -71,7 +73,7 @@ class TransactionService {
     return transactionData;
   }
 
-  Future<Map<String, double>> getPieChartData() async {
+  static Future<Map<String, double>> getPieChartData() async {
     Map<String, double> data = {};
     await FirebaseInstance.firestore
         .collection('transactions')
@@ -91,5 +93,63 @@ class TransactionService {
       }
     });
     return data;
+  }
+  
+  static Future<List<IncomeExpenseData>> getLineData() async {
+    const int monthCount = 5;
+    final List<IncomeExpenseData> lineData = [];
+    // fill lineData with IncomeExpenseData objects
+    final month = DateTime.now().month;
+    for (int i = month - (monthCount - 1) - 1; i < month; i++) {
+      lineData.add(IncomeExpenseData(Constant.monthLabels[i], 0, 0));
+    }
+    int monthIndex = 0;
+    await FirebaseInstance.firestore.collection('transactions')
+        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+        .orderBy('date', descending: true)
+        .get()
+        .then((value) => {
+          for (var transaction in value.docs) {
+            monthIndex = DateTime.parse(transaction['date'].toDate().toString()).month - (DateTime.now().month - (monthCount - 1)),
+            if (monthIndex >= 0) {
+              if (transaction['isExpense']) {
+                lineData[monthIndex].addExpense(transaction['amount'].toDouble())
+              } else {
+                lineData[monthIndex].addIncome(transaction['amount'].toDouble())
+              }
+            }
+          }
+        });
+    return lineData;
+  }
+
+
+  static Future<List<AutoDisData>> getBarData() async {
+    const int monthCount = 5;
+    final List<String> autonomous = ['Food', 'Transportation', 'Rental', 'Bill'];
+    final List<AutoDisData> barData = [];
+    // fill barData with AutoDisData objects
+    final month = DateTime.now().month;
+    for (int i = month - (monthCount - 1) - 1; i < month; i++) {
+      barData.add(AutoDisData(Constant.monthLabels[i], 0, 0));
+    }
+    int monthIndex = 0;
+    await FirebaseInstance.firestore.collection('transactions')
+        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+        .orderBy('date', descending: true)
+        .get()
+        .then((value) => {
+          for (var transaction in value.docs) {
+             monthIndex = DateTime.parse(transaction['date'].toDate().toString()).month - (DateTime.now().month - (monthCount - 1)),
+            if (monthIndex >= 0 && transaction['isExpense']) {
+              if (autonomous.contains(transaction['category'])) {
+                barData[monthIndex].addAutonomous(transaction['amount'].toDouble())
+              } else {
+                barData[monthIndex].addDiscretionary(transaction['amount'].toDouble())
+              }
+            }
+          }
+        });
+    return barData;
   }
 }

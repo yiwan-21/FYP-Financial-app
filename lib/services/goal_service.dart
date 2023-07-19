@@ -3,7 +3,7 @@ import '../components/goal.dart';
 import '../components/goal_history_card.dart';
 
 class GoalService {
-  Future<List<Goal>> getAllGoals() async {
+  static Future<List<Goal>> getAllGoals() async {
     final List<Goal> goalData = [];
     await FirebaseInstance.firestore
         .collection('goals')
@@ -28,7 +28,7 @@ class GoalService {
     return goalData;
   }
 
-  Future<List<Goal>> getPinnedGoal() async {
+  static Future<List<Goal>> getPinnedGoal() async {
     final List<Goal> goalData = [];
     await FirebaseInstance.firestore
         .collection('goals')
@@ -54,7 +54,7 @@ class GoalService {
     return goalData;
   }
 
-  Future<List<HistoryCard>> getHistory(goalId) async {
+  static Future<List<HistoryCard>> getHistory(goalId) async {
     final List<HistoryCard> history = [];
     await FirebaseInstance.firestore
         .collection('goals')
@@ -76,13 +76,13 @@ class GoalService {
     return history;
   }
 
-  Future<dynamic> addGoal(newGoal) async {
+  static Future<dynamic> addGoal(newGoal) async {
     return await FirebaseInstance.firestore
         .collection('goals')
         .add(newGoal.toCollection());
   }
 
-  Future<dynamic> addHistory(goalId, amount) async {
+  static Future<dynamic> addHistory(goalId, amount) async {
     return await FirebaseInstance.firestore
         .collection('goals')
         .doc(goalId)
@@ -93,21 +93,21 @@ class GoalService {
     });
   }
 
-  Future<void> updateGoalSavedAmount(goalId, amount) async {
+  static Future<void> updateGoalSavedAmount(goalId, amount) async {
     return await FirebaseInstance.firestore
         .collection('goals')
         .doc(goalId)
         .update({'saved': amount});
   }
 
-  Future<void> deleteGoal(goalId) async {
+  static Future<void> deleteGoal(goalId) async {
     return await FirebaseInstance.firestore
         .collection("goals")
         .doc(goalId)
         .delete();
   }
 
-  Future<void> setPinned(targetID, pinned) async {
+  static Future<void> setPinned(targetID, pinned) async {
     await FirebaseInstance.firestore
         .collection('goals')
         .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../constants.dart';
+import '../constant/constant.dart';
 import '../services/auth.dart';
 
 class Register extends StatefulWidget {
@@ -16,8 +16,7 @@ class _RegisterState extends State<Register> {
   String _password = '';
 
   void signup() async {
-    Auth auth = Auth(); 
-    auth.signup(_email, _password, _name, context);
+    Auth.signup(_email, _password, _name, context);
   }
 
   @override
@@ -35,7 +34,7 @@ class _RegisterState extends State<Register> {
           ),
         ),
         child: Container(
-          width: Constants.isMobile(context) ? null : 500,
+          width: Constant.isMobile(context) ? null : 500,
           padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,

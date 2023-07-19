@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../constants.dart';
+import '../constant/constant.dart';
 import '../providers/total_transaction_provider.dart';
 
 class CategoryChart extends StatefulWidget {
@@ -25,23 +25,23 @@ class _CategoryChartState extends State<CategoryChart> {
                   snapshot.data != null) {
                 return ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxWidth: Constants.isMobile(context) ? double.infinity : 768,
-                    maxHeight: Constants.isMobile(context) ? 300 : double.infinity,
+                    maxWidth: Constant.isMobile(context) ? double.infinity : 768,
+                    maxHeight: Constant.isMobile(context) ? 300 : double.infinity,
                   ),
                   child: Flex(
-                    direction: Constants.isMobile(context)
+                    direction: Constant.isMobile(context)
                         ? Axis.vertical
                         : Axis.horizontal,
                     children: [
                       Flexible(
-                        flex: Constants.isMobile(context) ? 2 : 1,
+                        flex: Constant.isMobile(context) ? 2 : 1,
                         child: SizedBox(
-                          height: Constants.isMobile(context) ? 200 : 220,
+                          height: Constant.isMobile(context) ? 200 : 220,
                           child: PieChart(
                             PieChartData(
                               sections: getSections(snapshot.data!),
                               centerSpaceRadius:
-                                  Constants.isMobile(context) ? 40 : 50,
+                                  Constant.isMobile(context) ? 40 : 50,
                               sectionsSpace: 0,
                               pieTouchData: PieTouchData(
                                 touchCallback: (event, response) {
@@ -60,7 +60,7 @@ class _CategoryChartState extends State<CategoryChart> {
                         ),
                       ),
                       Flexible(
-                        // flex: Constants.isMobile(context) ? 1 : 2,
+                        // flex: Constant.isMobile(context) ? 1 : 2,
                         child: Container(
                           margin: const EdgeInsets.symmetric(horizontal: 20),
                           child: Column(children: getLegend(snapshot.data!.keys.toList())),

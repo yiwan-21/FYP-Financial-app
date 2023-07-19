@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../components/transaction.dart';
-import '../pages/analytics.dart';
+import '../components/expense_income_graph.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/total_goal_provider.dart';
 import '../providers/total_transaction_provider.dart';

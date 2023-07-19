@@ -4,7 +4,6 @@ import '../firebase_instance.dart';
 import '../services/user_service.dart';
 
 class UserProvider extends ChangeNotifier {
-  final UserService _userServices = UserService();
   User _user = FirebaseInstance.auth.currentUser!;
   Future<String?> _profileImage = Future.value('');
   String _name = '';
@@ -13,7 +12,7 @@ class UserProvider extends ChangeNotifier {
   UserProvider() {
     _name = _user.displayName!;
     _email = _user.email!;
-    _profileImage = _userServices.getProfileImage();
+    _profileImage = UserService.getProfileImage();
   }
 
   User get user => _user;
@@ -25,7 +24,7 @@ class UserProvider extends ChangeNotifier {
     _user = FirebaseInstance.auth.currentUser!;
     _name = _user.displayName!;
     _email = _user.email!;
-    _profileImage = _userServices.getProfileImage();
+    _profileImage = UserService.getProfileImage();
     notifyListeners();
   }
 
@@ -35,19 +34,19 @@ class UserProvider extends ChangeNotifier {
   }
 
   Future<void> updateName(String displayName) async {
-    await _userServices.updateName(displayName);
+    await UserService.updateName(displayName);
     _name = displayName;
     await reload();
   }
 
   Future<void> updateEmail(String email) async {
-    await _userServices.updateEmail(email);
+    await UserService.updateEmail(email);
     _email = email;
     await reload();
   }
 
   void updateProfileImage() async {
-    _profileImage = _userServices.getProfileImage();
+    _profileImage = UserService.getProfileImage();
     await reload();
   }
 

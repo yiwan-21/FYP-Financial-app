@@ -7,7 +7,7 @@ import '../providers/total_transaction_provider.dart';
 import '../providers/user_provider.dart';
 
 class Auth {
-  void login(email, password, BuildContext context) async {
+  static void login(email, password, BuildContext context) async {
     try {
       await FirebaseInstance.auth
           .signInWithEmailAndPassword(
@@ -35,7 +35,7 @@ class Auth {
     }
   }
 
-  void signup(email, password, name, BuildContext context) async {
+  static void signup(email, password, name, BuildContext context) async {
     try {
       await FirebaseInstance.auth
           .createUserWithEmailAndPassword(
@@ -77,12 +77,16 @@ class Auth {
     }
   }
 
-  void signout(BuildContext context) async {
+  static void signout(BuildContext context) async {
     await FirebaseInstance.auth.signOut().then((_) {
       Provider.of<UserProvider>(context, listen: false).signOut();
       Provider.of<TotalTransactionProvider>(context, listen: false).reset();
       Provider.of<TotalGoalProvider>(context, listen: false).reset();
       Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
     });
+  }
+
+  static Future<void> resetPassword(email) async {
+    return await FirebaseInstance.auth.sendPasswordResetEmail(email: email);
   }
 }

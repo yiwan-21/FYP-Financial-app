@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../constants.dart';
+import '../constant/constant.dart';
 import '../components/category_chart.dart';
 import '../components/transaction.dart';
 import '../providers/total_transaction_provider.dart';
@@ -23,8 +23,8 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
           children: [
             const SizedBox(height: 24),
             Container(
-              alignment: Constants.isMobile(context) ? Alignment.center : Alignment.centerLeft,
-              padding: EdgeInsets.symmetric(horizontal: Constants.isMobile(context) ? 0 : 8),
+              alignment: Constant.isMobile(context) ? Alignment.center : Alignment.centerLeft,
+              padding: EdgeInsets.symmetric(horizontal: Constant.isMobile(context) ? 0 : 8),
               child:  const Text(
                 "Spending Categories",
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,),
@@ -67,13 +67,13 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
                       snapshot.data!.length,
                       (index) {
                         final reversedIndex = snapshot.data!.length - index - 1;
-                        if (Constants.isDesktop(context)) {
+                        if (Constant.isDesktop(context)) {
                           return SizedBox(
                             width: MediaQuery.of(context).size.width / 3,
                             child: snapshot.data![reversedIndex],
                           );
                         }
-                        else if (Constants.isTablet(context)) {
+                        else if (Constant.isTablet(context)) {
                           return SizedBox(
                             width: MediaQuery.of(context).size.width / 2,
                             child: snapshot.data![reversedIndex],

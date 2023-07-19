@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../firebase_instance.dart';
-import '../constants.dart';
+import '../constant/constant.dart';
 import '../components/transaction.dart';
 import '../components/custom_switch.dart';
 import '../providers/transaction_provider.dart';
@@ -16,7 +16,6 @@ class EditTransaction extends StatefulWidget {
 }
 
 class _EditTransactionState extends State<EditTransaction> {
-  final TransactionService _transactionService = TransactionService();
   final _formKey = GlobalKey<FormState>();
   String _id = '';
   String _title = '';
@@ -40,7 +39,7 @@ class _EditTransactionState extends State<EditTransaction> {
     _isExpense = transactionProvider.getIsExpense;
     _category = transactionProvider.getCategory;
     _categoryList =
-        _isExpense ? Constants.expenseCategories : Constants.incomeCategories;
+        _isExpense ? Constant.expenseCategories : Constant.incomeCategories;
   }
 
   void updateTransaction() async {
@@ -58,14 +57,14 @@ class _EditTransactionState extends State<EditTransaction> {
         notes: _notes,
       );
 
-      await _transactionService.updateTransaction(editedTransaction).then((_) {
+      await TransactionService.updateTransaction(editedTransaction).then((_) {
         Navigator.pop(context, editedTransaction);
       });
     }
   }
 
   void deleteTransaction() async {
-    await _transactionService.deleteTransaction(_id).then((_) {
+    await TransactionService.deleteTransaction(_id).then((_) {
       // quit dialog box
       Navigator.pop(context);
       // quit edit transaction page
@@ -124,12 +123,11 @@ class _EditTransactionState extends State<EditTransaction> {
         ],
       ),
       body: Container(
-        alignment: Constants.isMobile(context)
-            ? Alignment.topCenter
-            : Alignment.center,
+        alignment:
+            Constant.isMobile(context) ? Alignment.topCenter : Alignment.center,
         child: SingleChildScrollView(
           child: Container(
-            decoration: Constants.isMobile(context)
+            decoration: Constant.isMobile(context)
                 ? null
                 : BoxDecoration(
                     border: Border.all(color: Colors.black45, width: 1),
@@ -143,11 +141,11 @@ class _EditTransactionState extends State<EditTransaction> {
                       )
                     ],
                   ),
-            width: Constants.isMobile(context) ? null : 500,
-            padding: Constants.isMobile(context)
+            width: Constant.isMobile(context) ? null : 500,
+            padding: Constant.isMobile(context)
                 ? null
                 : const EdgeInsets.fromLTRB(24, 40, 24, 24),
-            margin: Constants.isMobile(context)
+            margin: Constant.isMobile(context)
                 ? const EdgeInsets.fromLTRB(12, 24, 12, 0)
                 : null,
             child: Form(
@@ -290,8 +288,8 @@ class _EditTransactionState extends State<EditTransaction> {
                           setState(() {
                             _isExpense = !value;
                             _categoryList = _isExpense
-                                ? Constants.expenseCategories
-                                : Constants.incomeCategories;
+                                ? Constant.expenseCategories
+                                : Constant.incomeCategories;
                             if (_categoryList
                                 .contains(transactionProvider.getCategory)) {
                               _category = transactionProvider.getCategory;
@@ -345,12 +343,12 @@ class _EditTransactionState extends State<EditTransaction> {
                             borderRadius: BorderRadius.circular(4.0),
                           ),
                         ),
-                        child: const Text('Edit Transaction'),
                         onPressed: updateTransaction,
+                        child: const Text('Edit Transaction'),
                       ),
-                      if (!Constants.isMobile(context))
+                      if (!Constant.isMobile(context))
                         const SizedBox(width: 12),
-                      if (!Constants.isMobile(context))
+                      if (!Constant.isMobile(context))
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             fixedSize: const Size(100, 40),

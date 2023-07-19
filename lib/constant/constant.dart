@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class Constants {
+class Constant {
   static const double mobileMaxWidth = 768.0;
   static const double tabletMaxWidth = 992.0;
 

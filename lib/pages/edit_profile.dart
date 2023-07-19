@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../firebase_instance.dart';
-import '../constants.dart';
+import '../constant/constant.dart';
 import '../providers/user_provider.dart';
+import '../services/auth.dart';
 
 class EditProfileForm extends StatefulWidget {
   const EditProfileForm({super.key});
@@ -19,9 +19,18 @@ class _EditProfileFormState extends State<EditProfileForm> {
   @override
   void initState() {
     super.initState();
-    final UserProvider userProvider = Provider.of<UserProvider>(context, listen: false);
+    final UserProvider userProvider =
+        Provider.of<UserProvider>(context, listen: false);
     _name = userProvider.name;
     _email = userProvider.email;
+  }
+
+  void resetPassword() async {
+    await Auth.resetPassword(_email).then((_) {
+      SnackBar snackBar =
+          const SnackBar(content: Text('Password reset email sent'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
   }
 
   @override
@@ -32,12 +41,12 @@ class _EditProfileFormState extends State<EditProfileForm> {
           title: const Text('Edit Profile'),
         ),
         body: Container(
-          alignment: Constants.isMobile(context)
+          alignment: Constant.isMobile(context)
               ? Alignment.topCenter
               : Alignment.center,
           child: SingleChildScrollView(
             child: Container(
-              decoration: Constants.isMobile(context)
+              decoration: Constant.isMobile(context)
                   ? null
                   : BoxDecoration(
                       border: Border.all(color: Colors.black45, width: 1),
@@ -51,11 +60,11 @@ class _EditProfileFormState extends State<EditProfileForm> {
                         )
                       ],
                     ),
-              width: Constants.isMobile(context) ? null : 500,
-              padding: Constants.isMobile(context)
+              width: Constant.isMobile(context) ? null : 500,
+              padding: Constant.isMobile(context)
                   ? null
                   : const EdgeInsets.fromLTRB(24, 40, 24, 24),
-              margin: Constants.isMobile(context)
+              margin: Constant.isMobile(context)
                   ? const EdgeInsets.fromLTRB(12, 24, 12, 0)
                   : null,
               child: Form(
@@ -125,14 +134,8 @@ class _EditProfileFormState extends State<EditProfileForm> {
                           borderRadius: BorderRadius.circular(4.0),
                         ),
                       ),
+                      onPressed: resetPassword,
                       child: const Text('Reset Password'),
-                      onPressed: () async {
-                        await FirebaseInstance.auth.sendPasswordResetEmail(email: _email)
-                          .whenComplete(() {
-                            SnackBar snackBar = const SnackBar(content: Text('Password reset email sent'));
-                            ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                          });
-                      },
                     ),
                     const SizedBox(height: 60.0),
                     Row(

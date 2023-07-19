@@ -8,6 +8,7 @@ import '../components/growing_tree.dart';
 import '../providers/goal_provider.dart';
 import '../providers/total_transaction_provider.dart';
 import '../services/goal_service.dart';
+import '../services/transaction_service.dart';
 
 class GoalProgress extends StatefulWidget {
   const GoalProgress({super.key});
@@ -18,7 +19,6 @@ class GoalProgress extends StatefulWidget {
 
 class _GoalProgressState extends State<GoalProgress>
     with SingleTickerProviderStateMixin {
-  final GoalService _goalService = GoalService();
   String _id = '';
   String _title = '';
   double _totalAmount = 0;
@@ -49,7 +49,7 @@ class _GoalProgressState extends State<GoalProgress>
     _remaining = goalProvider.getRemaining;
     _pinned = goalProvider.getPinned;
 
-    _history = _goalService.getHistory(_id);
+    _history = GoalService.getHistory(_id);
 
     _progress = _saved / _totalAmount * 100;
     _daily = _remaining / 30;
@@ -68,7 +68,7 @@ class _GoalProgressState extends State<GoalProgress>
 
   void _updateHistory() {
     setState(() {
-      _history = _goalService.getHistory(_id);
+      _history = GoalService.getHistory(_id);
     });
   }
 
@@ -81,16 +81,15 @@ class _GoalProgressState extends State<GoalProgress>
       _remaining -= value;
     });
     _updateProgress();
-    Provider.of<GoalProvider>(context,listen: false).setSaved(_saved);
-    await _goalService.updateGoalSavedAmount(_id, _saved);
-    await _goalService.addHistory(_id, value)
-        .then((_) {
-          _updateHistory();
-        });
+    Provider.of<GoalProvider>(context, listen: false).setSaved(_saved);
+    await GoalService.updateGoalSavedAmount(_id, _saved);
+    await GoalService.addHistory(_id, value).then((_) {
+      _updateHistory();
+    });
   }
 
   void deleteGoal() async {
-    await _goalService.deleteGoal(_id).then((_) {
+    await GoalService.deleteGoal(_id).then((_) {
       // quit dialog box
       Navigator.pop(context);
       // quit goal progress page
@@ -101,7 +100,7 @@ class _GoalProgressState extends State<GoalProgress>
   }
 
   void _checkedFunction(double value) async {
-    final TrackerTransaction transaction = TrackerTransaction(
+    final TrackerTransaction newTransaction = TrackerTransaction(
       '',
       FirebaseInstance.auth.currentUser!.uid,
       'Goal: $_title',
@@ -111,12 +110,10 @@ class _GoalProgressState extends State<GoalProgress>
       'Savings Goal',
       notes: 'Auto Generated: Saved RM ${value.toStringAsFixed(2)} for $_title',
     );
-    await FirebaseInstance.firestore
-      .collection('transactions')
-      .add(transaction.toCollection())
-      .then((_) {
-        Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
-      });
+    await TransactionService.addTransaction(newTransaction).then((_) {
+      Provider.of<TotalTransactionProvider>(context, listen: false)
+          .updateTransactions();
+    });
   }
 
   @override
@@ -137,20 +134,21 @@ class _GoalProgressState extends State<GoalProgress>
               icon: const Icon(Icons.delete),
               onPressed: () {
                 showDialog(
-                  context: context, 
+                  context: context,
                   builder: (context) {
                     return AlertDialog(
                       title: const Text('Delete Savings Goal'),
-                      content: const Text('Are you sure you want to delete this goal?'),
+                      content: const Text(
+                          'Are you sure you want to delete this goal?'),
                       actions: [
                         TextButton(
                           onPressed: () {
                             Navigator.pop(context);
-                          }, 
+                          },
                           child: const Text('Cancel'),
                         ),
                         TextButton(
-                          onPressed: deleteGoal, 
+                          onPressed: deleteGoal,
                           child: const Text('Delete'),
                         ),
                       ],
@@ -170,14 +168,15 @@ class _GoalProgressState extends State<GoalProgress>
                   _pinned = !_pinned;
                 });
                 if (_pinned) {
-                  _goalService.setPinned(_id, _pinned);
+                  GoalService.setPinned(_id, _pinned);
                 } else {
                   FirebaseInstance.firestore
-                    .collection('goals')
-                    .doc(_id)
-                    .update({'pinned': _pinned});
+                      .collection('goals')
+                      .doc(_id)
+                      .update({'pinned': _pinned});
                 }
-                Provider.of<GoalProvider>(context, listen: false).setPinned(_pinned);
+                Provider.of<GoalProvider>(context, listen: false)
+                    .setPinned(_pinned);
               },
             )
           ],
@@ -200,8 +199,8 @@ class _GoalProgressState extends State<GoalProgress>
                                   context: context,
                                   builder: (BuildContext context) {
                                     return CustomAlertDialog(
-                                      _dialogTitle, 
-                                      _contentLabel, 
+                                      _dialogTitle,
+                                      _contentLabel,
                                       _checkboxLabel,
                                       true,
                                       _onSave,
