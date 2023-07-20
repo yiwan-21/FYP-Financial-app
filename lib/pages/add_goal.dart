@@ -71,7 +71,6 @@ class _AddGoalState extends State<AddGoal> {
           title: const Text('Add Goal'),
           actions: [
             IconButton(
-              // push_pin with a slash
               icon: Icon(
                 _pinned ? Icons.push_pin : Icons.push_pin_outlined,
                 semanticLabel: _pinned ? 'Unpin' : 'Pin',
