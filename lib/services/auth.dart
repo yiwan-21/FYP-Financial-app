@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import '../firebase_instance.dart';
+import '../components/alert_confirm_action.dart';
 import '../providers/total_goal_provider.dart';
 import '../providers/total_transaction_provider.dart';
 import '../providers/user_provider.dart';
@@ -45,24 +46,20 @@ class Auth {
           .then((userCredential) async {
         userCredential.user!.updateDisplayName(name);
         await userCredential.user!.sendEmailVerification().whenComplete(() {
-          AlertDialog alert = AlertDialog(
-            title: const Text("Email Verification"),
-            content: const Text(
-                "A verification email has been sent to your email address."),
-            actions: [
-              TextButton(
-                child: const Text("OK"),
-                onPressed: () {
-                  Navigator.pushNamedAndRemoveUntil(
-                      context, '/home', (route) => false);
-                },
-              ),
-            ],
-          );
           showDialog(
             context: context,
             builder: (BuildContext context) {
-              return alert;
+              return AlertConfirmAction(
+                title: 'Email Verification',
+                content:
+                    'A verification email has been sent to your email address',
+                confirmText: 'OK',
+                confirmAction: () {
+                  Navigator.pushNamedAndRemoveUntil(
+                    context, '/home', (route) => false
+                  );
+                },
+              );
             },
           );
         });
