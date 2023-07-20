@@ -5,6 +5,7 @@ import '../firebase_instance.dart';
 import '../constant/constant.dart';
 import '../components/transaction.dart';
 import '../components/custom_switch.dart';
+import '../components/alert_confirm_action.dart';
 import '../providers/transaction_provider.dart';
 import '../services/transaction_service.dart';
 
@@ -99,22 +100,13 @@ class _EditTransactionState extends State<EditTransaction> {
               showDialog(
                 context: context,
                 builder: (context) {
-                  return AlertDialog(
-                    title: const Text('Delete Transaction'),
-                    content: const Text(
-                        'Are you sure you want to delete this transaction?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: deleteTransaction,
-                        child: const Text('Delete'),
-                      ),
-                    ],
+                  return AlertConfirmAction(
+                    title: 'Delete Transaction',
+                    content:
+                        'Are you sure you want to delete this transaction?',
+                    cancelText: 'Cancel',
+                    confirmText: 'Delete',
+                    confirmAction: deleteTransaction,
                   );
                 },
               );

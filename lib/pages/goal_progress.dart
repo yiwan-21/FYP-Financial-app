@@ -5,6 +5,7 @@ import '../components/custom_alert_dialog.dart';
 import '../components/goal_history_card.dart';
 import '../components/transaction.dart';
 import '../components/growing_tree.dart';
+import '../components/alert_confirm_action.dart';
 import '../providers/goal_provider.dart';
 import '../providers/total_transaction_provider.dart';
 import '../services/goal_service.dart';
@@ -136,22 +137,12 @@ class _GoalProgressState extends State<GoalProgress>
                 showDialog(
                   context: context,
                   builder: (context) {
-                    return AlertDialog(
-                      title: const Text('Delete Savings Goal'),
-                      content: const Text(
-                          'Are you sure you want to delete this goal?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: deleteGoal,
-                          child: const Text('Delete'),
-                        ),
-                      ],
+                    return AlertConfirmAction(
+                      title: 'Delete Savings Goal',
+                      content: 'Are you sure you want to delete this goal?',
+                      cancelText: 'Cancel',
+                      confirmText: 'Delete',
+                      confirmAction: deleteGoal,
                     );
                   },
                 );
