@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class Constants {
+class Constant {
   static const double mobileMaxWidth = 768.0;
   static const double tabletMaxWidth = 992.0;
 
@@ -27,6 +27,7 @@ class Constants {
     'Personal Items',
     'Other Expenses'
   ];
+  
   static const List<String> incomeCategories = [
     'Savings',
     'Pocket Money',
@@ -82,4 +83,14 @@ class Constants {
         return const Icon(Icons.category);
     }
   }
+
+  static const List<Color> chartColors = [
+    Color.fromRGBO(128, 221, 220, 1),
+    Color.fromRGBO(246, 214, 153, 1),
+    Color.fromRGBO(255, 174, 164, 1),
+    Color.fromRGBO(31, 120, 190, 1),
+    Color.fromRGBO(231, 93, 111, 1),
+    Color.fromRGBO(174, 74, 174, 1),
+    Colors.lightBlue,
+  ];
 }

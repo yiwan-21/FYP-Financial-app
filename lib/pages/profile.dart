@@ -14,12 +14,8 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  final String _name = '';
-  final String _email = '';
-
   void signout() {
-    Auth auth = Auth();
-    auth.signout(context);
+    Auth.signout(context);
   }
 
 // Pick from gallery

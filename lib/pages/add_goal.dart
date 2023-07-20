@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../firebase_instance.dart';
-import '../constants.dart';
+import '../constants/constant.dart';
+import '../constants/message_constant.dart';
 import '../components/goal.dart';
 import '../providers/total_goal_provider.dart';
 import '../services/goal_service.dart';
@@ -15,7 +16,6 @@ class AddGoal extends StatefulWidget {
 }
 
 class _AddGoalState extends State<AddGoal> {
-  final GoalService _goalService = GoalService();
   final _formKey = GlobalKey<FormState>();
   String _id = '';
   String _title = '';
@@ -52,11 +52,11 @@ class _AddGoalState extends State<AddGoal> {
         _date,
         _pinned,
       );
-      await _goalService.addGoal(newGoal).then((value) {
+      await GoalService.addGoal(newGoal).then((value) {
         _id = value.id;
       });
       if (_pinned) {
-        await _goalService.setPinned(_id, _pinned);
+        await GoalService.setPinned(_id, _pinned);
       }
       if (context.mounted) {
         Provider.of<TotalGoalProvider>(context, listen: false).updateGoals();
@@ -72,7 +72,6 @@ class _AddGoalState extends State<AddGoal> {
           title: const Text('Add Goal'),
           actions: [
             IconButton(
-              // push_pin with a slash
               icon: Icon(
                 _pinned ? Icons.push_pin : Icons.push_pin_outlined,
                 semanticLabel: _pinned ? 'Unpin' : 'Pin',
@@ -86,12 +85,12 @@ class _AddGoalState extends State<AddGoal> {
           ],
         ),
         body: Container(
-          alignment: Constants.isMobile(context)
+          alignment: Constant.isMobile(context)
               ? Alignment.topCenter
               : Alignment.center,
           child: SingleChildScrollView(
             child: Container(
-              decoration: Constants.isMobile(context)
+              decoration: Constant.isMobile(context)
                   ? null
                   : BoxDecoration(
                       border: Border.all(color: Colors.black45, width: 1),
@@ -105,11 +104,11 @@ class _AddGoalState extends State<AddGoal> {
                         )
                       ],
                     ),
-              width: Constants.isMobile(context) ? null : 500,
-              padding: Constants.isMobile(context)
+              width: Constant.isMobile(context) ? null : 500,
+              padding: Constant.isMobile(context)
                   ? null
                   : const EdgeInsets.fromLTRB(24, 40, 24, 24),
-              margin: Constants.isMobile(context)
+              margin: Constant.isMobile(context)
                   ? const EdgeInsets.fromLTRB(12, 24, 12, 0)
                   : null,
               child: Form(
@@ -134,7 +133,7 @@ class _AddGoalState extends State<AddGoal> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Please enter goal's title";
+                          return ValidatorMessage.emptyGoalTitle;
                         }
                         return null;
                       },
@@ -195,10 +194,10 @@ class _AddGoalState extends State<AddGoal> {
                       ],
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return 'Please enter an amount';
+                          return ValidatorMessage.emptyAmount;
                         }
                         if (double.tryParse(value) == null) {
-                          return 'Please enter a valid amount';
+                          return ValidatorMessage.invalidAmount;
                         }
                         return null;
                       },
@@ -215,14 +214,15 @@ class _AddGoalState extends State<AddGoal> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              fixedSize: const Size(100, 40),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4.0),
-                              ),
+                          style: ElevatedButton.styleFrom(
+                            fixedSize: const Size(100, 40),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4.0),
                             ),
-                            child: const Text('Save'),
-                            onPressed: addGoal),
+                          ),
+                          onPressed: addGoal,
+                          child: const Text('Save'),
+                        ),
                         const SizedBox(width: 12),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(

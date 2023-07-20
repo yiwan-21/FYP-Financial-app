@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../constants.dart';
 import '../firebase_instance.dart';
+import '../constants/constant.dart';
+import '../constants/message_constant.dart';
 import '../components/transaction.dart';
 import '../components/custom_switch.dart';
 import '../services/transaction_service.dart';
@@ -14,16 +15,14 @@ class AddTransaction extends StatefulWidget {
 }
 
 class _AddTransactionState extends State<AddTransaction> {
-  final TransactionService _transactionService = TransactionService();
   final _formKey = GlobalKey<FormState>();
-  String _id = '';
   String _title = '';
   String? _notes;
   double _amount = 0;
   bool _isExpense = true;
   DateTime _date = DateTime.now();
-  List<String> _categoryList = Constants.expenseCategories;
-  String _category = Constants.expenseCategories[0];
+  List<String> _categoryList = Constant.expenseCategories;
+  String _category = Constant.expenseCategories[0];
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -43,7 +42,7 @@ class _AddTransactionState extends State<AddTransaction> {
       // Form is valid
       _formKey.currentState!.save();
       final newTransaction = TrackerTransaction(
-        _id,
+        'Auto Generate',
         FirebaseInstance.auth.currentUser!.uid,
         _title,
         _amount,
@@ -52,7 +51,7 @@ class _AddTransactionState extends State<AddTransaction> {
         _category,
         notes: _notes,
       );
-      await _transactionService.addTransaction(newTransaction).then((_) {
+      await TransactionService.addTransaction(newTransaction).then((_) {
         Navigator.pop(context, newTransaction);
       });
     }
@@ -65,12 +64,11 @@ class _AddTransactionState extends State<AddTransaction> {
         title: const Text('Add Transaction'),
       ),
       body: Container(
-        alignment: Constants.isMobile(context)
-            ? Alignment.topCenter
-            : Alignment.center,
+        alignment:
+            Constant.isMobile(context) ? Alignment.topCenter : Alignment.center,
         child: SingleChildScrollView(
           child: Container(
-            decoration: Constants.isMobile(context)
+            decoration: Constant.isMobile(context)
                 ? null
                 : BoxDecoration(
                     border: Border.all(color: Colors.black45, width: 1),
@@ -84,11 +82,11 @@ class _AddTransactionState extends State<AddTransaction> {
                       )
                     ],
                   ),
-            width: Constants.isMobile(context) ? null : 500,
-            padding: Constants.isMobile(context)
+            width: Constant.isMobile(context) ? null : 500,
+            padding: Constant.isMobile(context)
                 ? null
                 : const EdgeInsets.fromLTRB(24, 40, 24, 24),
-            margin: Constants.isMobile(context)
+            margin: Constant.isMobile(context)
                 ? const EdgeInsets.fromLTRB(12, 24, 12, 0)
                 : null,
             child: Form(
@@ -113,7 +111,7 @@ class _AddTransactionState extends State<AddTransaction> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your title';
+                        return ValidatorMessage.emptyTransactionTitle;
                       }
                       return null;
                     },
@@ -202,10 +200,10 @@ class _AddTransactionState extends State<AddTransaction> {
                           ],
                           validator: (value) {
                             if (value!.isEmpty) {
-                              return 'Please enter an amount';
+                              return ValidatorMessage.emptyAmount;
                             }
                             if (double.tryParse(value) == null) {
-                              return 'Please enter a valid amount';
+                              return ValidatorMessage.invalidAmount;
                             }
                             return null;
                           },
@@ -225,8 +223,8 @@ class _AddTransactionState extends State<AddTransaction> {
                           setState(() {
                             _isExpense = !value;
                             _categoryList = _isExpense
-                                ? Constants.expenseCategories
-                                : Constants.incomeCategories;
+                                ? Constant.expenseCategories
+                                : Constant.incomeCategories;
                             _category = _categoryList[0];
                           });
                         },
@@ -268,17 +266,18 @@ class _AddTransactionState extends State<AddTransaction> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            fixedSize: const Size(150, 40),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0),
-                            ),
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: const Size(150, 40),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4.0),
                           ),
-                          child: const Text('Add Transaction'),
-                          onPressed: addTransaction),
-                      if (!Constants.isMobile(context))
+                        ),
+                        onPressed: addTransaction,
+                        child: const Text('Add Transaction'),
+                      ),
+                      if (!Constant.isMobile(context))
                         const SizedBox(width: 12),
-                      if (!Constants.isMobile(context))
+                      if (!Constant.isMobile(context))
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             fixedSize: const Size(100, 40),

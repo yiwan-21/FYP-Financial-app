@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../constants.dart';
+import '../constants/constant.dart';
+import '../constants/message_constant.dart';
 import '../services/auth.dart';
 
 class Register extends StatefulWidget {
@@ -16,8 +17,7 @@ class _RegisterState extends State<Register> {
   String _password = '';
 
   void signup() async {
-    Auth auth = Auth(); 
-    auth.signup(_email, _password, _name, context);
+    Auth.signup(_email, _password, _name, context);
   }
 
   @override
@@ -35,7 +35,7 @@ class _RegisterState extends State<Register> {
           ),
         ),
         child: Container(
-          width: Constants.isMobile(context) ? null : 500,
+          width: Constant.isMobile(context) ? null : 500,
           padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
@@ -56,7 +56,7 @@ class _RegisterState extends State<Register> {
                       },
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Please enter your username';
+                          return ValidatorMessage.emptyUsername;
                         }
                         return null;
                       }),
@@ -74,7 +74,7 @@ class _RegisterState extends State<Register> {
                       },
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Please enter your email';
+                          return ValidatorMessage.emptyEmail;
                         }
                         return null;
                       }),
@@ -93,10 +93,10 @@ class _RegisterState extends State<Register> {
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
+                        return ValidatorMessage.emptyPassword;
                       }
                       if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
+                        return ValidatorMessage.invalidPassword;
                       }
                       return null;
                     },
@@ -111,7 +111,7 @@ class _RegisterState extends State<Register> {
                     ),
                     validator: (value) {
                       if (value != _password) {
-                        return 'Passwords do not match';
+                        return ValidatorMessage.passwordsNotMatch;
                       }
                       return null;
                     },

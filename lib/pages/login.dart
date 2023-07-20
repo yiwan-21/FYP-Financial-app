@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../firebase_instance.dart';
-import '../constants.dart';
+import '../constants/constant.dart';
+import '../constants/message_constant.dart';
 import '../services/auth.dart';
 
 class Login extends StatefulWidget {
@@ -19,8 +19,29 @@ class _LoginState extends State<Login> {
   String _emailReset = '';
 
   void login() {
-    Auth auth = Auth();;
-    auth.login(_email, _password, context);
+    Auth.login(_email, _password, context);
+  }
+
+  void resetPassword() async {
+    if (_resetformKey.currentState!.validate()) {
+      try {
+        await Auth.resetPassword(_emailReset).then((_) {
+          Navigator.pop(context);
+          SnackBar snackBar = SnackBar(content: Text(SuccessMessage.resetPassword));
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        });
+      } on FirebaseAuthException catch (e) {
+        String msg = e.message!;
+        if (e.code == AuthExceptionMessage.userNotFound.getCode) {
+          msg = AuthExceptionMessage.userNotFound.getMessage;
+        } else if (e.code == AuthExceptionMessage.invalidEmail.getCode) {
+          msg = AuthExceptionMessage.invalidEmail.getMessage;
+        }
+        Navigator.pop(context);
+        SnackBar snackBar = SnackBar(content: Text(msg));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    }
   }
 
   @override
@@ -40,7 +61,7 @@ class _LoginState extends State<Login> {
         child: Form(
           key: _formKey,
           child: Container(
-            width: Constants.isMobile(context) ? null : 500,
+            width: Constant.isMobile(context) ? null : 500,
             padding: const EdgeInsets.all(16.0),
             child: SingleChildScrollView(
               child: Column(
@@ -59,7 +80,7 @@ class _LoginState extends State<Login> {
                     },
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Please enter your email';
+                        return ValidatorMessage.emptyEmail;
                       }
                       return null;
                     },
@@ -79,7 +100,7 @@ class _LoginState extends State<Login> {
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
+                        return ValidatorMessage.emptyPassword;
                       }
                       return null;
                     },
@@ -92,8 +113,8 @@ class _LoginState extends State<Login> {
                         builder: (context) {
                           return AlertDialog(
                             title: const Text('Reset Password'),
-                            content: Container(
-                              width: Constants.isMobile(context) ? null : 500,
+                            content: SizedBox(
+                              width: Constant.isMobile(context) ? null : 500,
                               child: Form(
                                 key: _resetformKey,
                                 child: TextFormField(
@@ -109,7 +130,7 @@ class _LoginState extends State<Login> {
                                   },
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
-                                      return 'Please enter your email';
+                                      return ValidatorMessage.emptyEmail;
                                     }
                                     return null;
                                   },
@@ -118,29 +139,8 @@ class _LoginState extends State<Login> {
                             ),
                             actions: [
                               TextButton(
+                                onPressed: resetPassword,
                                 child: const Text('Confirm'),
-                                onPressed: () async {
-                                  if (_resetformKey.currentState!.validate()) {
-                                    try {                                 
-                                      await FirebaseInstance.auth.sendPasswordResetEmail(email: _emailReset)
-                                        .whenComplete(() {
-                                          Navigator.pop(context);
-                                          SnackBar snackBar = const SnackBar(content: Text('Password reset email sent'));
-                                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                                        });
-                                    } on FirebaseAuthException catch (e) {
-                                      String msg = e.message!;
-                                      if (e.code == 'user-not-found') {
-                                        msg = 'No user found for that email.';
-                                      } else if (e.code == 'invalid-email') {
-                                        msg = 'Invalid email address.';
-                                      }
-                                      Navigator.pop(context);
-                                      SnackBar snackBar = SnackBar(content: Text(msg));
-                                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                                    }
-                                  }
-                                },
                               ),
                             ],
                           );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../components/goal.dart';
 import '../providers/total_goal_provider.dart';
 
 class SavingsGoal extends StatefulWidget {
@@ -52,12 +51,7 @@ class _SavingsGoalState extends State<SavingsGoal> {
             child: FloatingActionButton(
               backgroundColor: Colors.grey,
               onPressed: () {
-                Navigator.pushNamed(context, '/goal/add')
-                  .then((goal) {
-                    if (goal != null && goal is Goal) {
-                      // Provider.of<TotalGoalProvider>(context, listen: false).updateGoals();
-                    }
-                  });
+                Navigator.pushNamed(context, '/goal/add');
               },
               child: const Icon(Icons.add, size: 30),
             ),
