@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../constant/constant.dart';
+import '../constants/constant.dart';
+import '../constants/message_constant.dart';
 import '../providers/user_provider.dart';
 import '../services/auth.dart';
 
@@ -27,8 +28,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
 
   void resetPassword() async {
     await Auth.resetPassword(_email).then((_) {
-      SnackBar snackBar =
-          const SnackBar(content: Text('Password reset email sent'));
+      SnackBar snackBar = SnackBar(content: Text(SuccessMessage.resetPassword));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     });
   }
@@ -92,7 +92,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your name';
+                          return ValidatorMessage.emptyName;
                         }
                         return null;
                       },
@@ -114,11 +114,11 @@ class _EditProfileFormState extends State<EditProfileForm> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
+                          return ValidatorMessage.emptyEmail;
                         }
                         if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
                             .hasMatch(value)) {
-                          return 'Please enter a valid email address';
+                          return ValidatorMessage.invalidEmail;
                         }
                         return null;
                       },

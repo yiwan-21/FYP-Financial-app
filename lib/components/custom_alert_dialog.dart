@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../constants/message_constant.dart';
 
 class CustomAlertDialog extends StatefulWidget {
   final String title;
@@ -79,10 +80,10 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
               ],
               validator: (value) {
                 if (value!.isEmpty) {
-                  return 'Please enter an amount';
+                  return ValidatorMessage.emptyAmount;
                 }
                 if (double.tryParse(value) == null) {
-                  return 'Please enter a valid amount';
+                  return ValidatorMessage.invalidAmount;
                 }
                 return null;
               },

@@ -1,5 +1,5 @@
 import '../firebase_instance.dart';
-import '../constant/constant.dart';
+import '../constants/constant.dart';
 import '../components/transaction.dart';
 import '../components/expense_income_graph.dart';
 import '../components/auto_dis_chart.dart';

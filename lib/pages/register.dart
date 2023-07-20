@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../constant/constant.dart';
+import '../constants/constant.dart';
+import '../constants/message_constant.dart';
 import '../services/auth.dart';
 
 class Register extends StatefulWidget {
@@ -55,7 +56,7 @@ class _RegisterState extends State<Register> {
                       },
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Please enter your username';
+                          return ValidatorMessage.emptyUsername;
                         }
                         return null;
                       }),
@@ -73,7 +74,7 @@ class _RegisterState extends State<Register> {
                       },
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Please enter your email';
+                          return ValidatorMessage.emptyEmail;
                         }
                         return null;
                       }),
@@ -92,10 +93,10 @@ class _RegisterState extends State<Register> {
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
+                        return ValidatorMessage.emptyPassword;
                       }
                       if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
+                        return ValidatorMessage.invalidPassword;
                       }
                       return null;
                     },
@@ -110,7 +111,7 @@ class _RegisterState extends State<Register> {
                     ),
                     validator: (value) {
                       if (value != _password) {
-                        return 'Passwords do not match';
+                        return ValidatorMessage.passwordsNotMatch;
                       }
                       return null;
                     },

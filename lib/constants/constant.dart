@@ -27,6 +27,7 @@ class Constant {
     'Personal Items',
     'Other Expenses'
   ];
+  
   static const List<String> incomeCategories = [
     'Savings',
     'Pocket Money',
@@ -82,4 +83,14 @@ class Constant {
         return const Icon(Icons.category);
     }
   }
+
+  static const List<Color> chartColors = [
+    Color.fromRGBO(128, 221, 220, 1),
+    Color.fromRGBO(246, 214, 153, 1),
+    Color.fromRGBO(255, 174, 164, 1),
+    Color.fromRGBO(31, 120, 190, 1),
+    Color.fromRGBO(231, 93, 111, 1),
+    Color.fromRGBO(174, 74, 174, 1),
+    Colors.lightBlue,
+  ];
 }

@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../constant/constant.dart';
+import '../constants/constant.dart';
 import '../providers/total_transaction_provider.dart';
 
 class CategoryChart extends StatefulWidget {
@@ -101,19 +101,8 @@ class _CategoryChartState extends State<CategoryChart> {
   }
 
   Color getColor(int index) {
-    // Define a list of colors to use
-    const List<Color> colors = [
-      Color.fromRGBO(128, 221, 220, 1),
-      Color.fromRGBO(246, 214, 153, 1),
-      Color.fromRGBO(255, 174, 164, 1),
-      Color.fromRGBO(31, 120, 190, 1),
-      Color.fromRGBO(231, 93, 111, 1),
-      Color.fromRGBO(174, 74, 174, 1),
-      Colors.lightBlue,
-    ];
-
     // If the index is out of range, return a random color
-    if (index >= colors.length) {
+    if (index >= Constant.chartColors.length) {
       return Color.fromRGBO(
         100 + index * 10,
         50 + index * 5,
@@ -123,7 +112,7 @@ class _CategoryChartState extends State<CategoryChart> {
     }
 
     // Otherwise, return the color at the specified index
-    return colors[index];
+    return Constant.chartColors[index];
   }
 
   List<Widget> getLegend(categories) {

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../constant/constant.dart';
 import '../firebase_instance.dart';
+import '../constants/constant.dart';
+import '../constants/message_constant.dart';
 import '../components/transaction.dart';
 import '../components/custom_switch.dart';
 import '../services/transaction_service.dart';
@@ -110,7 +111,7 @@ class _AddTransactionState extends State<AddTransaction> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your title';
+                        return ValidatorMessage.emptyTransactionTitle;
                       }
                       return null;
                     },
@@ -199,10 +200,10 @@ class _AddTransactionState extends State<AddTransaction> {
                           ],
                           validator: (value) {
                             if (value!.isEmpty) {
-                              return 'Please enter an amount';
+                              return ValidatorMessage.emptyAmount;
                             }
                             if (double.tryParse(value) == null) {
-                              return 'Please enter a valid amount';
+                              return ValidatorMessage.invalidAmount;
                             }
                             return null;
                           },

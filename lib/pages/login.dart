@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../constant/constant.dart';
+import '../constants/constant.dart';
+import '../constants/message_constant.dart';
 import '../services/auth.dart';
 
 class Login extends StatefulWidget {
@@ -26,16 +27,15 @@ class _LoginState extends State<Login> {
       try {
         await Auth.resetPassword(_emailReset).then((_) {
           Navigator.pop(context);
-          SnackBar snackBar =
-              const SnackBar(content: Text('Password reset email sent'));
+          SnackBar snackBar = SnackBar(content: Text(SuccessMessage.resetPassword));
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
         });
       } on FirebaseAuthException catch (e) {
         String msg = e.message!;
-        if (e.code == 'user-not-found') {
-          msg = 'No user found for that email.';
-        } else if (e.code == 'invalid-email') {
-          msg = 'Invalid email address.';
+        if (e.code == AuthExceptionMessage.userNotFound.getCode) {
+          msg = AuthExceptionMessage.userNotFound.getMessage;
+        } else if (e.code == AuthExceptionMessage.invalidEmail.getCode) {
+          msg = AuthExceptionMessage.invalidEmail.getMessage;
         }
         Navigator.pop(context);
         SnackBar snackBar = SnackBar(content: Text(msg));
@@ -80,7 +80,7 @@ class _LoginState extends State<Login> {
                     },
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Please enter your email';
+                        return ValidatorMessage.emptyEmail;
                       }
                       return null;
                     },
@@ -100,7 +100,7 @@ class _LoginState extends State<Login> {
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
+                        return ValidatorMessage.emptyPassword;
                       }
                       return null;
                     },
@@ -130,7 +130,7 @@ class _LoginState extends State<Login> {
                                   },
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
-                                      return 'Please enter your email';
+                                      return ValidatorMessage.emptyEmail;
                                     }
                                     return null;
                                   },

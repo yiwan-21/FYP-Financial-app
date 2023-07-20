@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../firebase_instance.dart';
-import '../constant/constant.dart';
+import '../constants/constant.dart';
+import '../constants/message_constant.dart';
 import '../components/goal.dart';
 import '../providers/total_goal_provider.dart';
 import '../services/goal_service.dart';
@@ -132,7 +133,7 @@ class _AddGoalState extends State<AddGoal> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Please enter goal's title";
+                          return ValidatorMessage.emptyGoalTitle;
                         }
                         return null;
                       },
@@ -193,10 +194,10 @@ class _AddGoalState extends State<AddGoal> {
                       ],
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return 'Please enter an amount';
+                          return ValidatorMessage.emptyAmount;
                         }
                         if (double.tryParse(value) == null) {
-                          return 'Please enter a valid amount';
+                          return ValidatorMessage.invalidAmount;
                         }
                         return null;
                       },

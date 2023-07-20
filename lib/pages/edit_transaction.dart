@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../firebase_instance.dart';
-import '../constant/constant.dart';
+import '../constants/constant.dart';
+import '../constants/message_constant.dart';
 import '../components/transaction.dart';
 import '../components/custom_switch.dart';
 import '../components/alert_confirm_action.dart';
@@ -163,7 +164,7 @@ class _EditTransactionState extends State<EditTransaction> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your title';
+                        return ValidatorMessage.emptyTransactionTitle;
                       }
                       return null;
                     },
@@ -254,10 +255,10 @@ class _EditTransactionState extends State<EditTransaction> {
                           ],
                           validator: (value) {
                             if (value!.isEmpty) {
-                              return 'Please enter an amount';
+                              return ValidatorMessage.emptyAmount;
                             }
                             if (double.tryParse(value) == null) {
-                              return 'Please enter a valid amount';
+                              return ValidatorMessage.invalidAmount;
                             }
                             return null;
                           },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
+import '../constants/message_constant.dart';
 import '../firebase_instance.dart';
 import '../components/alert_confirm_action.dart';
 import '../providers/total_goal_provider.dart';
@@ -24,12 +25,12 @@ class Auth {
       });
     } on FirebaseAuthException catch (e) {
       String msg = e.message!;
-      if (e.code == 'user-not-found') {
-        msg = 'No user found for that email.';
-      } else if (e.code == 'wrong-password') {
-        msg = 'Wrong password provided for that user.';
-      } else if (e.code == 'invalid-email') {
-        msg = 'Invalid email address.';
+      if (e.code == AuthExceptionMessage.userNotFound.getCode) {
+        msg = AuthExceptionMessage.userNotFound.getMessage;
+      } else if (e.code == AuthExceptionMessage.wrongPassword.getCode) {
+        msg = AuthExceptionMessage.wrongPassword.getMessage;
+      } else if (e.code == AuthExceptionMessage.invalidEmail.getCode) {
+        msg = AuthExceptionMessage.invalidEmail.getMessage;
       }
       SnackBar snackBar = SnackBar(content: Text(msg));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -66,10 +67,10 @@ class Auth {
       });
     } on FirebaseAuthException catch (e) {
       String msg = e.message!;
-      if (e.code == 'invalid-email') {
-        msg = 'Invalid email address.';
+      if (e.code == AuthExceptionMessage.invalidEmail.getCode) {
+        msg = AuthExceptionMessage.invalidEmail.getMessage;
       }
-      SnackBar snackBar = SnackBar(content: Text('${e.code}: $msg'));
+      SnackBar snackBar = SnackBar(content: Text(msg));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
   }
