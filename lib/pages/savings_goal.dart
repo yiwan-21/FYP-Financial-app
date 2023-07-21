@@ -46,14 +46,14 @@ class _SavingsGoalState extends State<SavingsGoal> {
             ),
           ),
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             alignment: Alignment.bottomRight,
+            margin: const EdgeInsets.only(bottom: 20, right: 10),
             child: FloatingActionButton(
               backgroundColor: Colors.grey,
               onPressed: () {
                 Navigator.pushNamed(context, '/goal/add');
               },
-              child: const Icon(Icons.add, size: 30),
+              child: const Icon(Icons.add, size: 27),
             ),
           ),
         ],

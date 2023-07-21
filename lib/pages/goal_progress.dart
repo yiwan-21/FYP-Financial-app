@@ -6,6 +6,7 @@ import '../components/goal_history_card.dart';
 import '../components/transaction.dart';
 import '../components/growing_tree.dart';
 import '../components/alert_confirm_action.dart';
+import '../constants/style_constant.dart';
 import '../providers/goal_provider.dart';
 import '../providers/total_transaction_provider.dart';
 import '../services/goal_service.dart';
@@ -200,8 +201,7 @@ class _GoalProgressState extends State<GoalProgress>
                                   });
                             },
                       style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 213, 242, 255),
+                          backgroundColor: ColorConstant.lightBlue,
                           shape: const CircleBorder(),
                           padding: const EdgeInsets.all(20)),
                       child: Image.asset(
