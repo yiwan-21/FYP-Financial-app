@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants/constant.dart';
+import '../constants/style_constant.dart';
 import '../providers/total_transaction_provider.dart';
 import '../providers/transaction_provider.dart';
 
@@ -98,7 +99,7 @@ class _TrackerTransactionState extends State<TrackerTransaction>
                     children: [
                       Container(
                         margin: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Constant.getCategoryIcon(widget.category),
+                        child: StyleConstant.getCategoryIcon(widget.category),
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
