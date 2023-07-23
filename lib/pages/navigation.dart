@@ -4,6 +4,7 @@ import '../pages/home.dart';
 import '../pages/tracker.dart';
 import '../pages/analytics.dart';
 import '../pages/budgeting.dart';
+import '../pages/split_money.dart';
 import '../pages/savings_goal.dart';
 import '../pages/profile.dart';
 import '../providers/user_provider.dart';
@@ -31,8 +32,9 @@ class _NavigationState extends State<Navigation> {
       "Home": const Home(),
       "Tracker": const Tracker(),
       "Financial Analytics": const Analytics(),
+      "Split Money": const SplitMoney(),
       "Savings Goal": const SavingsGoal(),
-      "Budgeting Tool": const Budgeting(),
+      // "Budgeting Tool": const Budgeting(),
     };
   }
 
@@ -104,6 +106,10 @@ class _NavigationState extends State<Navigation> {
             BottomNavigationBarItem(
               icon: Icon(Icons.align_vertical_bottom_outlined),
               label: 'Analytics',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.diversity_3),
+              label: 'Split Money',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.star),
