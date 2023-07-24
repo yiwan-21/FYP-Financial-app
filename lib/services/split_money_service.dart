@@ -1,7 +1,8 @@
-import 'package:financial_app/components/split_expense_card.dart';
-
+import '../components/split_expense_card.dart';
+import '../components/split_record_card.dart';
 import '../components/split_group_card.dart';
 import '../models/split_group.dart';
+import '../models/split_expense.dart';
 
 class SplitMoneyService {
   static Future<SplitGroup> getGroupByID(String id) async {
@@ -39,5 +40,43 @@ class SplitMoneyService {
     ];
 
     return groups;
+  }
+
+  static Future<SplitExpense> getExpenseByID(String id) async {
+    final SplitExpense expense = SplitExpense(
+      id: id,
+      title: 'Expense $id',
+      amount: 300,
+      paidBy: User('xx', 'Lee'),
+      sharedBy: [
+        User('member1ID', 'Member 1'),
+        User('member2ID', 'Member 2'),
+        User('member3ID', 'Member 3'),
+      ],
+      records: [
+        SplitRecordCard('Member 1', 20, 20, DateTime.now()),
+        SplitRecordCard('Member 2', 30, 30, DateTime.now()),
+        SplitRecordCard('Member 3', 40, 20, DateTime.now()),
+        SplitRecordCard('Member 4', 50, 20, DateTime.now()),
+        SplitRecordCard('Member 5', 20, 20, DateTime.now()),
+        SplitRecordCard('Member 6', 30, 30, DateTime.now()),
+        SplitRecordCard('Member 7', 40, 20, DateTime.now()),
+        SplitRecordCard('Member 8', 50, 20, DateTime.now()),
+      ],
+    );
+
+    return expense;
+  }
+
+  static Future<dynamic> addGroup(String groupName) async {
+    return SplitGroupCard('1', groupName: groupName);
+  }
+
+  static Future<dynamic> addExpense(SplitExpenseCard expense) async {
+    return expense;
+  }
+
+  static Future<dynamic> addRecord(SplitRecordCard record) async {
+    return record;
   }
 }

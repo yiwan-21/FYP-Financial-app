@@ -133,7 +133,8 @@ class MyApp extends StatelessWidget {
             if (isLoggedIn()) {
               // get argument from route
               final args = settings.arguments as Map<String, dynamic>;
-              return MaterialPageRoute(builder: (_) => SplitMoneyGroup(groupID: args['id']));
+              return MaterialPageRoute(
+                  builder: (_) => SplitMoneyGroup(groupID: args['id']));
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());
             }
@@ -141,7 +142,8 @@ class MyApp extends StatelessWidget {
             if (isLoggedIn()) {
               // get argument from route
               final args = settings.arguments as Map<String, dynamic>;
-              return MaterialPageRoute(builder: (_) => SplitMoneyExpense(expenseID: args['id']));
+              return MaterialPageRoute(
+                  builder: (_) => SplitMoneyExpense(expenseID: args['id']));
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());
             }

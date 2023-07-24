@@ -10,6 +10,7 @@ class ValidatorMessage {
   static String emptyPassword = "Please enter your password.";
   static String invalidPassword = "Password must be at least 6 characters.";
   static String passwordsNotMatch = "Passwords do not match.";
+  static String emptyGroupName = "Please enter a Group Name.";
 }
 
 class SuccessMessage {

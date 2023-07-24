@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/total_split_money_provider.dart';
+import '../components/add_group.dart';
 import '../constants/style_constant.dart';
+import '../providers/total_split_money_provider.dart';
 
 class SplitMoney extends StatefulWidget {
   const SplitMoney({super.key});
@@ -11,7 +12,11 @@ class SplitMoney extends StatefulWidget {
 }
 
 class _SplitMoneyState extends State<SplitMoney> {
-  void addGroup() {}
+  void addGroup() {
+    showDialog(context: context, builder: (BuildContext context) {
+      return const AddGroup();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
