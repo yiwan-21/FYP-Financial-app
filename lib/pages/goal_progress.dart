@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../firebase_instance.dart';
-import '../components/custom_alert_dialog.dart';
+import '../components/alert_with_checkbox.dart';
 import '../components/goal_history_card.dart';
 import '../components/transaction.dart';
 import '../components/growing_tree.dart';
@@ -190,13 +190,13 @@ class _GoalProgressState extends State<GoalProgress>
                               showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
-                                    return CustomAlertDialog(
-                                      _dialogTitle,
-                                      _contentLabel,
-                                      _checkboxLabel,
-                                      true,
-                                      _onSave,
-                                      _checkedFunction,
+                                    return AlertWithCheckbox(
+                                      title: _dialogTitle,
+                                      contentLabel: _contentLabel,
+                                      checkboxLabel: _checkboxLabel,
+                                      defaultChecked: true,
+                                      onSaveFunction: _onSave,
+                                      checkedFunction: _checkedFunction,
                                     );
                                   });
                             },
