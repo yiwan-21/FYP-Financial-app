@@ -1,6 +1,7 @@
 import '../components/split_expense_card.dart';
 import '../components/split_record_card.dart';
 import '../components/split_group_card.dart';
+import '../models/group_user.dart';
 import '../models/split_group.dart';
 import '../models/split_expense.dart';
 
@@ -9,12 +10,17 @@ class SplitMoneyService {
     final SplitGroup group = SplitGroup(
       id: id,
       name: 'Group $id',
-      owner: 'Owner',
+      owner: 'UCcZi2WQOuWkxcg3aNGykJwxs7E2',
       members: [
-        'Member 1',
-        'Member 2',
-        'Member 3',
-        'Member 4',
+        GroupUser('member1ID', 'Member 1'),
+        GroupUser('member2ID', 'Member 2'),
+        GroupUser('member3ID', 'Member 3'),
+        GroupUser('member4ID', 'Member 4'),
+        GroupUser('member5ID', 'Member 5'),
+        GroupUser('member6ID', 'Member 6'),
+        GroupUser('member7ID', 'Member 7'),
+        GroupUser('member8ID', 'Member 8'),
+        GroupUser('member9ID', 'Member 9'),
       ],
       expenses: [
         SplitExpenseCard('1', 'Food', 300, true, true, DateTime.now()),
@@ -47,11 +53,11 @@ class SplitMoneyService {
       id: id,
       title: 'Expense $id',
       amount: 300,
-      paidBy: User('xx', 'Lee'),
+      paidBy: GroupUser('UCcZi2WQOuWkxcg3aNGykJwxs7E2', 'Lee'),
       sharedBy: [
-        User('member1ID', 'Member 1'),
-        User('member2ID', 'Member 2'),
-        User('member3ID', 'Member 3'),
+        GroupUser('member1ID', 'Member 1'),
+        GroupUser('member2ID', 'Member 2'),
+        GroupUser('member3ID', 'Member 3'),
       ],
       records: [
         SplitRecordCard('Member 1', 20, 20, DateTime.now()),
@@ -78,5 +84,13 @@ class SplitMoneyService {
 
   static Future<dynamic> addRecord(SplitRecordCard record) async {
     return record;
+  }
+
+  static void updateGroupName(String id, String name) {
+    return;
+  }
+
+  static Future<void> addMember(String id, GroupUser member) async {
+    return;
   }
 }

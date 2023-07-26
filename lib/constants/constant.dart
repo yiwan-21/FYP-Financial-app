@@ -27,7 +27,7 @@ class Constant {
     'Personal Items',
     'Other Expenses'
   ];
-  
+
   static const List<String> incomeCategories = [
     'Savings',
     'Pocket Money',
@@ -50,4 +50,8 @@ class Constant {
     'Nov',
     'Dec',
   ];
+
+   static const List<String> splitMethod = [
+    'Equally'
+   ];
 }

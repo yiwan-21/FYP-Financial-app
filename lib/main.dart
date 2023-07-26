@@ -14,6 +14,8 @@ import './pages/add_goal.dart';
 import './pages/goal_progress.dart';
 import './pages/split_money_group.dart';
 import './pages/split_money_expense.dart';
+import './pages/add_group_expense.dart';
+import './pages/group_settings.dart';
 import './providers/goal_provider.dart';
 import './providers/navigation_provider.dart';
 import './providers/total_goal_provider.dart';
@@ -138,12 +140,29 @@ class MyApp extends StatelessWidget {
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());
             }
+            case RouteName.groupSettings:
+            if (isLoggedIn()) {
+              // get argument from route
+              final args = settings.arguments as Map<String, dynamic>;
+              return MaterialPageRoute(
+                  builder: (_) => GroupSettings(splitGroup: args['splitGroup']));
+            } else {
+              return MaterialPageRoute(builder: (_) => const FinancialApp());
+            }
           case RouteName.splitMoneyExpense:
             if (isLoggedIn()) {
               // get argument from route
               final args = settings.arguments as Map<String, dynamic>;
               return MaterialPageRoute(
                   builder: (_) => SplitMoneyExpense(expenseID: args['id']));
+            } else {
+              return MaterialPageRoute(builder: (_) => const FinancialApp());
+            }
+          case RouteName.addGroupExpense:
+            if (isLoggedIn()) {
+              final args = settings.arguments as Map<String, dynamic>;
+              return MaterialPageRoute(
+                  builder: (_) => AddGroupExpense(members: args['members']));
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());
             }
@@ -172,5 +191,7 @@ class RouteName {
   static const addGoal = '/goal/add';
   static const goalProgress = '/goal/progress';
   static const splitMoneyGroup = '/group';
+  static const groupSettings = '/group/settings';
   static const splitMoneyExpense = '/group/expense';
+  static const addGroupExpense = '/group/expense/add';
 }

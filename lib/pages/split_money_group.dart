@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../constants/constant.dart';
 import '../components/split_expense_card.dart';
 import '../models/split_group.dart';
+import '../providers/total_split_money_provider.dart';
 import '../services/split_money_service.dart';
 
 class SplitMoneyGroup extends StatefulWidget {
@@ -33,11 +35,20 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
   }
 
   void _addExpense() {
-    Navigator.pushNamed(context, '/group/expense/add'); //to be modify
+    Navigator.pushNamed(context, '/group/expense/add',
+        arguments: {'members': _group.members});
+  }
+
+  void _navigateToSettings() {
+    Navigator.pushNamed(context, '/group/settings',
+        arguments: {'splitGroup': _group})
+        .then((_) {
+          Provider.of<TotalSplitMoneyProvider>(context, listen: false).updateGroups();
+        });
   }
 
   void _navigateToMember() {
-    Navigator.pushNamed(context, '/group/member'); //to be modify
+    Navigator.pushNamed(context, '/group/members'); //to be modify
   }
 
   @override
@@ -48,7 +59,7 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
         actions: [
           IconButton(
             icon: const Icon(Icons.group),
-            onPressed: _navigateToMember,
+            onPressed: _navigateToSettings,
           ),
         ],
       ),
@@ -92,30 +103,29 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
               ),
               const SizedBox(height: 30),
               _hasMembers
-                ? 
-                Container(
-                    alignment: Alignment.centerRight,
-                    child: !Constant.isMobile(context) 
-                      ? ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            fixedSize: const Size(150, 40),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0),
-                            ),
-                          ),
-                          onPressed: _addExpense,
-                          child: const Text('Add Expense'),
-                        )
-                      : null,
-                  )
-                : TextButton.icon(
-                    onPressed: _navigateToMember,
-                    label: const Text('Add Group Member'),
-                    icon: const Icon(
-                      Icons.person_add_alt,
-                      size: 30,
+                  ? Container(
+                      alignment: Alignment.centerRight,
+                      child: !Constant.isMobile(context)
+                          ? ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                fixedSize: const Size(150, 40),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
+                              ),
+                              onPressed: _addExpense,
+                              child: const Text('Add Expense'),
+                            )
+                          : null,
+                    )
+                  : TextButton.icon(
+                      onPressed: _navigateToMember, //member or settings?
+                      label: const Text('Add Group Member'),
+                      icon: const Icon(
+                        Icons.person_add_alt,
+                        size: 30,
+                      ),
                     ),
-                  ),
               const SizedBox(height: 20),
               _hasMembers
                   ? Column(
