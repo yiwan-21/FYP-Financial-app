@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
 import '../components/alert_confirm_action.dart';
@@ -8,6 +9,7 @@ import '../components/edit_group.dart';
 import '../models/group_user.dart';
 import '../models/split_group.dart';
 import '../providers/split_money_provider.dart';
+import '../services/split_money_service.dart';
 
 class GroupSettings extends StatefulWidget {
   final SplitGroup splitGroup;
@@ -27,9 +29,11 @@ class _GroupSettingsState extends State<GroupSettings> {
   @override
   void initState() {
     super.initState();
+    SplitMoneyProvider splitMoneyProvider =
+        Provider.of<SplitMoneyProvider>(context, listen: false);
     setState(() {
-      _isOwner =
-          (widget.splitGroup.owner == FirebaseInstance.auth.currentUser!.uid);
+      _isOwner = _checkIsOwner(splitMoneyProvider.ownerId, FirebaseInstance.auth.currentUser!.uid);
+        
     });
   }
 
@@ -48,14 +52,22 @@ class _GroupSettingsState extends State<GroupSettings> {
     });
   }
 
-  void _addMember() {
-    if(_formKey.currentState!.validate()){
+  void _addMember() async {
+    if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       _isAddingMember(false);
 
-      // TODO: search member through email
-      GroupUser member = GroupUser('', '');
-      Provider.of<SplitMoneyProvider>(context, listen: false).addMember(member);
+      GroupUser? member = await SplitMoneyService.hasAccount(_targetEmail);
+      if (context.mounted) {
+        if (member != null) {
+          Provider.of<SplitMoneyProvider>(context, listen: false)
+              .addMember(member);
+        } else {
+          SnackBar snackBar =
+              SnackBar(content: Text(ExceptionMessage.noSuchUser));
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }
+      }
     }
   }
 
@@ -65,7 +77,14 @@ class _GroupSettingsState extends State<GroupSettings> {
     });
   }
 
-  void _removeMember(GroupUser member) {}
+  bool _checkIsOwner(String? ownerId, String memberId) {
+    return ownerId != null && ownerId == 'users/$memberId';
+  }
+
+  void _removeMember(GroupUser member) {
+    Provider.of<SplitMoneyProvider>(context, listen: false)
+        .removeMember(member);
+  }
 
   void _removeMemberConfirmation(GroupUser member) {
     showDialog(
@@ -110,7 +129,7 @@ class _GroupSettingsState extends State<GroupSettings> {
     );
   }
 
-  void _onSubmit() {
+  void _previousPage() {
     Navigator.of(context).pop();
   }
 
@@ -141,10 +160,14 @@ class _GroupSettingsState extends State<GroupSettings> {
                     color: Colors.black,
                   ),
                   const SizedBox(width: 20),
-                  Text(
-                    widget.splitGroup.name ?? 'Loading',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 28),
+                  Consumer<SplitMoneyProvider>(
+                    builder: (context, splitMoneyProvider, _) {
+                      return Text(
+                        splitMoneyProvider.name ?? 'Loading',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 28),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -169,7 +192,9 @@ class _GroupSettingsState extends State<GroupSettings> {
                     padding: const EdgeInsets.all(0),
                     fixedSize: const Size(200, 50),
                   ),
-                  onPressed: () {_isAddingMember(true);},
+                  onPressed: () {
+                    _isAddingMember(true);
+                  },
                   child: const ListTile(
                     iconColor: Colors.pink,
                     textColor: Colors.pink,
@@ -180,61 +205,75 @@ class _GroupSettingsState extends State<GroupSettings> {
               ),
               if (_isAdding)
                 Form(
-                  key: _formKey,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          decoration: const InputDecoration(
-                            labelText: 'Email',
-                            labelStyle: TextStyle(color: Colors.black),
-                            fillColor: Colors.white,
-                            filled: true,
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              _targetEmail = value;
-                            });
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return ValidatorMessage.emptyEmail;
-                            }
-                            return null;
-                          },
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            TextButton(
-                              onPressed: () {_isAddingMember(false);},
-                              child: const Text('Cancel'),
+                    key: _formKey,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'Email',
+                              labelStyle: TextStyle(color: Colors.black),
+                              fillColor: Colors.white,
+                              filled: true,
                             ),
-                            TextButton(
-                              onPressed: _addMember,
-                              child: const Text('Add'),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  )
-                ),
+                            onChanged: (value) {
+                              setState(() {
+                                _targetEmail = value;
+                              });
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return ValidatorMessage.emptyEmail;
+                              }
+                              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                  .hasMatch(value)) {
+                                return ValidatorMessage.invalidEmail;
+                              }
+                              return null;
+                            },
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  _isAddingMember(false);
+                                },
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: _addMember,
+                                child: const Text('Add'),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    )),
               const SizedBox(height: 10),
-              widget.splitGroup.members == null
-                  ? const Text('No group member yet')
-                  : ListView.builder(
+              Consumer<SplitMoneyProvider>(
+                builder: (context, splitMoneyProvider, _) {
+                  if (splitMoneyProvider.members == null) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text('No group member yet'),
+                    );
+                  } else {
+                    return ListView.builder(
                       shrinkWrap: true,
-                      itemCount: widget.splitGroup.members!.length,
+                      itemCount: splitMoneyProvider.members!.length,
                       itemBuilder: (context, index) {
-                        GroupUser member = widget.splitGroup.members![index];
+                        GroupUser member = splitMoneyProvider.members![index];
                         return ListTile(
                           iconColor: Colors.black,
                           textColor: Colors.black,
                           leading: const Icon(Icons.account_circle_outlined,
                               size: 30),
                           title: Text(member.name),
+                          subtitle: _checkIsOwner(splitMoneyProvider.ownerId, member.id)
+                              ? const Text('Admin')
+                              : null,
                           trailing: _isRemoving
                               ? IconButton(
                                   onPressed: () {
@@ -246,12 +285,15 @@ class _GroupSettingsState extends State<GroupSettings> {
                               : null,
                         );
                       },
-                    ),
+                    );
+                  }
+                },
+              ),
               const SizedBox(height: 40),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  if (!Constant.isMobile(context))
+                  if (!Constant.isMobile(context) && !_isRemoving)
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         fixedSize: const Size(80, 40),
@@ -259,8 +301,8 @@ class _GroupSettingsState extends State<GroupSettings> {
                           borderRadius: BorderRadius.circular(4.0),
                         ),
                       ),
-                      onPressed: _onSubmit,
-                      child: const Text('Done'),
+                      onPressed: _previousPage,
+                      child: const Text('Back'),
                     ),
                   if (_isOwner)
                     Row(
@@ -280,16 +322,30 @@ class _GroupSettingsState extends State<GroupSettings> {
                         ),
                         const SizedBox(width: 20),
                         if (!_isRemoving)
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              fixedSize: const Size(120, 40),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4.0),
+                          _isOwner
+                          ? ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                fixedSize: const Size(120, 40),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
                               ),
-                            ),
-                            onPressed: _deleteGroupConfirmation,
-                            child: const Text('Delete Group'),
-                          ),
+                              onPressed: _deleteGroupConfirmation,
+                              child: const Text('Delete Group'),
+                            )
+                          : ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                fixedSize: const Size(120, 40),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
+                              ),
+                              onPressed: () {_removeMember(
+                                Provider.of<SplitMoneyProvider>(context, listen: false).members!
+                                  .firstWhere((member) => member.id == FirebaseInstance.auth.currentUser!.uid)
+                              );},
+                              child: const Text('Leave Group'),
+                            )
                       ],
                     ),
                 ],

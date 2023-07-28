@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants/constant.dart';
-import '../components/split_expense_card.dart';
 import '../models/split_group.dart';
+import '../providers/split_money_provider.dart';
 import '../providers/total_split_money_provider.dart';
-import '../services/split_money_service.dart';
 
 class SplitMoneyGroup extends StatefulWidget {
-  final String groupID;
-  const SplitMoneyGroup({required this.groupID, super.key});
+  const SplitMoneyGroup({super.key});
 
   @override
   State<SplitMoneyGroup> createState() => _SplitMoneyGroupState();
@@ -16,23 +14,6 @@ class SplitMoneyGroup extends StatefulWidget {
 
 class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
   SplitGroup _group = SplitGroup();
-  bool _hasMembers = false;
-  List<SplitExpenseCard> _expenses = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _setGroup();
-  }
-
-  void _setGroup() async {
-    SplitGroup group = await SplitMoneyService.getGroupByID(widget.groupID);
-    setState(() {
-      _group = group;
-      _hasMembers = _group.members != null && _group.members!.isNotEmpty;
-      _expenses = _group.expenses ?? [];
-    });
-  }
 
   void _addExpense() {
     Navigator.pushNamed(context, '/group/expense/add',
@@ -47,15 +28,14 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
         });
   }
 
-  void _navigateToMember() {
-    Navigator.pushNamed(context, '/group/members'); //to be modify
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_group.name ?? 'Group'),
+        title: Consumer<SplitMoneyProvider>(
+          builder: (context, splitMoneyProvider, _) {
+          return Text(splitMoneyProvider.name ?? 'Loading...');
+        }),
         actions: [
           IconButton(
             icon: const Icon(Icons.group),
@@ -94,44 +74,66 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
                     color: Colors.black,
                   ),
                   const SizedBox(width: 20),
-                  Text(
-                    _group.name ?? 'Loading',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 28),
+                  Consumer<SplitMoneyProvider>(
+                    builder: (context, splitMoneyProvider, _) {
+                            return Text(
+                              splitMoneyProvider.name ?? 'Loading...',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold, 
+                                fontSize: 28,
+                              ),
+                            );
+                    }
                   ),
                 ],
               ),
               const SizedBox(height: 30),
-              _hasMembers
-                  ? Container(
-                      alignment: Alignment.centerRight,
-                      child: !Constant.isMobile(context)
-                          ? ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                fixedSize: const Size(150, 40),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4.0),
-                                ),
-                              ),
-                              onPressed: _addExpense,
-                              child: const Text('Add Expense'),
-                            )
-                          : null,
-                    )
-                  : TextButton.icon(
-                      onPressed: _navigateToMember, //member or settings?
-                      label: const Text('Add Group Member'),
-                      icon: const Icon(
-                        Icons.person_add_alt,
-                        size: 30,
-                      ),
-                    ),
+              Consumer<SplitMoneyProvider>(
+                builder: (context, splitMoneyProvider, _) {  
+                    if (splitMoneyProvider.members == null) {
+                      return const CircularProgressIndicator();
+                    }
+                      if (splitMoneyProvider.members!.length > 1) {
+                        return Container(
+                          alignment: Alignment.centerRight,
+                          child: !Constant.isMobile(context)
+                              ? ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    fixedSize: const Size(150, 40),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4.0),
+                                    ),
+                                  ),
+                                  onPressed: _addExpense,
+                                  child: const Text('Add Expense'),
+                                )
+                              : null,
+                        );
+                      } else {
+                        return TextButton.icon(
+                          onPressed: _navigateToSettings,
+                          label: const Text('Add more members for sharing money'),
+                          icon: const Icon(
+                            Icons.person_add_alt,
+                            size: 30,
+                          ),
+                        );
+                      }
+              }),
               const SizedBox(height: 20),
-              _hasMembers
-                  ? Column(
-                      children: _expenses,
-                    )
-                  : Container(),
+              Consumer<SplitMoneyProvider>(
+                builder: (context, splitMoneyProvider, _) {
+                    if (splitMoneyProvider.members != null && splitMoneyProvider.members!.length > 1) {
+                      if (splitMoneyProvider.expenses == null || splitMoneyProvider.expenses!.isEmpty) {
+                        return const Text(
+                          "No expenses yet.",
+                          textAlign: TextAlign.center,
+                        );
+                      }
+                      return Column(children: splitMoneyProvider.expenses!);
+                    }
+                    return Container();
+              }),
             ],
           ),
         ),

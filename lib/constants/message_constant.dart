@@ -20,6 +20,10 @@ class SuccessMessage {
       "Password reset email has been sent to your email address.";
 }
 
+class ExceptionMessage {
+  static String noSuchUser ="No user found for this email.";
+}
+
 class AuthExceptionMessage {
   static AuthException userNotFound =
       AuthException('user-not-found', 'No user found for that email.');

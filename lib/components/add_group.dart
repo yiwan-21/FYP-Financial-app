@@ -21,12 +21,11 @@ class _AddGroupState extends State<AddGroup> {
   String _groupName = '';
 
   Future<void> _addGroup() async {
-    await SplitMoneyService.addGroup(_groupName);
-
-    if (context.mounted) {
-      Provider.of<TotalSplitMoneyProvider>(context, listen: false).updateGroups();
-      Navigator.pop(context);
-    }
+    await SplitMoneyService.addGroup(_groupName)
+      .then((_) {
+        Navigator.pop(context);
+        Provider.of<TotalSplitMoneyProvider>(context, listen: false).updateGroups();
+      });
   }
 
   void _groupImage() async {

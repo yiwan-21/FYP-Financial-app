@@ -26,10 +26,9 @@ class _SplitMoneyState extends State<SplitMoney> {
           child: Consumer<TotalSplitMoneyProvider>(
             builder: (context, totalSplitMoneyProvider, _) {
               return FutureBuilder(
-                future: totalSplitMoneyProvider.getGroups,
+                future: totalSplitMoneyProvider.groupCards,
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done &&
-                      snapshot.data != null) {
+                  if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
                     return ListView(
                       children: List.generate(
                         snapshot.data!.length,

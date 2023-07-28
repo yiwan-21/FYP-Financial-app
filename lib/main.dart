@@ -22,6 +22,7 @@ import './providers/total_goal_provider.dart';
 import './providers/total_transaction_provider.dart';
 import './providers/user_provider.dart';
 import './providers/transaction_provider.dart';
+import './providers/split_money_provider.dart';
 import './providers/total_split_money_provider.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -50,6 +51,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => TotalTransactionProvider()),
         ChangeNotifierProvider(create: (_) => TotalGoalProvider()),
+        ChangeNotifierProvider(create: (_) => SplitMoneyProvider()),
         ChangeNotifierProvider(create: (_) => TotalSplitMoneyProvider()),
       ],
       child: const MyApp(),
@@ -134,9 +136,7 @@ class MyApp extends StatelessWidget {
           case RouteName.splitMoneyGroup:
             if (isLoggedIn()) {
               // get argument from route
-              final args = settings.arguments as Map<String, dynamic>;
-              return MaterialPageRoute(
-                  builder: (_) => SplitMoneyGroup(groupID: args['id']));
+              return MaterialPageRoute(builder: (_) => const SplitMoneyGroup());
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());
             }
@@ -160,9 +160,7 @@ class MyApp extends StatelessWidget {
             }
           case RouteName.addGroupExpense:
             if (isLoggedIn()) {
-              final args = settings.arguments as Map<String, dynamic>;
-              return MaterialPageRoute(
-                  builder: (_) => AddGroupExpense(members: args['members']));
+              return MaterialPageRoute(builder: (_) => const AddGroupExpense());
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());
             }

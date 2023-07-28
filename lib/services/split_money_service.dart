@@ -1,49 +1,54 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../components/split_expense_card.dart';
 import '../components/split_record_card.dart';
 import '../components/split_group_card.dart';
+import '../firebase_instance.dart';
 import '../models/group_user.dart';
 import '../models/split_group.dart';
 import '../models/split_expense.dart';
 
 class SplitMoneyService {
+  static CollectionReference get groupsCollection =>
+      FirebaseInstance.firestore.collection('groups');
+
   static Future<SplitGroup> getGroupByID(String id) async {
-    final SplitGroup group = SplitGroup(
-      id: id,
-      name: 'Group $id',
-      owner: 'UCcZi2WQOuWkxcg3aNGykJwxs7E2',
-      members: [
-        GroupUser('member1ID', 'Member 1'),
-        GroupUser('member2ID', 'Member 2'),
-        GroupUser('member3ID', 'Member 3'),
-        GroupUser('member4ID', 'Member 4'),
-        GroupUser('member5ID', 'Member 5'),
-        GroupUser('member6ID', 'Member 6'),
-        GroupUser('member7ID', 'Member 7'),
-        GroupUser('member8ID', 'Member 8'),
-        GroupUser('member9ID', 'Member 9'),
-      ],
-      expenses: [
-        SplitExpenseCard('1', 'Food', 300, true, true, DateTime.now()),
-        SplitExpenseCard('2', 'Food', 25, true, false, DateTime.now()),
-        SplitExpenseCard('3', 'Food', 80, false, true, DateTime.now()),
-        SplitExpenseCard('4', 'Food', 100, false, false, DateTime.now()),
-        SplitExpenseCard('5', 'Food', 300, true, true, DateTime.now()),
-        SplitExpenseCard('6', 'Food', 25, true, false, DateTime.now()),
-        SplitExpenseCard('7', 'Food', 80, false, true, DateTime.now()),
-        SplitExpenseCard('8', 'Food', 100, false, false, DateTime.now()),
-      ],
+    SplitGroup group = SplitGroup();
+
+    final groupDoc = await groupsCollection.doc(id).get();
+
+    final membersReferences = (groupDoc['members'] as List).map((member) {
+      return FirebaseInstance.firestore.doc(member);
+    }).toList();
+
+    final membersData = await Future.wait(
+      membersReferences.map((memberRef) async {
+        final userData = await memberRef.get();
+        return GroupUser(userData.id, userData['name'], userData['email']);
+      }).toList(),
+    );
+
+    group = SplitGroup(
+      id: groupDoc.id,
+      name: groupDoc['name'],
+      owner: groupDoc['owner'],
+      members: membersData,
+      expenses: [],
     );
 
     return group;
   }
 
-  static Future<List<SplitGroupCard>> getAllGroups() async {
-    final List<SplitGroupCard> groups = [
-      const SplitGroupCard('1', groupName: 'Group 1'),
-      const SplitGroupCard('2', groupName: 'Group 2'),
-      const SplitGroupCard('3', groupName: 'Group 3'),
-      const SplitGroupCard('4', groupName: 'Group 4'),
-    ];
+  static Future<List<SplitGroupCard>> getGroupCards() async {
+    final List<SplitGroupCard> groups = [];
+    await groupsCollection
+        .where('members',
+            arrayContains: 'users/${FirebaseInstance.auth.currentUser!.uid}')
+        .get()
+        .then((snapshot) => {
+              for (var group in snapshot.docs)
+                {groups.add(SplitGroupCard(group.id, groupName: group['name']))}
+            });
 
     return groups;
   }
@@ -53,11 +58,12 @@ class SplitMoneyService {
       id: id,
       title: 'Expense $id',
       amount: 300,
-      paidBy: GroupUser('UCcZi2WQOuWkxcg3aNGykJwxs7E2', 'Lee'),
+      paidBy: GroupUser(
+          'UCcZi2WQOuWkxcg3aNGykJwxs7E2', 'Lee', 'leeyiwan0921@gmail.com'),
       sharedBy: [
-        GroupUser('member1ID', 'Member 1'),
-        GroupUser('member2ID', 'Member 2'),
-        GroupUser('member3ID', 'Member 3'),
+        GroupUser('member1ID', 'Member 1', 'member1@email.com'),
+        GroupUser('member2ID', 'Member 2', 'member2@email.com'),
+        GroupUser('member3ID', 'Member 3', 'member3@email.com'),
       ],
       records: [
         SplitRecordCard('Member 1', 20, 20, DateTime.now()),
@@ -74,8 +80,49 @@ class SplitMoneyService {
     return expense;
   }
 
-  static Future<dynamic> addGroup(String groupName) async {
-    return SplitGroupCard('1', groupName: groupName);
+  static Future<void> addGroup(String groupName) async {
+    await groupsCollection.add({
+      'name': groupName,
+      'owner': 'users/${FirebaseInstance.auth.currentUser!.uid}',
+      'members': ['users/${FirebaseInstance.auth.currentUser!.uid}'],
+    });
+  }
+
+  static Future<GroupUser?> hasAccount(String _targetEmail) async {
+    return await FirebaseInstance.firestore
+        .collection('users')
+        .where('email', isEqualTo: _targetEmail)
+        .get()
+        .then((querySnapshot) {
+      if (querySnapshot.docs.isNotEmpty) {
+        var userData = querySnapshot.docs.first;
+        return GroupUser(
+          userData.id,
+          userData['name'],
+          userData['email'],
+        );
+      } else {
+        return null;
+      }
+    });
+  }
+
+  static Future<void> addMember(String groupID, GroupUser member) async {
+    await groupsCollection.doc(groupID).update({
+      'members': FieldValue.arrayUnion(['users/${member.id}'])
+    });
+  }
+
+  static Future<void> deleteMember(String groupID, String memberID) async{
+    // return await FirebaseInstance.firestore
+    //     .collection("groups")
+    //     .doc(groupID)
+    //     ..delete();
+  
+  }
+
+  static Future<void> updateGroupName(String groupID, String name) async {
+    await groupsCollection.doc(groupID).update({'name': name});
   }
 
   static Future<dynamic> addExpense(SplitExpenseCard expense) async {
@@ -86,11 +133,5 @@ class SplitMoneyService {
     return record;
   }
 
-  static void updateGroupName(String id, String name) {
-    return;
-  }
 
-  static Future<void> addMember(String id, GroupUser member) async {
-    return;
-  }
 }

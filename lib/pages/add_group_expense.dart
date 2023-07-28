@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:provider/provider.dart';
+
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
 import '../models/group_user.dart';
+import '../providers/split_money_provider.dart';
 
 class AddGroupExpense extends StatefulWidget {
-  final List<GroupUser> members;
-  const AddGroupExpense({required this.members, Key? key}) : super(key: key);
+  const AddGroupExpense({Key? key}) : super(key: key);
 
   @override
   State<AddGroupExpense> createState() => _AddGroupExpenseState();
@@ -16,9 +17,10 @@ class AddGroupExpense extends StatefulWidget {
 class _AddGroupExpenseState extends State<AddGroupExpense> {
   final _formKey = GlobalKey<FormState>();
   final List<String> _splitMethodList = Constant.splitMethod;
+  List<GroupUser> _members = [];
   String _title = '';
   double _amount = 0;
-  GroupUser _selectedPayMember = GroupUser('', '');
+  GroupUser _selectedPayMember = GroupUser('', '', '');
   String _splitMethod = Constant.splitMethod[0];
   List<GroupUser> _sharedBy = [];
   bool _isOpen = false;
@@ -32,11 +34,14 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
   @override
   void initState() {
     super.initState();
-    _selectedPayMember = widget.members[0];
+    setState(() {
+      _members = Provider.of<SplitMoneyProvider>(context, listen: false).members!;
+      _selectedPayMember = _members[0];
+    });
   }
 
   List<GroupUser> _getShareMember() {
-    return widget.members
+    return _members
         .where((member) =>
             member.id != _selectedPayMember.id &&
             _sharedBy.where((selected) => selected.id == member.id).isEmpty)
@@ -188,10 +193,10 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                     value: _selectedPayMember.id,
                     onChanged: (value) {
                       setState(() {
-                        _selectedPayMember = widget.members.firstWhere((member) => member.id == value);
+                        _selectedPayMember = _members.firstWhere((member) => member.id == value);
                       });
                     },
-                    items: widget.members
+                    items: _members
                         .map((member) => DropdownMenuItem(
                               value: member.id,
                               child: Text(member.name),
@@ -219,7 +224,7 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                     onChanged: (value) {
                       if (_sharedBy.where((selectedMember) => selectedMember.id == value).isEmpty) {
                         setState(() {
-                          _sharedBy.add(widget.members.firstWhere((member) => member.id == value));
+                          _sharedBy.add(_members.firstWhere((member) => member.id == value));
                         });
                       }
                     },
@@ -234,7 +239,7 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                           ),
                         ),
                       ),
-                      ...widget.members
+                      ..._members
                         .map((member) => DropdownMenuItem(
                               value: member.id,
                               child: Text(member.name),

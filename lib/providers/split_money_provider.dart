@@ -12,14 +12,16 @@ class SplitMoneyProvider extends ChangeNotifier {
     _splitGroup = SplitGroup();
   }
 
-  String get name => _splitGroup.name!;
-  String get ownerId => _splitGroup.owner!;
-  List<GroupUser> get members => _splitGroup.members!;
-  List<SplitExpenseCard> get expenses => _splitGroup.expenses!;
+  SplitGroup get splitGroup => _splitGroup;
+  String? get name => _splitGroup.name;
+  String? get ownerId => _splitGroup.owner;
+  List<GroupUser>? get members => _splitGroup.members;
+  List<SplitExpenseCard>? get expenses => _splitGroup.expenses;
 
-  Future<void> setNewSplitGroup(String id) async {
+  Future<SplitGroup> setNewSplitGroup(String id) async {
     _splitGroup = await SplitMoneyService.getGroupByID(id);
     notifyListeners();
+    return _splitGroup;
   }
 
   Future<void> updateSplitGroup() async {
@@ -38,6 +40,12 @@ class SplitMoneyProvider extends ChangeNotifier {
   void addMember(GroupUser member) {
     SplitMoneyService.addMember(_splitGroup.id!, member);
     _splitGroup.members!.add(member);
+    notifyListeners();
+  }
+
+  void removeMember(GroupUser member) {
+    SplitMoneyService.deleteMember(_splitGroup.id!, member.id);
+    _splitGroup.members!.remove(member);
     notifyListeners();
   }
 
