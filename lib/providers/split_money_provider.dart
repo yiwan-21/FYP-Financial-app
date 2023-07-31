@@ -13,6 +13,7 @@ class SplitMoneyProvider extends ChangeNotifier {
   }
 
   SplitGroup get splitGroup => _splitGroup;
+  String? get id => splitGroup.id;
   String? get name => _splitGroup.name;
   String? get ownerId => _splitGroup.owner;
   List<GroupUser>? get members => _splitGroup.members;
@@ -43,8 +44,8 @@ class SplitMoneyProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeMember(GroupUser member) {
-    SplitMoneyService.deleteMember(_splitGroup.id!, member.id);
+  Future<void> removeMember(GroupUser member) async {
+    await SplitMoneyService.deleteMember(_splitGroup.id!, member.id);
     _splitGroup.members!.remove(member);
     notifyListeners();
   }

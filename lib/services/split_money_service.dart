@@ -113,12 +113,25 @@ class SplitMoneyService {
     });
   }
 
-  static Future<void> deleteMember(String groupID, String memberID) async{
-    // return await FirebaseInstance.firestore
-    //     .collection("groups")
-    //     .doc(groupID)
-    //     ..delete();
-  
+  static Future<void> deleteMember(String groupID, String memberID) async {
+    String memberRef = "users/$memberID";
+
+    List<dynamic>? members = (await FirebaseInstance.firestore
+            .collection("groups")
+            .doc(groupID)
+            .get())
+            .data()?['members'];
+
+    members?.remove(memberRef);
+
+    return await FirebaseInstance.firestore
+        .collection("groups")
+        .doc(groupID)
+        .update({'members': members});
+  }
+
+  static Future<void> deleteGroup(String? groupID) async {
+    return await groupsCollection.doc(groupID).delete();
   }
 
   static Future<void> updateGroupName(String groupID, String name) async {
@@ -132,6 +145,4 @@ class SplitMoneyService {
   static Future<dynamic> addRecord(SplitRecordCard record) async {
     return record;
   }
-
-
 }

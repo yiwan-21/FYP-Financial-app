@@ -25,6 +25,7 @@ class _GroupSettingsState extends State<GroupSettings> {
   String _targetEmail = '';
   bool _isAdding = false;
   bool _isRemoving = false;
+  bool _isLeaving = false;
 
   @override
   void initState() {
@@ -32,8 +33,8 @@ class _GroupSettingsState extends State<GroupSettings> {
     SplitMoneyProvider splitMoneyProvider =
         Provider.of<SplitMoneyProvider>(context, listen: false);
     setState(() {
-      _isOwner = _checkIsOwner(splitMoneyProvider.ownerId, FirebaseInstance.auth.currentUser!.uid);
-        
+      _isOwner = _checkIsOwner(
+          splitMoneyProvider.ownerId, FirebaseInstance.auth.currentUser!.uid);
     });
   }
 
@@ -81,34 +82,63 @@ class _GroupSettingsState extends State<GroupSettings> {
     return ownerId != null && ownerId == 'users/$memberId';
   }
 
-  void _removeMember(GroupUser member) {
-    Provider.of<SplitMoneyProvider>(context, listen: false)
+  void _removeMember(GroupUser member) async {
+    await Provider.of<SplitMoneyProvider>(context, listen: false)
         .removeMember(member);
+    if (context.mounted && _isLeaving) {
+      // quit to SplitMoneyGroup page
+      Navigator.of(context).pop();
+      // quit to Group list page
+      Navigator.of(context).pop();
+    }
   }
 
   void _removeMemberConfirmation(GroupUser member) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertConfirmAction(
-          title: 'Remove ${member.name}',
-          content: 'Are you sure you want to remove this member?',
-          cancelText: 'Cancel',
-          confirmText: 'Remove',
-          confirmAction: () {
-            _removeMember(member);
-            Navigator.of(context).pop();
-          },
-        );
-      },
-    );
+    _isLeaving
+        ? showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertConfirmAction(
+                title: 'Leave Group',
+                content:
+                    'Are you sure you want to leave the group?\n\nThis action cannot be undone.',
+                cancelText: 'Cancel',
+                confirmText: 'Leave',
+                confirmAction: () {
+                  _removeMember(member);
+                  Navigator.of(context).pop();
+                },
+              );
+            },
+          )
+        : showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertConfirmAction(
+                title: 'Remove ${member.name}',
+                content:
+                    'Are you sure you want to remove this member?\n\nThis action cannot be undone.',
+                cancelText: 'Cancel',
+                confirmText: 'Remove',
+                confirmAction: () {
+                  _removeMember(member);
+                  Navigator.of(context).pop();
+                },
+              );
+            },
+          );
   }
 
-  void _deleteGroup() {
-    // quit to SplitMoneyGroup page
-    Navigator.of(context).pop();
-    // quit to Group list page
-    Navigator.of(context).pop();
+  void _deleteGroup() async {
+    SplitMoneyProvider splitMoneyProvider =
+        Provider.of<SplitMoneyProvider>(context, listen: false);
+    await SplitMoneyService.deleteGroup(splitMoneyProvider.id);
+    if (context.mounted) {
+      // quit to SplitMoneyGroup page
+      Navigator.of(context).pop();
+      // quit to Group list page
+      Navigator.of(context).pop();
+    }
   }
 
   void _deleteGroupConfirmation() {
@@ -271,10 +301,13 @@ class _GroupSettingsState extends State<GroupSettings> {
                           leading: const Icon(Icons.account_circle_outlined,
                               size: 30),
                           title: Text(member.name),
-                          subtitle: _checkIsOwner(splitMoneyProvider.ownerId, member.id)
+                          subtitle: _checkIsOwner(
+                                  splitMoneyProvider.ownerId, member.id)
                               ? const Text('Admin')
                               : null,
-                          trailing: _isRemoving
+                          trailing: _isRemoving &&
+                                  !_checkIsOwner(
+                                      splitMoneyProvider.ownerId, member.id)
                               ? IconButton(
                                   onPressed: () {
                                     _removeMemberConfirmation(member);
@@ -304,10 +337,10 @@ class _GroupSettingsState extends State<GroupSettings> {
                       onPressed: _previousPage,
                       child: const Text('Back'),
                     ),
-                  if (_isOwner)
-                    Row(
-                      children: [
-                        const SizedBox(width: 10),
+                  Row(
+                    children: [
+                      const SizedBox(width: 10),
+                      if (_isOwner)
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             fixedSize: _isRemoving
@@ -320,34 +353,41 @@ class _GroupSettingsState extends State<GroupSettings> {
                           onPressed: _toggleRemoveMember,
                           child: Text(_isRemoving ? 'Done' : 'Remove Member'),
                         ),
-                        const SizedBox(width: 20),
-                        if (!_isRemoving)
-                          _isOwner
-                          ? ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                fixedSize: const Size(120, 40),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4.0),
+                      if (_isOwner) const SizedBox(width: 20),
+                      if (!_isRemoving)
+                        _isOwner
+                            ? ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  fixedSize: const Size(120, 40),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4.0),
+                                  ),
                                 ),
-                              ),
-                              onPressed: _deleteGroupConfirmation,
-                              child: const Text('Delete Group'),
-                            )
-                          : ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                fixedSize: const Size(120, 40),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4.0),
+                                onPressed: _deleteGroupConfirmation,
+                                child: const Text('Delete Group'),
+                              )
+                            : ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  fixedSize: const Size(120, 40),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4.0),
+                                  ),
                                 ),
-                              ),
-                              onPressed: () {_removeMember(
-                                Provider.of<SplitMoneyProvider>(context, listen: false).members!
-                                  .firstWhere((member) => member.id == FirebaseInstance.auth.currentUser!.uid)
-                              );},
-                              child: const Text('Leave Group'),
-                            )
-                      ],
-                    ),
+                                onPressed: () {
+                                  _isLeaving = true;
+                                  _removeMemberConfirmation(
+                                      Provider.of<SplitMoneyProvider>(context,
+                                              listen: false)
+                                          .members!
+                                          .firstWhere((member) =>
+                                              member.id ==
+                                              FirebaseInstance
+                                                  .auth.currentUser!.uid));
+                                },
+                                child: const Text('Leave Group'),
+                              )
+                    ],
+                  ),
                 ],
               ),
             ],
