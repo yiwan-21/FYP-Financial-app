@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../constants/message_constant.dart';
 
-class CustomAlertDialog extends StatefulWidget {
+class AlertWithCheckbox extends StatefulWidget {
   final String title;
   final String contentLabel;
   final double? defaultValue;
@@ -11,15 +11,22 @@ class CustomAlertDialog extends StatefulWidget {
   final Function(double value) onSaveFunction;
   final Function(double value) checkedFunction;
 
-  const CustomAlertDialog(this.title, this.contentLabel, this.checkboxLabel,
-      this.defaultChecked, this.onSaveFunction, this.checkedFunction,
-      {this.defaultValue, super.key});
+  const AlertWithCheckbox({
+    required this.title, 
+    required this.contentLabel, 
+    required this.checkboxLabel,
+    required this.defaultChecked, 
+    required this.onSaveFunction, 
+    required this.checkedFunction,
+    this.defaultValue, 
+    super.key
+  });
 
   @override
-  State<CustomAlertDialog> createState() => _CustomAlertDialogState();
+  State<AlertWithCheckbox> createState() => _AlertWithCheckboxState();
 }
 
-class _CustomAlertDialogState extends State<CustomAlertDialog> {
+class _AlertWithCheckboxState extends State<AlertWithCheckbox> {
   final _formKey = GlobalKey<FormState>();
   bool _isChecked = true;
   double _value = 0;

@@ -12,12 +12,18 @@ import './pages/edit_transaction.dart';
 import './pages/edit_profile.dart';
 import './pages/add_goal.dart';
 import './pages/goal_progress.dart';
+import './pages/split_money_group.dart';
+import './pages/split_money_expense.dart';
+import './pages/add_group_expense.dart';
+import './pages/group_settings.dart';
 import './providers/goal_provider.dart';
 import './providers/navigation_provider.dart';
 import './providers/total_goal_provider.dart';
 import './providers/total_transaction_provider.dart';
 import './providers/user_provider.dart';
 import './providers/transaction_provider.dart';
+import './providers/split_money_provider.dart';
+import './providers/total_split_money_provider.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -45,6 +51,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => TotalTransactionProvider()),
         ChangeNotifierProvider(create: (_) => TotalGoalProvider()),
+        ChangeNotifierProvider(create: (_) => SplitMoneyProvider()),
+        ChangeNotifierProvider(create: (_) => TotalSplitMoneyProvider()),
       ],
       child: const MyApp(),
     ),
@@ -125,6 +133,37 @@ class MyApp extends StatelessWidget {
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());
             }
+          case RouteName.splitMoneyGroup:
+            if (isLoggedIn()) {
+              // get argument from route
+              return MaterialPageRoute(builder: (_) => const SplitMoneyGroup());
+            } else {
+              return MaterialPageRoute(builder: (_) => const FinancialApp());
+            }
+            case RouteName.groupSettings:
+            if (isLoggedIn()) {
+              // get argument from route
+              final args = settings.arguments as Map<String, dynamic>;
+              return MaterialPageRoute(
+                  builder: (_) => GroupSettings(splitGroup: args['splitGroup']));
+            } else {
+              return MaterialPageRoute(builder: (_) => const FinancialApp());
+            }
+          case RouteName.splitMoneyExpense:
+            if (isLoggedIn()) {
+              // get argument from route
+              final args = settings.arguments as Map<String, dynamic>;
+              return MaterialPageRoute(
+                  builder: (_) => SplitMoneyExpense(expenseID: args['id']));
+            } else {
+              return MaterialPageRoute(builder: (_) => const FinancialApp());
+            }
+          case RouteName.addGroupExpense:
+            if (isLoggedIn()) {
+              return MaterialPageRoute(builder: (_) => const AddGroupExpense());
+            } else {
+              return MaterialPageRoute(builder: (_) => const FinancialApp());
+            }
           default:
             return MaterialPageRoute(
               builder: (context) => Scaffold(
@@ -149,4 +188,8 @@ class RouteName {
   static const editTransaction = '/tracker/edit';
   static const addGoal = '/goal/add';
   static const goalProgress = '/goal/progress';
+  static const splitMoneyGroup = '/group';
+  static const groupSettings = '/group/settings';
+  static const splitMoneyExpense = '/group/expense';
+  static const addGroupExpense = '/group/expense/add';
 }
