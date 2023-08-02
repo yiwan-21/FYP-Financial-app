@@ -5,6 +5,7 @@ class SplitExpense {
   String? id;
   String? title;
   double? amount;
+  String? splitMethod;
   GroupUser? paidBy;
   List<GroupUser>? sharedBy;
   List<SplitRecordCard>? records;
@@ -13,6 +14,7 @@ class SplitExpense {
     this.id,
     this.title,
     this.amount,
+    this.splitMethod,
     this.paidBy,
     this.sharedBy,
     this.records,

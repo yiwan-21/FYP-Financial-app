@@ -1,6 +1,8 @@
 class ValidatorMessage {
   static String emptyAmount = "Please enter an amount.";
+  static String emptyAmountToPay = "Empty amount!";
   static String invalidAmount = "Please enter a valid amount.";
+  static String invalidAmountToPay = "Invalid amount!";
   static String emptyGoalTitle = "Please enter a goal title.";
   static String emptyTransactionTitle = "Please enter a transaction title.";
   static String emptyEmail = "Please enter your email.";

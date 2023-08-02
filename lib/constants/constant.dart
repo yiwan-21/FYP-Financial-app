@@ -52,6 +52,8 @@ class Constant {
   ];
 
    static const List<String> splitMethod = [
-    'Equally'
+    'Equally',
+    'Unequally',
+    ''
    ];
 }

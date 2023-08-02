@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../components/split_expense_card.dart';
 import '../components/split_record_card.dart';
 import '../components/split_group_card.dart';
 import '../firebase_instance.dart';
@@ -138,10 +137,25 @@ class SplitMoneyService {
     await groupsCollection.doc(groupID).update({'name': name});
   }
 
-  static Future<dynamic> addExpense(SplitExpenseCard expense) async {
+  static Future<dynamic> addExpense(String groupID, SplitExpense expense) async {
+    groupsCollection.doc(groupID)
+      .collection('expenses')
+      .add({
+        'title': expense.title,
+        'amount': expense.amount,
+        'splitMethod': expense.splitMethod,
+        'paidBy': 'users/${expense.paidBy!.id}',
+        'sharedBy': expense.sharedBy!.map((member) => 'users/${member.id}').toList(),
+        'records': expense.sharedBy!.map((member) => {
+          'name': member.name,
+          'amount': 0,
+          'paid': 0,
+          'date': DateTime.now(),
+        }).toList(),
+      });
     return expense;
   }
-
+  
   static Future<dynamic> addRecord(SplitRecordCard record) async {
     return record;
   }

@@ -1,3 +1,5 @@
+import 'package:financial_app/models/split_expense.dart';
+import 'package:financial_app/services/split_money_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +25,7 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
   GroupUser _selectedPayMember = GroupUser('', '', '');
   String _splitMethod = Constant.splitMethod[0];
   List<GroupUser> _sharedBy = [];
+  List<double> _amountToPay = [];
   bool _isOpen = false;
 
   void _toggleOpen() {
@@ -35,7 +38,8 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
   void initState() {
     super.initState();
     setState(() {
-      _members = Provider.of<SplitMoneyProvider>(context, listen: false).members!;
+      _members =
+          Provider.of<SplitMoneyProvider>(context, listen: false).members!;
       _selectedPayMember = _members[0];
     });
   }
@@ -48,9 +52,35 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
         .toList();
   }
 
-  void _AddGroupExpense() {
+  // TODO: split method
+  String _calAmount() {
+    switch (_splitMethod) {
+      case 'Equally':
+        return (_amount/_sharedBy.length).toStringAsFixed(2);
+      case 'Unequally':
+        return '0.00';
+      
+      default:
+        return '';
+    }
+  }
+
+  void _addGroupExpense() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+      final newGroupExpense = SplitExpense(
+        title: _title,
+        amount: _amount,
+        splitMethod: _splitMethod,
+        paidBy: _selectedPayMember,
+        sharedBy: _sharedBy,
+      );
+
+      String groupID =
+          Provider.of<SplitMoneyProvider>(context, listen: false).id!;
+      SplitMoneyService.addExpense(groupID, newGroupExpense).then((_) {
+        Navigator.pop(context, newGroupExpense);
+      });
     }
   }
 
@@ -81,15 +111,45 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                   ),
             width: Constant.isMobile(context) ? null : 500,
             padding: Constant.isMobile(context)
-                ? null
-                : const EdgeInsets.fromLTRB(24, 40, 24, 24),
-            margin: Constant.isMobile(context)
-                ? const EdgeInsets.fromLTRB(12, 24, 12, 0)
-                : null,
+                ? const EdgeInsets.fromLTRB(12, 10, 12, 0)
+                : const EdgeInsets.fromLTRB(24, 24, 24, 24),
             child: Form(
               key: _formKey,
               child: Column(
                 children: <Widget>[
+                  Row(
+                    mainAxisAlignment: Constant.isMobile(context)
+                        ? MainAxisAlignment.end
+                        : MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (!Constant.isMobile(context))
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            fixedSize: const Size(100, 40),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
+                          ),
+                          child: const Text('Cancel'),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      if (!Constant.isMobile(context))
+                        const SizedBox(width: 12),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: const Size(100, 40),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                        ),
+                        onPressed: _addGroupExpense,
+                        child: const Text('Save'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 18.0),
                   TextFormField(
                     decoration: const InputDecoration(
                       labelText: 'Title',
@@ -193,7 +253,8 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                     value: _selectedPayMember.id,
                     onChanged: (value) {
                       setState(() {
-                        _selectedPayMember = _members.firstWhere((member) => member.id == value);
+                        _selectedPayMember =
+                            _members.firstWhere((member) => member.id == value);
                       });
                     },
                     items: _members
@@ -222,9 +283,14 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                   DropdownButtonFormField<String>(
                     value: 'select',
                     onChanged: (value) {
-                      if (_sharedBy.where((selectedMember) => selectedMember.id == value).isEmpty) {
+                      if (_sharedBy
+                          .where((selectedMember) => selectedMember.id == value)
+                          .isEmpty) {
                         setState(() {
-                          _sharedBy.add(_members.firstWhere((member) => member.id == value));
+                          _sharedBy.add(
+                            _members.firstWhere((member) => member.id == value),
+                          );
+                          _amountToPay.add(0);
                         });
                       }
                     },
@@ -240,11 +306,11 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                         ),
                       ),
                       ..._members
-                        .map((member) => DropdownMenuItem(
-                              value: member.id,
-                              child: Text(member.name),
-                            ))
-                        .toList()
+                          .map((member) => DropdownMenuItem(
+                                value: member.id,
+                                child: Text(member.name),
+                              ))
+                          .toList()
                     ],
                     decoration: const InputDecoration(
                       labelText: 'Share by',
@@ -269,54 +335,94 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                     },
                   ),
                   if (_sharedBy.isNotEmpty)
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Wrap(
-                      children: _sharedBy.map((member) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: Chip(
-                            label: Text(member.name),
-                            onDeleted: () {
-                              setState(() {
-                                _sharedBy.remove(member);
-                              });
-                            },
-                          ),
-                        );
-                      }).toList(),
-                    ),),
-                  const SizedBox(height: 20.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          fixedSize: const Size(100, 40),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                        ),
-                        onPressed: _AddGroupExpense,
-                        child: const Text('Save'),
-                      ),
-                      if (!Constant.isMobile(context))
-                        const SizedBox(width: 12),
-                      if (!Constant.isMobile(context))
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            fixedSize: const Size(100, 40),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0),
+                    // Align(
+                    //   alignment: Alignment.centerLeft,
+                    //   child: Wrap(
+                    //     children: _sharedBy.map((member) {
+                    //       return Padding(
+                    //         padding: const EdgeInsets.symmetric(horizontal: 4),
+                    //         child: Chip(
+                    //           label: Text(member.name),
+                    //           onDeleted: () {
+                    //             setState(() {
+                    //               _sharedBy.remove(member);
+                    //             });
+                    //           },
+                    //         ),
+                    //       );
+                    //     }).toList(),
+                    //   ),
+                    // ),
+                    ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: _sharedBy.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: const EdgeInsets.only(top: 8),
+                            child: ListTile(
+                              tileColor: Colors.grey[200],
+                              contentPadding: const EdgeInsets.only(left: 0, right: 8),
+                              horizontalTitleGap: 0,
+                              leading: IconButton(
+                                icon: const Icon(
+                                  Icons.close, 
+                                  color: Colors.black,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _sharedBy.removeAt(index);
+                                    _amountToPay.removeAt(index);
+                                  });
+                                }
+                              ),
+                              title: Text(_sharedBy[index].name),
+                              trailing: SizedBox(
+                                width: 120,
+                                height: 40,
+                                child: TextFormField(
+                                  initialValue: _calAmount(),
+                                  decoration: const InputDecoration(
+                                    labelText: 'Amount',
+                                    labelStyle: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.black,
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(width: 1.5),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(width: 1),
+                                    ),
+                                    floatingLabelStyle: TextStyle(fontSize: 0),
+                                  ),
+                                  keyboardType: const TextInputType.numberWithOptions(
+                                      decimal: true),
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d+\.?\d{0,2}')),
+                                  ],
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return ValidatorMessage.emptyAmountToPay;
+                                    }
+                                    if (double.tryParse(value) == null || double.parse(value) <= 0) {
+                                      return ValidatorMessage.invalidAmountToPay;
+                                    }
+                                    return null;
+                                  },
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _amountToPay[index] =
+                                          double.tryParse(value) == null
+                                              ? 0
+                                              : double.parse(value);
+                                    });
+                                  },
+                                ),
+                              ),
                             ),
-                          ),
-                          child: const Text('Cancel'),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                    ],
-                  ),
+                          );
+                        }),
                 ],
               ),
             ),
