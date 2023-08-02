@@ -5,6 +5,7 @@ import '../components/transaction.dart';
 import '../components/alert_with_checkbox.dart';
 import '../constants/constant.dart';
 import '../models/split_expense.dart';
+import '../pages/chat.dart';
 import '../providers/total_transaction_provider.dart';
 import '../services/split_money_service.dart';
 import '../services/transaction_service.dart';
@@ -182,7 +183,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
               ),
             ),
             // Widget for the second tab
-            Container(),
+            const Chat(),
           ],
         ),
       ),
