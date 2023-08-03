@@ -11,30 +11,16 @@ class Chat extends StatefulWidget {
 }
 
 class _ChatState extends State<Chat> {
+  void _send() {}
+
+  bool _isMe(String sender) {
+    return sender == 'Aby';
+  }
+
   @override
   Widget build(BuildContext context) {
-    Future? _messages;
-    TextEditingController _messageController = TextEditingController();
-
-    @override
-    void initState() {
-      super.initState();
-
-      ChatService.getChatMessage().then((val) {
-        setState(() {
-          _messages = val;
-        });
-      });
-    }
-
-    void _send() {}
-
-    bool _isMe(String sender) {
-      return sender == 'A';
-    }
-
     return Container(
-      margin: const EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.only(top: 20),
       child: Stack(
         children: [
           FutureBuilder(
@@ -51,32 +37,59 @@ class _ChatState extends State<Chat> {
                       String sender = snapshot.data![index]['sender'];
                       return Align(
                         alignment: _isMe(sender)
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
-                        child: Container(
-                          constraints: const BoxConstraints(
-                            maxWidth: 300,
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 15),
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              topLeft: const Radius.circular(20),
-                              topRight: const Radius.circular(20),
-                              bottomLeft: _isMe(sender)
-                                  ? const Radius.circular(20)
-                                  : const Radius.circular(0),
-                              bottomRight: _isMe(sender)
-                                  ? const Radius.circular(0)
-                                  : const Radius.circular(20),
+                            ? Alignment.topRight
+                            : Alignment.topLeft,
+                        child: IntrinsicWidth(
+                          child: Container(
+                            constraints: const BoxConstraints(
+                              minWidth: 80,
+                              maxWidth: 300,
                             ),
-                            color: _isMe(sender)
-                                ? Colors.green[200]
-                                : Colors.grey[200],
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 15),
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                topLeft: const Radius.circular(20),
+                                topRight: const Radius.circular(20),
+                                bottomLeft: _isMe(sender)
+                                    ? const Radius.circular(20)
+                                    : const Radius.circular(0),
+                                bottomRight: _isMe(sender)
+                                    ? const Radius.circular(0)
+                                    : const Radius.circular(20),
+                              ),
+                              color: _isMe(sender)
+                                  ? Colors.green[200]
+                                  : Colors.grey[200],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _isMe(sender) ? 'You' : sender,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Container(
+                                  margin: const EdgeInsets.only(top: 2, bottom: 4),
+                                  child: Text(snapshot.data![index]['message']),
+                                ),
+                                Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: Text(
+                                  DateTime.now().toString().substring(11, 16),
+                                  textAlign: TextAlign.right,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),)
+                              ],
+                            ),
                           ),
-                          child: Text(snapshot.data![index]['message']),
                         ),
                       );
                     });
@@ -109,7 +122,7 @@ class _ChatState extends State<Chat> {
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
-                            Icons.send,
+                            Icons.send_rounded,
                             size: 20,
                           )),
                     )
