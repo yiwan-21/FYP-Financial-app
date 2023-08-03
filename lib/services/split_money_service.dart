@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../components/split_expense_card.dart';
 import '../components/split_record_card.dart';
 import '../components/split_group_card.dart';
 import '../firebase_instance.dart';
@@ -32,7 +33,9 @@ class SplitMoneyService {
       name: groupDoc['name'],
       owner: groupDoc['owner'],
       members: membersData,
-      expenses: [],
+      expenses: [
+        SplitExpenseCard('1', 'abc', 100, false, true, DateTime.now()),
+      ],
     );
 
     return group;
