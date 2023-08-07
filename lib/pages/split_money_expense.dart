@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../firebase_instance.dart';
+import '../components/alert_confirm_action.dart';
+import '../components/split_record_card.dart';
 import '../components/transaction.dart';
 import '../components/alert_with_checkbox.dart';
 import '../constants/constant.dart';
 import '../models/split_expense.dart';
+import '../models/group_user.dart';
 import '../pages/chat.dart';
+import '../providers/split_money_provider.dart';
 import '../providers/total_transaction_provider.dart';
 import '../services/split_money_service.dart';
 import '../services/transaction_service.dart';
@@ -20,59 +25,85 @@ class SplitMoneyExpense extends StatefulWidget {
 }
 
 class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
-  SplitExpense _expense = SplitExpense();
+  SplitExpense _expense = SplitExpense(
+    title: '',
+    amount: 0,
+    paidAmount: 0,
+    paidBy: GroupUser('', '', ''),
+    splitMethod: '',
+    sharedRecords: [],
+    createdAt: DateTime.now(),
+  );
 
   @override
   void initState() {
     super.initState();
-    _fetch();
+    _fetchExpenses();
   }
 
-  void _fetch() async {
-    SplitExpense expense =
-        await SplitMoneyService.getExpenseByID(widget.expenseID);
-    setState(() {
-      _expense = expense;
+  Future<SplitExpense> _getExpense() {
+    String groupID = Provider.of<SplitMoneyProvider>(context, listen: false).id!;
+    return SplitMoneyService.getExpenseByID(groupID, widget.expenseID);
+  }
+
+  void _fetchExpenses() async {
+    await _getExpense().then((expense) {
+      setState(() {
+        _expense = expense;
+      });
     });
   }
 
   bool _isPayer() {
-    return _expense.paidBy != null &&
-        FirebaseInstance.auth.currentUser!.uid == _expense.paidBy!.id;
+    return FirebaseInstance.auth.currentUser!.uid == _expense.paidBy.id;
   }
 
   String _getRemainingAmount() {
-    if (_expense.records == null || _expense.amount == null) {
-      return 'Loading';
-    }
-
     double paidAmount = 0;
-    for (var record in _expense.records!) {
+    for (var record in _expense.sharedRecords) {
       paidAmount += record.paidAmount;
     }
-    double amount = _expense.amount! - paidAmount;
+    double amount = _expense.amount - paidAmount;
 
     return 'Remaining: RM ${amount.toStringAsFixed(2)}';
   }
 
   void _settleUp() {
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertWithCheckbox(
-          title: 'Settle Up', 
-          contentLabel: 'Amount', 
-          checkboxLabel: 'Add a transaction record', 
-          defaultChecked: true, 
-          onSaveFunction: _onSettleUp, 
-          checkedFunction: _checkedFunction,
-        );
-      }
-    );
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithCheckbox(
+            title: 'Settle Up',
+            contentLabel: 'Amount',
+            checkboxLabel: 'Add a transaction record',
+            defaultChecked: true,
+            onSaveFunction: _onSettleUp,
+            checkedFunction: _checkedFunction,
+            maxValue: _expense.sharedRecords
+                .firstWhere((record) => record.id == FirebaseInstance.auth.currentUser!.uid)
+                .amount,
+          );
+        });
   }
 
   void _onSettleUp(double amount) async {
-    
+    SplitMoneyProvider splitMoneyProvider = Provider.of<SplitMoneyProvider>(context, listen: false);
+    String groupID = splitMoneyProvider.id!;
+    await SplitMoneyService.settleUp(groupID, widget.expenseID, amount)
+        .then((_) {
+          // Update the new paid amount
+          setState(() {
+            for (var record in _expense.sharedRecords) {
+              if (record.id == FirebaseInstance.auth.currentUser!.uid) {
+                record.paidAmount += amount;
+                break;
+              }
+            }
+          });
+
+          // update expense list
+          splitMoneyProvider.updateExpenses();
+        });
   }
 
   void _checkedFunction(double amount) async {
@@ -84,15 +115,27 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
       DateTime.now(),
       true,
       'Savings Goal',
-      notes: 'Auto Generated: Pay RM ${_expense.amount!.toStringAsFixed(2)} to ${_expense.paidBy!.name}',
+      notes:
+          'Auto Generated: Pay RM ${_expense.amount.toStringAsFixed(2)} to ${_expense.paidBy.name}',
     );
     await TransactionService.addTransaction(newTransaction).then((_) {
-      Provider.of<TotalTransactionProvider>(context, listen: false)
-          .updateTransactions();
+      Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
     });
   }
 
   void _remind() {}
+
+  void _deleteExpense() async {
+    String groupID = Provider.of<SplitMoneyProvider>(context, listen: false).id!;
+    await SplitMoneyService.deleteExpense(groupID, widget.expenseID).then((_) {
+      // close the alert dialog
+      Navigator.pop(context);
+      // close the expense page and go back to the group detail page
+      // need to return a value to the group detail page to update the expense list
+      // (null will not update the list)
+      Navigator.pop(context, 'deleted');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,13 +143,32 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(_expense.title ?? 'Split Money'),
+          title: Text(_expense.title),
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Record'),
               Tab(text: 'Chat'),
             ],
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertConfirmAction(
+                      title: 'Delete Expense',
+                      content: 'Are you sure you want to delete this expense?',
+                      cancelText: 'Cancel',
+                      confirmText: 'Delete',
+                      confirmAction: _deleteExpense,
+                    );
+                  },
+                );
+              },
+            ),
+          ],
         ),
         body: TabBarView(
           children: [
@@ -121,9 +183,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
                       children: [
                         const SizedBox(height: 30),
                         Text(
-                          _expense.amount == null
-                              ? 'Loading'
-                              : 'RM ${_expense.amount!.toStringAsFixed(2)}',
+                          'RM ${_expense.amount.toStringAsFixed(2)}',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 36,
@@ -138,14 +198,11 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          _expense.paidBy == null
-                              ? 'Loading'
-                              : 'paid by ${_expense.paidBy!.name}',
+                          'paid by ${_expense.paidBy.name}',
                           style: const TextStyle(
                             fontSize: 16,
                           ),
                         ),
-                        
                       ],
                     ),
                     const SizedBox(height: 15),
@@ -177,7 +234,9 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
                               child: const Text('Settle Up'),
                             ),
                     ),
-                    ..._expense.records ?? [],
+                    ..._expense.sharedRecords.map((record) {
+                      return SplitRecordCard(record: record);
+                    }).toList(),
                   ],
                 ),
               ),

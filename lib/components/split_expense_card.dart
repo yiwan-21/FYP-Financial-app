@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../constants/style_constant.dart';
+import '../providers/split_money_provider.dart';
 
 class SplitExpenseCard extends StatefulWidget {
   final String id;
@@ -9,9 +12,7 @@ class SplitExpenseCard extends StatefulWidget {
   final bool isLent;
   final DateTime date;
 
-  const SplitExpenseCard(
-      this.id, this.title, this.totalAmount, this.isSettle, this.isLent, this.date,
-      {super.key});
+  const SplitExpenseCard({required this.id, required this.title, required this.totalAmount, required this.isSettle, required this.isLent, required this.date, super.key});
 
   @override
   State<SplitExpenseCard> createState() => _SplitExpenseCardState();
@@ -19,7 +20,12 @@ class SplitExpenseCard extends StatefulWidget {
 
 class _SplitExpenseCardState extends State<SplitExpenseCard> {
   void _navigateToExpense() {
-    Navigator.of(context).pushNamed('/group/expense', arguments: {'id': widget.id});
+    Navigator.of(context).pushNamed('/group/expense', arguments: {'id': widget.id})
+      .then((mssg) {
+        if (mssg != null) {
+          Provider.of<SplitMoneyProvider>(context, listen: false).updateExpenses();
+        }
+      });
   }
 
   Text _getIsLentText() {

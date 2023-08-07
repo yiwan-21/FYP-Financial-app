@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../constants/constant.dart';
 import '../models/split_group.dart';
 import '../providers/split_money_provider.dart';
@@ -17,7 +18,12 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
 
   void _addExpense() {
     Navigator.pushNamed(context, '/group/expense/add',
-        arguments: {'members': _group.members});
+        arguments: {'members': _group.members})
+        .then((expense) {
+          if (expense != null) {
+            Provider.of<SplitMoneyProvider>(context, listen: false).updateExpenses();
+          }
+        });
   }
 
   void _navigateToSettings() {
@@ -91,7 +97,9 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
               Consumer<SplitMoneyProvider>(
                 builder: (context, splitMoneyProvider, _) {  
                     if (splitMoneyProvider.members == null) {
-                      return const CircularProgressIndicator();
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
                     }
                       if (splitMoneyProvider.members!.length > 1) {
                         return Container(

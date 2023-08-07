@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../models/split_record.dart';
+
 class SplitRecordCard extends StatefulWidget {
-  final String name;
-  final double amount;
-  final double paidAmount;
-  final DateTime date;
-  const SplitRecordCard(
-      this.name, this.amount, this.paidAmount, this.date,
-      {super.key});
+  final SplitRecord record;
+  const SplitRecordCard({required this.record, super.key});
 
   @override
   State<SplitRecordCard> createState() => _SplitRecordCardState();
@@ -15,11 +12,11 @@ class SplitRecordCard extends StatefulWidget {
 
 class _SplitRecordCardState extends State<SplitRecordCard> {
   bool _isSettle() {
-    return widget.amount - widget.paidAmount == 0;
+    return widget.record.amount - widget.record.paidAmount == 0;
   }
 
   String _getRemainingAmount() {
-    return (widget.amount - widget.paidAmount).toStringAsFixed(2);
+    return (widget.record.amount - widget.record.paidAmount).toStringAsFixed(2);
   }
 
   @override
@@ -37,14 +34,14 @@ class _SplitRecordCardState extends State<SplitRecordCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      widget.name,
+                      widget.record.name,
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      widget.date.toString().substring(0, 10),
+                      widget.record.date.toString().substring(0, 10),
                       style: const TextStyle(
                         color: Colors.black54,
                       ),
@@ -65,7 +62,7 @@ class _SplitRecordCardState extends State<SplitRecordCard> {
                   ),
                 ),
                 Text(
-                  'Paid RM ${widget.paidAmount.toStringAsFixed(2)}',
+                  'Paid RM ${widget.record.paidAmount.toStringAsFixed(2)}',
                   style: const TextStyle(
                     color: Colors.black54,
                   ),
