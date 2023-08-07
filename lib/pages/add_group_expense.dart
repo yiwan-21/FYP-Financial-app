@@ -1,12 +1,13 @@
-import 'package:financial_app/models/split_expense.dart';
-import 'package:financial_app/services/split_money_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
+import '../models/split_expense.dart';
 import '../models/group_user.dart';
+import '../models/split_record.dart';
+import '../services/split_money_service.dart';
 import '../providers/split_money_provider.dart';
 
 class AddGroupExpense extends StatefulWidget {
@@ -18,21 +19,18 @@ class AddGroupExpense extends StatefulWidget {
 
 class _AddGroupExpenseState extends State<AddGroupExpense> {
   final _formKey = GlobalKey<FormState>();
-  final List<String> _splitMethodList = Constant.splitMethod;
+  final SplitExpense _splitExpense = SplitExpense(
+    title: '',
+    amount: 0,
+    paidAmount: 0,
+    splitMethod: Constant.splitMethod[0],
+    paidBy: GroupUser('', '', ''),
+    sharedRecords: [],
+    createdAt: DateTime.now(),
+  );
   List<GroupUser> _members = [];
-  String _title = '';
-  double _amount = 0;
-  GroupUser _selectedPayMember = GroupUser('', '', '');
-  String _splitMethod = Constant.splitMethod[0];
-  List<GroupUser> _sharedBy = [];
-  List<double> _amountToPay = [];
-  bool _isOpen = false;
-
-  void _toggleOpen() {
-    setState(() {
-      _isOpen = !_isOpen;
-    });
-  }
+  final List<TextEditingController> _amountControllers = [];
+  bool _checkAmount = false;
 
   @override
   void initState() {
@@ -40,46 +38,57 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
     setState(() {
       _members =
           Provider.of<SplitMoneyProvider>(context, listen: false).members!;
-      _selectedPayMember = _members[0];
+      _splitExpense.paidBy = _members[0];
     });
   }
 
-  List<GroupUser> _getShareMember() {
-    return _members
-        .where((member) =>
-            member.id != _selectedPayMember.id &&
-            _sharedBy.where((selected) => selected.id == member.id).isEmpty)
-        .toList();
+  @override
+  void dispose() {
+    super.dispose();
+    for (var controller in _amountControllers) {
+      controller.dispose();
+    }
   }
 
-  // TODO: split method
-  String _calAmount() {
-    switch (_splitMethod) {
-      case 'Equally':
-        return (_amount/_sharedBy.length).toStringAsFixed(2);
-      case 'Unequally':
-        return '0.00';
-      
-      default:
-        return '';
+  void _calAmount() {
+    if (_splitExpense.splitMethod == Constant.splitEqually) {
+      double amount = _splitExpense.amount / _splitExpense.sharedRecords.length;
+      for (var controller in _amountControllers) {
+        controller.text = amount.toStringAsFixed(2);
+      }
+      setState(() {
+        for (var record in _splitExpense.sharedRecords) {
+          record.amount = amount;
+        }
+      });
     }
   }
 
   void _addGroupExpense() {
+    // check the total amount and split amounts
+    double inputAmount = 0;
+    for (var record in _splitExpense.sharedRecords) {
+      inputAmount += record.amount;
+      if (record.id == _splitExpense.paidBy.id) {
+        record.paidAmount = record.amount;
+        _splitExpense.paidAmount = record.amount;
+      }
+    }
+
+    if (inputAmount != _splitExpense.amount) {
+      _checkAmount = true;
+      inputAmount = 0;
+    } else {
+      _checkAmount = false;
+    }
+
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      final newGroupExpense = SplitExpense(
-        title: _title,
-        amount: _amount,
-        splitMethod: _splitMethod,
-        paidBy: _selectedPayMember,
-        sharedBy: _sharedBy,
-      );
 
-      String groupID =
+     String groupID =
           Provider.of<SplitMoneyProvider>(context, listen: false).id!;
-      SplitMoneyService.addExpense(groupID, newGroupExpense).then((_) {
-        Navigator.pop(context, newGroupExpense);
+      SplitMoneyService.addExpense(groupID, _splitExpense).then((_) {
+        Navigator.pop(context, _splitExpense);
       });
     }
   }
@@ -174,7 +183,7 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                     },
                     onChanged: (value) {
                       setState(() {
-                        _title = value;
+                        _splitExpense.title = value;
                       });
                     },
                   ),
@@ -208,25 +217,30 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                       if (double.tryParse(value) == null) {
                         return ValidatorMessage.invalidAmount;
                       }
+                      if (_checkAmount) {
+                        return ValidatorMessage.invalidTotalAmount;
+                      }
                       return null;
                     },
                     onChanged: (value) {
                       setState(() {
-                        _amount = double.tryParse(value) == null
+                        _splitExpense.amount = double.tryParse(value) == null
                             ? 0
                             : double.parse(value);
                       });
+                      _calAmount();
                     },
                   ),
                   const SizedBox(height: 18.0),
                   DropdownButtonFormField<String>(
-                    value: _splitMethod,
+                    value: _splitExpense.splitMethod,
                     onChanged: (value) {
                       setState(() {
-                        _splitMethod = value!;
+                        _splitExpense.splitMethod = value!;
                       });
+                      _calAmount();
                     },
-                    items: _splitMethodList
+                    items: Constant.splitMethod
                         .map((method) => DropdownMenuItem(
                               value: method,
                               child: Text(method),
@@ -250,10 +264,10 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                   ),
                   const SizedBox(height: 18.0),
                   DropdownButtonFormField<String>(
-                    value: _selectedPayMember.id,
+                    value: _splitExpense.paidBy.id,
                     onChanged: (value) {
                       setState(() {
-                        _selectedPayMember =
+                        _splitExpense.paidBy =
                             _members.firstWhere((member) => member.id == value);
                       });
                     },
@@ -283,15 +297,22 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                   DropdownButtonFormField<String>(
                     value: 'select',
                     onChanged: (value) {
-                      if (_sharedBy
+                      if (_splitExpense.sharedRecords
                           .where((selectedMember) => selectedMember.id == value)
                           .isEmpty) {
+                        GroupUser selectedMember =
+                            _members.firstWhere((member) => member.id == value);
                         setState(() {
-                          _sharedBy.add(
-                            _members.firstWhere((member) => member.id == value),
-                          );
-                          _amountToPay.add(0);
+                          _splitExpense.sharedRecords.add(SplitRecord(
+                            id: selectedMember.id,
+                            name: selectedMember.name,
+                            amount: 0,
+                            paidAmount: 0,
+                            date: DateTime.now(),
+                          ));
+                          _amountControllers.add(TextEditingController());
                         });
+                        _calAmount();
                       }
                     },
                     items: [
@@ -328,65 +349,50 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                       ),
                     ),
                     validator: (value) {
-                      if (_sharedBy.isEmpty) {
+                      if (_splitExpense.sharedRecords.isEmpty) {
                         return ValidatorMessage.emptySharedBy;
                       }
                       return null;
                     },
                   ),
-                  if (_sharedBy.isNotEmpty)
-                    // Align(
-                    //   alignment: Alignment.centerLeft,
-                    //   child: Wrap(
-                    //     children: _sharedBy.map((member) {
-                    //       return Padding(
-                    //         padding: const EdgeInsets.symmetric(horizontal: 4),
-                    //         child: Chip(
-                    //           label: Text(member.name),
-                    //           onDeleted: () {
-                    //             setState(() {
-                    //               _sharedBy.remove(member);
-                    //             });
-                    //           },
-                    //         ),
-                    //       );
-                    //     }).toList(),
-                    //   ),
-                    // ),
+                  if (_splitExpense.sharedRecords.isNotEmpty)
                     ListView.builder(
                         shrinkWrap: true,
-                        itemCount: _sharedBy.length,
+                        itemCount: _splitExpense.sharedRecords.length,
                         itemBuilder: (context, index) {
                           return Container(
                             margin: const EdgeInsets.only(top: 8),
                             child: ListTile(
                               tileColor: Colors.grey[200],
-                              contentPadding: const EdgeInsets.only(left: 0, right: 8),
+                              contentPadding:
+                                  const EdgeInsets.only(left: 0, right: 8),
                               horizontalTitleGap: 0,
                               leading: IconButton(
-                                icon: const Icon(
-                                  Icons.close, 
-                                  color: Colors.black,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _sharedBy.removeAt(index);
-                                    _amountToPay.removeAt(index);
-                                  });
-                                }
-                              ),
-                              title: Text(_sharedBy[index].name),
+                                  icon: const Icon(
+                                    Icons.close,
+                                    color: Colors.black,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _splitExpense.sharedRecords.removeAt(index);
+                                      _amountControllers[index].dispose();
+                                      _amountControllers.removeAt(index);
+                                      _calAmount();
+                                    });
+                                  }),
+                              title: Text(_splitExpense.sharedRecords[index].name),
                               trailing: SizedBox(
                                 width: 120,
-                                height: 40,
                                 child: TextFormField(
-                                  initialValue: _calAmount(),
+                                  controller: _amountControllers[index],
                                   decoration: const InputDecoration(
                                     labelText: 'Amount',
                                     labelStyle: TextStyle(
                                       fontSize: 12,
                                       color: Colors.black,
                                     ),
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.all(12),
                                     focusedBorder: OutlineInputBorder(
                                       borderSide: BorderSide(width: 1.5),
                                     ),
@@ -395,8 +401,9 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                                     ),
                                     floatingLabelStyle: TextStyle(fontSize: 0),
                                   ),
-                                  keyboardType: const TextInputType.numberWithOptions(
-                                      decimal: true),
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                          decimal: true),
                                   inputFormatters: <TextInputFormatter>[
                                     FilteringTextInputFormatter.allow(
                                         RegExp(r'^\d+\.?\d{0,2}')),
@@ -405,14 +412,19 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                                     if (value!.isEmpty) {
                                       return ValidatorMessage.emptyAmountToPay;
                                     }
-                                    if (double.tryParse(value) == null || double.parse(value) <= 0) {
-                                      return ValidatorMessage.invalidAmountToPay;
+                                    if (double.tryParse(value) == null ||
+                                        double.parse(value) <= 0) {
+                                      return ValidatorMessage
+                                          .invalidAmountToPay;
                                     }
                                     return null;
                                   },
                                   onChanged: (value) {
                                     setState(() {
-                                      _amountToPay[index] =
+                                      _splitExpense.splitMethod =
+                                          Constant.splitUnequally;
+
+                                      _splitExpense.sharedRecords[index].amount =
                                           double.tryParse(value) == null
                                               ? 0
                                               : double.parse(value);

@@ -1,21 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:financial_app/components/split_expense_card.dart';
 
-import '../components/split_expense_card.dart';
-import '../components/split_record_card.dart';
-import '../components/split_group_card.dart';
 import '../firebase_instance.dart';
+import '../components/split_group_card.dart';
+import '../constants/constant.dart';
 import '../models/group_user.dart';
 import '../models/split_group.dart';
 import '../models/split_expense.dart';
+import '../models/split_record.dart';
 
 class SplitMoneyService {
-  static CollectionReference get groupsCollection =>
-      FirebaseInstance.firestore.collection('groups');
+  static CollectionReference get groupsCollection => FirebaseInstance.firestore.collection('groups');
 
-  static Future<SplitGroup> getGroupByID(String id) async {
+  static Future<SplitGroup> getGroupByID(String groupID) async {
     SplitGroup group = SplitGroup();
-
-    final groupDoc = await groupsCollection.doc(id).get();
+    final groupDoc = await groupsCollection.doc(groupID).get();
 
     final membersReferences = (groupDoc['members'] as List).map((member) {
       return FirebaseInstance.firestore.doc(member);
@@ -33,12 +32,35 @@ class SplitMoneyService {
       name: groupDoc['name'],
       owner: groupDoc['owner'],
       members: membersData,
-      expenses: [
-        SplitExpenseCard('1', 'abc', 100, false, true, DateTime.now()),
-      ],
+      expenses: await getExpenseCards(groupID),
     );
 
     return group;
+  }
+
+  static Future<List<SplitExpenseCard>> getExpenseCards(String groupID) async {
+    List<SplitExpenseCard> expenses = [];
+    await groupsCollection
+        .doc(groupID)
+        .collection('expenses')
+        .get()
+        .then((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        for (var expense in snapshot.docs) {
+          expenses.add(SplitExpenseCard(
+            id: expense.id,
+            title: expense['title'],
+            totalAmount: expense['amount'],
+            isSettle: expense['paidAmount'] >= expense['amount'],
+            isLent: expense['paidBy'] ==
+                'users/${FirebaseInstance.auth.currentUser!.uid}',
+            date: expense['date'].toDate(),
+          ));
+        }
+      }
+    });
+
+    return expenses;
   }
 
   static Future<List<SplitGroupCard>> getGroupCards() async {
@@ -55,28 +77,60 @@ class SplitMoneyService {
     return groups;
   }
 
-  static Future<SplitExpense> getExpenseByID(String id) async {
+  static Future<SplitExpense> getExpenseByID(String groupID, String expenseID) async {
+    String title = '';
+    double amount = 0;
+    double paidAmount = 0;
+    String splitMethod = '';
+    GroupUser paidBy = GroupUser('', '', '');
+    List<SplitRecord> records = [];
+    DateTime createdAt = DateTime.now();
+
+    DocumentReference expenseDoc = groupsCollection.doc(groupID).collection('expenses').doc(expenseID);
+
+    await expenseDoc.get().then((snapshot) async => {
+          if (snapshot.exists)
+            {
+              title = snapshot['title'],
+              amount = snapshot['amount'],
+              paidAmount = snapshot['paidAmount'],
+              splitMethod = snapshot['splitMethod'],
+              await FirebaseInstance.firestore
+                  .doc(snapshot['paidBy'])
+                  .get()
+                  .then((userData) => {
+                        paidBy = GroupUser(
+                            userData.id, userData['name'], userData['email'])
+                      }),
+              createdAt = snapshot['date'].toDate(),
+            }
+        });
+
+    await expenseDoc.collection('records').get().then((snapshot) => {
+          if (snapshot.docs.isNotEmpty)
+            {
+              // ignore: avoid_function_literals_in_foreach_calls
+              snapshot.docs.forEach((record) {
+                records.add(SplitRecord(
+                  id: record.id,
+                  name: record['name'],
+                  amount: record['amount'].toDouble(),
+                  paidAmount: record['paid'].toDouble(),
+                  date: record['date'].toDate(),
+                ));
+              }),
+            }
+        });
+
     final SplitExpense expense = SplitExpense(
-      id: id,
-      title: 'Expense $id',
-      amount: 300,
-      paidBy: GroupUser(
-          'UCcZi2WQOuWkxcg3aNGykJwxs7E2', 'Lee', 'leeyiwan0921@gmail.com'),
-      sharedBy: [
-        GroupUser('member1ID', 'Member 1', 'member1@email.com'),
-        GroupUser('member2ID', 'Member 2', 'member2@email.com'),
-        GroupUser('member3ID', 'Member 3', 'member3@email.com'),
-      ],
-      records: [
-        SplitRecordCard('Member 1', 20, 20, DateTime.now()),
-        SplitRecordCard('Member 2', 30, 30, DateTime.now()),
-        SplitRecordCard('Member 3', 40, 20, DateTime.now()),
-        SplitRecordCard('Member 4', 50, 20, DateTime.now()),
-        SplitRecordCard('Member 5', 20, 20, DateTime.now()),
-        SplitRecordCard('Member 6', 30, 30, DateTime.now()),
-        SplitRecordCard('Member 7', 40, 20, DateTime.now()),
-        SplitRecordCard('Member 8', 50, 20, DateTime.now()),
-      ],
+      id: expenseID,
+      title: title,
+      amount: amount,
+      paidAmount: paidAmount,
+      splitMethod: splitMethod,
+      paidBy: paidBy,
+      sharedRecords: records,
+      createdAt: createdAt,
     );
 
     return expense;
@@ -90,10 +144,10 @@ class SplitMoneyService {
     });
   }
 
-  static Future<GroupUser?> hasAccount(String _targetEmail) async {
+  static Future<GroupUser?> hasAccount(String targetEmail) async {
     return await FirebaseInstance.firestore
         .collection('users')
-        .where('email', isEqualTo: _targetEmail)
+        .where('email', isEqualTo: targetEmail)
         .get()
         .then((querySnapshot) {
       if (querySnapshot.docs.isNotEmpty) {
@@ -122,7 +176,7 @@ class SplitMoneyService {
             .collection("groups")
             .doc(groupID)
             .get())
-            .data()?['members'];
+        .data()?['members'];
 
     members?.remove(memberRef);
 
@@ -141,25 +195,52 @@ class SplitMoneyService {
   }
 
   static Future<dynamic> addExpense(String groupID, SplitExpense expense) async {
-    groupsCollection.doc(groupID)
-      .collection('expenses')
-      .add({
-        'title': expense.title,
-        'amount': expense.amount,
-        'splitMethod': expense.splitMethod,
-        'paidBy': 'users/${expense.paidBy!.id}',
-        'sharedBy': expense.sharedBy!.map((member) => 'users/${member.id}').toList(),
-        'records': expense.sharedBy!.map((member) => {
-          'name': member.name,
-          'amount': 0,
-          'paid': 0,
-          'date': DateTime.now(),
-        }).toList(),
+    // add new 'expense' document
+    DocumentReference newExpense =
+        await groupsCollection.doc(groupID).collection('expenses').add({
+      'title': expense.title,
+      'amount': expense.amount,
+      'paidAmount': expense.paidAmount,
+      'splitMethod': expense.splitMethod,
+      'paidBy': 'users/${expense.paidBy.id}',
+      'sharedBy': expense.sharedRecords.map((record) => 'users/${record.id}').toList(),
+      'date': DateTime.now(),
+    });
+
+    // add new 'records' documents
+    for (var record in expense.sharedRecords) {
+      double amount = 0;
+      switch (expense.splitMethod) {
+        case Constant.splitEqually:
+          amount = expense.amount / expense.sharedRecords.length;
+          break;
+        case Constant.splitUnequally:
+          break;
+        default:
+      }
+      newExpense.collection('records').doc(record.id).set({
+        'name': record.name,
+        'amount': amount,
+        'paid': record.paidAmount,
+        'date': DateTime.now(),
       });
+    }
+
     return expense;
   }
   
-  static Future<dynamic> addRecord(SplitRecordCard record) async {
-    return record;
+  static Future<void> deleteExpense(String groupID, String expenseID ) async {
+    await groupsCollection.doc(groupID).collection('expenses').doc(expenseID).delete();
+  }
+  
+  static Future<void> settleUp(String groupID, String expenseID, double amount) async {
+    DocumentReference expenseRef = groupsCollection.doc(groupID).collection('expenses').doc(expenseID);
+
+    await expenseRef.update({'paidAmount': FieldValue.increment(amount)});
+
+    await expenseRef
+        .collection('records')
+        .doc(FirebaseInstance.auth.currentUser!.uid)
+        .update({'paid': FieldValue.increment(amount)});
   }
 }

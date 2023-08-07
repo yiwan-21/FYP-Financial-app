@@ -51,9 +51,11 @@ class Constant {
     'Dec',
   ];
 
-   static const List<String> splitMethod = [
-    'Equally',
-    'Unequally',
-    ''
-   ];
+  static const List<String> splitMethod = [
+    splitEqually,
+    splitUnequally,
+  ];
+  static const String splitEqually = 'Equally';
+  static const String splitUnequally = 'Unequally';
+
 }

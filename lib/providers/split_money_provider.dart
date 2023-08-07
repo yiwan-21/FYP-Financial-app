@@ -30,6 +30,11 @@ class SplitMoneyProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateExpenses() async {
+    _splitGroup.expenses = await SplitMoneyService.getExpenseCards(_splitGroup.id!);
+    notifyListeners();
+  }
+
   // no need wait for response so no async (?)
   void updateName(String name) {
     SplitMoneyService.updateGroupName(_splitGroup.id!, name);

@@ -1,22 +1,24 @@
-import 'group_user.dart';
-import '../components/split_record_card.dart';
+import '../models/group_user.dart';
+import '../models/split_record.dart';
 
 class SplitExpense {
   String? id;
-  String? title;
-  double? amount;
-  String? splitMethod;
-  GroupUser? paidBy;
-  List<GroupUser>? sharedBy;
-  List<SplitRecordCard>? records;
+  String title;
+  double amount;
+  double paidAmount;
+  String splitMethod;
+  GroupUser paidBy;
+  List<SplitRecord> sharedRecords; // also determine the shared users
+  DateTime createdAt;
 
   SplitExpense({
     this.id,
-    this.title,
-    this.amount,
-    this.splitMethod,
-    this.paidBy,
-    this.sharedBy,
-    this.records,
+    required this.title,
+    required this.amount,
+    required this.paidAmount,
+    required this.splitMethod,
+    required this.paidBy,
+    required this.sharedRecords,
+    required this.createdAt,
   });
 }

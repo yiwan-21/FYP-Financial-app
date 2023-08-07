@@ -1,8 +1,9 @@
 class ValidatorMessage {
   static String emptyAmount = "Please enter an amount.";
-  static String emptyAmountToPay = "Empty amount!";
+  static String emptyAmountToPay = "Empty amount.";
   static String invalidAmount = "Please enter a valid amount.";
-  static String invalidAmountToPay = "Invalid amount!";
+  static String invalidAmountToPay = "Invalid amount.";
+  static String invalidTotalAmount = "The total split amounts must be exactly same as the total amount.";
   static String emptyGoalTitle = "Please enter a goal title.";
   static String emptyTransactionTitle = "Please enter a transaction title.";
   static String emptyEmail = "Please enter your email.";
@@ -23,7 +24,7 @@ class SuccessMessage {
 }
 
 class ExceptionMessage {
-  static String noSuchUser ="No user found for this email.";
+  static String noSuchUser = "No user found for this email.";
 }
 
 class AuthExceptionMessage {
