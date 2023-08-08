@@ -44,6 +44,10 @@ class _GoalState extends State<Goal> {
     _progress = widget.saved / widget.amount;
   }
 
+  bool _expired() {
+    return widget.targetDate.isBefore(DateTime.now());
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -138,10 +142,10 @@ class _GoalState extends State<Goal> {
                   Text(
                     widget.targetDate.toString().substring(0, 10),
                     textAlign: TextAlign.left,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
-                      color: Colors.black,
+                      color: _expired()? Colors.red : Colors.black,
                     ),
                   ),
                   const Icon(Icons.arrow_forward_ios),
