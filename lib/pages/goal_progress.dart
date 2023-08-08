@@ -35,6 +35,8 @@ class _GoalProgressState extends State<GoalProgress>
   double _weekly = 0;
   double _monthly = 0;
 
+  int _days = 0;
+
   final String _dialogTitle = 'Add Saved Amount';
   final String _contentLabel = 'Amount';
   final String _checkboxLabel = 'Add an expense record';
@@ -54,17 +56,19 @@ class _GoalProgressState extends State<GoalProgress>
     _history = GoalService.getHistory(_id);
 
     _progress = _saved / _totalAmount * 100;
-    _daily = _remaining / 30;
-    _weekly = _remaining / 4;
-    _monthly = _remaining;
+
+    _days = goalProvider.targetDate.difference(DateTime.now()).abs().inDays + 1;
+    _daily = _remaining / _days;
+    _weekly = _remaining / (_days / 7).ceil();
+    _monthly = _remaining / (_days / 30).ceil();
   }
 
   void _updateProgress() {
     setState(() {
       _progress = _saved / _totalAmount * 100;
-      _daily = _remaining / 30;
-      _weekly = _remaining / 4;
-      _monthly = _remaining;
+      _daily = _remaining / _days;
+      _weekly = _remaining / (_days / 7).ceil();
+      _monthly = _remaining / (_days / 30).ceil();
     });
   }
 
