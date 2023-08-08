@@ -43,6 +43,7 @@ class SplitMoneyService {
     await groupsCollection
         .doc(groupID)
         .collection('expenses')
+        .orderBy('date', descending: true)
         .get()
         .then((snapshot) {
       if (snapshot.docs.isNotEmpty) {
