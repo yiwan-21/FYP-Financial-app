@@ -63,6 +63,7 @@ class _SplitExpenseCardState extends State<SplitExpenseCard> {
     return GestureDetector(
       onTap: _navigateToExpense,
       child: Card(
+        elevation: 4,
         color: widget.isSettle ? Colors.greenAccent[100] : Colors.white,
         child: Container(
           margin: const EdgeInsets.only(top: 20, bottom: 20, left: 15, right: 20),
