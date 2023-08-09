@@ -12,6 +12,7 @@ import '../models/group_user.dart';
 import '../pages/chat.dart';
 import '../providers/split_money_provider.dart';
 import '../providers/total_transaction_provider.dart';
+import '../services/chat_service.dart';
 import '../services/split_money_service.dart';
 import '../services/transaction_service.dart';
 
@@ -39,6 +40,8 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
   void initState() {
     super.initState();
     _fetchExpenses();
+    // set expense ID for chat service
+    ChatService.setExpenseID(widget.expenseID);
   }
 
   Future<SplitExpense> _getExpense() {
