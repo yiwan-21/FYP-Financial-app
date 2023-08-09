@@ -84,10 +84,8 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
 
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-
-     String groupID =
-          Provider.of<SplitMoneyProvider>(context, listen: false).id!;
-      SplitMoneyService.addExpense(groupID, _splitExpense).then((_) {
+      
+      SplitMoneyService.addExpense(_splitExpense).then((_) {
         Navigator.pop(context, _splitExpense);
       });
     }

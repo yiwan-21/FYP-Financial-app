@@ -42,8 +42,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
   }
 
   Future<SplitExpense> _getExpense() {
-    String groupID = Provider.of<SplitMoneyProvider>(context, listen: false).id!;
-    return SplitMoneyService.getExpenseByID(groupID, widget.expenseID);
+    return SplitMoneyService.getExpenseByID(widget.expenseID);
   }
 
   void _fetchExpenses() async {
@@ -88,8 +87,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
 
   void _onSettleUp(double amount) async {
     SplitMoneyProvider splitMoneyProvider = Provider.of<SplitMoneyProvider>(context, listen: false);
-    String groupID = splitMoneyProvider.id!;
-    await SplitMoneyService.settleUp(groupID, widget.expenseID, amount)
+    await SplitMoneyService.settleUp(widget.expenseID, amount)
         .then((_) {
           // Update the new paid amount
           setState(() {
@@ -126,8 +124,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
   void _remind() {}
 
   void _deleteExpense() async {
-    String groupID = Provider.of<SplitMoneyProvider>(context, listen: false).id!;
-    await SplitMoneyService.deleteExpense(groupID, widget.expenseID).then((_) {
+    await SplitMoneyService.deleteExpense(widget.expenseID).then((_) {
       // close the alert dialog
       Navigator.pop(context);
       // close the expense page and go back to the group detail page

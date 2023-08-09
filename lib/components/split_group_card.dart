@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/split_money_provider.dart';
+import '../services/split_money_service.dart';
 
 class SplitGroupCard extends StatefulWidget {
   final String groupID;
@@ -16,7 +17,9 @@ class SplitGroupCard extends StatefulWidget {
 class _SplitGroupCardState extends State<SplitGroupCard> {
   void _initGroup() {
     Provider.of<SplitMoneyProvider>(context, listen: false).setNewSplitGroup(widget.groupID);
-    Navigator.pushNamed(context, '/group');
+    Navigator.pushNamed(context, '/group').then((_) {
+      SplitMoneyService.resetGroupID();
+    });
   }
   
   @override
