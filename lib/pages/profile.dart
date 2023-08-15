@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -21,18 +22,29 @@ class _ProfileState extends State<Profile> {
 // Pick from gallery
   void galleryImage() async {
     final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(
+    XFile? pickedImage = await picker.pickImage(
       source: ImageSource.gallery,
     );
     if (pickedImage != null) {
-      final pickedImageFile = File(pickedImage.path);
-      final storageRef = FirebaseInstance.storage
-          .ref('profile/${FirebaseInstance.auth.currentUser!.uid}');
-      await storageRef.putFile(pickedImageFile);
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      userProvider.updateProfileImage();
+      if (kIsWeb) {
+        var pickedImageFile = await pickedImage.readAsBytes();
+        final storageRef = FirebaseInstance.storage
+            .ref('profile/${FirebaseInstance.auth.currentUser!.uid}');
+        await storageRef.putData(pickedImageFile);
+      } else {
+        final pickedImageFile = File(pickedImage.path);
+        final storageRef = FirebaseInstance.storage
+            .ref('profile/${FirebaseInstance.auth.currentUser!.uid}');
+        await storageRef.putFile(pickedImageFile);
+      }
+      if (context.mounted) {
+        final userProvider = Provider.of<UserProvider>(context, listen: false);
+        userProvider.updateProfileImage();
+      }
     }
-    Navigator.pop(context);
+    if (context.mounted) {
+      Navigator.pop(context);
+    }
   }
 
 // Pick from camera
@@ -46,10 +58,15 @@ class _ProfileState extends State<Profile> {
       final storageRef = FirebaseInstance.storage
           .ref('profile/${FirebaseInstance.auth.currentUser!.uid}');
       await storageRef.putFile(pickedImageFile);
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      userProvider.updateProfileImage();
+
+      if (context.mounted) {
+        final userProvider = Provider.of<UserProvider>(context, listen: false);
+        userProvider.updateProfileImage();
+      }
     }
-    Navigator.pop(context);
+    if (context.mounted) {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -108,22 +125,23 @@ class _ProfileState extends State<Profile> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                TextButton.icon(
-                                  onPressed: cameraImage,
-                                  label: const Text(
-                                    'Camera',
-                                    style: TextStyle(
-                                      color: Colors.black,
+                                if (!kIsWeb)
+                                  TextButton.icon(
+                                    onPressed: cameraImage,
+                                    label: const Text(
+                                      'Camera',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    icon: const Icon(
+                                      Icons.add_a_photo,
                                     ),
                                   ),
-                                  icon: const Icon(
-                                    Icons.add_a_photo,
-                                  ),
-                                ),
                                 TextButton.icon(
                                   onPressed: galleryImage,
                                   label: const Text(
-                                    'Gallery',
+                                    kIsWeb ? 'Picture' : 'Gallery',
                                     style: TextStyle(
                                       color: Colors.black,
                                     ),
