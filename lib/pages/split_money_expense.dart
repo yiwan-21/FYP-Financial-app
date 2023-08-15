@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,8 +11,10 @@ import '../constants/constant.dart';
 import '../models/split_expense.dart';
 import '../models/group_user.dart';
 import '../pages/chat.dart';
+import '../providers/notification_provider.dart';
 import '../providers/split_money_provider.dart';
 import '../providers/total_transaction_provider.dart';
+import '../services/chat_service.dart';
 import '../services/split_money_service.dart';
 import '../services/transaction_service.dart';
 
@@ -24,7 +27,7 @@ class SplitMoneyExpense extends StatefulWidget {
   State<SplitMoneyExpense> createState() => _SplitMoneyExpenseState();
 }
 
-class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
+class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTickerProviderStateMixin {
   SplitExpense _expense = SplitExpense(
     title: '',
     amount: 0,
@@ -34,16 +37,65 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
     sharedRecords: [],
     createdAt: DateTime.now(),
   );
+  late TabController _tabController;
+  int _currentTabIndex = 0;
 
   @override
   void initState() {
     super.initState();
+
+    _tabController = TabController(vsync: this, length: 2);
+    _tabController.addListener(() {
+      setState(() {
+        _currentTabIndex = _tabController.index;
+      });
+    });
+
     _fetchExpenses();
+    // set expense ID for chat service
+    ChatService.setExpenseID(widget.expenseID);
+
+    Provider.of<NotificationProvider>(context, listen: false).getCurrentChatNotification();
+
+    Stream<QuerySnapshot> chatStream = ChatService.getChatStream();
+    chatStream.listen((querySnapshot) {
+      try {
+        // the widget has been disposed of, so don't proceed
+        if (!mounted) {
+          return;
+        }
+        
+        // the user is currently on the chat page, no need to search for unread messages
+        if (_currentTabIndex == 1) {
+          // real time update the read status when message arrives
+          updateReadStatus();
+          return;
+        }
+
+        String userID = FirebaseInstance.auth.currentUser!.uid;
+        bool hasUnreadMessage = querySnapshot.docs.last['senderID'] != userID && !querySnapshot.docs.last['readStatus'].contains(userID);
+
+        if (hasUnreadMessage) {
+          Provider.of<NotificationProvider>(context, listen: false).setChatNotification(true);
+        }
+      } catch (e) {
+        debugPrint('Split Money Expense Chat Error: $e');
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  Future<void> updateReadStatus() async {
+    await ChatService.updateReadStatus();
   }
 
   Future<SplitExpense> _getExpense() {
-    String groupID = Provider.of<SplitMoneyProvider>(context, listen: false).id!;
-    return SplitMoneyService.getExpenseByID(groupID, widget.expenseID);
+    return SplitMoneyService.getExpenseByID(widget.expenseID);
   }
 
   void _fetchExpenses() async {
@@ -80,30 +132,30 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
             onSaveFunction: _onSettleUp,
             checkedFunction: _checkedFunction,
             maxValue: _expense.sharedRecords
-                .firstWhere((record) => record.id == FirebaseInstance.auth.currentUser!.uid)
+                .firstWhere((record) =>
+                    record.id == FirebaseInstance.auth.currentUser!.uid)
                 .amount,
           );
         });
   }
 
   void _onSettleUp(double amount) async {
-    SplitMoneyProvider splitMoneyProvider = Provider.of<SplitMoneyProvider>(context, listen: false);
-    String groupID = splitMoneyProvider.id!;
-    await SplitMoneyService.settleUp(groupID, widget.expenseID, amount)
-        .then((_) {
-          // Update the new paid amount
-          setState(() {
-            for (var record in _expense.sharedRecords) {
-              if (record.id == FirebaseInstance.auth.currentUser!.uid) {
-                record.paidAmount += amount;
-                break;
-              }
-            }
-          });
+    SplitMoneyProvider splitMoneyProvider =
+        Provider.of<SplitMoneyProvider>(context, listen: false);
+    await SplitMoneyService.settleUp(widget.expenseID, amount).then((_) {
+      // Update the new paid amount
+      setState(() {
+        for (var record in _expense.sharedRecords) {
+          if (record.id == FirebaseInstance.auth.currentUser!.uid) {
+            record.paidAmount += amount;
+            break;
+          }
+        }
+      });
 
-          // update expense list
-          splitMoneyProvider.updateExpenses();
-        });
+      // update expense list
+      splitMoneyProvider.updateExpenses();
+    });
   }
 
   void _checkedFunction(double amount) async {
@@ -119,15 +171,15 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
           'Auto Generated: Pay RM ${_expense.amount.toStringAsFixed(2)} to ${_expense.paidBy.name}',
     );
     await TransactionService.addTransaction(newTransaction).then((_) {
-      Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
+      Provider.of<TotalTransactionProvider>(context, listen: false)
+          .updateTransactions();
     });
   }
 
   void _remind() {}
 
   void _deleteExpense() async {
-    String groupID = Provider.of<SplitMoneyProvider>(context, listen: false).id!;
-    await SplitMoneyService.deleteExpense(groupID, widget.expenseID).then((_) {
+    await SplitMoneyService.deleteExpense(widget.expenseID).then((_) {
       // close the alert dialog
       Navigator.pop(context);
       // close the expense page and go back to the group detail page
@@ -139,15 +191,31 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           title: Text(_expense.title),
-          bottom: const TabBar(
+          bottom: TabBar(
+            controller: _tabController,
             tabs: [
-              Tab(text: 'Record'),
-              Tab(text: 'Chat'),
+              const Tab(text: 'Record'),
+              Consumer<NotificationProvider>(
+                  builder: (context, notificationProvider, _) {
+                return Tab(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Chat'),
+                      const SizedBox(width: 10),
+                      if (notificationProvider.chatNotification)
+                        const Icon(
+                          Icons.circle,
+                          color: Colors.white,
+                          size: 10,
+                        ),
+                    ],
+                  ),
+                );
+              }),
             ],
           ),
           actions: [
@@ -171,6 +239,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
           ],
         ),
         body: TabBarView(
+          controller: _tabController,
           children: [
             // Widget for the first tab
             Center(
@@ -245,7 +314,6 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> {
             const Chat(),
           ],
         ),
-      ),
-    );
+      );
   }
 }

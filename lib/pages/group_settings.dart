@@ -7,13 +7,11 @@ import '../components/alert_confirm_action.dart';
 import '../firebase_instance.dart';
 import '../components/edit_group.dart';
 import '../models/group_user.dart';
-import '../models/split_group.dart';
 import '../providers/split_money_provider.dart';
 import '../services/split_money_service.dart';
 
 class GroupSettings extends StatefulWidget {
-  final SplitGroup splitGroup;
-  const GroupSettings({required this.splitGroup, super.key});
+  const GroupSettings({super.key});
 
   @override
   State<GroupSettings> createState() => _GroupSettingsState();
@@ -130,15 +128,12 @@ class _GroupSettingsState extends State<GroupSettings> {
   }
 
   void _deleteGroup() async {
-    SplitMoneyProvider splitMoneyProvider =
-        Provider.of<SplitMoneyProvider>(context, listen: false);
-    await SplitMoneyService.deleteGroup(splitMoneyProvider.id);
-    if (context.mounted) {
+    await SplitMoneyService.deleteGroup().then((_) {
       // quit to SplitMoneyGroup page
       Navigator.of(context).pop();
       // quit to Group list page
       Navigator.of(context).pop();
-    }
+    });
   }
 
   void _deleteGroupConfirmation() {

@@ -37,20 +37,20 @@ class SplitMoneyProvider extends ChangeNotifier {
 
   // no need wait for response so no async (?)
   void updateName(String name) {
-    SplitMoneyService.updateGroupName(_splitGroup.id!, name);
+    SplitMoneyService.updateGroupName(name);
     _splitGroup.name = name;
     notifyListeners();
   }
 
   // no need wait for response so no async (?)
   void addMember(GroupUser member) {
-    SplitMoneyService.addMember(_splitGroup.id!, member);
+    SplitMoneyService.addMember(member);
     _splitGroup.members!.add(member);
     notifyListeners();
   }
 
   Future<void> removeMember(GroupUser member) async {
-    await SplitMoneyService.deleteMember(_splitGroup.id!, member.id);
+    await SplitMoneyService.deleteMember(member.id);
     _splitGroup.members!.remove(member);
     notifyListeners();
   }

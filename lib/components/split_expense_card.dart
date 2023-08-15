@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../constants/style_constant.dart';
 import '../providers/split_money_provider.dart';
+import '../services/chat_service.dart';
 
 class SplitExpenseCard extends StatefulWidget {
   final String id;
@@ -25,6 +26,8 @@ class _SplitExpenseCardState extends State<SplitExpenseCard> {
         if (mssg != null) {
           Provider.of<SplitMoneyProvider>(context, listen: false).updateExpenses();
         }
+        // reset expense ID in chat service
+        ChatService.resetExpenseID();
       });
   }
 

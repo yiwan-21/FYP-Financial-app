@@ -24,6 +24,7 @@ import './providers/user_provider.dart';
 import './providers/transaction_provider.dart';
 import './providers/split_money_provider.dart';
 import './providers/total_split_money_provider.dart';
+import './providers/notification_provider.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -53,6 +54,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => TotalGoalProvider()),
         ChangeNotifierProvider(create: (_) => SplitMoneyProvider()),
         ChangeNotifierProvider(create: (_) => TotalSplitMoneyProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: const MyApp(),
     ),
@@ -135,17 +137,13 @@ class MyApp extends StatelessWidget {
             }
           case RouteName.splitMoneyGroup:
             if (isLoggedIn()) {
-              // get argument from route
               return MaterialPageRoute(builder: (_) => const SplitMoneyGroup());
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());
             }
             case RouteName.groupSettings:
             if (isLoggedIn()) {
-              // get argument from route
-              final args = settings.arguments as Map<String, dynamic>;
-              return MaterialPageRoute(
-                  builder: (_) => GroupSettings(splitGroup: args['splitGroup']));
+              return MaterialPageRoute(builder: (_) => const GroupSettings());
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());
             }
