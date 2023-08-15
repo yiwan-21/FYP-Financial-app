@@ -60,11 +60,11 @@ class ColorConstant {
 }
 
 class TextStyleConstant {
-  static const TextStyle text12_normal = TextStyle(
+  static const TextStyle text12Normal = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w300,
   );
-  static const TextStyle text14_bold = TextStyle(
+  static const TextStyle text14Bold = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w500,
   );

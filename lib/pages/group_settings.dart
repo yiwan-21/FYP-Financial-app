@@ -7,7 +7,6 @@ import '../components/alert_confirm_action.dart';
 import '../firebase_instance.dart';
 import '../components/edit_group.dart';
 import '../models/group_user.dart';
-import '../models/split_group.dart';
 import '../providers/split_money_provider.dart';
 import '../services/split_money_service.dart';
 
