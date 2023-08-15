@@ -1,6 +1,6 @@
 import '../firebase_instance.dart';
 import '../constants/constant.dart';
-import '../components/transaction.dart';
+import '../components/tracker_transaction.dart';
 import '../components/expense_income_graph.dart';
 import '../components/auto_dis_chart.dart';
 
@@ -25,31 +25,6 @@ class TransactionService {
       .delete();
   }
 
-  static Future<List<TrackerTransaction>> getRecentTransactions() async {
-    final List<TrackerTransaction> transactions = [];
-    await FirebaseInstance.firestore
-        .collection('transactions')
-        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-        .orderBy('date', descending: true)
-        .limit(3)
-        .get()
-        .then((event) {
-      for (var transaction in event.docs) {
-        transactions.add(TrackerTransaction(
-          transaction.id,
-          transaction['userID'],
-          transaction['title'],
-          transaction['amount'].toDouble(),
-          transaction['date'].toDate(),
-          transaction['isExpense'],
-          transaction['category'],
-          notes: transaction['notes'],
-        ));
-      }
-    });
-    return transactions;
-  }
-
   static Future<List<TrackerTransaction>> getAllTransactions() async {
     final List<TrackerTransaction> transactionData = [];
     await FirebaseInstance.firestore
@@ -59,13 +34,13 @@ class TransactionService {
         .get().then((event) {
       for (var transaction in event.docs) {
         transactionData.add(TrackerTransaction(
-          transaction.id,
-          transaction['userID'],
-          transaction['title'],
-          transaction['amount'].toDouble(),
-          transaction['date'].toDate(),
-          transaction['isExpense'],
-          transaction['category'],
+          id: transaction.id,
+          userID: transaction['userID'],
+          title: transaction['title'],
+          amount: transaction['amount'].toDouble(),
+          date: transaction['date'].toDate(),
+          isExpense: transaction['isExpense'],
+          category: transaction['category'],
           notes: transaction['notes'],
         ));
       }

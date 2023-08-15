@@ -14,9 +14,16 @@ class TrackerTransaction extends StatefulWidget {
   bool isExpense;
   String category;
 
-  TrackerTransaction(this.id, this.userID, this.title, this.amount, this.date, this.isExpense,
-      this.category,
-      {this.notes, super.key});
+  TrackerTransaction(
+      {required this.id,
+      required this.userID,
+      required this.title,
+      required this.amount,
+      required this.date,
+      required this.isExpense,
+      required this.category,
+      this.notes,
+      super.key});
 
   @override
   State<TrackerTransaction> createState() => _TrackerTransactionState();
@@ -34,8 +41,7 @@ class TrackerTransaction extends StatefulWidget {
   }
 }
 
-class _TrackerTransactionState extends State<TrackerTransaction>
-     {
+class _TrackerTransactionState extends State<TrackerTransaction> {
   bool _expanded = false;
 
   void _toggleExpanded() {
@@ -54,10 +60,11 @@ class _TrackerTransactionState extends State<TrackerTransaction>
       widget.category,
       notes: widget.notes,
     );
-    
+
     Navigator.pushNamed(context, '/tracker/edit').then((tx) {
       if (tx != null) {
-        final totalTransactionProvider = Provider.of<TotalTransactionProvider>(context, listen: false);
+        final totalTransactionProvider =
+            Provider.of<TotalTransactionProvider>(context, listen: false);
         totalTransactionProvider.updateTransactions();
         if (tx is TrackerTransaction) {
           setState(() {
@@ -75,7 +82,8 @@ class _TrackerTransactionState extends State<TrackerTransaction>
 
   @override
   Widget build(BuildContext context) {
-    final TransactionProvider transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
+    final TransactionProvider transactionProvider =
+        Provider.of<TransactionProvider>(context, listen: false);
     return GestureDetector(
       onTap: _toggleExpanded,
       onDoubleTap: () => _navigateToEdit(transactionProvider),
@@ -103,11 +111,15 @@ class _TrackerTransactionState extends State<TrackerTransaction>
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(
-                            widget.title,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                          SizedBox(
+                            width: 140, // Adjust the width as needed
+                            child: Text(
+                              widget.title,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           Text(
@@ -128,12 +140,17 @@ class _TrackerTransactionState extends State<TrackerTransaction>
                           vertical: 10,
                           horizontal: 10,
                         ),
-                        child: Text(
-                          '${widget.isExpense ? "-" : "+"}${widget.amount.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: Colors.black,
+                        child: SizedBox(
+                          width: 100,
+                          child: Text(
+                            '${widget.isExpense ? "-" : "+"}${widget.amount.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: Colors.black,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.right,
                           ),
                         ),
                       ),
@@ -164,6 +181,30 @@ class _TrackerTransactionState extends State<TrackerTransaction>
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+                        ),
+                        const SizedBox(height: 5),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 70,
+                              child: Text("Title: "),
+                            ),
+                            Flexible(child: Text(widget.title)),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 70,
+                              child: Text("Amount: "),
+                            ),
+                            Flexible(
+                                child: Text(
+                                    'RM ${widget.amount.toStringAsFixed(2)}')),
+                          ],
                         ),
                         const SizedBox(height: 5),
                         Row(

@@ -19,62 +19,53 @@ class _CategoryChartState extends State<CategoryChart> {
   Widget build(BuildContext context) {
     return Consumer<TotalTransactionProvider>(
       builder: (context, totalTransactionProvider, _) {
-        return FutureBuilder(
-            future: totalTransactionProvider.getPieChartData,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done &&
-                  snapshot.data != null) {
-                return ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: Constant.isMobile(context) ? double.infinity : 768,
-                    maxHeight: Constant.isMobile(context) ? 300 : double.infinity,
-                  ),
-                  child: Flex(
-                    direction: Constant.isMobile(context)
-                        ? Axis.vertical
-                        : Axis.horizontal,
-                    children: [
-                      Flexible(
-                        flex: Constant.isMobile(context) ? 2 : 1,
-                        child: SizedBox(
-                          height: Constant.isMobile(context) ? 200 : 220,
-                          child: PieChart(
-                            PieChartData(
-                              sections: getSections(snapshot.data!),
-                              centerSpaceRadius:
-                                  Constant.isMobile(context) ? 40 : 50,
-                              sectionsSpace: 0,
-                              pieTouchData: PieTouchData(
-                                touchCallback: (event, response) {
-                                  setState(() {
-                                    if (response != null) {
-                                      touchedIndex = response
-                                          .touchedSection!.touchedSectionIndex;
-                                    } else {
-                                      touchedIndex = -1;
-                                    }
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: Constant.isMobile(context) ? double.infinity : 768,
+            maxHeight: Constant.isMobile(context) ? 300 : double.infinity,
+          ),
+          child: Flex(
+            direction: Constant.isMobile(context)
+                ? Axis.vertical
+                : Axis.horizontal,
+            children: [
+              Flexible(
+                flex: Constant.isMobile(context) ? 2 : 1,
+                child: SizedBox(
+                  height: Constant.isMobile(context) ? 200 : 220,
+                  child: PieChart(
+                    PieChartData(
+                      sections: getSections(totalTransactionProvider.getPieChartData),
+                      centerSpaceRadius:
+                          Constant.isMobile(context) ? 40 : 50,
+                      sectionsSpace: 0,
+                      pieTouchData: PieTouchData(
+                        touchCallback: (event, response) {
+                          setState(() {
+                            if (response != null) {
+                              touchedIndex = response
+                                  .touchedSection!.touchedSectionIndex;
+                            } else {
+                              touchedIndex = -1;
+                            }
+                          });
+                        },
                       ),
-                      Flexible(
-                        // flex: Constant.isMobile(context) ? 1 : 2,
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Column(children: getLegend(snapshot.data!.keys.toList())),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                );
-              } else {
-                return Container();
-              }
-            });
-      }
+                ),
+              ),
+              Flexible(
+                // flex: Constant.isMobile(context) ? 1 : 2,
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(children: getLegend(totalTransactionProvider.getPieChartData.keys.toList())),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

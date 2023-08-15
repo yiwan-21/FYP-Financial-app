@@ -1,34 +1,51 @@
 import 'package:flutter/material.dart';
-import '../components/transaction.dart';
+
+import '../components/tracker_transaction.dart';
+import '../constants/constant.dart';
 import '../services/transaction_service.dart';
 
 class TotalTransactionProvider extends ChangeNotifier {
-  Future<List<TrackerTransaction>> _recentTransactions = Future.value([]);
-  Future<List<TrackerTransaction>> _transactions = Future.value([]);
-  Future<Map<String, double>> _pieChartData = Future.value({});
+  List<TrackerTransaction> _recentTransactions = [];
+  List<TrackerTransaction> _transactions = [];
+  Map<String, double> _pieChartData = {};
 
   TotalTransactionProvider() {
-    _recentTransactions = TransactionService.getRecentTransactions();
-    _transactions = TransactionService.getAllTransactions();
-    _pieChartData = TransactionService.getPieChartData();
+    init();
   }
 
-  Future<List<TrackerTransaction>> get getRecentTransactions =>
-      _recentTransactions;
-  Future<List<TrackerTransaction>> get getTransactions => _transactions;
-  Future<Map<String, double>> get getPieChartData => _pieChartData;
+  List<TrackerTransaction> get getRecentTransactions =>_recentTransactions;
+  List<TrackerTransaction> get getTransactions => _transactions;
+  Map<String, double> get getPieChartData => _pieChartData;
 
-  void updateTransactions() {
-    _recentTransactions = TransactionService.getRecentTransactions();
-    _transactions = TransactionService.getAllTransactions();
-    _pieChartData = TransactionService.getPieChartData();
+  void init() async {
+    _transactions = await TransactionService.getAllTransactions().then((transactions) {
+      _recentTransactions = transactions.reversed.toList().sublist(0, 3);
+      return transactions;
+    });
+    _pieChartData = await TransactionService.getPieChartData();
     notifyListeners();
   }
 
+  void updateTransactions() async {
+    _transactions = await TransactionService.getAllTransactions().then((transactions) {
+      _recentTransactions = transactions.reversed.toList().sublist(0, 3);
+      return transactions;
+    });
+    _pieChartData = await TransactionService.getPieChartData();
+    notifyListeners();
+  }
+
+  List<TrackerTransaction> getFilteredTransactions(String category) {
+    if (category == Constant.noFilter) {
+      return _transactions;
+    }
+    return _transactions.where((transaction) => transaction.category == category).toList();
+  }
+
   void reset() {
-    _recentTransactions = Future.value([]);
-    _transactions = Future.value([]);
-    _pieChartData = Future.value({});
+    _recentTransactions = [];
+    _transactions = [];
+    _pieChartData = {};
     notifyListeners();
   }
 }

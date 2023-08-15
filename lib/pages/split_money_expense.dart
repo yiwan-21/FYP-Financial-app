@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../firebase_instance.dart';
 import '../components/alert_confirm_action.dart';
 import '../components/split_record_card.dart';
-import '../components/transaction.dart';
+import '../components/tracker_transaction.dart';
 import '../components/alert_with_checkbox.dart';
 import '../constants/constant.dart';
 import '../models/split_expense.dart';
@@ -160,13 +160,13 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
 
   void _checkedFunction(double amount) async {
     final TrackerTransaction newTransaction = TrackerTransaction(
-      '',
-      FirebaseInstance.auth.currentUser!.uid,
-      'Settle Up: ${_expense.title}',
-      amount,
-      DateTime.now(),
-      true,
-      'Savings Goal',
+      id: '',
+      userID: FirebaseInstance.auth.currentUser!.uid,
+      title: 'Settle Up: ${_expense.title}',
+      amount: amount,
+      date: DateTime.now(),
+      isExpense: true,
+      category: 'Savings Goal',
       notes:
           'Auto Generated: Pay RM ${_expense.amount.toStringAsFixed(2)} to ${_expense.paidBy.name}',
     );

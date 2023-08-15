@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../firebase_instance.dart';
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
-import '../components/transaction.dart';
+import '../components/tracker_transaction.dart';
 import '../components/custom_switch.dart';
 import '../components/alert_confirm_action.dart';
 import '../providers/transaction_provider.dart';
@@ -49,13 +49,13 @@ class _EditTransactionState extends State<EditTransaction> {
       // Form is valid
       _formKey.currentState!.save();
       final editedTransaction = TrackerTransaction(
-        _id,
-        FirebaseInstance.auth.currentUser!.uid,
-        _title,
-        _amount,
-        _date,
-        _isExpense,
-        _category,
+        id: _id,
+        userID: FirebaseInstance.auth.currentUser!.uid,
+        title: _title,
+        amount: _amount,
+        date: _date,
+        isExpense: _isExpense,
+        category: _category,
         notes: _notes,
       );
 
