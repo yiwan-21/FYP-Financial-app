@@ -179,7 +179,7 @@ class _HomeState extends State<Home> {
                               return TrackerTransaction(
                                 id: transactions[index].id,
                                 userID: transactions[index].userID,
-                                title: transactions[index].title,
+                                title: transactions[index].userID, // to undo to 'title'
                                 amount: transactions[index].amount,
                                 date: transactions[index].date,
                                 isExpense: transactions[index].isExpense,

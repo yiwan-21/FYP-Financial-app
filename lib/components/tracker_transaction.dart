@@ -111,11 +111,15 @@ class _TrackerTransactionState extends State<TrackerTransaction> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(
-                            widget.title,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                          SizedBox(
+                            width: 140, // Adjust the width as needed
+                            child: Text(
+                              widget.title,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           Text(
@@ -136,12 +140,17 @@ class _TrackerTransactionState extends State<TrackerTransaction> {
                           vertical: 10,
                           horizontal: 10,
                         ),
-                        child: Text(
-                          '${widget.isExpense ? "-" : "+"}${widget.amount.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: Colors.black,
+                        child: SizedBox(
+                          width: 100,
+                          child: Text(
+                            '${widget.isExpense ? "-" : "+"}${widget.amount.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: Colors.black,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.right,
                           ),
                         ),
                       ),
@@ -172,6 +181,30 @@ class _TrackerTransactionState extends State<TrackerTransaction> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+                        ),
+                        const SizedBox(height: 5),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 70,
+                              child: Text("Title: "),
+                            ),
+                            Flexible(child: Text(widget.title)),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              width: 70,
+                              child: Text("Amount: "),
+                            ),
+                            Flexible(
+                                child: Text(
+                                    'RM ${widget.amount.toStringAsFixed(2)}')),
+                          ],
                         ),
                         const SizedBox(height: 5),
                         Row(

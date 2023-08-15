@@ -93,12 +93,12 @@ class _TrackerState extends State<Tracker> {
                 transactions.length,
                 (index) {
                   final reversedIndex = transactions.length - index - 1;
-                  if (Constant.isDesktop(context)) {
+                  if (Constant.isDesktop(context) && MediaQuery.of(context).size.width > 1200) {
                     return SizedBox(
                       width: MediaQuery.of(context).size.width / 3,
                       child: transactions[reversedIndex],
                     );
-                  } else if (Constant.isTablet(context)) {
+                  } else if (Constant.isTablet(context) || MediaQuery.of(context).size.width > Constant.tabletMaxWidth) {
                     return SizedBox(
                       width: MediaQuery.of(context).size.width / 2,
                       child: transactions[reversedIndex],
