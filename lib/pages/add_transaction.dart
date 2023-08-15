@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import '../firebase_instance.dart';
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
-import '../components/transaction.dart';
+import '../components/tracker_transaction.dart';
 import '../components/custom_switch.dart';
 import '../services/transaction_service.dart';
 
@@ -42,13 +42,13 @@ class _AddTransactionState extends State<AddTransaction> {
       // Form is valid
       _formKey.currentState!.save();
       final newTransaction = TrackerTransaction(
-        'Auto Generate',
-        FirebaseInstance.auth.currentUser!.uid,
-        _title,
-        _amount,
-        _date,
-        _isExpense,
-        _category,
+        id: 'Auto Generate',
+        userID: FirebaseInstance.auth.currentUser!.uid,
+        title: _title,
+        amount: _amount,
+        date: _date,
+        isExpense: _isExpense,
+        category: _category,
         notes: _notes,
       );
       await TransactionService.addTransaction(newTransaction).then((_) {

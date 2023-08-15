@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants/constant.dart';
 import '../components/category_chart.dart';
-import '../components/transaction.dart';
+import '../components/tracker_transaction.dart';
 import '../providers/total_transaction_provider.dart';
 
 class Tracker extends StatefulWidget {
@@ -12,7 +12,10 @@ class Tracker extends StatefulWidget {
   State<Tracker> createState() => _TrackerState();
 }
 
-class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
+class _TrackerState extends State<Tracker> {
+  String _selectedItem = Constant.noFilter;
+  final List<String> _categories = [Constant.noFilter, ...Constant.categories];
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -46,6 +49,24 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
                 "Transactions (RM)",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
+              DropdownButton<String>(
+                value: _selectedItem,
+                icon: const Icon(Icons.filter_alt_outlined), // Icon to display
+                iconSize: 24,
+                elevation: 16,
+                hint: const Text('Filter'),
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedItem = newValue!;
+                  });
+                },
+                items: _categories.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
               FloatingActionButton.small(
                 elevation: 2,
                 onPressed: () {
@@ -65,38 +86,31 @@ class _TrackerState extends State<Tracker> with SingleTickerProviderStateMixin {
           ),
         ),
         Consumer<TotalTransactionProvider>(
-            builder: (context, totalTransactionProvider, _) {
-          return FutureBuilder(
-              future: totalTransactionProvider.getTransactions,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done &&
-                    snapshot.data != null) {
-                  return Wrap(
-                    children: List.generate(
-                      snapshot.data!.length,
-                      (index) {
-                        final reversedIndex = snapshot.data!.length - index - 1;
-                        if (Constant.isDesktop(context)) {
-                          return SizedBox(
-                            width: MediaQuery.of(context).size.width / 3,
-                            child: snapshot.data![reversedIndex],
-                          );
-                        } else if (Constant.isTablet(context)) {
-                          return SizedBox(
-                            width: MediaQuery.of(context).size.width / 2,
-                            child: snapshot.data![reversedIndex],
-                          );
-                        } else {
-                          return snapshot.data![reversedIndex];
-                        }
-                      },
-                    ),
-                  );
-                } else {
-                  return Container();
-                }
-              });
-        }),
+          builder: (context, totalTransactionProvider, _) {
+            List<TrackerTransaction> transactions = totalTransactionProvider.getFilteredTransactions(_selectedItem);
+            return Wrap(
+              children: List.generate(
+                transactions.length,
+                (index) {
+                  final reversedIndex = transactions.length - index - 1;
+                  if (Constant.isDesktop(context)) {
+                    return SizedBox(
+                      width: MediaQuery.of(context).size.width / 3,
+                      child: transactions[reversedIndex],
+                    );
+                  } else if (Constant.isTablet(context)) {
+                    return SizedBox(
+                      width: MediaQuery.of(context).size.width / 2,
+                      child: transactions[reversedIndex],
+                    );
+                  } else {
+                    return transactions[reversedIndex];
+                  }
+                },
+              ),
+            );
+          },
+        ),
       ],
     );
   }

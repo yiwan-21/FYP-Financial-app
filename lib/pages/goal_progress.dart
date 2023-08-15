@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../firebase_instance.dart';
 import '../components/alert_with_checkbox.dart';
 import '../components/goal_history_card.dart';
-import '../components/transaction.dart';
+import '../components/tracker_transaction.dart';
 import '../components/growing_tree.dart';
 import '../components/alert_confirm_action.dart';
 import '../constants/style_constant.dart';
@@ -107,13 +107,13 @@ class _GoalProgressState extends State<GoalProgress>
 
   void _checkedFunction(double value) async {
     final TrackerTransaction newTransaction = TrackerTransaction(
-      '',
-      FirebaseInstance.auth.currentUser!.uid,
-      'Goal: $_title',
-      value,
-      DateTime.now(),
-      true,
-      'Savings Goal',
+      id: '',
+      userID: FirebaseInstance.auth.currentUser!.uid,
+      title: 'Goal: $_title',
+      amount: value,
+      date: DateTime.now(),
+      isExpense: true,
+      category: 'Savings Goal',
       notes: 'Auto Generated: Saved RM ${value.toStringAsFixed(2)} for $_title',
     );
     await TransactionService.addTransaction(newTransaction).then((_) {

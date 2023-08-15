@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../components/transaction.dart';
+
+import '../components/tracker_transaction.dart';
 import '../components/expense_income_graph.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/total_goal_provider.dart';
@@ -170,34 +171,24 @@ class _HomeState extends State<Home> {
                       ),
                       Consumer<TotalTransactionProvider>(
                         builder: (context, totalTransactionProvider, _) {
-                          return FutureBuilder(
-                            future: totalTransactionProvider.getRecentTransactions,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                      ConnectionState.done &&
-                                  snapshot.data != null) {
-                                return ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: snapshot.data!.length,
-                                  itemBuilder: (context, index) {
-                                    return TrackerTransaction(
-                                      snapshot.data![index].id,
-                                      snapshot.data![index].userID,
-                                      snapshot.data![index].title,
-                                      snapshot.data![index].amount,
-                                      snapshot.data![index].date,
-                                      snapshot.data![index].isExpense,
-                                      snapshot.data![index].category,
-                                      notes: snapshot.data![index].notes,
-                                    );
-                                  },
-                                );
-                              } else {
-                                return const Text('No transactions found');
-                              }
+                          List<TrackerTransaction> transactions = totalTransactionProvider.getRecentTransactions;
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: transactions.length,
+                            itemBuilder: (context, index) {
+                              return TrackerTransaction(
+                                id: transactions[index].id,
+                                userID: transactions[index].userID,
+                                title: transactions[index].title,
+                                amount: transactions[index].amount,
+                                date: transactions[index].date,
+                                isExpense: transactions[index].isExpense,
+                                category: transactions[index].category,
+                                notes: transactions[index].notes,
+                              );
                             },
                           );
-                        }
+                        },
                       ),
                     ],
                   ),

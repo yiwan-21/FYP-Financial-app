@@ -14,9 +14,16 @@ class TrackerTransaction extends StatefulWidget {
   bool isExpense;
   String category;
 
-  TrackerTransaction(this.id, this.userID, this.title, this.amount, this.date, this.isExpense,
-      this.category,
-      {this.notes, super.key});
+  TrackerTransaction(
+      {required this.id,
+      required this.userID,
+      required this.title,
+      required this.amount,
+      required this.date,
+      required this.isExpense,
+      required this.category,
+      this.notes,
+      super.key});
 
   @override
   State<TrackerTransaction> createState() => _TrackerTransactionState();
@@ -34,8 +41,7 @@ class TrackerTransaction extends StatefulWidget {
   }
 }
 
-class _TrackerTransactionState extends State<TrackerTransaction>
-     {
+class _TrackerTransactionState extends State<TrackerTransaction> {
   bool _expanded = false;
 
   void _toggleExpanded() {
@@ -54,10 +60,11 @@ class _TrackerTransactionState extends State<TrackerTransaction>
       widget.category,
       notes: widget.notes,
     );
-    
+
     Navigator.pushNamed(context, '/tracker/edit').then((tx) {
       if (tx != null) {
-        final totalTransactionProvider = Provider.of<TotalTransactionProvider>(context, listen: false);
+        final totalTransactionProvider =
+            Provider.of<TotalTransactionProvider>(context, listen: false);
         totalTransactionProvider.updateTransactions();
         if (tx is TrackerTransaction) {
           setState(() {
@@ -75,7 +82,8 @@ class _TrackerTransactionState extends State<TrackerTransaction>
 
   @override
   Widget build(BuildContext context) {
-    final TransactionProvider transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
+    final TransactionProvider transactionProvider =
+        Provider.of<TransactionProvider>(context, listen: false);
     return GestureDetector(
       onTap: _toggleExpanded,
       onDoubleTap: () => _navigateToEdit(transactionProvider),

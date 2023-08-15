@@ -32,9 +32,15 @@ class Constant {
     'Savings',
     'Pocket Money',
     'Part-time Job',
-    'Scholarship/PTPTN/Sponsorship Programme',
+    'Scholarships',
     'Other Income'
   ];
+
+  static const List<String> categories = [
+    ...expenseCategories,
+    ...incomeCategories,
+  ];
+  static const String noFilter = 'All Categories';
 
   static const List<String> monthLabels = [
     'Jan',
@@ -57,5 +63,4 @@ class Constant {
   ];
   static const String splitEqually = 'Equally';
   static const String splitUnequally = 'Unequally';
-
 }
