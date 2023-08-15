@@ -21,6 +21,11 @@ class ChatService {
       .doc(_expenseID)
       .collection('chats');
 
+  static Stream<QuerySnapshot> getChatStream() {
+    return chatsCollection.orderBy('date', descending: false)
+        .snapshots(includeMetadataChanges: true);
+  }
+
   static Future<List<Map<String, dynamic>>> getChatMessage() async {
     List<Map<String, dynamic>> messages = [];
 
@@ -54,7 +59,7 @@ class ChatService {
       'message': message,
       'senderID': senderID,
       'sender': name,
-      'readStatus': [],
+      'readStatus': [senderID],
       'date': DateTime.now(),
     });
   }
@@ -69,11 +74,31 @@ class ChatService {
     resetExpenseID();
   }
 
-  static Future<bool> readStatus() async {
-    return true;
+  static Future<void> updateReadStatus() async {
+    // only update the latest message
+    String userID = FirebaseInstance.auth.currentUser!.uid;
+    QuerySnapshot snapshots = await chatsCollection.orderBy('date', descending: true).limit(1).get();
+    if (snapshots.docs.isNotEmpty) {
+      List<dynamic> readStatus = snapshots.docs.first['readStatus'];
+      if (!readStatus.contains(userID)) {
+        readStatus.add(userID);
+        await snapshots.docs.first.reference.update({
+          'readStatus': readStatus,
+        });
+      }
+    }
   }
 
-  static Future<void> updateReadStatus() async {
-    return;
-  }
+  static Future<bool> hasRead() async{
+    bool hasRead = true;
+    String userID = FirebaseInstance.auth.currentUser!.uid;
+    await chatsCollection.orderBy('date', descending: true).limit(1).get().then((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        List<dynamic> readStatus = snapshot.docs.first['readStatus'];
+        hasRead = readStatus.contains(userID);
+      }
+    });
+
+    return hasRead;
+  } 
 }

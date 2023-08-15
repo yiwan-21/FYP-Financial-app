@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../firebase_instance.dart';
 import '../constants/style_constant.dart';
+import '../providers/notification_provider.dart';
 import '../services/chat_service.dart';
 
 class Chat extends StatefulWidget {
@@ -13,35 +16,37 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<Chat> {
   final TextEditingController _controller = TextEditingController();
-  List<Map<String, dynamic>>? _messages;
+  Stream<QuerySnapshot>? _stream;
   String _sendMessage = '';
 
   @override
   void initState() {
     super.initState();
-    _getMessages();
+    _stream = ChatService.getChatStream();
+    // update read status when chat page is opened
+    updateReadStatus();
   }
 
   @override
-    void dispose() {
-      super.dispose();
-      _controller.dispose();
-    }
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
 
-  void _getMessages() async {
-    await ChatService.getChatMessage().then((messages) {
-      setState(() {
-        _messages = messages;
-      });
+  Future<void> updateReadStatus() async {
+    await ChatService.updateReadStatus().whenComplete(() {
+      Provider.of<NotificationProvider>(context, listen: false)
+          .setChatNotification(false);
     });
   }
 
   Future<void> _send() async {
     if (_sendMessage.isEmpty || _sendMessage.trim().isEmpty) return;
-    await ChatService.sendMessage(_sendMessage, FirebaseInstance.auth.currentUser!.uid).then((_) {
+    await ChatService.sendMessage(
+            _sendMessage, FirebaseInstance.auth.currentUser!.uid)
+        .then((_) {
       _controller.clear();
       _sendMessage = '';
-      _getMessages();
     });
   }
 
@@ -55,76 +60,142 @@ class _ChatState extends State<Chat> {
       padding: const EdgeInsets.only(top: 20),
       child: Stack(
         children: [
-          _messages == null || _messages!.isEmpty
-              ? const Center(child: Text("No messages yet"))
-              : ListView.builder(
-                  reverse: true,
-                  padding: const EdgeInsets.only(bottom: 70),
-                  shrinkWrap: true,
-                  itemCount: _messages!.length,
-                  itemBuilder: (context, i) {
-                    int index = _messages!.length - 1 - i;
-                    String senderID = _messages![index]['senderID'];
-                    return Align(
-                      alignment: _isMe(senderID)
-                          ? Alignment.topRight
-                          : Alignment.topLeft,
-                      child: IntrinsicWidth(
-                        child: Container(
-                          constraints: const BoxConstraints(
-                            minWidth: 80,
-                            maxWidth: 300,
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 15),
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              topLeft: const Radius.circular(20),
-                              topRight: const Radius.circular(20),
-                              bottomLeft: _isMe(senderID)
-                                  ? const Radius.circular(20)
-                                  : const Radius.circular(0),
-                              bottomRight: _isMe(senderID)
-                                  ? const Radius.circular(0)
-                                  : const Radius.circular(20),
-                            ),
-                            color: _isMe(senderID)
-                                ? Colors.green[200]
-                                : Colors.grey[200],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _isMe(senderID) ? 'You' : _messages![index]['sender'],
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
+          StreamBuilder<QuerySnapshot>(
+              stream: _stream,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return const Text('Something went wrong');
+                }
+                if (!snapshot.hasData) {
+                  const Center(child: Text("No messages yet"));
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Text("Loading");
+                }
+                return ListView.builder(
+                    reverse: true,
+                    padding: const EdgeInsets.only(bottom: 70),
+                    shrinkWrap: true,
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, i) {
+                      int index = snapshot.data!.docs.length - 1 - i;
+                      String senderID = snapshot.data!.docs[index]['senderID'];
+                      return Align(
+                        alignment: _isMe(senderID)
+                            ? Alignment.topRight
+                            : Alignment.topLeft,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            // chat with pikachu
+                            Stack(
+                              children: [
+                                IntrinsicWidth(
+                                  child: Container(
+                                    constraints: const BoxConstraints(
+                                      minWidth: 80,
+                                      maxWidth: 300,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 15),
+                                    margin: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 10),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: const Radius.circular(20),
+                                        topRight: const Radius.circular(20),
+                                        bottomLeft: _isMe(senderID)
+                                            ? const Radius.circular(20)
+                                            : const Radius.circular(0),
+                                        bottomRight: _isMe(senderID)
+                                            ? const Radius.circular(0)
+                                            : const Radius.circular(20),
+                                      ),
+                                      color: _isMe(senderID)
+                                          ? Colors.green[200]
+                                          : Colors.grey[200],
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          _isMe(senderID)
+                                              ? 'You'
+                                              : snapshot.data!.docs[index]
+                                                  ['sender'],
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: const EdgeInsets.only(
+                                              top: 2, bottom: 4),
+                                          child: Text(snapshot.data!.docs[index]
+                                              ['message']),
+                                        ),
+                                        Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: Text(
+                                            snapshot.data!.docs[index]['date']
+                                                .toDate()
+                                                .toString()
+                                                .substring(11, 16),
+                                            textAlign: TextAlign.right,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w300,
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              Container(
-                                margin:
-                                    const EdgeInsets.only(top: 2, bottom: 4),
-                                child: Text(_messages![index]['message']),
-                              ),
-                              Align(
-                                alignment: Alignment.bottomRight,
+                                Positioned(
+                                  top: -2,
+                                  left: _isMe(senderID) ? -10 : null,
+                                  right: _isMe(senderID) ? null : -10,
+                                  child: Transform.scale(
+                                    scaleX: _isMe(senderID) ? -1 : 1,
+                                    child: Transform.rotate(
+                                      angle: 0.8,
+                                      child: Container(
+                                        width: 40,
+                                        height: 30,
+                                        decoration: const BoxDecoration(
+                                          image: DecorationImage(
+                                            image: AssetImage(
+                                                'assets/images/cute.png'),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            //read status
+                            if (i == 0)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 15),
                                 child: Text(
-                                  _messages![index]['date'].toString().substring(11, 16),
-                                  textAlign: TextAlign.right,
+                                  '${snapshot.data!.docs[index]['readStatus'].length} read',
                                   style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w300,
+                                    color: Colors
+                                        .grey, // Set the appropriate color
                                   ),
                                 ),
-                              )
-                            ],
-                          ),
+                              ),
+                          ],
                         ),
-                      ),
-                    );
-                  }),
+                      );
+                    });
+              }),
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -144,6 +215,7 @@ class _ChatState extends State<Chat> {
                             _sendMessage = value;
                           });
                         },
+                        onFieldSubmitted: (_) => _send(),
                       ),
                     ),
                     GestureDetector(
