@@ -89,8 +89,8 @@ class _ProfileState extends State<Profile> {
             alignment: Alignment.center,
             children: [
               Consumer<UserProvider>(builder: (context, userProvider, _) {
-                String? image = userProvider.profileImage;
-                if (image != null) {
+                String image = userProvider.profileImage;
+                if (image.isNotEmpty) {
                   return CircleAvatar(
                     radius: 70.0,
                     backgroundImage: NetworkImage(image),

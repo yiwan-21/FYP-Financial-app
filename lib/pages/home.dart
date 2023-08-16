@@ -30,10 +30,10 @@ class _HomeState extends State<Home> {
           shrinkWrap: true,
           children: [
             Consumer<UserProvider>(builder: (context, userProvider, _) {
-              String? image = userProvider.profileImage;
+              String image = userProvider.profileImage;
               return Row(
                 children: [
-                  image != null
+                  image.isNotEmpty
                     ? CircleAvatar(
                       radius: 20.0,
                       backgroundImage: NetworkImage(image),
@@ -156,20 +156,30 @@ class _HomeState extends State<Home> {
                       ),
                       Consumer<TotalTransactionProvider>(
                         builder: (context, totalTransactionProvider, _) {
-                          List<TrackerTransaction> transactions = totalTransactionProvider.getRecentTransactions();
-                          return ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: transactions.length,
-                            itemBuilder: (context, index) {
-                              return TrackerTransaction(
-                                id: transactions[index].id,
-                                userID: transactions[index].userID,
-                                title: transactions[index] .title,
-                                amount: transactions[index].amount,
-                                date: transactions[index].date,
-                                isExpense: transactions[index].isExpense,
-                                category: transactions[index].category,
-                                notes: transactions[index].notes,
+                          return StreamBuilder(
+                            stream: totalTransactionProvider.stream,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const CircularProgressIndicator(); 
+                              }
+                              if (snapshot.hasError) {
+                                return Text('Something went wrong: ${snapshot.error}');
+                              }
+                              if (!snapshot.hasData) {
+                                return const Center(child: Text("No transaction yet"));
+                              }
+
+                              List<TrackerTransaction> transactions = snapshot.data!.docs
+                                .reversed
+                                .take(3)
+                                .map((doc) => TrackerTransaction.fromDocument(doc))
+                                .toList();
+                              return ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: transactions.length,
+                                itemBuilder: (context, index) {
+                                  return transactions[index];
+                                },
                               );
                             },
                           );

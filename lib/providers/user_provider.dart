@@ -5,7 +5,7 @@ import '../services/user_service.dart';
 
 class UserProvider extends ChangeNotifier {
   User _user = FirebaseInstance.auth.currentUser!;
-  String? _profileImage = '';
+  String _profileImage = '';
   String _name = '';
   String _email = '';
 
@@ -16,7 +16,7 @@ class UserProvider extends ChangeNotifier {
   User get user => _user;
   String get name => _name;
   String get email => _email;
-  String? get profileImage => _profileImage;
+  String get profileImage => _profileImage;
 
   Future<void> init() async {
     _user = FirebaseInstance.auth.currentUser!;

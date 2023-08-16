@@ -10,7 +10,7 @@ class UserService {
     await FirebaseInstance.auth.currentUser!.updateEmail(email);
   }
 
-  static Future<String?> getProfileImage() async {
+  static Future<String> getProfileImage() async {
     final ref = FirebaseInstance.storage
         .ref("profile/${FirebaseInstance.auth.currentUser!.uid}");
     try {
@@ -18,7 +18,7 @@ class UserService {
       return url;
     } catch (e) {
       debugPrint('Failed to get profile image: $e');
-      return null;
+      return '';
     }
   }
 }

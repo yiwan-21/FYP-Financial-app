@@ -60,7 +60,7 @@ class _NavigationState extends State<Navigation> {
                 child: Consumer<UserProvider>(
                   builder: (context, userProvider, _) {
                     String? image = userProvider.profileImage;
-                    if (image != null) {
+                    if (image.isNotEmpty) {
                       return CircleAvatar(
                         radius: 12.0,
                         backgroundImage: NetworkImage(image),
