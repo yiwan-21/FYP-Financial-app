@@ -5,7 +5,6 @@ import '../constants/constant.dart';
 import '../services/transaction_service.dart';
 
 class TotalTransactionProvider extends ChangeNotifier {
-  List<TrackerTransaction> _recentTransactions = [];
   List<TrackerTransaction> _transactions = [];
   Map<String, double> _pieChartData = {};
 
@@ -13,24 +12,27 @@ class TotalTransactionProvider extends ChangeNotifier {
     init();
   }
 
-  List<TrackerTransaction> get getRecentTransactions =>_recentTransactions;
   List<TrackerTransaction> get getTransactions => _transactions;
   Map<String, double> get getPieChartData => _pieChartData;
 
   void init() async {
-    _transactions = await TransactionService.getAllTransactions().then((transactions) {
-      _recentTransactions = transactions.reversed.toList().sublist(0, 3);
-      return transactions;
-    });
+    _transactions = await TransactionService.getAllTransactions();
     _pieChartData = await TransactionService.getPieChartData();
     notifyListeners();
   }
 
-  void updateTransactions() async {
-    _transactions = await TransactionService.getAllTransactions().then((transactions) {
-      _recentTransactions = transactions.reversed.toList().sublist(0, 3);
-      return transactions;
-    });
+  List<TrackerTransaction> getRecentTransactions() {
+    if (_transactions.isEmpty) {
+      return [];
+    }
+    if (_transactions.length < 3) {
+      return _transactions;
+    }
+    return _transactions.reversed.toList().sublist(0, 3);
+  }
+
+  Future<void> updateTransactions() async {
+    _transactions = await TransactionService.getAllTransactions();
     _pieChartData = await TransactionService.getPieChartData();
     notifyListeners();
   }
@@ -43,7 +45,6 @@ class TotalTransactionProvider extends ChangeNotifier {
   }
 
   void reset() {
-    _recentTransactions = [];
     _transactions = [];
     _pieChartData = {};
     notifyListeners();

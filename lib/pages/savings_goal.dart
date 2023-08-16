@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../components/goal.dart';
 import '../providers/total_goal_provider.dart';
 import '../constants/style_constant.dart';
 
@@ -23,23 +24,15 @@ class _SavingsGoalState extends State<SavingsGoal> {
               children: [
                 const SizedBox(height: 12),
                 Consumer<TotalGoalProvider>(
-                    builder: (context, totalGoalProvider, _) {
-                  return FutureBuilder(
-                    future: totalGoalProvider.getGoals,
-                    builder: ((context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done &&
-                          snapshot.data != null) {
-                        return Wrap(
-                            children:
-                                List.generate(snapshot.data!.length, (index) {
-                          return snapshot.data![index];
-                        }));
-                      } else {
-                        return Container();
-                      }
-                    }),
-                  );
-                }),
+                  builder: (context, totalGoalProvider, _) {
+                    List<Goal> goals = totalGoalProvider.getGoals;
+                    return Wrap(
+                      children: List.generate(goals.length, (index) {
+                        return goals[index];
+                      }),
+                    );
+                  },
+                ),
               ],
             ),
           ),

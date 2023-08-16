@@ -59,26 +59,22 @@ class _NavigationState extends State<Navigation> {
                 },
                 child: Consumer<UserProvider>(
                   builder: (context, userProvider, _) {
-                    return FutureBuilder(
-                        future: userProvider.profileImage,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.done &&
-                              snapshot.data != null) {
-                            return CircleAvatar(
-                                radius: 12.0,
-                                backgroundImage: NetworkImage(snapshot.data!)
-                              );
-                          } else {
-                            return const CircleAvatar(
-                              radius: 12.0,
-                              child: Icon(
-                                Icons.account_circle,
-                                color: Colors.white,
-                              ),
-                            );
-                          }
-                        });
-                  }
+                    String? image = userProvider.profileImage;
+                    if (image != null) {
+                      return CircleAvatar(
+                        radius: 12.0,
+                        backgroundImage: NetworkImage(image),
+                      );
+                    } else {
+                      return const CircleAvatar(
+                        radius: 12.0,
+                        child: Icon(
+                          Icons.account_circle,
+                          color: Colors.white,
+                        ),
+                      );
+                    }
+                  },
                 ),
               );
             }),

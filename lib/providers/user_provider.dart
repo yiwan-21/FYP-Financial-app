@@ -5,26 +5,24 @@ import '../services/user_service.dart';
 
 class UserProvider extends ChangeNotifier {
   User _user = FirebaseInstance.auth.currentUser!;
-  Future<String?> _profileImage = Future.value('');
+  String? _profileImage = '';
   String _name = '';
   String _email = '';
 
   UserProvider() {
-    _name = _user.displayName!;
-    _email = _user.email!;
-    _profileImage = UserService.getProfileImage();
+    init();
   }
 
   User get user => _user;
   String get name => _name;
   String get email => _email;
-  Future<String?> get profileImage => _profileImage;
+  String? get profileImage => _profileImage;
 
-  void init() {
+  Future<void> init() async {
     _user = FirebaseInstance.auth.currentUser!;
     _name = _user.displayName!;
     _email = _user.email!;
-    _profileImage = UserService.getProfileImage();
+    _profileImage = await UserService.getProfileImage();
     notifyListeners();
   }
 
@@ -45,15 +43,15 @@ class UserProvider extends ChangeNotifier {
     await reload();
   }
 
-  void updateProfileImage() async {
-    _profileImage = UserService.getProfileImage();
+  Future<void> updateProfileImage() async {
+    _profileImage = await UserService.getProfileImage();
     await reload();
   }
 
   void signOut() {
     _name = '';
     _email = '';
-    _profileImage = Future.value(null);
+    _profileImage = '';
     notifyListeners();
   }
 }

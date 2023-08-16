@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../components/goal.dart';
 import '../components/tracker_transaction.dart';
 import '../components/expense_income_graph.dart';
 import '../providers/navigation_provider.dart';
@@ -28,55 +29,47 @@ class _HomeState extends State<Home> {
         child: ListView(
           shrinkWrap: true,
           children: [
-            Consumer<UserProvider>(
-              builder: (context, userProvider, _) {
-                return Row(
-                  children: [
-                    FutureBuilder(
-                      future: userProvider.profileImage,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done &&
-                            snapshot.data != null) {
-                          return CircleAvatar(
-                              radius: 20.0,
-                              backgroundImage: NetworkImage(snapshot.data!),
-                            );
-                        } else {
-                          return const CircleAvatar(
-                            radius: 20.0,
-                            child: Icon(
-                              Icons.account_circle,
-                              color: Colors.white,
-                              size: 40.0,
-                            ),
-                          );
-                        }
-                      }),
-                    const SizedBox(width: 20.0),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Hello,",
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        Text(
-                          userProvider.name,
-                          style: const TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+            Consumer<UserProvider>(builder: (context, userProvider, _) {
+              String? image = userProvider.profileImage;
+              return Row(
+                children: [
+                  image != null
+                    ? CircleAvatar(
+                      radius: 20.0,
+                      backgroundImage: NetworkImage(image),
+                    )
+                    : const CircleAvatar(
+                      radius: 20.0,
+                      child: Icon(
+                        Icons.account_circle,
+                        color: Colors.white,
+                        size: 40.0,
+                      ),
                     ),
-                  ],
-                );
-              }
-            ),
+                  const SizedBox(width: 20.0),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Hello,",
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      Text(
+                        userProvider.name,
+                        style: const TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            }),
             const SizedBox(height: 20.0),
             Flex(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,23 +113,15 @@ class _HomeState extends State<Home> {
                         ],
                       ),
                       Consumer<TotalGoalProvider>(
-                        builder: (context, totalGoalProvider, _) {
-                          return FutureBuilder(
-                              future: totalGoalProvider.getPinnedGoal,
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
-                                  return ListView.builder(
-                                      shrinkWrap: true,
-                                      itemCount: snapshot.data!.length,
-                                      itemBuilder: (context, index) {
-                                        return snapshot.data![index];
-                                      });
-                                } else {
-                                  return Container();
-                                }
-                              });
-                        }
-                      ),
+                          builder: (context, totalGoalProvider, _) {
+                        List<Goal> goal = totalGoalProvider.getPinnedGoal;
+                        return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: goal.length,
+                            itemBuilder: (context, index) {
+                              return goal[index];
+                            });
+                      }),
                       const SizedBox(height: 40.0),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -171,7 +156,7 @@ class _HomeState extends State<Home> {
                       ),
                       Consumer<TotalTransactionProvider>(
                         builder: (context, totalTransactionProvider, _) {
-                          List<TrackerTransaction> transactions = totalTransactionProvider.getRecentTransactions;
+                          List<TrackerTransaction> transactions = totalTransactionProvider.getRecentTransactions();
                           return ListView.builder(
                             shrinkWrap: true,
                             itemCount: transactions.length,
@@ -179,7 +164,7 @@ class _HomeState extends State<Home> {
                               return TrackerTransaction(
                                 id: transactions[index].id,
                                 userID: transactions[index].userID,
-                                title: transactions[index].userID, // to undo to 'title'
+                                title: transactions[index] .title,
                                 amount: transactions[index].amount,
                                 date: transactions[index].date,
                                 isExpense: transactions[index].isExpense,
