@@ -13,8 +13,8 @@ class Tracker extends StatefulWidget {
 }
 
 class _TrackerState extends State<Tracker> {
-  String _selectedItem = Constant.noFilter;
   final List<String> _categories = [Constant.noFilter, ...Constant.categories];
+  String _selectedItem = Constant.noFilter;
 
   @override
   Widget build(BuildContext context) {
@@ -87,26 +87,46 @@ class _TrackerState extends State<Tracker> {
         ),
         Consumer<TotalTransactionProvider>(
           builder: (context, totalTransactionProvider, _) {
-            List<TrackerTransaction> transactions = totalTransactionProvider.getFilteredTransactions(_selectedItem);
-            return Wrap(
-              children: List.generate(
-                transactions.length,
-                (index) {
-                  final reversedIndex = transactions.length - index - 1;
-                  if (Constant.isDesktop(context) && MediaQuery.of(context).size.width > 1200) {
-                    return SizedBox(
-                      width: MediaQuery.of(context).size.width / 3,
-                      child: transactions[reversedIndex],
-                    );
-                  } else if (Constant.isTablet(context) || MediaQuery.of(context).size.width > Constant.tabletMaxWidth) {
-                    return SizedBox(
-                      width: MediaQuery.of(context).size.width / 2,
-                      child: transactions[reversedIndex],
-                    );
-                  } else {
-                    return transactions[reversedIndex];
-                  }
-                },
+            return StreamBuilder(
+              stream: totalTransactionProvider.stream,
+              builder: ((context, snapshot) 
+              {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator()); 
+                }
+                if (snapshot.hasError) {
+                  return Text('Something went wrong: ${snapshot.error}');
+                }
+                if (!snapshot.hasData) {
+                  return const Center(child: Text("No transaction yet"));
+                }
+
+                List<TrackerTransaction> transactions = snapshot.data!.docs
+                    .where((doc) => _selectedItem == Constant.noFilter || doc['category'] == _selectedItem)
+                    .map((doc) => TrackerTransaction.fromDocument(doc))
+                    .toList();
+                return Wrap(
+                  children: List.generate(
+                    transactions.length,
+                    (index) {
+                      // final reversedIndex = transactions.length - index - 1;
+                      if (Constant.isDesktop(context) && MediaQuery.of(context).size.width > 1200) {
+                        return SizedBox(
+                          width: MediaQuery.of(context).size.width / 3,
+                          child: transactions[index],
+                        );
+                      } else if (Constant.isTablet(context) || MediaQuery.of(context).size.width > Constant.tabletMaxWidth) {
+                        return SizedBox(
+                          width: MediaQuery.of(context).size.width / 2,
+                          child: transactions[index],
+                        );
+                      } else {
+                        return transactions[index];
+                      }
+                    },
+                  ),
+                );
+              }
               ),
             );
           },

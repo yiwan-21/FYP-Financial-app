@@ -34,18 +34,18 @@ class _HomeState extends State<Home> {
               return Row(
                 children: [
                   image.isNotEmpty
-                    ? CircleAvatar(
-                      radius: 20.0,
-                      backgroundImage: NetworkImage(image),
-                    )
-                    : const CircleAvatar(
-                      radius: 20.0,
-                      child: Icon(
-                        Icons.account_circle,
-                        color: Colors.white,
-                        size: 40.0,
-                      ),
-                    ),
+                      ? CircleAvatar(
+                          radius: 20.0,
+                          backgroundImage: NetworkImage(image),
+                        )
+                      : const CircleAvatar(
+                          radius: 20.0,
+                          child: Icon(
+                            Icons.account_circle,
+                            color: Colors.white,
+                            size: 40.0,
+                          ),
+                        ),
                   const SizedBox(width: 20.0),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,21 +159,27 @@ class _HomeState extends State<Home> {
                           return StreamBuilder(
                             stream: totalTransactionProvider.stream,
                             builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return const CircularProgressIndicator(); 
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
                               }
                               if (snapshot.hasError) {
-                                return Text('Something went wrong: ${snapshot.error}');
+                                return Text(
+                                    'Something went wrong: ${snapshot.error}');
                               }
                               if (!snapshot.hasData) {
-                                return const Center(child: Text("No transaction yet"));
+                                return const Center(
+                                    child: Text("No transaction yet"));
                               }
 
-                              List<TrackerTransaction> transactions = snapshot.data!.docs
-                                .reversed
-                                .take(3)
-                                .map((doc) => TrackerTransaction.fromDocument(doc))
-                                .toList();
+                              List<TrackerTransaction> transactions = snapshot
+                                  .data!.docs
+                                  .take(3)
+                                  .map((doc) =>
+                                      TrackerTransaction.fromDocument(doc))
+                                  .toList();
                               return ListView.builder(
                                 shrinkWrap: true,
                                 itemCount: transactions.length,

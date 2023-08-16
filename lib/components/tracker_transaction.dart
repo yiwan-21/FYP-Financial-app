@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants/style_constant.dart';
@@ -24,6 +25,16 @@ class TrackerTransaction extends StatefulWidget {
       required this.category,
       this.notes,
       super.key});
+
+  TrackerTransaction.fromDocument(QueryDocumentSnapshot doc, {super.key})
+      : id = doc.id,
+        userID = doc['userID'],
+        title = doc['title'],
+        notes = doc['notes'],
+        amount = doc['amount'].toDouble(),
+        date = doc['date'].toDate(),
+        isExpense = doc['isExpense'],
+        category = doc['category'];
 
   @override
   State<TrackerTransaction> createState() => _TrackerTransactionState();
