@@ -10,11 +10,23 @@ class TransactionService {
   static CollectionReference transactionCollection =
       FirebaseInstance.firestore.collection('transactions');
 
-  static Stream<QuerySnapshot> getTransactionStream() {
+  static Stream<QuerySnapshot> getAllTransactionStream() {
     if (FirebaseInstance.auth.currentUser != null) {
       return transactionCollection
           .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
           .orderBy('date', descending: true)
+          .snapshots();
+    } else {
+      return const Stream.empty();
+    }
+  }
+
+  static Stream<QuerySnapshot> getHomeTransactionStream() {
+    if (FirebaseInstance.auth.currentUser != null) {
+      return transactionCollection
+          .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+          .orderBy('date', descending: true)
+          .limit(3)
           .snapshots();
     } else {
       return const Stream.empty();
@@ -33,7 +45,7 @@ class TransactionService {
   }
 
   static Future<void> deleteTransaction(transactionId) async {
-    return await transactionCollection.doc(transactionId).delete();
+      await transactionCollection.doc(transactionId).delete();
   }
 
   static Future<Map<String, double>> getPieChartData() async {

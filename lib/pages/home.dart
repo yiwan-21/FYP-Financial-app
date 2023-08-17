@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../components/goal.dart';
 import '../components/tracker_transaction.dart';
 import '../components/expense_income_graph.dart';
+
 import '../providers/navigation_provider.dart';
 import '../providers/total_goal_provider.dart';
 import '../providers/total_transaction_provider.dart';
@@ -154,43 +156,39 @@ class _HomeState extends State<Home> {
                           ),
                         ],
                       ),
-                      Consumer<TotalTransactionProvider>(
-                        builder: (context, totalTransactionProvider, _) {
-                          return StreamBuilder(
-                            stream: totalTransactionProvider.stream,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-                              if (snapshot.hasError) {
-                                return Text(
-                                    'Something went wrong: ${snapshot.error}');
-                              }
-                              if (!snapshot.hasData) {
-                                return const Center(
-                                    child: Text("No transaction yet"));
-                              }
+                      StreamBuilder<QuerySnapshot>(
+                        stream: Provider.of<TotalTransactionProvider>(context, listen: false).getHomeTransactionsStream,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          if (snapshot.hasError) {
+                            return Text(
+                                'Something went wrong: ${snapshot.error}');
+                          }
+                          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                            return const Center(
+                                child: Text("No transaction yet"));
+                          }
 
-                              List<TrackerTransaction> transactions = snapshot
-                                  .data!.docs
-                                  .take(3)
-                                  .map((doc) =>
-                                      TrackerTransaction.fromDocument(doc))
-                                  .toList();
-                              return ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: transactions.length,
-                                itemBuilder: (context, index) {
-                                  return transactions[index];
-                                },
-                              );
+                          List<TrackerTransaction> transactions = snapshot
+                              .data!.docs
+                              .take(3)
+                              .map(
+                                  (doc) => TrackerTransaction.fromDocument(doc))
+                              .toList();
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: transactions.length,
+                            itemBuilder: (context, index) {
+                              return transactions[index];
                             },
                           );
                         },
-                      ),
+                      )
                     ],
                   ),
                 ),

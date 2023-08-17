@@ -4,19 +4,19 @@ import 'package:flutter/material.dart';
 import '../services/transaction_service.dart';
 
 class TotalTransactionProvider extends ChangeNotifier {
+  late Stream<QuerySnapshot> _allTransactionsStream;
+  late Stream<QuerySnapshot> _homeTransactionsStream;
   Map<String, double> _pieChartData = {};
-  Stream<QuerySnapshot>? _transactionStream;
 
   TotalTransactionProvider() {
+    _allTransactionsStream = TransactionService.getAllTransactionStream();
+    _homeTransactionsStream = TransactionService.getHomeTransactionStream();
     init();
   }
 
+  Stream<QuerySnapshot> get getAllTransactionsStream => _allTransactionsStream;
+  Stream<QuerySnapshot> get getHomeTransactionsStream => _homeTransactionsStream;
   Map<String, double> get getPieChartData => _pieChartData;
-  
-  Stream<QuerySnapshot> get stream {
-    _transactionStream = TransactionService.getTransactionStream();
-    return _transactionStream!;
-  }
 
   Future<void> init() async {
     _pieChartData = await TransactionService.getPieChartData();
@@ -29,9 +29,13 @@ class TotalTransactionProvider extends ChangeNotifier {
   }
 
   void reset() {
+    _allTransactionsStream.listen((snapshot) {}).cancel();
+    _allTransactionsStream = const Stream.empty();
+
+    _homeTransactionsStream.listen((snapshot) {}).cancel();
+    _homeTransactionsStream = const Stream.empty();
+
     _pieChartData = {};
-    _transactionStream?.listen((snapshot) {}).cancel();
-    _transactionStream = null;
     notifyListeners();
   }
 }
