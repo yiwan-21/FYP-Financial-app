@@ -1,10 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/goal_provider.dart';
 import '../providers/total_goal_provider.dart';
+import '../services/goal_service.dart';
 
 class Goal extends StatefulWidget {
-  final String goalId;
+  final String goalID;
   final String userID;
   final String title;
   final double amount;
@@ -12,9 +15,24 @@ class Goal extends StatefulWidget {
   final DateTime targetDate;
   final bool pinned;
 
-  const Goal(this.goalId, this.userID, this.title, this.amount, this.saved,
-      this.targetDate, this.pinned,
-      {super.key});
+  const Goal(
+    {required this.goalID, 
+    required this.userID, 
+    required this.title, 
+    required this.amount, 
+    required this.saved,
+    required this.targetDate, 
+    required this.pinned,
+    super.key});
+
+  Goal.fromDocument(QueryDocumentSnapshot doc, {super.key})
+      : goalID = doc.id,
+        userID = doc['userID'],
+        title = doc['title'],
+        amount = doc['amount'].toDouble(),
+        saved = doc['saved'].toDouble(),
+        targetDate = doc['targetDate'].toDate(),
+        pinned = doc['pinned'];
 
   @override
   State<Goal> createState() => _GoalState();
@@ -48,29 +66,42 @@ class _GoalState extends State<Goal> {
     return widget.targetDate.isBefore(DateTime.now());
   }
 
+  void _navigateToDetail() {
+    final GoalProvider goalProvider = Provider.of<GoalProvider>(context, listen: false);
+    goalProvider.setGoal(
+      widget.goalID,
+      widget.title,
+      widget.amount,
+      _saved,
+      widget.targetDate,
+      _pinned,
+    );
+    Navigator.pushNamed(context, '/goal/progress').then((_) async {
+      if (mounted) {
+        _saved = goalProvider.getSaved;
+        setState(() {
+          _progress = _saved / widget.amount;
+        });
+
+        _pinned = goalProvider.getPinned;
+        final String id = goalProvider.getId;
+        if (_pinned) {
+          await GoalService.setPinned(id, true).then((_) {
+            Provider.of<TotalGoalProvider>(context, listen: false).updateGoals();
+          });
+        } else {
+          await GoalService.updateSinglePinned(id, false).then((_) {
+            Provider.of<TotalGoalProvider>(context, listen: false).updateGoals();
+          });
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        final GoalProvider goalProvider =
-            Provider.of<GoalProvider>(context, listen: false);
-        goalProvider.setGoal(
-          widget.goalId,
-          widget.title,
-          widget.amount,
-          _saved,
-          widget.targetDate,
-          _pinned,
-        );
-        Navigator.pushNamed(context, '/goal/progress').then((goal) => {
-              _saved = goalProvider.getSaved,
-              _pinned = goalProvider.getPinned,
-              setState(() {
-                _progress = _saved / widget.amount;
-              }),
-              Provider.of<TotalGoalProvider>(context, listen: false).updateGoals(),
-            });
-      },
+      onTap: _navigateToDetail,
       child: Card(
         elevation: 5,
         color: Colors.white,

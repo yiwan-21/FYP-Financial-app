@@ -44,13 +44,13 @@ class _AddGoalState extends State<AddGoal> {
       // Submit form data to server or database
       _formKey.currentState!.save();
       final newGoal = Goal(
-        _id,
-        FirebaseInstance.auth.currentUser!.uid,
-        _title,
-        _amount,
-        0,
-        _date,
-        _pinned,
+        goalID: _id,
+        userID: FirebaseInstance.auth.currentUser!.uid,
+        title: _title,
+        amount: _amount,
+        saved: 0,
+        targetDate: _date,
+        pinned: _pinned,
       );
       await GoalService.addGoal(newGoal).then((value) {
         _id = value.id;

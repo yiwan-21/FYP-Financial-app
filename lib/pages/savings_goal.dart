@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../components/goal.dart';
@@ -23,9 +24,26 @@ class _SavingsGoalState extends State<SavingsGoal> {
             child: ListView(
               children: [
                 const SizedBox(height: 12),
-                Consumer<TotalGoalProvider>(
-                  builder: (context, totalGoalProvider, _) {
-                    List<Goal> goals = totalGoalProvider.getGoals;
+                StreamBuilder<QuerySnapshot>(
+                  stream: Provider.of<TotalGoalProvider>(context, listen: false)
+                      .getGoalsStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return const Center(child: Text("No goal yet"));
+                    }
+
+                    List<Goal> goals = snapshot.data!.docs
+                        .map((doc) => Goal.fromDocument(doc))
+                        .toList();
+                        
                     return Wrap(
                       children: List.generate(goals.length, (index) {
                         return goals[index];
