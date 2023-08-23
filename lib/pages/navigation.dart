@@ -5,6 +5,7 @@ import '../pages/tracker.dart';
 import '../pages/analytics.dart';
 import '../pages/budgeting.dart';
 import '../pages/split_money.dart';
+import '../pages/notification.dart';
 import '../pages/savings_goal.dart';
 import '../pages/profile.dart';
 import '../providers/user_provider.dart';
@@ -48,10 +49,8 @@ class _NavigationState extends State<Navigation> {
           title:
               Text(_pages.keys.elementAt(navigationProvider.getCurrentIndex)),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.notifications),
-              onPressed: () {},
-            ),
+            const NotificationMenu(),
+
             Builder(builder: (BuildContext context) {
               return GestureDetector(
                 onTap: () {
