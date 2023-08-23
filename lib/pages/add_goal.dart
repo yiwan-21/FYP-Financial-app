@@ -59,7 +59,7 @@ class _AddGoalState extends State<AddGoal> {
         await GoalService.setPinned(_id, _pinned);
       }
       if (context.mounted) {
-        Provider.of<TotalGoalProvider>(context, listen: false).updateGoals();
+        Provider.of<TotalGoalProvider>(context, listen: false).updatePinnedGoal();
         Navigator.pop(context, newGoal);
       }
     }

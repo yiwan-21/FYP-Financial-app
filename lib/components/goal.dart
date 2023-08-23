@@ -50,18 +50,6 @@ class Goal extends StatefulWidget {
 }
 
 class _GoalState extends State<Goal> {
-  double _saved = 0;
-  bool _pinned = false;
-  double _progress = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _saved = widget.saved;
-    _pinned = widget.pinned;
-    _progress = widget.saved / widget.amount;
-  }
-
   bool _expired() {
     return widget.targetDate.isBefore(DateTime.now());
   }
@@ -72,26 +60,29 @@ class _GoalState extends State<Goal> {
       widget.goalID,
       widget.title,
       widget.amount,
-      _saved,
+      widget.saved,
       widget.targetDate,
-      _pinned,
+      widget.pinned,
     );
-    Navigator.pushNamed(context, '/goal/progress').then((_) async {
+    Navigator.pushNamed(context, '/goal/progress').then((value) async {
       if (mounted) {
-        _saved = goalProvider.getSaved;
-        setState(() {
-          _progress = _saved / widget.amount;
-        });
-
-        _pinned = goalProvider.getPinned;
         final String id = goalProvider.getId;
-        if (_pinned) {
+        bool pinned = goalProvider.getPinned;
+        TotalGoalProvider totalGoalProvider = Provider.of<TotalGoalProvider>(context, listen: false);
+        if (value == 'delete') {
+          if (pinned) {
+            totalGoalProvider.updatePinnedGoal();
+          }
+          return;
+        }
+
+        if (pinned) {
           await GoalService.setPinned(id, true).then((_) {
-            Provider.of<TotalGoalProvider>(context, listen: false).updateGoals();
+            totalGoalProvider.updatePinnedGoal();
           });
         } else {
           await GoalService.updateSinglePinned(id, false).then((_) {
-            Provider.of<TotalGoalProvider>(context, listen: false).updateGoals();
+            totalGoalProvider.updatePinnedGoal();
           });
         }
       }
@@ -100,6 +91,7 @@ class _GoalState extends State<Goal> {
 
   @override
   Widget build(BuildContext context) {
+    double progress = widget.saved / widget.amount;
     return GestureDetector(
       onTap: _navigateToDetail,
       child: Card(
@@ -126,7 +118,7 @@ class _GoalState extends State<Goal> {
 
                   Row(
                     children: [
-                      if (_pinned) 
+                      if (widget.pinned) 
                         const Padding(
                           padding: EdgeInsets.only(right: 10),
                           child: Icon(Icons.push_pin),
@@ -154,10 +146,10 @@ class _GoalState extends State<Goal> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(5),
                           child: LinearProgressIndicator(
-                            value: _progress,
+                            value: progress,
                             backgroundColor: Colors.grey[200],
                             valueColor: AlwaysStoppedAnimation<Color>(
-                                _progress == 1
+                                progress == 1
                                     ? Colors.green[400]!
                                     : const Color.fromRGBO(246, 214, 153, 1)),
                           ),

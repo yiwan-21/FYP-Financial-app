@@ -12,7 +12,6 @@ import '../providers/goal_provider.dart';
 import '../providers/total_transaction_provider.dart';
 import '../services/goal_service.dart';
 import '../services/transaction_service.dart';
-import '../providers/total_goal_provider.dart';
 class GoalProgress extends StatefulWidget {
   const GoalProgress({super.key});
 
@@ -101,7 +100,8 @@ class _GoalProgressState extends State<GoalProgress>
       // quit dialog box
       Navigator.pop(context);
       // quit goal progress page
-      Navigator.pop(context);
+      // to inform the goal has been deleted
+      Navigator.pop(context, 'delete');
     });
   }
 

@@ -25,8 +25,7 @@ class _SavingsGoalState extends State<SavingsGoal> {
               children: [
                 const SizedBox(height: 12),
                 StreamBuilder<QuerySnapshot>(
-                  stream: Provider.of<TotalGoalProvider>(context, listen: false)
-                      .getGoalsStream,
+                  stream: Provider.of<TotalGoalProvider>(context, listen: false).getGoalsStream,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
