@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../firebase_instance.dart';
 import '../components/alert_with_checkbox.dart';
 import '../components/goal_history_card.dart';
@@ -11,7 +12,6 @@ import '../providers/goal_provider.dart';
 import '../providers/total_transaction_provider.dart';
 import '../services/goal_service.dart';
 import '../services/transaction_service.dart';
-
 class GoalProgress extends StatefulWidget {
   const GoalProgress({super.key});
 
@@ -86,6 +86,7 @@ class _GoalProgressState extends State<GoalProgress>
       _saved += value;
       _remaining -= value;
     });
+    
     _updateProgress();
     Provider.of<GoalProvider>(context, listen: false).setSaved(_saved);
     await GoalService.updateGoalSavedAmount(_id, _saved);
@@ -99,9 +100,8 @@ class _GoalProgressState extends State<GoalProgress>
       // quit dialog box
       Navigator.pop(context);
       // quit goal progress page
-      // need to return something, because
-      // null returned will not update goal list
-      Navigator.pop(context, 'deleted');
+      // to inform the goal has been deleted
+      Navigator.pop(context, 'delete');
     });
   }
 
@@ -120,6 +120,16 @@ class _GoalProgressState extends State<GoalProgress>
       Provider.of<TotalTransactionProvider>(context, listen: false)
           .updateTransactions();
     });
+  }
+
+  void _setPinned() async {
+    setState(() {
+      _pinned = !_pinned;
+    });
+
+    Provider.of<GoalProvider>(context, listen: false).setPinned(_pinned);
+
+
   }
 
   @override
@@ -159,21 +169,7 @@ class _GoalProgressState extends State<GoalProgress>
                 _pinned ? Icons.push_pin : Icons.push_pin_outlined,
                 semanticLabel: _pinned ? 'Unpin' : 'Pin',
               ),
-              onPressed: () async {
-                setState(() {
-                  _pinned = !_pinned;
-                });
-                if (_pinned) {
-                  GoalService.setPinned(_id, _pinned);
-                } else {
-                  FirebaseInstance.firestore
-                      .collection('goals')
-                      .doc(_id)
-                      .update({'pinned': _pinned});
-                }
-                Provider.of<GoalProvider>(context, listen: false)
-                    .setPinned(_pinned);
-              },
+              onPressed: _setPinned,
             )
           ],
         ),

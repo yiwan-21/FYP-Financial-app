@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../constants/constant.dart';
 import '../components/category_chart.dart';
 import '../components/tracker_transaction.dart';
+
 import '../providers/total_transaction_provider.dart';
 
 class Tracker extends StatefulWidget {
@@ -13,8 +16,8 @@ class Tracker extends StatefulWidget {
 }
 
 class _TrackerState extends State<Tracker> {
-  String _selectedItem = Constant.noFilter;
   final List<String> _categories = [Constant.noFilter, ...Constant.categories];
+  String _selectedItem = Constant.noFilter;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +63,8 @@ class _TrackerState extends State<Tracker> {
                     _selectedItem = newValue!;
                   });
                 },
-                items: _categories.map<DropdownMenuItem<String>>((String value) {
+                items:
+                    _categories.map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
                     child: Text(value),
@@ -85,31 +89,49 @@ class _TrackerState extends State<Tracker> {
             ],
           ),
         ),
-        Consumer<TotalTransactionProvider>(
-          builder: (context, totalTransactionProvider, _) {
-            List<TrackerTransaction> transactions = totalTransactionProvider.getFilteredTransactions(_selectedItem);
+        StreamBuilder<QuerySnapshot>(
+          stream: Provider.of<TotalTransactionProvider>(context, listen: false).getAllTransactionsStream,
+          builder: ((context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Text('Something went wrong: ${snapshot.error}');
+            }
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return const Center(child: Text("No transaction yet"));
+            }
+
+            List<TrackerTransaction> transactions = snapshot.data!.docs
+                .where((doc) =>
+                    _selectedItem == Constant.noFilter ||
+                    doc['category'] == _selectedItem)
+                .map((doc) => TrackerTransaction.fromDocument(doc))
+                .toList();
             return Wrap(
               children: List.generate(
                 transactions.length,
                 (index) {
-                  final reversedIndex = transactions.length - index - 1;
-                  if (Constant.isDesktop(context) && MediaQuery.of(context).size.width > 1200) {
+                  if (Constant.isDesktop(context) &&
+                      MediaQuery.of(context).size.width > 1200) {
                     return SizedBox(
                       width: MediaQuery.of(context).size.width / 3,
-                      child: transactions[reversedIndex],
+                      child: transactions[index],
                     );
-                  } else if (Constant.isTablet(context) || MediaQuery.of(context).size.width > Constant.tabletMaxWidth) {
+                  } else if (Constant.isTablet(context) ||
+                      MediaQuery.of(context).size.width >
+                          Constant.tabletMaxWidth) {
                     return SizedBox(
                       width: MediaQuery.of(context).size.width / 2,
-                      child: transactions[reversedIndex],
+                      child: transactions[index],
                     );
                   } else {
-                    return transactions[reversedIndex];
+                    return transactions[index];
                   }
                 },
               ),
             );
-          },
+          }),
         ),
       ],
     );

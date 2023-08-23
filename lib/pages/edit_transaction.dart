@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+
 import '../firebase_instance.dart';
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
 import '../components/tracker_transaction.dart';
 import '../components/custom_switch.dart';
 import '../components/alert_confirm_action.dart';
+import '../providers/total_transaction_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../services/transaction_service.dart';
 
@@ -60,19 +62,19 @@ class _EditTransactionState extends State<EditTransaction> {
       );
 
       await TransactionService.updateTransaction(editedTransaction).then((_) {
-        Navigator.pop(context, editedTransaction);
+        Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
+        Navigator.pop(context);
       });
     }
   }
 
   void deleteTransaction() async {
     await TransactionService.deleteTransaction(_id).then((_) {
+      Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
       // quit dialog box
       Navigator.pop(context);
       // quit edit transaction page
-      // need to return something, because
-      // null returned will not update transaction list
-      Navigator.pop(context, 'deleted');
+      Navigator.pop(context);
     });
   }
 

@@ -1,28 +1,30 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
 import '../components/goal.dart';
 import '../services/goal_service.dart';
 
 class TotalGoalProvider extends ChangeNotifier {
-  Future<List<Goal>> _goals = Future.value([]);
-  Future<List<Goal>> _pinnedGoals = Future.value([]);
+  late Stream<QuerySnapshot> _goalsStream;
+  List<Goal> _pinnedGoals = [];
 
   TotalGoalProvider() {
-    _goals = GoalService.getAllGoals();
-    _pinnedGoals = GoalService.getPinnedGoal();
+    updatePinnedGoal();
+    _goalsStream = GoalService.getAllGoalStream();
   }
 
-  Future<List<Goal>> get getGoals => _goals;
-  Future<List<Goal>> get getPinnedGoal => _pinnedGoals;
+  Stream<QuerySnapshot> get getGoalsStream => _goalsStream;
+  List<Goal> get getPinnedGoal => _pinnedGoals;
 
-  Future<void> updateGoals() async {
-    _goals = GoalService.getAllGoals();
-    _pinnedGoals = GoalService.getPinnedGoal();
+  Future<void> updatePinnedGoal() async {
+    _pinnedGoals = await GoalService.getPinnedGoal();
     notifyListeners();
   }
 
   void reset() {
-    _goals = Future.value([]);
-    _pinnedGoals = Future.value([]);
+    _goalsStream.listen((snapshot) {}).cancel();
+    _goalsStream = const Stream.empty();
+    _pinnedGoals = [];
     notifyListeners();
   }
 }

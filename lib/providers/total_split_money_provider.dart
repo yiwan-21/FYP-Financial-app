@@ -3,16 +3,16 @@ import '../components/split_group_card.dart';
 import '../services/split_money_service.dart';
 
 class TotalSplitMoneyProvider extends ChangeNotifier {
-  Future <List<SplitGroupCard>> _groups = Future.value([]);
+  List<SplitGroupCard> _groups = [];
 
   TotalSplitMoneyProvider() {
-    _groups = SplitMoneyService.getGroupCards();
+    updateGroups();
   }
 
-  Future<List<SplitGroupCard>> get groupCards => _groups;
+  List<SplitGroupCard> get groupCards => _groups;
 
-  void updateGroups() {
-    _groups = SplitMoneyService.getGroupCards();
+  Future<void> updateGroups() async {
+    _groups = await SplitMoneyService.getGroupCards();
     notifyListeners();
   }
 }

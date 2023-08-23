@@ -1,50 +1,40 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../components/tracker_transaction.dart';
-import '../constants/constant.dart';
 import '../services/transaction_service.dart';
 
 class TotalTransactionProvider extends ChangeNotifier {
-  List<TrackerTransaction> _recentTransactions = [];
-  List<TrackerTransaction> _transactions = [];
+  late Stream<QuerySnapshot> _allTransactionsStream;
+  late Stream<QuerySnapshot> _homeTransactionsStream;
   Map<String, double> _pieChartData = {};
 
   TotalTransactionProvider() {
+    _allTransactionsStream = TransactionService.getAllTransactionStream();
+    _homeTransactionsStream = TransactionService.getHomeTransactionStream();
     init();
   }
 
-  List<TrackerTransaction> get getRecentTransactions =>_recentTransactions;
-  List<TrackerTransaction> get getTransactions => _transactions;
+  Stream<QuerySnapshot> get getAllTransactionsStream => _allTransactionsStream;
+  Stream<QuerySnapshot> get getHomeTransactionsStream => _homeTransactionsStream;
   Map<String, double> get getPieChartData => _pieChartData;
 
-  void init() async {
-    _transactions = await TransactionService.getAllTransactions().then((transactions) {
-      _recentTransactions = transactions.reversed.toList().sublist(0, 3);
-      return transactions;
-    });
+  Future<void> init() async {
     _pieChartData = await TransactionService.getPieChartData();
     notifyListeners();
   }
 
-  void updateTransactions() async {
-    _transactions = await TransactionService.getAllTransactions().then((transactions) {
-      _recentTransactions = transactions.reversed.toList().sublist(0, 3);
-      return transactions;
-    });
+  Future<void> updateTransactions() async {
     _pieChartData = await TransactionService.getPieChartData();
     notifyListeners();
-  }
-
-  List<TrackerTransaction> getFilteredTransactions(String category) {
-    if (category == Constant.noFilter) {
-      return _transactions;
-    }
-    return _transactions.where((transaction) => transaction.category == category).toList();
   }
 
   void reset() {
-    _recentTransactions = [];
-    _transactions = [];
+    _allTransactionsStream.listen((snapshot) {}).cancel();
+    _allTransactionsStream = const Stream.empty();
+
+    _homeTransactionsStream.listen((snapshot) {}).cancel();
+    _homeTransactionsStream = const Stream.empty();
+
     _pieChartData = {};
     notifyListeners();
   }

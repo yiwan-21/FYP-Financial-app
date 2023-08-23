@@ -89,25 +89,22 @@ class _ProfileState extends State<Profile> {
             alignment: Alignment.center,
             children: [
               Consumer<UserProvider>(builder: (context, userProvider, _) {
-                return FutureBuilder(
-                    future: userProvider.profileImage,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done &&
-                          snapshot.data != null) {
-                        return CircleAvatar(
-                            radius: 70.0,
-                            backgroundImage: NetworkImage(snapshot.data!));
-                      } else {
-                        return const CircleAvatar(
-                          radius: 70.0,
-                          child: Icon(
-                            Icons.account_circle,
-                            color: Colors.white,
-                            size: 140.0,
-                          ),
-                        );
-                      }
-                    });
+                String image = userProvider.profileImage;
+                if (image.isNotEmpty) {
+                  return CircleAvatar(
+                    radius: 70.0,
+                    backgroundImage: NetworkImage(image),
+                  );
+                } else {
+                  return const CircleAvatar(
+                    radius: 70.0,
+                    child: Icon(
+                      Icons.account_circle,
+                      color: Colors.white,
+                      size: 140.0,
+                    ),
+                  );
+                }
               }),
               Positioned(
                 bottom: 0.0,

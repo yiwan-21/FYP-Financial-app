@@ -1,20 +1,21 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../constants/style_constant.dart';
-import '../providers/total_transaction_provider.dart';
 import '../providers/transaction_provider.dart';
 
 class TrackerTransaction extends StatefulWidget {
-  String id;
-  String userID;
-  String title;
-  String? notes;
-  double amount;
-  DateTime date;
-  bool isExpense;
-  String category;
+  final String id;
+  final String userID;
+  final String title;
+  final String? notes;
+  final double amount;
+  final DateTime date;
+  final bool isExpense;
+  final String category;
 
-  TrackerTransaction(
+  const TrackerTransaction(
       {required this.id,
       required this.userID,
       required this.title,
@@ -24,6 +25,16 @@ class TrackerTransaction extends StatefulWidget {
       required this.category,
       this.notes,
       super.key});
+
+  TrackerTransaction.fromDocument(QueryDocumentSnapshot doc, {super.key})
+      : id = doc.id,
+        userID = doc['userID'],
+        title = doc['title'],
+        notes = doc['notes'],
+        amount = doc['amount'].toDouble(),
+        date = doc['date'].toDate(),
+        isExpense = doc['isExpense'],
+        category = doc['category'];
 
   @override
   State<TrackerTransaction> createState() => _TrackerTransactionState();
@@ -50,8 +61,8 @@ class _TrackerTransactionState extends State<TrackerTransaction> {
     });
   }
 
-  void _navigateToEdit(transactionProvider) {
-    transactionProvider.setTransaction(
+  void _navigateToEdit() {
+    Provider.of<TransactionProvider>(context, listen: false).setTransaction(
       widget.id,
       widget.title,
       widget.amount,
@@ -61,32 +72,14 @@ class _TrackerTransactionState extends State<TrackerTransaction> {
       notes: widget.notes,
     );
 
-    Navigator.pushNamed(context, '/tracker/edit').then((tx) {
-      if (tx != null) {
-        final totalTransactionProvider =
-            Provider.of<TotalTransactionProvider>(context, listen: false);
-        totalTransactionProvider.updateTransactions();
-        if (tx is TrackerTransaction) {
-          setState(() {
-            widget.title = tx.title;
-            widget.notes = tx.notes;
-            widget.amount = tx.amount;
-            widget.date = tx.date;
-            widget.isExpense = tx.isExpense;
-            widget.category = tx.category;
-          });
-        }
-      }
-    });
+    Navigator.pushNamed(context, '/tracker/edit');
   }
 
   @override
   Widget build(BuildContext context) {
-    final TransactionProvider transactionProvider =
-        Provider.of<TransactionProvider>(context, listen: false);
     return GestureDetector(
       onTap: _toggleExpanded,
-      onDoubleTap: () => _navigateToEdit(transactionProvider),
+      onDoubleTap: _navigateToEdit,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         curve: Curves.fastOutSlowIn,

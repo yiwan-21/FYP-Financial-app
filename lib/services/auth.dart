@@ -20,7 +20,7 @@ class Auth {
           .then((_) {
             Provider.of<UserProvider>(context, listen: false).init();
             Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
-            Provider.of<TotalGoalProvider>(context, listen: false).updateGoals();
+            Provider.of<TotalGoalProvider>(context, listen: false).updatePinnedGoal();
             Provider.of<TotalSplitMoneyProvider>(context, listen:false).updateGroups();
             Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
           });
