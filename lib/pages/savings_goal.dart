@@ -22,6 +22,7 @@ class _SavingsGoalState extends State<SavingsGoal> {
         children: [
           Expanded(
             child: ListView(
+              physics: const BouncingScrollPhysics(),
               children: [
                 const SizedBox(height: 12),
                 StreamBuilder<QuerySnapshot>(

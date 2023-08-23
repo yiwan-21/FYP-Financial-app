@@ -119,6 +119,7 @@ class _HomeState extends State<Home> {
                         List<Goal> goal = totalGoalProvider.getPinnedGoal;
                         return ListView.builder(
                             shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
                             itemCount: goal.length,
                             itemBuilder: (context, index) {
                               return goal[index];
@@ -182,6 +183,7 @@ class _HomeState extends State<Home> {
                               .toList();
                           return ListView.builder(
                             shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
                             itemCount: transactions.length,
                             itemBuilder: (context, index) {
                               return transactions[index];
@@ -195,8 +197,8 @@ class _HomeState extends State<Home> {
                 const SizedBox(height: 20.0),
                 Flexible(
                   flex: MediaQuery.of(context).size.width < 768 ? 0 : 1,
-                  child: Column(
-                    children: const [
+                  child: const Column(
+                    children: [
                       ExpenseIncomeGraph(),
                     ],
                   ),

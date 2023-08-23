@@ -23,28 +23,22 @@ class _SplitMoneyState extends State<SplitMoney> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: Consumer<TotalSplitMoneyProvider>(
-            builder: (context, totalSplitMoneyProvider, _) {
-              List<SplitGroupCard> groupCards =
-                  totalSplitMoneyProvider.groupCards;
-              return ListView(
-                children: List.generate(
-                  groupCards.length,
-                  (index) {
-                    return groupCards[index];
-                  },
-                ),
-              );
-            },
-          ),
-        ),
-        Container(
-          alignment: Alignment.bottomRight,
-          margin: const EdgeInsets.only(bottom: 20, right: 10),
-          child: FloatingActionButton(
+    return Scaffold(
+      body: Consumer<TotalSplitMoneyProvider>(
+        builder: (context, totalSplitMoneyProvider, _) {
+          List<SplitGroupCard> groupCards =
+              totalSplitMoneyProvider.groupCards;
+          return ListView(
+            children: List.generate(
+              groupCards.length,
+              (index) {
+                return groupCards[index];
+              },
+            ),
+          );
+        },
+      ),
+          floatingActionButton: FloatingActionButton(
             backgroundColor: ColorConstant.lightBlue,
             onPressed: addGroup,
             child: const Icon(
@@ -53,8 +47,6 @@ class _SplitMoneyState extends State<SplitMoney> {
               color: Colors.black,
             ),
           ),
-        ),
-      ],
     );
   }
 }
