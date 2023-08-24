@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/noti.dart';
+import '../providers/notification_provider.dart';
 
 class NotificationMenu extends StatefulWidget {
   const NotificationMenu({super.key});
@@ -11,39 +13,6 @@ class NotificationMenu extends StatefulWidget {
 
 class _NotificationMenuState extends State<NotificationMenu> {
   void _showNotificationMenu(BuildContext context) async {
-    final notifications = [
-      NotificationModel(
-        'Notification 1',
-        'This is the first notification.',
-        DateTime.now(),
-        false,
-      ),
-      NotificationModel(
-        'Notification 2',
-        'This is the second notification.',
-        DateTime.now(),
-        false,
-      ),
-      NotificationModel(
-        'Notification 3',
-        'This is the third notification. This is the third notification. This is the third notification. This is the third notification. This is the third notification.',
-        DateTime.now(),
-        true,
-      ),
-      NotificationModel(
-        'Notification 4',
-        'This is the forth notification.',
-        DateTime.now(),
-        true,
-      ),
-      NotificationModel(
-        'Notification 5',
-        'This is the fifth notification.',
-        DateTime.now(),
-        true,
-      ),
-    ];
-
     final selected = await showMenu<NotificationModel>(
       context: context,
       position: RelativeRect.fromLTRB(
@@ -69,7 +38,7 @@ class _NotificationMenuState extends State<NotificationMenu> {
             ),
           ),
         ),
-        ...notifications.map((notification) {
+        ...Provider.of<NotificationProvider>(context, listen: false).notifications.reversed.map((notification) {
           return PopupMenuItem<NotificationModel>(
             value: notification,
             child: Container(
@@ -103,6 +72,10 @@ class _NotificationMenuState extends State<NotificationMenu> {
     if (selected != null) {
       // Handle the selected notification
       debugPrint('Selected: ${selected.title}');
+      setState(() {
+        selected.read = true;
+      });
+      selected.navigateTo();
     }
   }
 
