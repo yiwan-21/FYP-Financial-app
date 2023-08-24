@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../constants/route_name.dart';
 import '../constants/style_constant.dart';
 import '../providers/transaction_provider.dart';
 
@@ -72,7 +73,7 @@ class _TrackerTransactionState extends State<TrackerTransaction> {
       notes: widget.notes,
     );
 
-    Navigator.pushNamed(context, '/tracker/edit');
+    Navigator.pushNamed(context, RouteName.editTransaction);
   }
 
   @override

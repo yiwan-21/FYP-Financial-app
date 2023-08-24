@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
+
 import '../constants/message_constant.dart';
 import '../firebase_instance.dart';
 import '../components/alert_confirm_action.dart';
+import '../constants/route_name.dart';
 import '../providers/total_goal_provider.dart';
 import '../providers/total_split_money_provider.dart';
 import '../providers/total_transaction_provider.dart';
@@ -22,7 +24,7 @@ class Auth {
             Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
             Provider.of<TotalGoalProvider>(context, listen: false).updatePinnedGoal();
             Provider.of<TotalSplitMoneyProvider>(context, listen:false).updateGroups();
-            Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+            Navigator.pushNamedAndRemoveUntil(context, RouteName.home, (route) => false);
           });
     } on FirebaseAuthException catch (e) {
       String msg = e.message!;
@@ -57,7 +59,7 @@ class Auth {
                     content: 'A verification email has been sent to your email address',
                     confirmText: 'OK',
                     confirmAction: () {
-                      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+                      Navigator.pushNamedAndRemoveUntil(context, RouteName.home, (route) => false);
                     },
                   );
                 },

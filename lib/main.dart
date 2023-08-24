@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import './firebase_instance.dart';
 import './pages/financial_app.dart';
 import './pages/login.dart';
@@ -16,6 +17,7 @@ import './pages/split_money_group.dart';
 import './pages/split_money_expense.dart';
 import './pages/add_group_expense.dart';
 import './pages/group_settings.dart';
+import './constants/route_name.dart';
 import './providers/goal_provider.dart';
 import './providers/navigation_provider.dart';
 import './providers/total_goal_provider.dart';
@@ -174,20 +176,4 @@ class MyApp extends StatelessWidget {
       },
     );
   }
-}
-
-class RouteName {
-  static const titlePage = '/';
-  static const login = '/login';
-  static const register = '/register';
-  static const home = '/home';
-  static const editProfile = '/profile';
-  static const addTransaction = '/tracker/add';
-  static const editTransaction = '/tracker/edit';
-  static const addGoal = '/goal/add';
-  static const goalProgress = '/goal/progress';
-  static const splitMoneyGroup = '/group';
-  static const groupSettings = '/group/settings';
-  static const splitMoneyExpense = '/group/expense';
-  static const addGroupExpense = '/group/expense/add';
 }

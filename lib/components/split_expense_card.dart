@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../constants/route_name.dart';
 import '../constants/style_constant.dart';
 import '../providers/split_money_provider.dart';
 import '../services/chat_service.dart';
@@ -21,7 +22,7 @@ class SplitExpenseCard extends StatefulWidget {
 
 class _SplitExpenseCardState extends State<SplitExpenseCard> {
   void _navigateToExpense() {
-    Navigator.of(context).pushNamed('/group/expense', arguments: {'id': widget.id})
+    Navigator.pushNamed(context, RouteName.splitMoneyExpense, arguments: {'id': widget.id})
       .then((mssg) {
         if (mssg != null) {
           Provider.of<SplitMoneyProvider>(context, listen: false).updateExpenses();
