@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../constants/route_name.dart';
+
 class FinancialApp extends StatelessWidget {
   const FinancialApp({super.key});
 
@@ -10,7 +12,7 @@ class FinancialApp extends StatelessWidget {
         ElevatedButton(
           style: ElevatedButton.styleFrom(minimumSize: const Size(180, 40)),
           onPressed: () {
-            Navigator.pushNamed(context, '/register');
+            Navigator.pushNamed(context, RouteName.register);
           },
           child: const Text('Register'),
         ),
@@ -20,7 +22,7 @@ class FinancialApp extends StatelessWidget {
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(minimumSize: const Size(180, 40)),
             onPressed: () {
-              Navigator.pushNamed(context, '/login');
+              Navigator.pushNamed(context, RouteName.login);
             },
             child: const Text('Login'),
           ),

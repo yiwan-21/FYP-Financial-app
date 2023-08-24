@@ -36,7 +36,7 @@ class _ChatState extends State<Chat> {
   Future<void> updateReadStatus() async {
     await ChatService.updateReadStatus().whenComplete(() {
       Provider.of<NotificationProvider>(context, listen: false)
-          .setChatNotification(false);
+          .setChatNotification(false, null);
     });
   }
 

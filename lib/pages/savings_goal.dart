@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../components/goal.dart';
-import '../providers/total_goal_provider.dart';
+import '../constants/route_name.dart';
 import '../constants/style_constant.dart';
+import '../providers/total_goal_provider.dart';
 
 class SavingsGoal extends StatefulWidget {
   const SavingsGoal({super.key});
@@ -60,7 +62,7 @@ class _SavingsGoalState extends State<SavingsGoal> {
             child: FloatingActionButton(
               backgroundColor: ColorConstant.lightBlue,
               onPressed: () {
-                Navigator.pushNamed(context, '/goal/add');
+                Navigator.pushNamed(context, RouteName.addGoal);
               },
               child: const Icon(
                 Icons.add,

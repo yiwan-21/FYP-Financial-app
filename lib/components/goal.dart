@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../constants/route_name.dart';
 import '../providers/goal_provider.dart';
 import '../providers/total_goal_provider.dart';
 import '../services/goal_service.dart';
@@ -64,7 +65,7 @@ class _GoalState extends State<Goal> {
       widget.targetDate,
       widget.pinned,
     );
-    Navigator.pushNamed(context, '/goal/progress').then((value) async {
+    Navigator.pushNamed(context, RouteName.goalProgress).then((value) async {
       if (mounted) {
         final String id = goalProvider.getId;
         bool pinned = goalProvider.getPinned;

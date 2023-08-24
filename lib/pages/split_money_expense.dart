@@ -8,6 +8,7 @@ import '../components/split_record_card.dart';
 import '../components/tracker_transaction.dart';
 import '../components/alert_with_checkbox.dart';
 import '../constants/constant.dart';
+import '../models/noti.dart';
 import '../models/split_expense.dart';
 import '../models/group_user.dart';
 import '../pages/chat.dart';
@@ -76,7 +77,8 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
         bool hasUnreadMessage = querySnapshot.docs.last['senderID'] != userID && !querySnapshot.docs.last['readStatus'].contains(userID);
 
         if (hasUnreadMessage) {
-          Provider.of<NotificationProvider>(context, listen: false).setChatNotification(true);
+          // TODO: set notification message
+          Provider.of<NotificationProvider>(context, listen: false).setChatNotification(true, NotificationModel('title', 'message', DateTime.now(), false, () {}));
         }
       } catch (e) {
         debugPrint('Split Money Expense Chat Error: $e');
