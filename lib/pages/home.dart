@@ -11,10 +11,6 @@ import '../providers/total_goal_provider.dart';
 import '../providers/total_transaction_provider.dart';
 import '../providers/user_provider.dart';
 
-const trackerIndex = 1;
-const analyticsIndex = 2;
-const goalIndex = 3;
-
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -99,9 +95,7 @@ class _HomeState extends State<Home> {
                           ),
                           TextButton(
                             onPressed: () {
-                              Provider.of<NavigationProvider>(context,
-                                      listen: false)
-                                  .setCurrentIndex(goalIndex);
+                              Provider.of<NavigationProvider>(context, listen: false).goToGoal();
                             },
                             child: const Text(
                               'View All',
@@ -142,9 +136,7 @@ class _HomeState extends State<Home> {
                           ),
                           TextButton(
                             onPressed: () {
-                              Provider.of<NavigationProvider>(context,
-                                      listen: false)
-                                  .setCurrentIndex(trackerIndex);
+                              Provider.of<NavigationProvider>(context, listen: false).goToTracker();
                             },
                             child: const Text(
                               'View All',
