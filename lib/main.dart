@@ -27,6 +27,7 @@ import './providers/transaction_provider.dart';
 import './providers/split_money_provider.dart';
 import './providers/total_split_money_provider.dart';
 import './providers/notification_provider.dart';
+import 'constants/style_constant.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -75,10 +76,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       navigatorKey: navigatorKey,
-      title: 'Flutter layout demo',
+      title: 'Financial App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.pink,
+        primarySwatch: lightRed,
       ),
       // home: const Navigation(),
       onGenerateRoute: (settings) {
