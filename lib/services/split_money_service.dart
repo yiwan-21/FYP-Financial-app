@@ -289,4 +289,24 @@ class SplitMoneyService {
         .doc(FirebaseInstance.auth.currentUser!.uid)
         .update({'paid': FieldValue.increment(amount)});
   }
+
+  static Future<String> getGroupName(groupID) async {
+    String groupName = '';
+    await groupsCollection.doc(groupID).get().then((snapshot) {
+      groupName = snapshot['name'];
+    });
+    return groupName;
+  }
+
+  
+  static Future<String> getExpenseName(expenseID) async {
+    String expenseName = '';
+    // await groupsCollection.doc(_groupID).collection('expenses').doc(expenseID).get().then((snapshot) {
+    //   expenseName = snapshot['title'];
+    // });
+    await FirebaseInstance.firestore.collectionGroup('expenses').where(FieldPath.documentId, isEqualTo: expenseID).get().then((snapshot) {
+      expenseName = snapshot.docs.first['title'];
+    });
+    return expenseName;
+  }
 }
