@@ -99,4 +99,4 @@ MaterialColor createMaterialColor(Color color) {
   return MaterialColor(color.value, swatch);
 }
 
-MaterialColor lightRed = createMaterialColor(const Color.fromRGBO(241, 37, 64, 1));
+MaterialColor lightRed = createMaterialColor(const Color.fromARGB(255, 220, 46, 69));
