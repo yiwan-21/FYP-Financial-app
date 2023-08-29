@@ -87,21 +87,9 @@ class _NavigationState extends State<Navigation> {
           ),
           bottomNavigationBar: ConvexAppBar(
             backgroundColor: lightRed,
-            gradient: Gradient.lerp(
-              LinearGradient(
-                colors: [lightRed, lightRed],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              LinearGradient(
-                colors: [Colors.black38, lightRed],
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
-              ),
-              0.5,
-            ),
+            color: Colors.white,
             items: const[
-              TabItem(icon: Icons.attach_money, title: 'Tracker'),
+              TabItem(icon: Icons.attach_money, title: 'Tracker',),
               TabItem(icon: Icons.align_vertical_bottom_outlined, title: 'Analytics'),
               TabItem(icon: Icons.home, title: 'Home'),
               TabItem(icon: Icons.diversity_3, title: 'Split Money'),
