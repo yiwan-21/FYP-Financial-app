@@ -14,16 +14,16 @@ import '../providers/user_provider.dart';
 import '../providers/navigation_provider.dart';
 
 class Navigation extends StatefulWidget {
+  static final GlobalKey<ConvexAppBarState> appBarKey = GlobalKey<ConvexAppBarState>();
   const Navigation({super.key});
 
   @override
   State<Navigation> createState() => _NavigationState();
 }
 
-class _NavigationState extends State<Navigation> {
+class _NavigationState extends State<Navigation> with SingleTickerProviderStateMixin {
   void _onItemTapped(int index) {
-    Provider.of<NavigationProvider>(context, listen: false)
-        .setCurrentIndex(index);
+    Provider.of<NavigationProvider>(context, listen: false).setCurrentIndex(index);
   }
 
   Map<String, Widget> _pages = {};
@@ -49,7 +49,7 @@ class _NavigationState extends State<Navigation> {
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title:
-                Text(_pages.keys.elementAt(navigationProvider.getCurrentIndex)),
+                Text(_pages.keys.elementAt(navigationProvider.currentIndex)),
             actions: [
               const NotificationMenu(),
               Builder(builder: (BuildContext context) {
@@ -83,9 +83,10 @@ class _NavigationState extends State<Navigation> {
           ),
           endDrawer: const Profile(),
           body: Center(
-            child: _pages.values.elementAt(navigationProvider.getCurrentIndex),
+            child: _pages.values.elementAt(navigationProvider.currentIndex),
           ),
           bottomNavigationBar: ConvexAppBar(
+            key: Navigation.appBarKey,
             backgroundColor: lightRed,
             color: Colors.white,
             items: const[
@@ -95,10 +96,9 @@ class _NavigationState extends State<Navigation> {
               TabItem(icon: Icons.diversity_3, title: 'Split Money'),
               TabItem(icon: Icons.star, title: 'Goal'),
             ],
-            initialActiveIndex: navigationProvider.getCurrentIndex,
+            initialActiveIndex: navigationProvider.currentIndex,
             onTap: _onItemTapped,
             curve: Curves.easeInOut
-            
           ),
         );
       },
