@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -7,7 +6,6 @@ import '../components/goal.dart';
 import '../components/tracker_transaction.dart';
 import '../components/expense_income_graph.dart';
 
-import '../firebase_instance.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/total_goal_provider.dart';
 import '../providers/total_transaction_provider.dart';
@@ -21,25 +19,9 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  _initFCM() async {
-    try {
-      await FirebaseInstance.messaging.requestPermission();
-      String? fcmToken;
-      if (kIsWeb) {
-        fcmToken = await FirebaseInstance.messaging.getToken(vapidKey: "BHlmM1MpyxeVW5_m40XsPiHhytcP9HBaQvkQv1B2f8kLDSezt4eKCkSZFsyDqgDCz3WU8P_G_7Vw3yv58dYNgkM");
-      } else {
-        fcmToken = await FirebaseInstance.messaging.getToken();
-      }
-      print('------fcmToken: $fcmToken');
-    } catch (e) {
-      print('------error: $e');
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    _initFCM();
   }
 
   @override
