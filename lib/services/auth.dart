@@ -23,8 +23,8 @@ class Auth {
           .then((_) {
             logFcmToken();
             Provider.of<UserProvider>(context, listen: false).init();
-            Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
-            Provider.of<TotalGoalProvider>(context, listen: false).updatePinnedGoal();
+            Provider.of<TotalTransactionProvider>(context, listen: false).init();
+            Provider.of<TotalGoalProvider>(context, listen: false).init();
             Provider.of<TotalSplitMoneyProvider>(context, listen:false).updateGroups();
             Navigator.pushNamedAndRemoveUntil(context, RouteName.home, (route) => false);
           });

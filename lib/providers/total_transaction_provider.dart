@@ -9,8 +9,6 @@ class TotalTransactionProvider extends ChangeNotifier {
   Map<String, double> _pieChartData = {};
 
   TotalTransactionProvider() {
-    _allTransactionsStream = TransactionService.getAllTransactionStream();
-    _homeTransactionsStream = TransactionService.getHomeTransactionStream();
     init();
   }
 
@@ -19,6 +17,8 @@ class TotalTransactionProvider extends ChangeNotifier {
   Map<String, double> get getPieChartData => _pieChartData;
 
   Future<void> init() async {
+    _allTransactionsStream = TransactionService.getAllTransactionStream();
+    _homeTransactionsStream = TransactionService.getHomeTransactionStream();
     _pieChartData = await TransactionService.getPieChartData();
     notifyListeners();
   }
