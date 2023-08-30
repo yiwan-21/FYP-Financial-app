@@ -11,6 +11,7 @@ class NotificationProvider extends ChangeNotifier {
   // true = has notification, false = no notification
   bool _chatNotification = false;
   final List<NotificationModel> _notifications = [
+    NewGroupNotification(),
       // NotificationModel(
       //   'New Expense',
       //   'You have a new expense.',
