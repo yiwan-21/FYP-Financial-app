@@ -78,7 +78,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
 
         if (hasUnreadMessage) {
           // TODO: set notification message
-          Provider.of<NotificationProvider>(context, listen: false).setChatNotification(true, NotificationModel('title', 'message', DateTime.now(), false, () {}));
+          Provider.of<NotificationProvider>(context, listen: false).setChatNotification(true);
         }
       } catch (e) {
         debugPrint('Split Money Expense Chat Error: $e');
