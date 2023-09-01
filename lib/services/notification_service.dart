@@ -8,8 +8,8 @@ class NotificationService {
   static CollectionReference get notificationCollection =>
       FirebaseInstance.firestore.collection('notifications');
 
-  static Future<void> sendNotification(String type, List<String> receiverID, String? id) async {
-    NotificationModel? newNotification = getNotificationModel(type, id: id);
+  static Future<void> sendNotification(String type, List<String> receiverID, {String? functionID}) async {
+    NotificationModel? newNotification = getNotificationModel(type, DateTime.now(), false, functionID: functionID);
 
     if (newNotification != null) {
       await notificationCollection.add({
@@ -17,33 +17,37 @@ class NotificationService {
         'title': newNotification.title,
         'message': newNotification.message,
         'type': type,
-        'functionID': id,
-        'read': false,
-        'createdAt': DateTime.now(),
+        'functionID': functionID,
+        'read': newNotification.read,
+        'createdAt': newNotification.date,
       });
     }
   }
 
-  static NotificationModel? getNotificationModel(String type, {String? id}) {
+  static NotificationModel? getNotificationModel(String type, DateTime date, bool read, {String? functionID}) {
     NotificationModel? notificationModel;
     switch (type) {
       case NotificationType.NEW_EXPENSE_NOTIFICATION:
-        if (id == null) return null;
-        notificationModel = NewExpenseNotification(id);
+        if (functionID == null) return null;
+        notificationModel = NewExpenseNotification(functionID, date, read);
         break;
       case NotificationType.EXPENSE_REMINDER_NOTIFICATION:
-        if (id == null) return null;
-        notificationModel = ExpenseReminderNotification(id);
+        if (functionID == null) return null;
+        notificationModel = ExpenseReminderNotification(functionID, date, read);
         break;
       case NotificationType.NEW_GROUP_NOTIFICATION:
-        notificationModel = NewGroupNotification();
+        notificationModel = NewGroupNotification(date, read);
         break;
       case NotificationType.NEW_CHAT_NOTIFICATION:
-        if (id == null) return null;
-        notificationModel = NewChatNotification(id);
+        if (functionID == null) return null;
+        notificationModel = NewChatNotification(functionID, date, read);
         break;
       case NotificationType.EXPIRING_GOAL_NOTIFICATION:
-        notificationModel = ExpiringGoalNotification();
+        notificationModel = ExpiringGoalNotification(date, read);
+        break;
+      case NotificationType.REMOVE_FROM_GROUP_NOTIFICATION:
+        if (functionID == null) return null;
+        notificationModel = RemoveFromGroupNotification(functionID, date, read);
         break;
     }
     return notificationModel;

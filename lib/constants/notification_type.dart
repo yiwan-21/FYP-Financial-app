@@ -4,4 +4,5 @@ class NotificationType {
   static const String NEW_GROUP_NOTIFICATION = 'NewGroupNotification';
   static const String NEW_CHAT_NOTIFICATION = 'NewChatNotification';
   static const String EXPIRING_GOAL_NOTIFICATION = 'ExpiringGoalNotification';
+  static const String REMOVE_FROM_GROUP_NOTIFICATION = 'RemoveFromGroupNotification';
 }
