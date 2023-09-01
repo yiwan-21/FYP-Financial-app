@@ -8,7 +8,6 @@ import '../components/split_record_card.dart';
 import '../components/tracker_transaction.dart';
 import '../components/alert_with_checkbox.dart';
 import '../constants/constant.dart';
-import '../models/notifications.dart';
 import '../models/split_expense.dart';
 import '../models/group_user.dart';
 import '../pages/chat.dart';
