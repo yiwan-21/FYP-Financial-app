@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
@@ -9,6 +10,7 @@ class NotificationService {
       FirebaseInstance.firestore.collection('notifications');
 
   static Future<void> sendNotification(String type, List<String> receiverID, {String? functionID}) async {
+    debugPrint('Sending Notification: $type, $receiverID, $functionID');
     NotificationModel? newNotification = getNotificationModel(type, DateTime.now(), false, functionID: functionID);
 
     if (newNotification != null) {

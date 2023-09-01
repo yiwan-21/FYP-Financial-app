@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
 import 'split_money_service.dart';
 
@@ -62,6 +63,15 @@ class ChatService {
       'readStatus': [senderID],
       'date': DateTime.now(),
     });
+
+    // Send Notification
+    const String type = NotificationType.NEW_CHAT_NOTIFICATION;
+    // prevent sending notification every time a message is sent
+    //// idea: renew the notification creation time?
+    // can try check receiverID and read status to see if the notification is read
+    // if not read, then don't send notification, renew the notification creation time
+    // if read, then send notification
+    final List<String> receiverID = await SplitMoneyService.getGroupMemberID();
   }
 
   static Future<void> deleteChat() async {

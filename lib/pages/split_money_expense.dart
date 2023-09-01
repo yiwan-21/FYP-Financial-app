@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
 import '../components/alert_confirm_action.dart';
 import '../components/split_record_card.dart';
@@ -15,6 +16,7 @@ import '../providers/notification_provider.dart';
 import '../providers/split_money_provider.dart';
 import '../providers/total_transaction_provider.dart';
 import '../services/chat_service.dart';
+import '../services/notification_service.dart';
 import '../services/split_money_service.dart';
 import '../services/transaction_service.dart';
 
@@ -140,7 +142,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
         });
   }
 
-  void _onSettleUp(double amount) async {
+  Future<void> _onSettleUp(double amount) async {
     SplitMoneyProvider splitMoneyProvider =
         Provider.of<SplitMoneyProvider>(context, listen: false);
     await SplitMoneyService.settleUp(widget.expenseID, amount).then((_) {
@@ -159,7 +161,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
     });
   }
 
-  void _checkedFunction(double amount) async {
+  Future<void> _checkedFunction(double amount) async {
     final TrackerTransaction newTransaction = TrackerTransaction(
       id: '',
       userID: FirebaseInstance.auth.currentUser!.uid,
@@ -177,20 +179,15 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
     });
   }
 
-  void _remind() async {
-    for (var record in _expense.sharedRecords) {
-      if (record.id != FirebaseInstance.auth.currentUser!.uid) {
-        // ChatService.sendMessage(
-        //     'You have an outstanding expense to settle up.',
-        //     record.id,
-        //     FirebaseInstance.auth.currentUser!.uid);
-            
-      }
-    }
-  
+  Future<void> _remind() async {
+    const type = NotificationType.EXPENSE_REMINDER_NOTIFICATION;
+    final receiverID = _expense.sharedRecords.map((record) => record.id).toList();
+    receiverID.remove(FirebaseInstance.auth.currentUser!.uid);
+    final functionID = widget.expenseID;
+    await NotificationService.sendNotification(type, receiverID, functionID: functionID);
   }
 
-  void _deleteExpense() async {
+  Future<void> _deleteExpense() async {
     await SplitMoneyService.deleteExpense(widget.expenseID).then((_) {
       // close the alert dialog
       Navigator.pop(context);

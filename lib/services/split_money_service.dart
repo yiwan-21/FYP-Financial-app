@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:financial_app/components/split_expense_card.dart';
+import 'package:flutter/material.dart';
 
+import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
 import '../components/split_group_card.dart';
 import '../constants/constant.dart';
@@ -8,7 +10,8 @@ import '../models/group_user.dart';
 import '../models/split_group.dart';
 import '../models/split_expense.dart';
 import '../models/split_record.dart';
-import 'chat_service.dart';
+import '../services/chat_service.dart';
+import '../services/notification_service.dart';
 
 class SplitMoneyService {
   // set once the user open a group page
@@ -33,7 +36,7 @@ class SplitMoneyService {
     SplitGroup group = SplitGroup();
     final groupDoc = await groupsCollection.doc(groupID).get();
 
-    final membersReferences = (groupDoc['members'] as List).map((member) {
+    final membersReferences = (List<String>.from(groupDoc['members'])).map((member) {
       return FirebaseInstance.firestore.doc(member);
     }).toList();
 
@@ -53,6 +56,16 @@ class SplitMoneyService {
     );
 
     return group;
+  }
+
+  static Future<List<String>> getGroupMemberID() async {
+    List<String> memberID = [];
+    await groupsCollection.doc(_groupID).get().then((snapshot) {
+      for (var member in List<String>.from(snapshot['members'])) {
+        memberID.add(member.split('/')[1]);
+      }
+    });
+    return memberID;
   }
 
   static Future<List<SplitExpenseCard>> getExpenseCards(String groupID) async {
@@ -186,6 +199,11 @@ class SplitMoneyService {
     await groupsCollection.doc(_groupID).update({
       'members': FieldValue.arrayUnion(['users/${member.id}'])
     });
+
+    // Send Notification
+    const type = NotificationType.NEW_GROUP_NOTIFICATION;
+    final receiverID = [member.id];
+    await NotificationService.sendNotification(type, receiverID);
   }
 
   static Future<void> deleteMember(String memberID) async {
@@ -199,10 +217,16 @@ class SplitMoneyService {
 
     members?.remove(memberRef);
 
-    return await FirebaseInstance.firestore
+    await FirebaseInstance.firestore
         .collection("groups")
         .doc(_groupID)
         .update({'members': members});
+
+    // Send Notification
+    const type = NotificationType.REMOVE_FROM_GROUP_NOTIFICATION;
+    final receiverID = [memberID];
+    final functionID = _groupID;
+    await NotificationService.sendNotification(type, receiverID, functionID: functionID);
   }
 
   static Future<void> deleteGroup() async {
@@ -255,6 +279,13 @@ class SplitMoneyService {
       });
     }
 
+    // Send Notification
+    const type = NotificationType.NEW_EXPENSE_NOTIFICATION;
+    final receiverID = expense.sharedRecords.map((record) => record.id).toList();
+    receiverID.remove(FirebaseInstance.auth.currentUser!.uid);
+    final functionID = _groupID;
+    await NotificationService.sendNotification(type, receiverID, functionID: functionID);
+
     return expense;
   }
 
@@ -292,21 +323,26 @@ class SplitMoneyService {
 
   static Future<String> getGroupName(groupID) async {
     String groupName = '';
-    await groupsCollection.doc(groupID).get().then((snapshot) {
-      groupName = snapshot['name'];
-    });
+    try {
+      await groupsCollection.doc(groupID).get().then((snapshot) {
+        groupName = snapshot['name'];
+      });
+    } catch (e) {
+      debugPrint("Error on getting group name: $e");
+    }
     return groupName;
   }
 
-  
   static Future<String> getExpenseName(expenseID) async {
     String expenseName = '';
-    // await groupsCollection.doc(_groupID).collection('expenses').doc(expenseID).get().then((snapshot) {
-    //   expenseName = snapshot['title'];
-    // });
-    await FirebaseInstance.firestore.collectionGroup('expenses').where(FieldPath.documentId, isEqualTo: expenseID).get().then((snapshot) {
-      expenseName = snapshot.docs.first['title'];
-    });
+    try {
+      await FirebaseInstance.firestore.collectionGroup('expenses').where(FieldPath.documentId, isEqualTo: expenseID).get().then((snapshot) {
+        expenseName = snapshot.docs.first['title'];
+      });
+    } catch (e) {
+      debugPrint("Error on getting expense name: $e");
+    }
     return expenseName;
   }
+
 }
