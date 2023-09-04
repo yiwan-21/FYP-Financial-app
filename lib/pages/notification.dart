@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../constants/constant.dart';
 import '../firebase_instance.dart';
 import '../models/notifications.dart';
 import '../services/goal_service.dart';
@@ -58,7 +59,10 @@ class _NotificationMenuState extends State<NotificationMenu> {
                   child: ListTile(
                     title: Text(
                       notifications.isNotEmpty ? 'Notifications' : 'No notification yet.',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
                     ),
                   ),
                 ),
@@ -69,6 +73,7 @@ class _NotificationMenuState extends State<NotificationMenu> {
                   final bool read = List<bool>.from(doc['read'])[index];
                   final String? functionID = doc['functionID'];
                   final notification = NotificationService.getNotificationModel(type, date, read, functionID: functionID);
+                  
                   if (notification == null) {
                     return PopupMenuItem<NotificationModel>(
                       value: null,
@@ -83,9 +88,14 @@ class _NotificationMenuState extends State<NotificationMenu> {
                     },
                     child: Container(
                       margin: const EdgeInsets.symmetric(vertical: 5),
+                      padding: const EdgeInsets.symmetric(vertical: 5),
                       color: notification.read ? Colors.white : Colors.grey[100],
                       child: ListTile(
                         title: Text(notification.title),
+                        titleTextStyle: TextStyle(
+                          color: Colors.black,
+                          fontWeight: notification.read ? FontWeight.normal : FontWeight.bold,
+                        ),
                         subtitle: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -95,12 +105,22 @@ class _NotificationMenuState extends State<NotificationMenu> {
                                 textAlign: TextAlign.justify,
                               ),
                             ),
-                            const SizedBox(width: 20),
-                            Text(
-                              notification.date.toString().substring(11, 16),
-                              style: const TextStyle(fontSize: 16),
-                            ),
                           ],
+                        ),
+                        subtitleTextStyle: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        trailing: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('${Constant.monthLabels[notification.date.month - 1]} ${notification.date.day}'),
+                            const SizedBox(height: 5),
+                            Text(notification.date.toString().substring(11, 16)),
+                          ],
+                        ),
+                        leadingAndTrailingTextStyle: TextStyle(
+                          color: Colors.grey[600],
                         ),
                       ),
                     ),
