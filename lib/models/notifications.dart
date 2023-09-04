@@ -104,3 +104,16 @@ class ExpiringGoalNotification extends NotificationModel {
     },
   );
 }
+
+class ExpiredGoalNotification extends NotificationModel {
+  ExpiredGoalNotification(date, read) :
+  super(
+    'Goal Expired', 
+    'Your goal is expired',
+    date,
+    read, 
+    () {
+      Provider.of<NavigationProvider>(navigatorKey.currentContext!, listen: false).goToGoal();
+    },
+  );
+}

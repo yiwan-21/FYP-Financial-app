@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../firebase_instance.dart';
 import '../models/notifications.dart';
+import '../services/goal_service.dart';
 import '../services/notification_service.dart';
 
 class NotificationMenu extends StatefulWidget {
@@ -13,6 +14,12 @@ class NotificationMenu extends StatefulWidget {
 }
 
 class _NotificationMenuState extends State<NotificationMenu> {
+  @override
+  void initState() {
+    super.initState();
+    GoalService.expiringGoalNotification();
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(

@@ -52,7 +52,9 @@ class Goal extends StatefulWidget {
 
 class _GoalState extends State<Goal> {
   bool _expired() {
-    return widget.targetDate.isBefore(DateTime.now());
+    final DateTime now = DateTime.now();
+    final DateTime today = DateTime(now.year, now.month, now.day);
+    return widget.targetDate.isBefore(today);
   }
 
   void _navigateToDetail() {

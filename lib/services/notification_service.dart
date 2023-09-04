@@ -54,6 +54,9 @@ class NotificationService {
       case NotificationType.EXPIRING_GOAL_NOTIFICATION:
         notificationModel = ExpiringGoalNotification(date, read);
         break;
+      case NotificationType.EXPIRED_GOAL_NOTIFICATION:
+        notificationModel = ExpiredGoalNotification(date, read);
+        break;
       case NotificationType.REMOVE_FROM_GROUP_NOTIFICATION:
         if (functionID == null) return null;
         final groupName =SplitMoneyService.getGroupName(functionID);
@@ -95,9 +98,9 @@ class NotificationService {
 
   static Future<void> cronJobDeletion() async {
     DateTime now = DateTime.now();
-    DateTime lastMonth = now.subtract(const Duration(days: 30));
+    DateTime lastTwoWeeks = now.subtract(const Duration(days: 14));
     await notificationCollection
-        .where('createdAt', isLessThan: lastMonth)
+        .where('createdAt', isLessThan: lastTwoWeeks)
         .get()
         .then((snapshot) {
       for (var doc in snapshot.docs) {
