@@ -98,9 +98,9 @@ class NotificationService {
 
   static Future<void> cronJobDeletion() async {
     DateTime now = DateTime.now();
-    DateTime lastTwoWeeks = now.subtract(const Duration(days: 14));
+    DateTime lastWeek = now.subtract(const Duration(days: 7));
     await notificationCollection
-        .where('createdAt', isLessThan: lastTwoWeeks)
+        .where('createdAt', isLessThan: lastWeek)
         .get()
         .then((snapshot) {
       for (var doc in snapshot.docs) {
