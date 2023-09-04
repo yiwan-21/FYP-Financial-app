@@ -18,10 +18,10 @@ class NotificationModel {
 }
 
 class NewExpenseNotification extends NotificationModel {
-  NewExpenseNotification(groupID, date, read) :
+  NewExpenseNotification(groupName, groupID, date, read) :
   super(
     'New Group Expense', 
-    'You have a new group expense from ${SplitMoneyService.getGroupName(groupID)}', 
+    'You have a new group expense from $groupName', 
     date,
     read, 
     () {
@@ -34,10 +34,10 @@ class NewExpenseNotification extends NotificationModel {
 }
 
 class ExpenseReminderNotification extends NotificationModel {
-  ExpenseReminderNotification(expenseID, date, read) :
+  ExpenseReminderNotification(expenseName, expenseID, date, read) :
   super(
     'Group Expense to Settle', 
-    'You have a group expense to settle from ${SplitMoneyService.getExpenseName(expenseID)}.', 
+    'You have a group expense to settle from $expenseName}.', 
     date,
     read, 
     () {
@@ -60,10 +60,10 @@ class NewGroupNotification extends NotificationModel {
 }
 
 class RemoveFromGroupNotification extends NotificationModel {
-  RemoveFromGroupNotification(groupID, date, read) :
+  RemoveFromGroupNotification(groupName, date, read) :
   super(
     'Removed from Group',
-    'You have been removed from ${SplitMoneyService.getGroupName(groupID)}.',
+    'You have been removed from $groupName.',
     date,
     read, 
     () {
@@ -73,10 +73,10 @@ class RemoveFromGroupNotification extends NotificationModel {
 }
 
 class NewChatNotification extends NotificationModel {
-  NewChatNotification(expenseID, date, read) :
+  NewChatNotification(expenseName, expenseID, date, read) :
   super(
     'New Chat Message',
-    'You have a new chat message from ${SplitMoneyService.getExpenseName(expenseID)}.',
+    'You have a new chat message from $expenseName.',
     date,
     read, 
     () {

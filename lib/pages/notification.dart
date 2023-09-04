@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../firebase_instance.dart';
 import '../models/notifications.dart';
 import '../services/notification_service.dart';
 
@@ -38,6 +39,10 @@ class _NotificationMenuState extends State<NotificationMenu> {
             offset: const Offset(30, 0),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             elevation: 5,
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
+              maxWidth: 300,
+            ),
             icon: const Icon(Icons.notifications),
             itemBuilder: (context) {
               return [
@@ -50,11 +55,11 @@ class _NotificationMenuState extends State<NotificationMenu> {
                     ),
                   ),
                 ),
-                
                 ...notifications.map((doc) {
                   final String type = doc['type'];
                   final DateTime date = doc['createdAt'].toDate();
-                  final bool read = doc['read'];
+                  final int index = List<String>.from(doc['receiverID']).indexOf(FirebaseInstance.auth.currentUser!.uid);
+                  final bool read = List<bool>.from(doc['read'])[index];
                   final String? functionID = doc['functionID'];
                   final notification = NotificationService.getNotificationModel(type, date, read, functionID: functionID);
                   if (notification == null) {

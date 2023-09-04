@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
 import '../models/notifications.dart';
+import 'split_money_service.dart';
 
 class NotificationService {
   static CollectionReference get notificationCollection =>
@@ -12,7 +13,7 @@ class NotificationService {
   static Future<void> sendNotification(String type, List<String> receiverID, {String? functionID}) async {
     debugPrint('Sending Notification: $type, $receiverID, $functionID');
     NotificationModel? newNotification = getNotificationModel(type, DateTime.now(), false, functionID: functionID);
-
+    debugPrint('notification: ${newNotification?.message}');
     if (newNotification != null) {
       await notificationCollection.add({
         'receiverID': receiverID,
@@ -20,7 +21,7 @@ class NotificationService {
         'message': newNotification.message,
         'type': type,
         'functionID': functionID,
-        'read': newNotification.read,
+        'read': List<bool>.filled(receiverID.length, false),
         'createdAt': newNotification.date,
       });
     }
@@ -31,25 +32,32 @@ class NotificationService {
     switch (type) {
       case NotificationType.NEW_EXPENSE_NOTIFICATION:
         if (functionID == null) return null;
-        notificationModel = NewExpenseNotification(functionID, date, read);
+        final groupName =SplitMoneyService.getGroupName(functionID);
+        final String groupID = functionID;
+        notificationModel = NewExpenseNotification(groupName, groupID, date, read);
         break;
       case NotificationType.EXPENSE_REMINDER_NOTIFICATION:
         if (functionID == null) return null;
-        notificationModel = ExpenseReminderNotification(functionID, date, read);
+        final expenseName = SplitMoneyService.getExpenseName(functionID);
+        final expenseID = functionID;
+        notificationModel = NewChatNotification(expenseName, expenseID, date, read);
         break;
       case NotificationType.NEW_GROUP_NOTIFICATION:
         notificationModel = NewGroupNotification(date, read);
         break;
       case NotificationType.NEW_CHAT_NOTIFICATION:
         if (functionID == null) return null;
-        notificationModel = NewChatNotification(functionID, date, read);
+        final expenseName = SplitMoneyService.getExpenseName(functionID);
+        final expenseID = functionID;
+        notificationModel = NewChatNotification(expenseName, expenseID, date, read);
         break;
       case NotificationType.EXPIRING_GOAL_NOTIFICATION:
         notificationModel = ExpiringGoalNotification(date, read);
         break;
       case NotificationType.REMOVE_FROM_GROUP_NOTIFICATION:
         if (functionID == null) return null;
-        notificationModel = RemoveFromGroupNotification(functionID, date, read);
+        final groupName =SplitMoneyService.getGroupName(functionID);
+        notificationModel = RemoveFromGroupNotification(groupName, date, read);
         break;
     }
     return notificationModel;
@@ -68,7 +76,21 @@ class NotificationService {
   }
 
   static Future<void> markAsRead(String notificationID) async {
-    await notificationCollection.doc(notificationID).update({'read': true});
+    final String uid = FirebaseInstance.auth.currentUser!.uid;
+    await notificationCollection
+        .doc(notificationID)
+        .get()
+        .then((notification) async {
+          int index = List<String>.from(notification['receiverID']).indexOf(uid);
+          List<bool> read = List<bool>.from(notification['read']);
+          
+          if (index == -1 || read[index]) {
+            return;
+          }
+
+          read[index] = true;
+          await notification.reference.update({'read': read});
+        });
   }
 
   static Future<void> cronJobDeletion() async {
