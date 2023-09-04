@@ -58,16 +58,6 @@ class SplitMoneyService {
     return group;
   }
 
-  static Future<List<String>> getGroupMemberID() async {
-    List<String> memberID = [];
-    await groupsCollection.doc(_groupID).get().then((snapshot) {
-      for (var member in List<String>.from(snapshot['members'])) {
-        memberID.add(member.split('/')[1]);
-      }
-    });
-    return memberID;
-  }
-
   static Future<List<SplitExpenseCard>> getExpenseCards(String groupID) async {
     List<SplitExpenseCard> expenses = [];
     await groupsCollection
@@ -166,6 +156,22 @@ class SplitMoneyService {
     );
 
     return expense;
+  }
+
+  static Future<List<String>> getExpenseMemberID(String expenseID) async {
+    List<String> memberID = [];
+    await groupsCollection
+        .doc(_groupID)
+        .collection('expenses')
+        .doc(expenseID)
+        .get()
+        .then((expense) {
+      for (var member in List<String>.from(expense['sharedBy'])) {
+        memberID.add(member.split('/')[1]);
+      }
+      memberID.add(expense['paidBy'].split('/')[1]);
+    });
+    return memberID;
   }
 
   static Future<void> addGroup(String groupName) async {
