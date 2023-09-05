@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../constants/constant.dart';
+import '../constants/route_name.dart';
 import '../components/category_chart.dart';
 import '../components/tracker_transaction.dart';
 
@@ -74,7 +75,7 @@ class _TrackerState extends State<Tracker> {
               FloatingActionButton.small(
                 elevation: 2,
                 onPressed: () {
-                  Navigator.pushNamed(context, '/tracker/add').then((value) {
+                  Navigator.pushNamed(context, RouteName.addTransaction).then((value) {
                     if (value != null && value is TrackerTransaction) {
                       Provider.of<TotalTransactionProvider>(context,
                               listen: false)

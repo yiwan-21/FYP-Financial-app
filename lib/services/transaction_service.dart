@@ -78,6 +78,9 @@ class TransactionService {
       lineData.add(IncomeExpenseData(Constant.monthLabels[i], 0, 0));
     }
     int monthIndex = 0;
+    
+    if (FirebaseInstance.auth.currentUser == null) { return lineData; }
+    
     await transactionCollection
         .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
         .orderBy('date', descending: true)

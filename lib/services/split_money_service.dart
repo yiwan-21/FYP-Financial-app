@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:financial_app/components/split_expense_card.dart';
+import 'package:flutter/material.dart';
 
+import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
 import '../components/split_group_card.dart';
 import '../constants/constant.dart';
@@ -8,7 +10,8 @@ import '../models/group_user.dart';
 import '../models/split_group.dart';
 import '../models/split_expense.dart';
 import '../models/split_record.dart';
-import 'chat_service.dart';
+import '../services/chat_service.dart';
+import '../services/notification_service.dart';
 
 class SplitMoneyService {
   // set once the user open a group page
@@ -33,7 +36,7 @@ class SplitMoneyService {
     SplitGroup group = SplitGroup();
     final groupDoc = await groupsCollection.doc(groupID).get();
 
-    final membersReferences = (groupDoc['members'] as List).map((member) {
+    final membersReferences = (List<String>.from(groupDoc['members'])).map((member) {
       return FirebaseInstance.firestore.doc(member);
     }).toList();
 
@@ -93,6 +96,17 @@ class SplitMoneyService {
             });
 
     return groups;
+  }
+
+  static Future<void> setGroupIDbyExpenseID(String expenseID) async {
+    await FirebaseInstance.firestore
+        .collectionGroup('expenses')
+        .where('id', isEqualTo: expenseID)
+        .limit(1)
+        .get()
+        .then((value) {
+      setGroupID(value.docs.first.reference.parent.parent!.id);
+    });
   }
 
   static Future<SplitExpense> getExpenseByID(String expenseID) async {
@@ -155,6 +169,25 @@ class SplitMoneyService {
     return expense;
   }
 
+  static Future<List<String>> getExpenseMemberID(String expenseID) async {
+    List<String> memberID = [];
+    await groupsCollection
+        .doc(_groupID)
+        .collection('expenses')
+        .doc(expenseID)
+        .get()
+        .then((expense) {
+      for (var member in List<String>.from(expense['sharedBy'])) {
+        memberID.add(member.split('/')[1]);
+      }
+      String paidBy = expense['paidBy'].split('/')[1];
+      if (!memberID.contains(paidBy)) {
+        memberID.add(paidBy);
+      }
+    });
+    return memberID;
+  }
+
   static Future<void> addGroup(String groupName) async {
     await groupsCollection.add({
       'name': groupName,
@@ -186,6 +219,11 @@ class SplitMoneyService {
     await groupsCollection.doc(_groupID).update({
       'members': FieldValue.arrayUnion(['users/${member.id}'])
     });
+
+    // Send Notification
+    const type = NotificationType.NEW_GROUP_NOTIFICATION;
+    final receiverID = [member.id];
+    await NotificationService.sendNotification(type, receiverID, functionID: _groupID);
   }
 
   static Future<void> deleteMember(String memberID) async {
@@ -199,10 +237,16 @@ class SplitMoneyService {
 
     members?.remove(memberRef);
 
-    return await FirebaseInstance.firestore
+    await FirebaseInstance.firestore
         .collection("groups")
         .doc(_groupID)
         .update({'members': members});
+
+    // Send Notification
+    const type = NotificationType.REMOVE_FROM_GROUP_NOTIFICATION;
+    final receiverID = [memberID];
+    final functionID = _groupID;
+    await NotificationService.sendNotification(type, receiverID, functionID: functionID);
   }
 
   static Future<void> deleteGroup() async {
@@ -226,15 +270,16 @@ class SplitMoneyService {
     // add new 'expense' document
     DocumentReference newExpense =
         await groupsCollection.doc(_groupID).collection('expenses').add({
-      'title': expense.title,
-      'amount': expense.amount,
-      'paidAmount': expense.paidAmount,
-      'splitMethod': expense.splitMethod,
-      'paidBy': 'users/${expense.paidBy.id}',
-      'sharedBy':
-          expense.sharedRecords.map((record) => 'users/${record.id}').toList(),
-      'date': DateTime.now(),
-    });
+          'title': expense.title,
+          'amount': expense.amount,
+          'paidAmount': expense.paidAmount,
+          'splitMethod': expense.splitMethod,
+          'paidBy': 'users/${expense.paidBy.id}',
+          'sharedBy':
+              expense.sharedRecords.map((record) => 'users/${record.id}').toList(),
+          'date': DateTime.now(),
+        });
+    await newExpense.update({'id': newExpense.id});
 
     // add new 'records' documents
     for (var record in expense.sharedRecords) {
@@ -254,6 +299,13 @@ class SplitMoneyService {
         'date': DateTime.now(),
       });
     }
+
+    // Send Notification
+    const type = NotificationType.NEW_EXPENSE_NOTIFICATION;
+    final receiverID = expense.sharedRecords.map((record) => record.id).toList();
+    receiverID.remove(FirebaseInstance.auth.currentUser!.uid);
+    final functionID = _groupID;
+    await NotificationService.sendNotification(type, receiverID, functionID: functionID);
 
     return expense;
   }
@@ -289,4 +341,33 @@ class SplitMoneyService {
         .doc(FirebaseInstance.auth.currentUser!.uid)
         .update({'paid': FieldValue.increment(amount)});
   }
+
+  static Future<String> getGroupName(String groupID) async {
+    String groupName = '';
+    try {
+      await groupsCollection.doc(groupID).get().then((snapshot) {
+        groupName = snapshot['name'];
+      });
+    } catch (e) {
+      debugPrint("Error on getting group name: $e");
+    }
+    return groupName;
+  }
+
+  static Future<String> getExpenseName(String expenseID) async {
+    String expenseName = '';
+    try {
+      await FirebaseInstance.firestore
+          .collectionGroup('expenses')
+          .where('id', isEqualTo: expenseID)
+          .get()
+          .then((snapshot) {
+        expenseName = snapshot.docs.first['title'];
+      });
+    } catch (e) {
+      debugPrint("Error on getting expense name: $e");
+    }
+    return expenseName;
+  }
+
 }

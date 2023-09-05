@@ -16,9 +16,13 @@ class NotificationProvider extends ChangeNotifier {
   Future<void> getCurrentChatNotification() async {
     // get from database
     await ChatService.hasRead().then((value) {
-      // hasRead (true) = no chatNotification (false)
       _chatNotification = !value;
     });
+    notifyListeners();
+  }
+
+  void clearChatNotification() {
+    _chatNotification = false;
     notifyListeners();
   }
 }

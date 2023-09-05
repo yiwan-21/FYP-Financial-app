@@ -16,6 +16,12 @@ class TotalGoalProvider extends ChangeNotifier {
   Stream<QuerySnapshot> get getGoalsStream => _goalsStream;
   List<Goal> get getPinnedGoal => _pinnedGoals;
 
+  Future<void> init() async {
+    _goalsStream = GoalService.getAllGoalStream();
+    _pinnedGoals = await GoalService.getPinnedGoal();
+    notifyListeners();
+  }
+
   Future<void> updatePinnedGoal() async {
     _pinnedGoals = await GoalService.getPinnedGoal();
     notifyListeners();

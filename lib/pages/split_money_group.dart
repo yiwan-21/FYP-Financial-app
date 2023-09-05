@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../components/split_expense_card.dart';
 import '../constants/constant.dart';
+import '../constants/route_name.dart';
 import '../providers/split_money_provider.dart';
 import '../providers/total_split_money_provider.dart';
 
@@ -15,7 +16,7 @@ class SplitMoneyGroup extends StatefulWidget {
 
 class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
   void _addExpense() {
-    Navigator.pushNamed(context, '/group/expense/add').then((expense) {
+    Navigator.pushNamed(context, RouteName.addGroupExpense).then((expense) {
       if (expense != null) {
         Provider.of<SplitMoneyProvider>(context, listen: false)
             .updateExpenses();
@@ -24,7 +25,7 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
   }
 
   void _navigateToSettings() {
-    Navigator.pushNamed(context, '/group/settings').then((_) {
+    Navigator.pushNamed(context, RouteName.groupSettings).then((_) {
       Provider.of<TotalSplitMoneyProvider>(context, listen: false)
           .updateGroups();
     });
