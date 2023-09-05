@@ -36,8 +36,8 @@ class _NavigationState extends State<Navigation> with SingleTickerProviderStateM
       "Financial Analytics": const Analytics(),
       "Home": const Home(),
       "Split Money": const SplitMoney(),
-      "Savings Goal": const SavingsGoal(),
-      // "Budgeting Tool": const Budgeting(),
+      // "Savings Goal": const SavingsGoal(),
+      "Budgeting Tool": const Budgeting(),
     };
   }
 
@@ -94,7 +94,8 @@ class _NavigationState extends State<Navigation> with SingleTickerProviderStateM
               TabItem(icon: Icons.align_vertical_bottom_outlined, title: 'Analytics'),
               TabItem(icon: Icons.home, title: 'Home'),
               TabItem(icon: Icons.diversity_3, title: 'Split Money'),
-              TabItem(icon: Icons.star, title: 'Goal'),
+              // TabItem(icon: Icons.star, title: 'Goal'),
+              TabItem(icon: Icons.account_balance_wallet, title: 'Budgeting'),
             ],
             initialActiveIndex: navigationProvider.currentIndex,
             onTap: _onItemTapped,

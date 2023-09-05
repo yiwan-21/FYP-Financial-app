@@ -100,3 +100,4 @@ MaterialColor createMaterialColor(Color color) {
 }
 
 MaterialColor lightRed = createMaterialColor(const Color.fromARGB(255, 220, 46, 69));
+MaterialColor purple = createMaterialColor(const Color.fromRGBO(174, 74, 174, 1));

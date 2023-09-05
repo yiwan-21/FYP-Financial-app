@@ -17,6 +17,7 @@ import './pages/split_money_group.dart';
 import './pages/split_money_expense.dart';
 import './pages/add_group_expense.dart';
 import './pages/group_settings.dart';
+import './pages/budget_detail.dart';
 import './constants/route_name.dart';
 import './providers/goal_provider.dart';
 import './providers/navigation_provider.dart';
@@ -162,6 +163,12 @@ class MyApp extends StatelessWidget {
           case RouteName.addGroupExpense:
             if (isLoggedIn()) {
               return MaterialPageRoute(builder: (_) => const AddGroupExpense());
+            } else {
+              return MaterialPageRoute(builder: (_) => const FinancialApp());
+            }
+            case RouteName.budgetDetail:
+            if (isLoggedIn()) {
+              return MaterialPageRoute(builder: (_) => const BudgetDetail());
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());
             }
