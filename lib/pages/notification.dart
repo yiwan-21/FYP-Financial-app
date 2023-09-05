@@ -18,6 +18,7 @@ class _NotificationMenuState extends State<NotificationMenu> {
   @override
   void initState() {
     super.initState();
+    NotificationService.cronJobDeletion();
     GoalService.expiringGoalNotification();
   }
 
