@@ -85,10 +85,10 @@ class NewChatNotification extends NotificationModel {
 }
 
 class ExpiringGoalNotification extends NotificationModel {
-  ExpiringGoalNotification() :
+  ExpiringGoalNotification(goalNames) :
   super(
     'Goal Expiring Soon', 
-    'Your goal is expiring soon.',
+    '$goalNames expiring soon.',
     () {
       Provider.of<NavigationProvider>(navigatorKey.currentContext!, listen: false).goToGoal();
     },
@@ -96,10 +96,10 @@ class ExpiringGoalNotification extends NotificationModel {
 }
 
 class ExpiredGoalNotification extends NotificationModel {
-  ExpiredGoalNotification() :
+  ExpiredGoalNotification(goalNames) :
   super(
     'Goal Expired', 
-    'Your goal is expired.',
+    '$goalNames expired.',
     () {
       Provider.of<NavigationProvider>(navigatorKey.currentContext!, listen: false).goToGoal();
     },

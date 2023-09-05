@@ -139,7 +139,7 @@ class GoalService {
             if (goal['saved'] < goal['amount']) {
               final DateTime targetDate = goal['targetDate'].toDate();
               final DateTime onlyDate = DateTime(targetDate.year, targetDate.month, targetDate.day);
-              if (onlyDate.isAtSameMomentAs(todayThreshold) && onlyDate.isAfter(todayThreshold)) {
+              if (onlyDate.isAtSameMomentAs(todayThreshold) || onlyDate.isAfter(todayThreshold)) {
                 expiringGoals.add(goal['title']);
               }
               if (onlyDate.isBefore(todayThreshold)) {
@@ -152,14 +152,33 @@ class GoalService {
     // Send Notification
     final List<String> receiverID = [uid];
     if (expiringGoals.isNotEmpty) {
-      // TODO: add goal title to message
+      String goalNames = '';
+      for (var goalName in expiringGoals) {
+        goalNames += '$goalName, ';
+      }
+      goalNames = goalNames.substring(0, goalNames.length - 2);
+      if (expiringGoals.length == 1) {
+        goalNames += ' is';
+      } else {
+        goalNames += ' are';
+      }
       const type = NotificationType.EXPIRING_GOAL_NOTIFICATION;
-      await NotificationService.sendNotification(type, receiverID);
+      await NotificationService.sendNotification(type, receiverID, objName: goalNames);
     }
+    
     if (expiredGoals.isNotEmpty) {
-      // TODO: add goal title to message
+      String goalNames = '';
+      for (var goalName in expiredGoals) {
+        goalNames += '$goalName, ';
+      }
+      goalNames = goalNames.substring(0, goalNames.length - 2);
+      if (expiredGoals.length == 1) {
+        goalNames += ' is';
+      } else {
+        goalNames += ' are';
+      }
       const type = NotificationType.EXPIRED_GOAL_NOTIFICATION;
-      await NotificationService.sendNotification(type, receiverID);
+      await NotificationService.sendNotification(type, receiverID, objName: goalNames);
     }
   }
 }

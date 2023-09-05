@@ -10,9 +10,9 @@ class NotificationService {
   static CollectionReference get notificationCollection =>
       FirebaseInstance.firestore.collection('notifications');
 
-  static Future<void> sendNotification(String type, List<String> receiverID, {String? functionID}) async {
+  static Future<void> sendNotification(String type, List<String> receiverID, {String? functionID, String? objName}) async {
     debugPrint('Sending Notification: $type, $receiverID, $functionID');
-    NotificationModel? newNotification = await getNotificationModel(type, functionID: functionID);
+    NotificationModel? newNotification = await getNotificationModel(type, functionID: functionID, objName: objName);
     debugPrint('notification: ${newNotification?.message}');
     if (newNotification != null) {
       await notificationCollection.add({
@@ -27,7 +27,7 @@ class NotificationService {
     }
   }
 
-  static Future<NotificationModel?> getNotificationModel(String type, {String? functionID}) async {
+  static Future<NotificationModel?> getNotificationModel(String type, {String? functionID, String? objName}) async {
     NotificationModel? notificationModel;
     switch (type) {
       case NotificationType.NEW_EXPENSE_NOTIFICATION:
@@ -54,10 +54,12 @@ class NotificationService {
         notificationModel = NewChatNotification(expenseName, expenseID);
         break;
       case NotificationType.EXPIRING_GOAL_NOTIFICATION:
-        notificationModel = ExpiringGoalNotification();
+        if (objName == null) return null;
+        notificationModel = ExpiringGoalNotification(objName);
         break;
       case NotificationType.EXPIRED_GOAL_NOTIFICATION:
-        notificationModel = ExpiredGoalNotification();
+        if (objName == null) return null;
+        notificationModel = ExpiredGoalNotification(objName);
         break;
       case NotificationType.REMOVE_FROM_GROUP_NOTIFICATION:
         if (functionID == null) return null;
@@ -90,10 +92,10 @@ class NotificationService {
         notificationModel = NewChatNotification('', expenseID);
         break;
       case NotificationType.EXPIRING_GOAL_NOTIFICATION:
-        notificationModel = ExpiringGoalNotification();
+        notificationModel = ExpiringGoalNotification('');
         break;
       case NotificationType.EXPIRED_GOAL_NOTIFICATION:
-        notificationModel = ExpiredGoalNotification();
+        notificationModel = ExpiredGoalNotification('');
         break;
       case NotificationType.REMOVE_FROM_GROUP_NOTIFICATION:
         notificationModel = RemoveFromGroupNotification('');
