@@ -11,6 +11,11 @@ class NavigationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void reset() {
+    _currentIndex = 2;
+    notifyListeners();
+  }
+
   void goToTracker() {
     _currentIndex = 0;
     Navigation.appBarKey.currentState!.animateTo(0);

@@ -7,6 +7,7 @@ import '../constants/message_constant.dart';
 import '../firebase_instance.dart';
 import '../components/alert_confirm_action.dart';
 import '../constants/route_name.dart';
+import '../providers/navigation_provider.dart';
 import '../providers/total_goal_provider.dart';
 import '../providers/total_split_money_provider.dart';
 import '../providers/total_transaction_provider.dart';
@@ -81,6 +82,7 @@ class Auth {
   static Future<void> signout(BuildContext context) async {
     await removeFcmToken();
     await FirebaseInstance.auth.signOut().then((_) {
+      Provider.of<NavigationProvider>(context, listen: false).reset();
       Provider.of<UserProvider>(context, listen: false).signOut();
       Provider.of<TotalTransactionProvider>(context, listen: false).reset();
       Provider.of<TotalGoalProvider>(context, listen: false).reset();
