@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 class NotificationType {
   static const String NEW_EXPENSE_NOTIFICATION = 'NewExpenseNotification';
   static const String EXPENSE_REMINDER_NOTIFICATION = 'ExpenseReminderNotification';

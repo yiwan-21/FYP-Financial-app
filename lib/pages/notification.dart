@@ -76,13 +76,6 @@ class _NotificationMenuState extends State<NotificationMenu> {
                   final String type = doc['type'];
                   final String? functionID = doc['functionID'];
                   final Function navigateTo = NotificationService.getNotificationFunction(type, functionID);
-                  
-                  // if (notification == null) {
-                  //   return PopupMenuItem<NotificationModel>(
-                  //     value: null,
-                  //     child: Container(),
-                  //   );
-                  // }
 
                   return PopupMenuItem<NotificationModel>(
                     onTap: () {

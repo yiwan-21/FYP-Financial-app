@@ -22,7 +22,7 @@ class SplitExpenseCard extends StatefulWidget {
 
 class _SplitExpenseCardState extends State<SplitExpenseCard> {
   void _navigateToExpense() {
-    Navigator.pushNamed(context, RouteName.splitMoneyExpense, arguments: {'id': widget.id})
+    Navigator.pushNamed(context, RouteName.splitMoneyExpense, arguments: {'id': widget.id, 'tabIndex': 0})
       .then((mssg) {
         if (mssg != null) {
           Provider.of<SplitMoneyProvider>(context, listen: false).updateExpenses();

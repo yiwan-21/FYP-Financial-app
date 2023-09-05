@@ -22,8 +22,10 @@ import '../services/transaction_service.dart';
 
 class SplitMoneyExpense extends StatefulWidget {
   final String expenseID;
+  // 0 for record tab, 1 for chat tab
+  final int tabIndex;
 
-  const SplitMoneyExpense({required this.expenseID, super.key});
+  const SplitMoneyExpense({required this.expenseID, required this.tabIndex, super.key});
 
   @override
   State<SplitMoneyExpense> createState() => _SplitMoneyExpenseState();
@@ -40,18 +42,13 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
     createdAt: DateTime.now(),
   );
   late TabController _tabController;
-  int _currentTabIndex = 0;
 
   @override
   void initState() {
     super.initState();
 
     _tabController = TabController(vsync: this, length: 2);
-    _tabController.addListener(() {
-      setState(() {
-        _currentTabIndex = _tabController.index;
-      });
-    });
+    _tabController.animateTo(widget.tabIndex);
 
     _fetchExpenses();
     // set expense ID for chat service
@@ -68,7 +65,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
         }
         
         // the user is currently on the chat page, no need to search for unread messages
-        if (_currentTabIndex == 1) {
+        if (_tabController.index == 1) {
           // real time update the read status when message arrives
           updateReadStatus();
           return;
@@ -78,7 +75,6 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
         bool hasUnreadMessage = querySnapshot.docs.last['senderID'] != userID && !querySnapshot.docs.last['readStatus'].contains(userID);
 
         if (hasUnreadMessage) {
-          // TODO: set notification message
           Provider.of<NotificationProvider>(context, listen: false).setChatNotification(true);
         }
       } catch (e) {

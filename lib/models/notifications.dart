@@ -38,8 +38,9 @@ class ExpenseReminderNotification extends NotificationModel {
   super(
     'Group Expense to Settle', 
     'You have a group expense to settle from $expenseName.', 
-    () {
-      
+    () async {
+      await SplitMoneyService.setGroupIDbyExpenseID(expenseID);
+      navigatorKey.currentState!.pushNamed(RouteName.splitMoneyExpense, arguments: {'id': expenseID, 'tabIndex': 0});
     },
   );
 }
@@ -71,8 +72,9 @@ class NewChatNotification extends NotificationModel {
   super(
     'New Chat Message',
     'You have a new chat message from $expenseName.',
-    () {
-      navigatorKey.currentState!.pushNamed(RouteName.splitMoneyExpense, arguments: {'id': expenseID})
+    () async {
+      await SplitMoneyService.setGroupIDbyExpenseID(expenseID);
+      navigatorKey.currentState!.pushNamed(RouteName.splitMoneyExpense, arguments: {'id': expenseID, 'tabIndex': 1})
       .then((mssg) {
         if (mssg != null) {
           Provider.of<SplitMoneyProvider>(navigatorKey.currentContext!, listen: false).updateExpenses();

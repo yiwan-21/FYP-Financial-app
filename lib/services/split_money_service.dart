@@ -98,6 +98,17 @@ class SplitMoneyService {
     return groups;
   }
 
+  static Future<void> setGroupIDbyExpenseID(String expenseID) async {
+    await FirebaseInstance.firestore
+        .collectionGroup('expenses')
+        .where('id', isEqualTo: expenseID)
+        .limit(1)
+        .get()
+        .then((value) {
+      setGroupID(value.docs.first.reference.parent.parent!.id);
+    });
+  }
+
   static Future<SplitExpense> getExpenseByID(String expenseID) async {
     String title = '';
     double amount = 0;
