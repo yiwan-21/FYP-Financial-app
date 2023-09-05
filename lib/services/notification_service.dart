@@ -12,7 +12,7 @@ class NotificationService {
 
   static Future<void> sendNotification(String type, List<String> receiverID, {String? functionID}) async {
     debugPrint('Sending Notification: $type, $receiverID, $functionID');
-    NotificationModel? newNotification = getNotificationModel(type, DateTime.now(), false, functionID: functionID);
+    NotificationModel? newNotification = await getNotificationModel(type, functionID: functionID);
     debugPrint('notification: ${newNotification?.message}');
     if (newNotification != null) {
       await notificationCollection.add({
@@ -22,48 +22,88 @@ class NotificationService {
         'type': type,
         'functionID': functionID,
         'read': List<bool>.filled(receiverID.length, false),
-        'createdAt': newNotification.date,
+        'createdAt': DateTime.now(),
       });
     }
   }
 
-  static NotificationModel? getNotificationModel(String type, DateTime date, bool read, {String? functionID}) {
+  static Future<NotificationModel?> getNotificationModel(String type, {String? functionID}) async {
     NotificationModel? notificationModel;
     switch (type) {
       case NotificationType.NEW_EXPENSE_NOTIFICATION:
         if (functionID == null) return null;
-        final groupName =SplitMoneyService.getGroupName(functionID);
         final String groupID = functionID;
-        notificationModel = NewExpenseNotification(groupName, groupID, date, read);
+        final groupName = await SplitMoneyService.getGroupName(groupID);
+        notificationModel = NewExpenseNotification(groupName, groupID);
         break;
       case NotificationType.EXPENSE_REMINDER_NOTIFICATION:
         if (functionID == null) return null;
-        final expenseName = SplitMoneyService.getExpenseName(functionID);
         final expenseID = functionID;
-        notificationModel = NewChatNotification(expenseName, expenseID, date, read);
+        final expenseName = await SplitMoneyService.getExpenseName(expenseID);
+        notificationModel = ExpenseReminderNotification(expenseName, expenseID);
         break;
       case NotificationType.NEW_GROUP_NOTIFICATION:
-        notificationModel = NewGroupNotification(date, read);
+        if (functionID == null) return null;
+        final groupName = await SplitMoneyService.getGroupName(functionID);
+        notificationModel = NewGroupNotification(groupName);
         break;
       case NotificationType.NEW_CHAT_NOTIFICATION:
         if (functionID == null) return null;
-        final expenseName = SplitMoneyService.getExpenseName(functionID);
         final expenseID = functionID;
-        notificationModel = NewChatNotification(expenseName, expenseID, date, read);
+        final expenseName = await SplitMoneyService.getExpenseName(expenseID);
+        notificationModel = NewChatNotification(expenseName, expenseID);
         break;
       case NotificationType.EXPIRING_GOAL_NOTIFICATION:
-        notificationModel = ExpiringGoalNotification(date, read);
+        notificationModel = ExpiringGoalNotification();
         break;
       case NotificationType.EXPIRED_GOAL_NOTIFICATION:
-        notificationModel = ExpiredGoalNotification(date, read);
+        notificationModel = ExpiredGoalNotification();
         break;
       case NotificationType.REMOVE_FROM_GROUP_NOTIFICATION:
         if (functionID == null) return null;
-        final groupName =SplitMoneyService.getGroupName(functionID);
-        notificationModel = RemoveFromGroupNotification(groupName, date, read);
+        final groupName = await SplitMoneyService.getGroupName(functionID);
+        notificationModel = RemoveFromGroupNotification(groupName);
         break;
     }
     return notificationModel;
+  }
+
+  static Function getNotificationFunction(String type, String? functionID) {
+    NotificationModel? notificationModel;
+    switch (type) {
+      case NotificationType.NEW_EXPENSE_NOTIFICATION:
+        if (functionID == null) break;
+        final String groupID = functionID;
+        notificationModel = NewExpenseNotification('', groupID);
+        break;
+      case NotificationType.EXPENSE_REMINDER_NOTIFICATION:
+        if (functionID == null) break;
+        final expenseID = functionID;
+        notificationModel = ExpenseReminderNotification('', expenseID);
+        break;
+      case NotificationType.NEW_GROUP_NOTIFICATION:
+        notificationModel = NewGroupNotification('');
+        break;
+      case NotificationType.NEW_CHAT_NOTIFICATION:
+        if (functionID == null) break;
+        final expenseID = functionID;
+        notificationModel = NewChatNotification('', expenseID);
+        break;
+      case NotificationType.EXPIRING_GOAL_NOTIFICATION:
+        notificationModel = ExpiringGoalNotification();
+        break;
+      case NotificationType.EXPIRED_GOAL_NOTIFICATION:
+        notificationModel = ExpiredGoalNotification();
+        break;
+      case NotificationType.REMOVE_FROM_GROUP_NOTIFICATION:
+        notificationModel = RemoveFromGroupNotification('');
+        break;
+    }
+    if (notificationModel == null) {
+      return () {};
+    }
+    debugPrint('notificationModel: ${notificationModel.navigateFunction()}');
+    return notificationModel.navigateFunction();
   }
 
   static Stream<QuerySnapshot> getNotificationStream() {

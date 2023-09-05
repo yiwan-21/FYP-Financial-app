@@ -169,7 +169,10 @@ class SplitMoneyService {
       for (var member in List<String>.from(expense['sharedBy'])) {
         memberID.add(member.split('/')[1]);
       }
-      memberID.add(expense['paidBy'].split('/')[1]);
+      String paidBy = expense['paidBy'].split('/')[1];
+      if (!memberID.contains(paidBy)) {
+        memberID.add(paidBy);
+      }
     });
     return memberID;
   }
@@ -209,7 +212,7 @@ class SplitMoneyService {
     // Send Notification
     const type = NotificationType.NEW_GROUP_NOTIFICATION;
     final receiverID = [member.id];
-    await NotificationService.sendNotification(type, receiverID);
+    await NotificationService.sendNotification(type, receiverID, functionID: _groupID);
   }
 
   static Future<void> deleteMember(String memberID) async {
@@ -256,15 +259,16 @@ class SplitMoneyService {
     // add new 'expense' document
     DocumentReference newExpense =
         await groupsCollection.doc(_groupID).collection('expenses').add({
-      'title': expense.title,
-      'amount': expense.amount,
-      'paidAmount': expense.paidAmount,
-      'splitMethod': expense.splitMethod,
-      'paidBy': 'users/${expense.paidBy.id}',
-      'sharedBy':
-          expense.sharedRecords.map((record) => 'users/${record.id}').toList(),
-      'date': DateTime.now(),
-    });
+          'title': expense.title,
+          'amount': expense.amount,
+          'paidAmount': expense.paidAmount,
+          'splitMethod': expense.splitMethod,
+          'paidBy': 'users/${expense.paidBy.id}',
+          'sharedBy':
+              expense.sharedRecords.map((record) => 'users/${record.id}').toList(),
+          'date': DateTime.now(),
+        });
+    await newExpense.update({'id': newExpense.id});
 
     // add new 'records' documents
     for (var record in expense.sharedRecords) {
@@ -327,7 +331,7 @@ class SplitMoneyService {
         .update({'paid': FieldValue.increment(amount)});
   }
 
-  static Future<String> getGroupName(groupID) async {
+  static Future<String> getGroupName(String groupID) async {
     String groupName = '';
     try {
       await groupsCollection.doc(groupID).get().then((snapshot) {
@@ -339,10 +343,14 @@ class SplitMoneyService {
     return groupName;
   }
 
-  static Future<String> getExpenseName(expenseID) async {
+  static Future<String> getExpenseName(String expenseID) async {
     String expenseName = '';
     try {
-      await FirebaseInstance.firestore.collectionGroup('expenses').where(FieldPath.documentId, isEqualTo: expenseID).get().then((snapshot) {
+      await FirebaseInstance.firestore
+          .collectionGroup('expenses')
+          .where('id', isEqualTo: expenseID)
+          .get()
+          .then((snapshot) {
         expenseName = snapshot.docs.first['title'];
       });
     } catch (e) {

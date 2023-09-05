@@ -68,41 +68,43 @@ class _NotificationMenuState extends State<NotificationMenu> {
                   ),
                 ),
                 ...notifications.map((doc) {
-                  final String type = doc['type'];
+                  final String title = doc['title'];
+                  final String message = doc['message'];
                   final DateTime date = doc['createdAt'].toDate();
                   final int index = List<String>.from(doc['receiverID']).indexOf(FirebaseInstance.auth.currentUser!.uid);
                   final bool read = List<bool>.from(doc['read'])[index];
+                  final String type = doc['type'];
                   final String? functionID = doc['functionID'];
-                  final notification = NotificationService.getNotificationModel(type, date, read, functionID: functionID);
+                  final Function navigateTo = NotificationService.getNotificationFunction(type, functionID);
                   
-                  if (notification == null) {
-                    return PopupMenuItem<NotificationModel>(
-                      value: null,
-                      child: Container(),
-                    );
-                  }
+                  // if (notification == null) {
+                  //   return PopupMenuItem<NotificationModel>(
+                  //     value: null,
+                  //     child: Container(),
+                  //   );
+                  // }
 
                   return PopupMenuItem<NotificationModel>(
                     onTap: () {
                       NotificationService.markAsRead(doc.id);
-                      notification.navigateTo();
+                      navigateTo();
                     },
                     child: Container(
                       margin: const EdgeInsets.symmetric(vertical: 5),
                       padding: const EdgeInsets.symmetric(vertical: 5),
-                      color: notification.read ? Colors.white : Colors.grey[100],
+                      color: read ? Colors.white : Colors.grey[100],
                       child: ListTile(
-                        title: Text(notification.title),
+                        title: Text(title),
                         titleTextStyle: TextStyle(
                           color: Colors.black,
-                          fontWeight: notification.read ? FontWeight.normal : FontWeight.bold,
+                          fontWeight: read ? FontWeight.normal : FontWeight.bold,
                         ),
                         subtitle: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
                               child: Text(
-                                notification.message,
+                                message,
                                 textAlign: TextAlign.justify,
                               ),
                             ),
@@ -115,9 +117,9 @@ class _NotificationMenuState extends State<NotificationMenu> {
                         trailing: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('${Constant.monthLabels[notification.date.month - 1]} ${notification.date.day}'),
+                            Text('${Constant.monthLabels[date.month - 1]} ${date.day}'),
                             const SizedBox(height: 5),
-                            Text(notification.date.toString().substring(11, 16)),
+                            Text(date.toString().substring(11, 16)),
                           ],
                         ),
                         leadingAndTrailingTextStyle: TextStyle(

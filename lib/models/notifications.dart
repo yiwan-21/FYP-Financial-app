@@ -8,22 +8,22 @@ import '../services/chat_service.dart';
 import '../services/split_money_service.dart';
 
 class NotificationModel {
-  final String title;
-  final String message;
-  final DateTime date;
-  final bool read;
+  String title;
+  String message;
   final Function navigateTo;
   
-  const NotificationModel(this.title, this.message, this.date, this.read, this.navigateTo);
+  NotificationModel(this.title, this.message, this.navigateTo);
+
+  Function navigateFunction() {
+    return navigateTo;
+  }
 }
 
 class NewExpenseNotification extends NotificationModel {
-  NewExpenseNotification(groupName, groupID, date, read) :
+  NewExpenseNotification(groupName, groupID) :
   super(
     'New Group Expense', 
-    'You have a new group expense from $groupName', 
-    date,
-    read, 
+    'You have a new group expense from $groupName.', 
     () {
       Provider.of<SplitMoneyProvider>(navigatorKey.currentContext!, listen: false).setNewSplitGroup(groupID);
       navigatorKey.currentState!.pushNamed(RouteName.splitMoneyGroup, arguments: {'id': groupID}).then((_) {
@@ -34,12 +34,10 @@ class NewExpenseNotification extends NotificationModel {
 }
 
 class ExpenseReminderNotification extends NotificationModel {
-  ExpenseReminderNotification(expenseName, expenseID, date, read) :
+  ExpenseReminderNotification(expenseName, expenseID) :
   super(
     'Group Expense to Settle', 
-    'You have a group expense to settle from $expenseName}.', 
-    date,
-    read, 
+    'You have a group expense to settle from $expenseName.', 
     () {
       
     },
@@ -47,12 +45,10 @@ class ExpenseReminderNotification extends NotificationModel {
 }
 
 class NewGroupNotification extends NotificationModel {
-  NewGroupNotification(date, read) :
+  NewGroupNotification(groupName) :
   super(
     'New Group',
-    'You have been added to a new group.',
-    date,
-    read, 
+    'You have been added to a new group $groupName.',
     () {
       Provider.of<NavigationProvider>(navigatorKey.currentContext!, listen: false).goToSplitMoney();
     },
@@ -60,12 +56,10 @@ class NewGroupNotification extends NotificationModel {
 }
 
 class RemoveFromGroupNotification extends NotificationModel {
-  RemoveFromGroupNotification(groupName, date, read) :
+  RemoveFromGroupNotification(groupName) :
   super(
     'Removed from Group',
     'You have been removed from $groupName.',
-    date,
-    read, 
     () {
       Provider.of<NavigationProvider>(navigatorKey.currentContext!, listen: false).goToSplitMoney();
     },
@@ -73,12 +67,10 @@ class RemoveFromGroupNotification extends NotificationModel {
 }
 
 class NewChatNotification extends NotificationModel {
-  NewChatNotification(expenseName, expenseID, date, read) :
+  NewChatNotification(expenseName, expenseID) :
   super(
     'New Chat Message',
     'You have a new chat message from $expenseName.',
-    date,
-    read, 
     () {
       navigatorKey.currentState!.pushNamed(RouteName.splitMoneyExpense, arguments: {'id': expenseID})
       .then((mssg) {
@@ -93,12 +85,10 @@ class NewChatNotification extends NotificationModel {
 }
 
 class ExpiringGoalNotification extends NotificationModel {
-  ExpiringGoalNotification(date, read) :
+  ExpiringGoalNotification() :
   super(
     'Goal Expiring Soon', 
     'Your goal is expiring soon.',
-    date,
-    read, 
     () {
       Provider.of<NavigationProvider>(navigatorKey.currentContext!, listen: false).goToGoal();
     },
@@ -106,12 +96,10 @@ class ExpiringGoalNotification extends NotificationModel {
 }
 
 class ExpiredGoalNotification extends NotificationModel {
-  ExpiredGoalNotification(date, read) :
+  ExpiredGoalNotification() :
   super(
     'Goal Expired', 
-    'Your goal is expired',
-    date,
-    read, 
+    'Your goal is expired.',
     () {
       Provider.of<NavigationProvider>(navigatorKey.currentContext!, listen: false).goToGoal();
     },
