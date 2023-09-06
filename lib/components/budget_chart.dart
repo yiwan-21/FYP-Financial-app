@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../constants/constant.dart';
 import '../constants/style_constant.dart';
 
 class BudgetChartData {
-  final DateTime day;
+  final DateTime date;
   double amount;
 
-  BudgetChartData(this.day, this.amount);
+  BudgetChartData(this.date, this.amount);
 }
 
 class BudgetGraph extends StatefulWidget {
@@ -37,8 +37,6 @@ class _BudgetGraphState extends State<BudgetGraph> {
     BudgetChartData(DateTime.now(), 100),
   ];
 
-  final DateFormat formatter = DateFormat('MMMd');
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -61,7 +59,7 @@ class _BudgetGraphState extends State<BudgetGraph> {
                 borderRadius: BorderRadius.circular(8),
                 dataSource: _budgetData,
                 xValueMapper: (BudgetChartData record, _) =>
-                    formatter.format(record.day).toString(),
+                    '${Constant.monthLabels[record.date.month - 1]} ${record.date.day}',
                 yValueMapper: (BudgetChartData record, _) => record.amount,
                 name: 'Daily Spending',
                 // Enable data label
