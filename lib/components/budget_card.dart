@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math.dart' as vmath;
-import 'dart:math' as math;
 
+import '../components/custom_circular_progress.dart';
 import '../constants/route_name.dart';
 
 class BudgetCard extends StatefulWidget {
@@ -66,6 +65,15 @@ class _BudgetCardState extends State<BudgetCard> {
             CustomPaint(
               painter: CustomCircularProgress(
                 value: _progress,
+                strokeWidth: 5,
+                radius: 60,
+                startAngle: 180,
+                sweepAngle: 180,
+                heightMultiply: 1.6,
+                widthMultiply: 2,
+                colors: _progress == 1
+                    ? <Color>[Colors.red,Colors.red]
+                    : <Color>[ Colors.yellow, Colors.orange,Colors.red ],
               ),
               child: Text(
                 '${(_progress * 100).toInt()}%',
@@ -81,60 +89,4 @@ class _BudgetCardState extends State<BudgetCard> {
       ),
     );
   }
-}
-
-class CustomCircularProgress extends CustomPainter {
-  final double value;
-
-  CustomCircularProgress({required this.value});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    double strokeWidth = 5;
-    double radius = 60;
-    final startAngle = vmath.radians(180);
-    final sweepAngle = vmath.radians(180);
-    final center = Offset(size.width / 2, size.height * 1.6);
-
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      startAngle,
-      sweepAngle,
-      false,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..color = Colors.black12
-        ..strokeCap = StrokeCap.round
-        ..strokeWidth = strokeWidth,
-    );
-    canvas.saveLayer(
-      Rect.fromCenter(center: center, width: 200, height: 200),
-      Paint(),
-    );
-
-    Gradient gradient = SweepGradient(
-      startAngle: 1.25 * math.pi / 2,
-      endAngle: 5.5 * math.pi / 2,
-      tileMode: TileMode.repeated,
-      colors: value == 1
-          ? <Color>[Colors.red, Colors.pink]
-          : <Color>[Colors.yellow, Colors.orange, Colors.red, Colors.pink],
-    );
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius),
-      startAngle,
-      sweepAngle * value,
-      false,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round
-        ..shader = gradient
-            .createShader(Rect.fromLTWH(0.0, 0.0, size.width, size.height))
-        ..strokeWidth = strokeWidth,
-    );
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
