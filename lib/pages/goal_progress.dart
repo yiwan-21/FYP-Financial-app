@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../firebase_instance.dart';
 import '../components/alert_with_checkbox.dart';
-import '../components/goal_history_card.dart';
+import '../components/history_card.dart';
 import '../components/tracker_transaction.dart';
 import '../components/growing_tree.dart';
 import '../components/alert_confirm_action.dart';

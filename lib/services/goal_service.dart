@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
 import '../components/goal.dart';
-import '../components/goal_history_card.dart';
+import '../components/history_card.dart';
 import 'notification_service.dart';
 
 class GoalService {
