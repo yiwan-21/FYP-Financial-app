@@ -49,7 +49,6 @@ class CustomCircularProgress extends CustomPainter {
       Rect.fromCenter(center: center, width: radius * 5, height: radius * 5),
       Paint(),
     );
-    debugPrint('startAngle: $startAngle, sweepAngle: $sweepAngle');
 
     Gradient gradient = SweepGradient(
       startAngle: startAngle,

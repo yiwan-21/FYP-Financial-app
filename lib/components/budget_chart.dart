@@ -54,7 +54,7 @@ class _BudgetGraphState extends State<BudgetGraph> {
           tooltipBehavior: TooltipBehavior(enable: true),
           series: <ChartSeries<BudgetChartData, String>>[
             ColumnSeries<BudgetChartData, String>(
-              color: purple,
+              color: const Color.fromRGBO(174, 74, 174, 1),
                 width: 0.2,
                 borderRadius: BorderRadius.circular(8),
                 dataSource: _budgetData,

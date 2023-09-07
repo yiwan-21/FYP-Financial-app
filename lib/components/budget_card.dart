@@ -31,60 +31,62 @@ class _BudgetCardState extends State<BudgetCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: _detail,
-      child: Container(
+      child: Card(
+        elevation: 2,
         color: Colors.white,
-        padding:
-            const EdgeInsets.only(top: 30, bottom: 25, right: 70, left: 30),
         margin: const EdgeInsets.symmetric(
           vertical: 8,
           horizontal: 8,
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.category,
-                  style: const TextStyle(
-                    fontSize: 16,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 30, bottom: 25, right: 70, left: 25),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.category,
+                    style: const TextStyle(
+                      fontSize: 16,
+                    ),
                   ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'RM ${widget.amount}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                    ),
+                  ),
+                ],
+              ),
+              //circular progress here
+              CustomPaint(
+                painter: CustomCircularProgress(
+                  value: _progress,
+                  strokeWidth: 5,
+                  radius: 60,
+                  startAngle: 180,
+                  sweepAngle: 180,
+                  heightMultiply: 1.6,
+                  widthMultiply: 2,
+                  colors: _progress == 1
+                      ? <Color>[Colors.red,Colors.red]
+                      : <Color>[ Colors.yellow, Colors.orange,Colors.red ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'RM ${widget.amount}',
+                child: Text(
+                  '${(_progress * 100).toInt()}%',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 22,
+                    fontSize: 18,
                   ),
+                  textAlign: TextAlign.center,
                 ),
-              ],
-            ),
-            //circular progress here
-            CustomPaint(
-              painter: CustomCircularProgress(
-                value: _progress,
-                strokeWidth: 5,
-                radius: 60,
-                startAngle: 180,
-                sweepAngle: 180,
-                heightMultiply: 1.6,
-                widthMultiply: 2,
-                colors: _progress == 1
-                    ? <Color>[Colors.red,Colors.red]
-                    : <Color>[ Colors.yellow, Colors.orange,Colors.red ],
               ),
-              child: Text(
-                '${(_progress * 100).toInt()}%',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
