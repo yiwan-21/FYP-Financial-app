@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'dart:math' as math;
 import 'package:vector_math/vector_math.dart' as vmath;
 
 class CustomCircularProgress extends CustomPainter {

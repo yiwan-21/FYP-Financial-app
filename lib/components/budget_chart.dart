@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../constants/constant.dart';
-import '../constants/style_constant.dart';
 
 class BudgetChartData {
   final DateTime date;
