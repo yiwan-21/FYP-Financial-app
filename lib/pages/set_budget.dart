@@ -1,8 +1,10 @@
+import 'package:financial_app/components/budget_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
+import '../services/budget_service.dart';
 
 class SetBudget extends StatefulWidget {
   const SetBudget({Key? key}) : super(key: key);
@@ -10,12 +12,21 @@ class SetBudget extends StatefulWidget {
   @override
   State<SetBudget> createState() => _SetBudgetState();
 }
+
 //TODO: no repeat category -create a category list, filter with existed, return
 class _SetBudgetState extends State<SetBudget> {
+  final _formKey = GlobalKey<FormState>();
   String _category = Constant.expenseCategories[0];
   double amount = 0;
 
-  void _setBudget() {}
+  void _setBudget() {
+    if (_formKey.currentState!.validate()) {
+      // Submit form data to server or database
+      _formKey.currentState!.save();
+      BudgetService.addBudget(BudgetCard(_category, amount, 0));
+      Navigator.pop(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,43 +73,47 @@ class _SetBudgetState extends State<SetBudget> {
             ),
             const SizedBox(height: 18),
             Flexible(
-              child: TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Amount',
-                  labelStyle: TextStyle(color: Colors.black),
-                  fillColor: Colors.white,
-                  filled: true,
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(width: 1.5),
+              child: Form(
+                key: _formKey,
+                child: TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'Amount',
+                    labelStyle: TextStyle(color: Colors.black),
+                    fillColor: Colors.white,
+                    filled: true,
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(width: 1.5),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(width: 1),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(width: 1.5, color: Colors.red),
+                    ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(width: 1),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(width: 1.5, color: Colors.red),
-                  ),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d+\.?\d{0,2}')),
+                  ],
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return ValidatorMessage.emptyAmount;
+                    }
+                    if (double.tryParse(value) == null) {
+                      return ValidatorMessage.invalidAmount;
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    setState(() {
+                      amount = double.tryParse(value) == null
+                          ? 0
+                          : double.parse(value);
+                    });
+                  },
                 ),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-                ],
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return ValidatorMessage.emptyAmount;
-                  }
-                  if (double.tryParse(value) == null) {
-                    return ValidatorMessage.invalidAmount;
-                  }
-                  return null;
-                },
-                onChanged: (value) {
-                  setState(() {
-                    amount = double.tryParse(value) == null
-                        ? 0
-                        : double.parse(value);
-                  });
-                },
               ),
             ),
           ],

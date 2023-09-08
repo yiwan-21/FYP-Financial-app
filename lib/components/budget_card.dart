@@ -6,9 +6,9 @@ import '../constants/route_name.dart';
 class BudgetCard extends StatefulWidget {
   final String category;
   final double amount;
-  final double usedAmount;
+  final double used;
 
-  const BudgetCard(this.category, this.amount, this.usedAmount, {super.key});
+  const BudgetCard(this.category, this.amount, this.used, {super.key});
 
   @override
   State<BudgetCard> createState() => _BudgetCardState();
@@ -20,7 +20,7 @@ class _BudgetCardState extends State<BudgetCard> {
   void initState() {
     super.initState();
     //TODO: progress
-    _progress = widget.usedAmount / widget.amount;
+    _progress = widget.used / widget.amount;
   }
 
   void _detail() {

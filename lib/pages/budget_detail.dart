@@ -15,15 +15,15 @@ class BudgetDetail extends StatefulWidget {
 
 class _BudgetDetailState extends State<BudgetDetail> {
   double _amount = 100;
-  double _usedAmount = 95;
+  double _used = 95;
   double _amountLeft = 0;
   double _progress = 0;
 
   @override
   void initState() {
     super.initState();
-    _amountLeft = _amount - _usedAmount;
-    _progress = _usedAmount / _amount;
+    _amountLeft = _amount - _used;
+    _progress = _used / _amount;
   }
 
   void _deleteBudget() {}
