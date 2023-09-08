@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../firebase_instance.dart';
+
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
 import '../components/tracker_transaction.dart';
@@ -24,12 +24,13 @@ class _AddTransactionState extends State<AddTransaction> {
   List<String> _categoryList = Constant.expenseCategories;
   String _category = Constant.expenseCategories[0];
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _selectDate() async {
     final DateTime? picked = await showDatePicker(
         context: context,
-        initialDate: DateTime.now(),
+        initialDate: _date,
         firstDate: DateTime(2020),
-        lastDate: DateTime(2025));
+        lastDate: DateTime.now(),
+    );
     if (picked != null) {
       setState(() {
         _date = picked;
@@ -43,7 +44,6 @@ class _AddTransactionState extends State<AddTransaction> {
       _formKey.currentState!.save();
       final newTransaction = TrackerTransaction(
         id: 'Auto Generate',
-        userID: FirebaseInstance.auth.currentUser!.uid,
         title: _title,
         amount: _amount,
         date: _date,
@@ -148,9 +148,7 @@ class _AddTransactionState extends State<AddTransaction> {
                   // date
                   TextFormField(
                     readOnly: true,
-                    onTap: () {
-                      _selectDate(context);
-                    },
+                    onTap: _selectDate,
                     decoration: const InputDecoration(
                       labelText: 'Date',
                       labelStyle: TextStyle(color: Colors.black),

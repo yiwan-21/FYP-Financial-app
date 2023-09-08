@@ -8,7 +8,6 @@ import '../providers/transaction_provider.dart';
 
 class TrackerTransaction extends StatefulWidget {
   final String id;
-  final String userID;
   final String title;
   final String? notes;
   final double amount;
@@ -18,7 +17,6 @@ class TrackerTransaction extends StatefulWidget {
 
   const TrackerTransaction(
       {required this.id,
-      required this.userID,
       required this.title,
       required this.amount,
       required this.date,
@@ -29,7 +27,6 @@ class TrackerTransaction extends StatefulWidget {
 
   TrackerTransaction.fromDocument(QueryDocumentSnapshot doc, {super.key})
       : id = doc.id,
-        userID = doc['userID'],
         title = doc['title'],
         notes = doc['notes'],
         amount = doc['amount'].toDouble(),
@@ -42,7 +39,6 @@ class TrackerTransaction extends StatefulWidget {
 
   Map<String, dynamic> toCollection() {
     return {
-      'userID': userID,
       'title': title,
       'notes': notes,
       'amount': amount,

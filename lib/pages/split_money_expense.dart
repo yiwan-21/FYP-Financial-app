@@ -160,7 +160,6 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
   Future<void> _checkedFunction(double amount) async {
     final TrackerTransaction newTransaction = TrackerTransaction(
       id: '',
-      userID: FirebaseInstance.auth.currentUser!.uid,
       title: 'Settle Up: ${_expense.title}',
       amount: amount,
       date: DateTime.now(),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../components/tracker_transaction.dart';
+
 class TransactionProvider extends ChangeNotifier {
   String id = '';
   String title = '';
@@ -18,6 +20,15 @@ class TransactionProvider extends ChangeNotifier {
   DateTime get getDate => date;
   bool get getIsExpense => isExpense;
   String get getCategory => category;
+  TrackerTransaction get getTransaction => TrackerTransaction(
+    id: id, 
+    title: title, 
+    amount: amount, 
+    date: date, 
+    isExpense: isExpense, 
+    category: category, 
+    notes: notes,
+  );
 
   Future<void> setTransaction(String id, String title, double amount, DateTime date, bool isExpense, String category, {String? notes}) async {
     this.id = id;

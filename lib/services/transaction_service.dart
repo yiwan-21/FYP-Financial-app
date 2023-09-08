@@ -5,6 +5,7 @@ import '../constants/constant.dart';
 import '../components/tracker_transaction.dart';
 import '../components/expense_income_graph.dart';
 import '../components/auto_dis_chart.dart';
+import '../services/budget_service.dart';
 
 class TransactionService {
   static CollectionReference transactionCollection =
@@ -33,19 +34,44 @@ class TransactionService {
     }
   }
 
-  static Future<DocumentReference> addTransaction(newTransaction) async {
-    return await transactionCollection.add(newTransaction.toCollection());
+  static Future<void> addTransaction(TrackerTransaction newTransaction) async {
+    await transactionCollection.add(
+      {...newTransaction.toCollection(), 'userID': FirebaseInstance.auth.currentUser!.uid}
+        );
+
+    // update user's budgeting data
+    if (newTransaction.isExpense) {
+      await BudgetService.updateUsedAmount(
+          newTransaction.category, newTransaction.amount, newTransaction.date);
+    }
   }
 
-  static Future<void> updateTransaction(
-      TrackerTransaction editedTransaction) async {
-    return await transactionCollection
+  static Future<void> updateTransaction(TrackerTransaction editedTransaction,
+      TrackerTransaction previousTransaction) async {
+    await transactionCollection
         .doc(editedTransaction.id)
         .update(editedTransaction.toCollection());
+
+    await BudgetService.updateOnTransactionChanged(
+        previousTransaction, editedTransaction);
   }
 
-  static Future<void> deleteTransaction(transactionId) async {
-      await transactionCollection.doc(transactionId).delete();
+  static Future<void> deleteTransaction(
+      String transactionId, bool isExpense) async {
+    // update user's budgeting data
+    if (isExpense) {
+      await transactionCollection
+          .doc(transactionId)
+          .get()
+          .then((snapshot) async {
+        final category = snapshot['category'];
+        final amount = snapshot['amount'].toDouble();
+        final date = snapshot['date'].toDate();
+        await BudgetService.updateUsedAmount(category, -amount, date);
+      });
+    }
+
+    await transactionCollection.doc(transactionId).delete();
   }
 
   static Future<Map<String, double>> getPieChartData() async {
@@ -78,9 +104,11 @@ class TransactionService {
       lineData.add(IncomeExpenseData(Constant.monthLabels[i], 0, 0));
     }
     int monthIndex = 0;
-    
-    if (FirebaseInstance.auth.currentUser == null) { return lineData; }
-    
+
+    if (FirebaseInstance.auth.currentUser == null) {
+      return lineData;
+    }
+
     await transactionCollection
         .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
         .orderBy('date', descending: true)
@@ -152,5 +180,25 @@ class TransactionService {
                 }
             });
     return barData;
+  }
+
+  static Future<double> getExpenseByCategory(
+      String category, DateTime startingDate) async {
+    double total = 0;
+
+    await transactionCollection
+        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+        .where('category', isEqualTo: category)
+        .where('date', isGreaterThanOrEqualTo: startingDate)
+        .get()
+        .then((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        for (var transaction in snapshot.docs) {
+          total += transaction['amount'].toDouble();
+        }
+      }
+    });
+
+    return total;
   }
 }

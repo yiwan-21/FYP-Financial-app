@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../firebase_instance.dart';
 import '../components/alert_with_checkbox.dart';
 import '../components/history_card.dart';
 import '../components/tracker_transaction.dart';
@@ -108,7 +107,6 @@ class _GoalProgressState extends State<GoalProgress>
   void _checkedFunction(double value) async {
     final TrackerTransaction newTransaction = TrackerTransaction(
       id: '',
-      userID: FirebaseInstance.auth.currentUser!.uid,
       title: 'Goal: $_title',
       amount: value,
       date: DateTime.now(),
