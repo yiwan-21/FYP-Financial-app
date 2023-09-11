@@ -25,7 +25,14 @@ class _BudgetDetailState extends State<BudgetDetail> {
     _progress = _used / _amount;
   }
 
-  void _deleteBudget() {}
+  Future<void> _deleteBudget() async {
+    await BudgetService.deleteBudget(widget.category).then((_) {
+      // close alert dialog
+      Navigator.pop(context);
+      // back to budgeting page
+      Navigator.pop(context);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
