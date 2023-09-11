@@ -32,21 +32,21 @@ class BudgetService {
         startingDate = getOnlyDate(snapshot.docs.first['date'].toDate());
       }
     });
+    debugPrint('set DID: $documentID');
   }
 
   static void resetDocumentID() {
     documentID = '';
   }
 
-  static Stream<QuerySnapshot> getBudgetingStream() {
+  static Future<Stream<QuerySnapshot>> getBudgetingStream() async {
     if (FirebaseInstance.auth.currentUser == null || documentID == '') {
-      return const Stream.empty();
+      await setDocumentID();
     }
-
+    
     return budgetsCollection
         .doc(documentID)
         .collection('details')
-        .orderBy('createdAt')
         .snapshots();
   }
 
@@ -65,6 +65,7 @@ class BudgetService {
     await budgetsCollection.doc(documentID).update({
       'date': getOnlyDate(date),
     });
+    
   }
 
   //get from tracker for history
