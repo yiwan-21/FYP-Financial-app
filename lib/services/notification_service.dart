@@ -11,9 +11,7 @@ class NotificationService {
       FirebaseInstance.firestore.collection('notifications');
 
   static Future<void> sendNotification(String type, List<String> receiverID, {String? functionID, String? objName}) async {
-    debugPrint('Sending Notification: $type, $receiverID, $functionID');
     NotificationModel? newNotification = await getNotificationModel(type, functionID: functionID, objName: objName);
-    debugPrint('notification: ${newNotification?.message}');
     if (newNotification != null) {
       await notificationCollection.add({
         'receiverID': receiverID,
@@ -104,7 +102,6 @@ class NotificationService {
     if (notificationModel == null) {
       return () {};
     }
-    debugPrint('notificationModel: ${notificationModel.navigateFunction()}');
     return notificationModel.navigateFunction();
   }
 
