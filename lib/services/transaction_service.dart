@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../components/history_card.dart';
 import '../firebase_instance.dart';
 import '../constants/constant.dart';
 import '../components/tracker_transaction.dart';
@@ -182,8 +183,8 @@ class TransactionService {
     return barData;
   }
 
-  static Future<double> getExpenseByCategory(
-      String category, DateTime startingDate) async {
+  // Budgeting
+  static Future<double> getExpenseByCategory(String category, DateTime startingDate) async {
     double total = 0;
 
     await transactionCollection
@@ -200,5 +201,27 @@ class TransactionService {
     });
 
     return total;
+  }
+  
+  static Future<List<HistoryCard>> getHistoryCards(String category, DateTime startingDate) async {
+    final List<HistoryCard> historyCards = [];
+
+    await transactionCollection
+        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+        .where('category', isEqualTo: category)
+        .where('date', isGreaterThanOrEqualTo: startingDate)
+        .get()
+        .then((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        for (var transaction in snapshot.docs) {
+          historyCards.add(HistoryCard(
+            transaction['amount'].toDouble(),
+            transaction['date'].toDate(),
+          ));
+        }
+      }
+    });
+
+    return historyCards;
   }
 }

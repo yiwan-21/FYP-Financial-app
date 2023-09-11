@@ -3,45 +3,26 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../constants/constant.dart';
 
-class BudgetChartData {
-  final DateTime date;
-  double amount;
+class BudgetChart extends StatefulWidget {
+  final List<BudgetChartData> budgetData;
 
-  BudgetChartData(this.date, this.amount);
-}
-
-class BudgetGraph extends StatefulWidget {
-  const BudgetGraph({super.key});
+  const BudgetChart(this.budgetData, {super.key});
 
   @override
-  State<BudgetGraph> createState() => _BudgetGraphState();
+  State<BudgetChart> createState() => _BudgetGraphState();
 }
 
-class _BudgetGraphState extends State<BudgetGraph> {
-  final List<BudgetChartData> _budgetData = [
-    BudgetChartData(DateTime.now().subtract(const Duration(days: 14)), 60),
-    BudgetChartData(DateTime.now().subtract(const Duration(days: 13)), 70),
-    BudgetChartData(DateTime.now().subtract(const Duration(days: 12)), 35),
-    BudgetChartData(DateTime.now().subtract(const Duration(days: 11)), 26),
-    BudgetChartData(DateTime.now().subtract(const Duration(days: 10)), 70),
-    BudgetChartData(DateTime.now().subtract(const Duration(days: 9)), 30),
-    BudgetChartData(DateTime.now().subtract(const Duration(days: 8)), 55),
-    BudgetChartData(DateTime.now().subtract(const Duration(days: 7)), 66),
-    BudgetChartData(DateTime.now().subtract(const Duration(days: 6)), 77),
-    BudgetChartData(DateTime.now().subtract(const Duration(days: 5)), 31),
-    BudgetChartData(DateTime.now().subtract(const Duration(days: 4)), 30),
-    BudgetChartData(DateTime.now().subtract(const Duration(days: 3)), 22),
-    BudgetChartData(DateTime.now().subtract(const Duration(days: 2)), 111),
-    BudgetChartData(DateTime.now().subtract(const Duration(days: 1)), 80),
-    BudgetChartData(DateTime.now(), 100),
-  ];
+class _BudgetGraphState extends State<BudgetChart> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return 
+    SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: SizedBox(
-        width: _budgetData.length * 80,
+      reverse: true,
+      child: Container(
+        margin: const EdgeInsets.only(left: 12, right: 150),
+        width: widget.budgetData.length * 80,
         child: SfCartesianChart(
           plotAreaBorderWidth: 0,
           primaryXAxis: CategoryAxis(
@@ -54,9 +35,9 @@ class _BudgetGraphState extends State<BudgetGraph> {
           series: <ChartSeries<BudgetChartData, String>>[
             ColumnSeries<BudgetChartData, String>(
               color: const Color.fromRGBO(174, 74, 174, 1),
-                width: 0.2,
+                width: 0.3,
                 borderRadius: BorderRadius.circular(8),
-                dataSource: _budgetData,
+                dataSource: widget.budgetData,
                 xValueMapper: (BudgetChartData record, _) =>
                     '${Constant.monthLabels[record.date.month - 1]} ${record.date.day}',
                 yValueMapper: (BudgetChartData record, _) => record.amount,
@@ -67,5 +48,16 @@ class _BudgetGraphState extends State<BudgetGraph> {
         ),
       ),
     );
+  }
+}
+
+class BudgetChartData {
+  double amount;
+  final DateTime date;
+
+  BudgetChartData(this.amount, this.date);
+
+  void addAmount(double amount) {
+    this.amount += amount;
   }
 }

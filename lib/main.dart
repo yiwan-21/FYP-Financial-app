@@ -145,7 +145,7 @@ class MyApp extends StatelessWidget {
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());
             }
-            case RouteName.groupSettings:
+          case RouteName.groupSettings:
             if (isLoggedIn()) {
               return MaterialPageRoute(builder: (_) => const GroupSettings());
             } else {
@@ -156,7 +156,8 @@ class MyApp extends StatelessWidget {
               // get argument from route
               final args = settings.arguments as Map<String, dynamic>;
               return MaterialPageRoute(
-                  builder: (_) => SplitMoneyExpense(expenseID: args['id'], tabIndex: args['tabIndex']));
+                  builder: (_) => SplitMoneyExpense(
+                      expenseID: args['id'], tabIndex: args['tabIndex']));
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());
             }
@@ -166,9 +167,17 @@ class MyApp extends StatelessWidget {
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());
             }
-            case RouteName.budgetDetail:
+          case RouteName.budgetDetail:
             if (isLoggedIn()) {
-              return MaterialPageRoute(builder: (_) => const BudgetDetail());
+              // get argument from route
+              final args = settings.arguments as Map<String, dynamic>;
+              return MaterialPageRoute(
+                builder: (_) => BudgetDetail(
+                  category: args['category'],
+                  amount: args['amount'],
+                  used: args['used'],
+                ),
+              );
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());
             }

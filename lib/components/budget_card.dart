@@ -19,12 +19,15 @@ class _BudgetCardState extends State<BudgetCard> {
   @override
   void initState() {
     super.initState();
-    //TODO: progress
     _progress = widget.used / widget.amount;
   }
 
   void _detail() {
-    Navigator.pushNamed(context, RouteName.budgetDetail);
+    Navigator.pushNamed(context, RouteName.budgetDetail, arguments: {
+      'category': widget.category,
+      'amount': widget.amount,
+      'used': widget.used,
+    });
   }
 
   @override
