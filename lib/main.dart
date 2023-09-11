@@ -172,11 +172,7 @@ class MyApp extends StatelessWidget {
               // get argument from route
               final args = settings.arguments as Map<String, dynamic>;
               return MaterialPageRoute(
-                builder: (_) => BudgetDetail(
-                  category: args['category'],
-                  amount: args['amount'],
-                  used: args['used'],
-                ),
+                builder: (_) => BudgetDetail(category: args['category']),
               );
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());

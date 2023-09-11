@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../constants/message_constant.dart';
+import '../services/budget_service.dart';
 
 class EditBudget extends StatefulWidget {
-  const EditBudget({super.key});
+  final String category;
+  
+  const EditBudget(this.category, {super.key});
 
   @override
   State<EditBudget> createState() => _EditBudgetState();
@@ -12,13 +15,15 @@ class EditBudget extends StatefulWidget {
 
 class _EditBudgetState extends State<EditBudget> {
   final _formKey = GlobalKey<FormState>();
-  double amount = 0;
+  double _amount = 0;
 
-  void editBudget() {
+  Future<void> editBudget() async {
     if (_formKey.currentState!.validate()) {
       // Submit form data to server or database
       _formKey.currentState!.save();
-      Navigator.pop(context);
+      await BudgetService.updateTotalBudget(widget.category, _amount).then((_) {
+        Navigator.pop(context);
+      });
     }
   }
 
@@ -73,7 +78,7 @@ class _EditBudgetState extends State<EditBudget> {
           },
           onChanged: (value) {
             setState(() {
-              amount = double.tryParse(value) == null ? 0 : double.parse(value);
+              _amount = double.tryParse(value) == null ? 0 : double.parse(value);
             });
           },
         ),

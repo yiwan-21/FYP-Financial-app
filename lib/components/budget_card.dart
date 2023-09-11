@@ -20,13 +20,21 @@ class _BudgetCardState extends State<BudgetCard> {
   void initState() {
     super.initState();
     _progress = widget.used / widget.amount;
+    if (_progress > 1) {
+      _progress = 1;
+    }
   }
 
   void _detail() {
     Navigator.pushNamed(context, RouteName.budgetDetail, arguments: {
       'category': widget.category,
-      'amount': widget.amount,
-      'used': widget.used,
+    }).then((_) {
+      setState(() {
+        _progress = widget.used / widget.amount;
+        if (_progress > 1) {
+          _progress = 1;
+        }
+      });
     });
   }
 
@@ -75,7 +83,7 @@ class _BudgetCardState extends State<BudgetCard> {
                   sweepAngle: 180,
                   heightMultiply: 1.6,
                   widthMultiply: 2,
-                  colors: _progress == 1
+                  colors: _progress >= 1
                       ? <Color>[Colors.red,Colors.red]
                       : <Color>[ Colors.yellow, Colors.orange,Colors.red ],
                 ),

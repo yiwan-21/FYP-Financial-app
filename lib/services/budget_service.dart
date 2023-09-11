@@ -53,6 +53,14 @@ class BudgetService {
         .snapshots();
   }
 
+  static Stream<DocumentSnapshot> getSingleBudgetStream(String category) {
+    return budgetsCollection
+        .doc(documentID)
+        .collection('details')
+        .doc(category)
+        .snapshots();
+  }
+
   static Future<void> addBudget(BudgetCard budget) async {
     await budgetsCollection
         .doc(documentID)
@@ -64,6 +72,16 @@ class BudgetService {
     });
   }
 
+  static Future<void> updateTotalBudget(String category, double amount) async {
+    await budgetsCollection
+        .doc(documentID)
+        .collection('details')
+        .doc(category)
+        .update({
+          'amount': amount,
+        });
+  }
+  
   static Future<void> updateDate(DateTime date) async {
     DateTime resetDate = getOnlyDate(date);
     resettingDate = resetDate;
@@ -143,18 +161,6 @@ class BudgetService {
           } catch (e) {
             debugPrint('Error on updateOnTransactionChanged: $e');
           }
-    });
-  }
-
-  static Future<void> updateTotalBudget(String category, double amount) async {
-    // need update used amount also, with respective date
-    await budgetsCollection
-        .doc(documentID)
-        .collection('details')
-        .doc(category)
-        .update({
-      'amount': amount,
-      'used': TransactionService.getExpenseByCategory(category, startingDate),
     });
   }
 

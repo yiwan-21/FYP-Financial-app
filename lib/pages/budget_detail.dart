@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../components/budget_chart.dart';
@@ -9,28 +10,14 @@ import '../services/transaction_service.dart';
 
 class BudgetDetail extends StatefulWidget {
   final String category;
-  final double amount;
-  final double used;
 
-  const BudgetDetail(
-      {required this.category,
-      required this.amount,
-      required this.used,
-      super.key});
+  const BudgetDetail({required this.category, super.key});
 
   @override
   State<BudgetDetail> createState() => _BudgetDetailState();
 }
 
 class _BudgetDetailState extends State<BudgetDetail> {
-  double _amountLeft = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _amountLeft = widget.amount - widget.used;
-  }
-
   Future<void> _deleteBudget() async {
     await BudgetService.deleteBudget(widget.category).then((_) {
       // close alert dialog
@@ -52,7 +39,7 @@ class _BudgetDetailState extends State<BudgetDetail> {
               showDialog(
                 context: context,
                 builder: (context) {
-                  return const EditBudget();
+                  return EditBudget(widget.category);
                 },
               );
             },
@@ -92,29 +79,41 @@ class _BudgetDetailState extends State<BudgetDetail> {
                   foregroundPainter: LinePainter(),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Column(
-                      children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'RM ${_amountLeft.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w500,
+                    child: StreamBuilder<DocumentSnapshot>(
+                      stream: BudgetService.getSingleBudgetStream(widget.category),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting || 
+                            snapshot.hasError || 
+                            !snapshot.hasData) {
+                          return Container();
+                        }
+                        double total = snapshot.data!['amount'].toDouble();
+                        double used = snapshot.data!['used'].toDouble();
+                        return Column(
+                          children: [
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'RM ${used.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            'RM ${widget.amount.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w500,
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                'RM ${total.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      ],
+                          ],
+                        );
+                      }
                     ),
                   )),
             ),
@@ -154,22 +153,6 @@ class _BudgetDetailState extends State<BudgetDetail> {
                 for (int i = 0; i < days; i++) {
                   budgetData.add(BudgetChartData(dailyAmount[i], startDate.add(Duration(days: i))));
                 }
-                // final Map<DateTime, double> totalAmountPerDate = {};
-                
-                // for (var card in historyCards) {
-                //   final date = BudgetService.getOnlyDate(card.date);
-                //   final amount = card.amount;
-
-                //   if (totalAmountPerDate.containsKey(date)) {
-                //     totalAmountPerDate[date] = totalAmountPerDate[date]! + amount;
-                //   } else {
-                //     totalAmountPerDate[date] = amount;
-                //   }
-                // }
-                // budgetData = totalAmountPerDate.entries.map((entry) {
-                //   return BudgetChartData(entry.value, entry.key);
-                // }).toList();
-
                 
                 return ListView(
                   shrinkWrap: true,
