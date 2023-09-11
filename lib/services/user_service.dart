@@ -17,7 +17,7 @@ class UserService {
       final url = await ref.getDownloadURL();
       return url;
     } catch (e) {
-      debugPrint('Failed to get profile image: $e');
+      debugPrint('Error on getting profile image: $e');
       return '';
     }
   }
