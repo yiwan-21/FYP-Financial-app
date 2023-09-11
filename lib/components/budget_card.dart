@@ -54,7 +54,7 @@ class _BudgetCardState extends State<BudgetCard> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'RM ${widget.amount}',
+                    'RM ${widget.amount.toStringAsFixed(2)}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 22,

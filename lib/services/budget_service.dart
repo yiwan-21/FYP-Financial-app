@@ -12,6 +12,7 @@ class BudgetService {
 
   static String documentID = '';
   static DateTime startingDate = DateTime.now();
+    static DateTime resettingDate = DateTime.now();
 
   static Future<void> setDocumentID() async {
     final String uid = FirebaseInstance.auth.currentUser!.uid;
@@ -22,17 +23,19 @@ class BudgetService {
         .then((snapshot) async {
       if (snapshot.docs.isEmpty || !snapshot.docs.first.exists) {
         startingDate = getOnlyDate(DateTime.now());
+        resettingDate = getNextMonth(startingDate);
         DocumentReference budgetDoc = await budgetsCollection.add({
           'userID': uid,
-          'date': startingDate,
+          'startDate': startingDate,
+          'resetDate': resettingDate,
         });
         documentID = budgetDoc.id;
       } else {
         documentID = snapshot.docs.first.id;
-        startingDate = getOnlyDate(snapshot.docs.first['date'].toDate());
+        startingDate = getOnlyDate(snapshot.docs.first['startDate'].toDate());
+        resettingDate = getOnlyDate(snapshot.docs.first['resetDate'].toDate());
       }
     });
-    debugPrint('set DID: $documentID');
   }
 
   static void resetDocumentID() {
@@ -62,10 +65,11 @@ class BudgetService {
   }
 
   static Future<void> updateDate(DateTime date) async {
+    DateTime resetDate = getOnlyDate(date);
+    resettingDate = resetDate;
     await budgetsCollection.doc(documentID).update({
-      'date': getOnlyDate(date),
+      'resetDate': resetDate,
     });
-    
   }
 
   //get from tracker for history
@@ -161,8 +165,54 @@ class BudgetService {
         .doc(category)
         .delete();
   }
-
+ 
+  static Future<void> resetBudget() async {
+    if (FirebaseInstance.auth.currentUser == null || documentID == '') {
+      await setDocumentID();
+    }
+    
+    await budgetsCollection
+        .doc(documentID)
+        .get()
+        .then((snapshot) async {
+          DateTime resetDate = snapshot['resetDate'].toDate();
+          if (getOnlyDate(DateTime.now()).isBefore(resetDate)) {
+            return;
+          }
+          
+          DateTime nextResetDate = getNextMonth(resetDate);
+          startingDate = resetDate;
+          resettingDate = nextResetDate;
+          
+          await snapshot.reference.update({
+            'startDate': resetDate,
+            'resetDate': nextResetDate,
+          });
+          
+          await snapshot.reference
+              .collection('details')
+              .get()
+              .then((snapshot) async {
+                for (var doc in snapshot.docs) {
+                  await doc.reference.update({
+                    'used': 0,
+                  });
+                }
+          });
+        });
+  }
+ 
+ 
+  // utils
   static DateTime getOnlyDate(DateTime date) {
     return DateTime(date.year, date.month, date.day);
+  }
+
+  static DateTime getNextMonth(DateTime date) {
+    DateTime nextMonth = DateTime(date.year, date.month + 1, date.day);
+    if (nextMonth.month - date.month > 1) {
+      nextMonth = DateTime(date.year, date.month, 0);
+    }
+    return nextMonth;
   }
 }

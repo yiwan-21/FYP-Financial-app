@@ -1,6 +1,7 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../pages/home.dart';
 import '../pages/tracker.dart';
 import '../pages/analytics.dart';
@@ -12,6 +13,7 @@ import '../pages/profile.dart';
 import '../constants/style_constant.dart';
 import '../providers/user_provider.dart';
 import '../providers/navigation_provider.dart';
+import '../services/budget_service.dart';
 
 class Navigation extends StatefulWidget {
   static final GlobalKey<ConvexAppBarState> appBarKey =
@@ -51,6 +53,9 @@ class _NavigationState extends State<Navigation> {
       const FloatButton(title: 'Analytics', icon: Icons.align_vertical_bottom_outlined),
       const FloatButton(title: 'Budgeting', icon: Icons.account_balance_wallet),
     ];
+    
+    // check budgeting reset on app launch
+    BudgetService.resetBudget();
   }
 
   @override

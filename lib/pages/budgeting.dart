@@ -24,9 +24,14 @@ class _BudgetingState extends State<Budgeting> {
   @override
   void initState() {
     super.initState();
-    _startingDate = BudgetService.startingDate;
-    _resetDate = DateTime(_startingDate.year, _startingDate.month + 1, _startingDate.day);
-    _textController.text = _selectedDate.toString().substring(0, 10);
+    BudgetService.resetBudget().then((_) {
+      setState(() {
+        _startingDate = BudgetService.startingDate;
+        _resetDate = BudgetService.resettingDate;
+        _selectedDate = _resetDate;
+      });
+      _textController.text = _selectedDate.toString().substring(0, 10);
+    });
   }
 
   @override
@@ -48,7 +53,8 @@ class _BudgetingState extends State<Budgeting> {
         context: context,
         initialDate: _selectedDate,
         firstDate: DateTime.now(),
-        lastDate: DateTime(DateTime.now().year + 2),
+        lastDate: DateTime(
+            DateTime.now().year, DateTime.now().month + 1, DateTime.now().day),
         initialDatePickerMode: DatePickerMode.day);
     if (picked != null) {
       setState(() {
@@ -60,9 +66,9 @@ class _BudgetingState extends State<Budgeting> {
 
   Future<void> onDateChanged() async {
     setState(() {
-      _startingDate = _selectedDate;
+      _resetDate = _selectedDate;
     });
-    await BudgetService.updateDate(_startingDate).then((_) {
+    await BudgetService.updateDate(_selectedDate).then((_) {
       Navigator.pop(context);
     });
   }
@@ -72,14 +78,14 @@ class _BudgetingState extends State<Budgeting> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Change Starting Date'),
+          title: const Text('Change Resetting Date'),
           content: TextFormField(
             onTap: () {
               _selectDate(context);
             },
             readOnly: true,
             decoration: const InputDecoration(
-              labelText: 'Monthly Budget Starting Date',
+              labelText: 'Monthly Budget Resetting Date',
               labelStyle: TextStyle(color: Colors.black),
               suffixIcon: Icon(Icons.calendar_today),
               fillColor: Colors.white,
@@ -116,21 +122,60 @@ class _BudgetingState extends State<Budgeting> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder(
-        future: BudgetService.getBudgetingStream(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: Text("No budgeting yet"));
-          }
-          return StreamBuilder<QuerySnapshot>(
+      body: ListView(
+        children: [
+          const SizedBox(height: 15),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const SizedBox(width: 10),
+              const Text(
+                'Starting date    :\nResetting date :   ',
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              Text(
+                '${_startingDate.toString().substring(0, 10)}\n${_resetDate.toString().substring(0, 10)}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Spacer(),
+              TextButton(
+                onPressed: setResetDate,
+                child: const Text(
+                  'Change',
+                  style: TextStyle(
+                    color: Colors.pink,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          FutureBuilder(
+            future: BudgetService.getBudgetingStream(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              }
+              if (!snapshot.hasData) {
+                return const Center(
+                  child: Text("No budgeting yet"),
+                );
+              }
+              return StreamBuilder<QuerySnapshot>(
                 stream: snapshot.data,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -142,62 +187,31 @@ class _BudgetingState extends State<Budgeting> {
                     return Text('Error: ${snapshot.error}');
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Center(child: Text("No budgeting yet"));
+                    return const Center(
+                      child: Text("No budgeting yet"),
+                    );
                   }
                   List<BudgetCard> budgets = [];
                   for (var doc in snapshot.data!.docs) {
                     budgets.add(BudgetCard(
                       doc.id,
-                      doc['amount'],
-                      doc['used'],
+                      doc['amount'].toDouble(),
+                      doc['used'].toDouble(),
                     ));
                   }
-              return ListView(
-                children: [
-                  const SizedBox(height: 15),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const SizedBox(width: 10),
-                      const Text(
-                        'Starting date    :\nResetting date :   ',
-                        style: TextStyle(
-                          fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        '${_startingDate.toString().substring(0, 10)}\n${_resetDate.toString().substring(0, 10)}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Spacer(),
-                      TextButton(
-                        onPressed: setResetDate,
-                        child: const Text(
-                          'Change',
-                          style: TextStyle(
-                            color: Colors.pink,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  ...List.generate(
-                    budgets.length,
-                    (index) => budgets[index],
-                  ),
-                ],
+                  return ListView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: List.generate(
+                      budgets.length,
+                      (index) => budgets[index],
+                    ),
+                  );
+                },
               );
-            }
-          );
-        }
+            },
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: ColorConstant.lightBlue,
