@@ -213,6 +213,7 @@ class _BudgetingState extends State<Budgeting> {
           ),
         ],
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       floatingActionButton: FloatingActionButton(
         backgroundColor: ColorConstant.lightBlue,
         onPressed: setBudget,
