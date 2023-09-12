@@ -84,7 +84,8 @@ class _BudgetDetailState extends State<BudgetDetail> {
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting || 
                             snapshot.hasError || 
-                            !snapshot.hasData) {
+                            !snapshot.hasData ||
+                            !snapshot.data!.exists) {
                           return Container();
                         }
                         double total = snapshot.data!['amount'].toDouble();
