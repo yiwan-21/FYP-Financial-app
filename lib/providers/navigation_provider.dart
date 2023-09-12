@@ -66,7 +66,7 @@ class NavigationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void goToAnalytics() {
+  void goToBill() {
     _navIndex = 4;
     _pageIndex = 4;
     Navigation.appBarKey.currentState!.animateTo(_navIndex);
@@ -77,6 +77,14 @@ class NavigationProvider extends ChangeNotifier {
   void goToBudgeting() {
     _navIndex = 4;
     _pageIndex = 5;
+    Navigation.appBarKey.currentState!.animateTo(_navIndex);
+    closeMoreTab();
+    notifyListeners();
+  }
+
+  void goToAnalytics() {
+    _navIndex = 4;
+    _pageIndex = 6;
     Navigation.appBarKey.currentState!.animateTo(_navIndex);
     closeMoreTab();
     notifyListeners();
