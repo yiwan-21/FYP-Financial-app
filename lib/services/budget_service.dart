@@ -61,6 +61,25 @@ class BudgetService {
         .snapshots();
   }
 
+  static Future<bool> isCategoryExist(String category) async {
+    bool isExist = false;
+
+    await budgetsCollection 
+        .doc(documentID)
+        .collection('details')
+        .get()
+        .then((snapshot) {
+          for (var doc in snapshot.docs) {
+            if (doc.id == category) {
+              isExist = true;
+              break;
+            }
+          }
+        });
+
+    return isExist;
+  }
+
   static Future<void> addBudget(BudgetCard budget) async {
     await budgetsCollection
         .doc(documentID)
