@@ -107,3 +107,25 @@ class ExpiredGoalNotification extends NotificationModel {
     },
   );
 }
+
+class ExceedingBudgetNotification extends NotificationModel {
+  ExceedingBudgetNotification(categories) :
+  super(
+    'Budget Exceeding', 
+    'You are exceeding 80% of your budget limit for $categories.',
+    () {
+      Provider.of<NavigationProvider>(navigatorKey.currentContext!, listen: false).goToBudgeting();
+    },
+  );
+}
+
+class ExceedBudgetNotification extends NotificationModel {
+  ExceedBudgetNotification(categories) :
+  super(
+    'Budget Exceeded', 
+    'You have exceeded your $categories budget.',
+    () {
+      Provider.of<NavigationProvider>(navigatorKey.currentContext!, listen: false).goToBudgeting();
+    },
+  );
+}

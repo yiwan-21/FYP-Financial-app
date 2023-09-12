@@ -8,4 +8,6 @@ class NotificationType {
   static const String EXPIRING_GOAL_NOTIFICATION = 'ExpiringGoalNotification';
   static const String EXPIRED_GOAL_NOTIFICATION = 'ExpiredGoalNotification';
   static const String REMOVE_FROM_GROUP_NOTIFICATION = 'RemoveFromGroupNotification';
+  static const String EXCEEDING_BUDGET_NOTIFICATION = 'ExceedingBudgetNotification';
+  static const String EXCEED_BUDGET_NOTIFICATION = 'ExceedBudgetNotification';
 }

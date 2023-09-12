@@ -3,8 +3,10 @@ import 'package:financial_app/components/budget_card.dart';
 import 'package:flutter/material.dart';
 
 import '../components/tracker_transaction.dart';
+import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
 import '../services/transaction_service.dart';
+import 'notification_service.dart';
 
 class BudgetService {
   static CollectionReference budgetsCollection =
@@ -109,19 +111,6 @@ class BudgetService {
     });
   }
 
-  //get from tracker for history
-  static Future<void> getTotalAmount() async {
-    // await budgetsCollection
-    //     .doc(documentID)
-    //     .collection('details')
-    //     .get()
-    //     .then((snapshot) {
-    //       for (var category in snapshot.docs) {
-    //         TransactionService.getExpenseByCategory(category.id, );
-    //       }
-    //     })
-  }
-
   static Future<void> updateUsedAmount(
       String category, double amount, DateTime transactionDate) async {
     // check if date is within budgeting date range
@@ -135,8 +124,12 @@ class BudgetService {
           .get()
           .then((snapshot) async {
         if (snapshot.exists) {
-          snapshot.reference.update({
+          await snapshot.reference.update({
             'used': FieldValue.increment(amount),
+          }).then((_) async {
+            double total = snapshot['amount'].toDouble();
+            double used = snapshot['used'].toDouble();
+            await notifyExceedingBudget(category, total, used);
           });
         }
       });
@@ -159,10 +152,10 @@ class BudgetService {
         .doc(documentID)
         .collection('details')
         .get()
-        .then((snapshot) {
+        .then((snapshot) async {
           try {
             if (toSubtractPrevious) {
-              snapshot.docs
+              await snapshot.docs
                   .firstWhere((doc) => doc.id == previous.category)
                   .reference
                   .update({
@@ -170,12 +163,19 @@ class BudgetService {
               });
             }
             if (toAddCurrent) {
-              snapshot.docs
+              DocumentReference currentDoc = snapshot.docs
                   .firstWhere((doc) => doc.id == current.category)
-                  .reference
-                  .update({
+                  .reference;
+              await currentDoc.update({
                 'used': FieldValue.increment(current.amount),
               });
+              await currentDoc
+                  .get()
+                  .then((snapshot) async {
+                    double total = snapshot['amount'].toDouble();
+                    double used = snapshot['used'].toDouble();
+                    await notifyExceedingBudget(current.category, total, used);
+                  });
             }
           } catch (e) {
             debugPrint('Error on updateOnTransactionChanged: $e');
@@ -227,6 +227,20 @@ class BudgetService {
         });
   }
  
+  // Send Notification
+  static Future<void> notifyExceedingBudget(String category, double total, double used) async {
+    if (used >= total) {
+      // send exceeded budget notification
+      const String type = NotificationType.EXCEED_BUDGET_NOTIFICATION;
+      final List<String> receiverID = [FirebaseInstance.auth.currentUser!.uid];
+      await NotificationService.sendNotification(type, receiverID, objName: category);
+    } else if (used >= (total * 0.8)) {
+      // send exceeding budget notification
+      const String type = NotificationType.EXCEEDING_BUDGET_NOTIFICATION;
+      final List<String> receiverID = [FirebaseInstance.auth.currentUser!.uid];
+      await NotificationService.sendNotification(type, receiverID, objName: category);
+    }
+  }
  
   // utils
   static DateTime getOnlyDate(DateTime date) {
