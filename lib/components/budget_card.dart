@@ -18,12 +18,14 @@ class _BudgetCardState extends State<BudgetCard> {
   double _progress = 0;
 
   void _calProgress() {
-    setState(() {
-      _progress = widget.used / widget.amount;
-      if (_progress > 1) {
-        _progress = 1;
-      }
-    });
+    if (mounted && context.mounted) {
+      setState(() {
+        _progress = widget.used / widget.amount;
+        if (_progress > 1) {
+          _progress = 1;
+        }
+      });
+    }
   }
 
   void _detail() {
