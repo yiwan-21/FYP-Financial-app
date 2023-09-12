@@ -12,4 +12,5 @@ class RouteName {
   static const groupSettings = '/group/settings';
   static const splitMoneyExpense = '/group/expense';
   static const addGroupExpense = '/group/expense/add';
+  static const budgetDetail = '/budget';
 }

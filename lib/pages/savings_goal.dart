@@ -16,62 +16,54 @@ class SavingsGoal extends StatefulWidget {
 class _SavingsGoalState extends State<SavingsGoal> {
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxWidth: 768,
-      ),
-      child: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              physics: const BouncingScrollPhysics(),
-              children: [
-                const SizedBox(height: 12),
-                StreamBuilder<QuerySnapshot>(
-                  stream: Provider.of<TotalGoalProvider>(context, listen: false).getGoalsStream,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                    if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    }
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return const Center(child: Text("No goal yet"));
-                    }
-
-                    List<Goal> goals = snapshot.data!.docs
-                        .map((doc) => Goal.fromDocument(doc))
-                        .toList();
-                        
-                    return Wrap(
-                      children: List.generate(goals.length, (index) {
-                        return goals[index];
-                      }),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-          Container(
-            alignment: Alignment.bottomRight,
-            margin: const EdgeInsets.only(bottom: 20, right: 10),
-            child: FloatingActionButton(
-              backgroundColor: ColorConstant.lightBlue,
-              onPressed: () {
-                Navigator.pushNamed(context, RouteName.addGoal);
+    return Scaffold(
+      body: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxWidth: 768,
+        ),
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          children: [
+            const SizedBox(height: 12),
+            StreamBuilder<QuerySnapshot>(
+              stream: Provider.of<TotalGoalProvider>(context, listen: false).getGoalsStream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(child: Text("No goal yet"));
+                }
+    
+                List<Goal> goals = snapshot.data!.docs
+                    .map((doc) => Goal.fromDocument(doc))
+                    .toList();
+                    
+                return Wrap(
+                  children: List.generate(goals.length, (index) {
+                    return goals[index];
+                  }),
+                );
               },
-              child: const Icon(
-                Icons.add,
-                size: 27,
-                color: Colors.black,
-              ),
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: ColorConstant.lightBlue,
+        onPressed: () {
+          Navigator.pushNamed(context, RouteName.addGoal);
+        },
+        child: const Icon(
+          Icons.add,
+          size: 27,
+          color: Colors.black,
+        ),
       ),
     );
   }

@@ -17,6 +17,7 @@ import './pages/split_money_group.dart';
 import './pages/split_money_expense.dart';
 import './pages/add_group_expense.dart';
 import './pages/group_settings.dart';
+import './pages/budget_detail.dart';
 import './constants/route_name.dart';
 import './providers/goal_provider.dart';
 import './providers/navigation_provider.dart';
@@ -144,7 +145,7 @@ class MyApp extends StatelessWidget {
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());
             }
-            case RouteName.groupSettings:
+          case RouteName.groupSettings:
             if (isLoggedIn()) {
               return MaterialPageRoute(builder: (_) => const GroupSettings());
             } else {
@@ -155,13 +156,24 @@ class MyApp extends StatelessWidget {
               // get argument from route
               final args = settings.arguments as Map<String, dynamic>;
               return MaterialPageRoute(
-                  builder: (_) => SplitMoneyExpense(expenseID: args['id'], tabIndex: args['tabIndex']));
+                  builder: (_) => SplitMoneyExpense(
+                      expenseID: args['id'], tabIndex: args['tabIndex']));
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());
             }
           case RouteName.addGroupExpense:
             if (isLoggedIn()) {
               return MaterialPageRoute(builder: (_) => const AddGroupExpense());
+            } else {
+              return MaterialPageRoute(builder: (_) => const FinancialApp());
+            }
+          case RouteName.budgetDetail:
+            if (isLoggedIn()) {
+              // get argument from route
+              final args = settings.arguments as Map<String, dynamic>;
+              return MaterialPageRoute(
+                builder: (_) => BudgetDetail(category: args['category']),
+              );
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());
             }

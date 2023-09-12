@@ -9,7 +9,8 @@ class HistoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
+      margin: const EdgeInsets.only(left: 12, right: 12, bottom: 12),
+      elevation: 5,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         child: Row(

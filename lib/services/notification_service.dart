@@ -1,19 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 
 import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
 import '../models/notifications.dart';
-import 'split_money_service.dart';
+import '../services/split_money_service.dart';
 
 class NotificationService {
   static CollectionReference get notificationCollection =>
       FirebaseInstance.firestore.collection('notifications');
 
   static Future<void> sendNotification(String type, List<String> receiverID, {String? functionID, String? objName}) async {
-    debugPrint('Sending Notification: $type, $receiverID, $functionID');
     NotificationModel? newNotification = await getNotificationModel(type, functionID: functionID, objName: objName);
-    debugPrint('notification: ${newNotification?.message}');
     if (newNotification != null) {
       await notificationCollection.add({
         'receiverID': receiverID,
@@ -66,6 +63,12 @@ class NotificationService {
         final groupName = await SplitMoneyService.getGroupName(functionID);
         notificationModel = RemoveFromGroupNotification(groupName);
         break;
+      case NotificationType.EXCEEDING_BUDGET_NOTIFICATION:
+        notificationModel = ExceedingBudgetNotification(objName);
+        break;
+      case NotificationType.EXCEED_BUDGET_NOTIFICATION:
+        notificationModel = ExceedBudgetNotification(objName);
+        break;
     }
     return notificationModel;
   }
@@ -100,11 +103,16 @@ class NotificationService {
       case NotificationType.REMOVE_FROM_GROUP_NOTIFICATION:
         notificationModel = RemoveFromGroupNotification('');
         break;
+      case NotificationType.EXCEEDING_BUDGET_NOTIFICATION:
+        notificationModel = ExceedingBudgetNotification('');
+        break;
+      case NotificationType.EXCEED_BUDGET_NOTIFICATION:
+        notificationModel = ExceedBudgetNotification('');
+        break;
     }
     if (notificationModel == null) {
       return () {};
     }
-    debugPrint('notificationModel: ${notificationModel.navigateFunction()}');
     return notificationModel.navigateFunction();
   }
 

@@ -16,6 +16,7 @@ class ValidatorMessage {
   static String emptyGroupName = "Please enter a goup name.";
   static String emptyGroupExpenseTitle = "Please enter a group expense title.";
   static String emptySharedBy = "Please select a member to share the cost.";
+  static String repeatCategory = "The chosen category is existed.";
 }
 
 class SuccessMessage {

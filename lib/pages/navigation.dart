@@ -1,6 +1,7 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../pages/home.dart';
 import '../pages/tracker.dart';
 import '../pages/analytics.dart';
@@ -12,33 +13,49 @@ import '../pages/profile.dart';
 import '../constants/style_constant.dart';
 import '../providers/user_provider.dart';
 import '../providers/navigation_provider.dart';
+import '../services/budget_service.dart';
 
 class Navigation extends StatefulWidget {
-  static final GlobalKey<ConvexAppBarState> appBarKey = GlobalKey<ConvexAppBarState>();
+  static final GlobalKey<ConvexAppBarState> appBarKey =
+      GlobalKey<ConvexAppBarState>();
   const Navigation({super.key});
 
   @override
   State<Navigation> createState() => _NavigationState();
 }
 
-class _NavigationState extends State<Navigation> with SingleTickerProviderStateMixin {
-  void _onItemTapped(int index) {
-    Provider.of<NavigationProvider>(context, listen: false).setCurrentIndex(index);
-  }
-
+class _NavigationState extends State<Navigation> {
   Map<String, Widget> _pages = {};
+  List<FloatButton> _options = [];
+
+  void _onItemTapped(int index) {
+    NavigationProvider navigationProvider = Provider.of<NavigationProvider>(context, listen: false);
+    if (index == 4) {
+      // Index of "More" tab
+      navigationProvider.toggleMoreTab(); // Toggle the state of the More tab
+    } else {
+      navigationProvider.setIndex(index, index);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     _pages = {
-      "Tracker": const Tracker(),
-      "Financial Analytics": const Analytics(),
-      "Home": const Home(),
       "Split Money": const SplitMoney(),
       "Savings Goal": const SavingsGoal(),
-      // "Budgeting Tool": const Budgeting(),
+      "Home": const Home(),
+      "Tracker": const Tracker(),
+      "Financial Analytics": const Analytics(),
+      "Budgeting Tool": const Budgeting(),
     };
+    _options = [
+      const FloatButton(title: 'Analytics', icon: Icons.align_vertical_bottom_outlined),
+      const FloatButton(title: 'Budgeting', icon: Icons.account_balance_wallet),
+    ];
+    
+    // check budgeting reset on app launch
+    BudgetService.resetBudget();
   }
 
   @override
@@ -48,8 +65,7 @@ class _NavigationState extends State<Navigation> with SingleTickerProviderStateM
         return Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: false,
-            title:
-                Text(_pages.keys.elementAt(navigationProvider.currentIndex)),
+            title: Text(_pages.keys.elementAt(navigationProvider.pageIndex)),
             actions: [
               const NotificationMenu(),
               Builder(builder: (BuildContext context) {
@@ -83,26 +99,84 @@ class _NavigationState extends State<Navigation> with SingleTickerProviderStateM
           ),
           endDrawer: const Profile(),
           body: Center(
-            child: _pages.values.elementAt(navigationProvider.currentIndex),
+            child: _pages.values.elementAt(navigationProvider.pageIndex),
           ),
           bottomNavigationBar: ConvexAppBar(
             key: Navigation.appBarKey,
             backgroundColor: lightRed,
             color: Colors.white,
-            items: const[
-              TabItem(icon: Icons.attach_money, title: 'Tracker',),
-              TabItem(icon: Icons.align_vertical_bottom_outlined, title: 'Analytics'),
-              TabItem(icon: Icons.home, title: 'Home'),
-              TabItem(icon: Icons.diversity_3, title: 'Split Money'),
+            items: const [
+              TabItem(icon: Icons.diversity_3, title: 'Group'),
               TabItem(icon: Icons.star, title: 'Goal'),
+              TabItem(icon: Icons.home, title: 'Home'),
+              TabItem(icon: Icons.attach_money, title: 'Tracker'),
+              TabItem(icon: Icons.more_horiz, title: 'More'),
             ],
-            initialActiveIndex: navigationProvider.currentIndex,
+            initialActiveIndex: navigationProvider.navIndex,
             onTap: _onItemTapped,
-            curve: Curves.easeInOut
+            curve: Curves.easeInOut,
           ),
+          floatingActionButton: navigationProvider.isMoreTabActive
+              ? Container(
+                  margin: const EdgeInsets.only(bottom: 10.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 10.0, horizontal: 8.0),
+                  decoration: BoxDecoration(
+                    color: lightRed,
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(
+                      _options.length,
+                      (index) {
+                        return GestureDetector(
+                          onTap: () {
+                            int newIndex = index + 4;
+                            navigationProvider.setIndex(4, newIndex);
+                          },
+                          child: _options[index],
+                        );
+                      },
+                    ),
+                  ),
+                )
+              : null,
         );
       },
     );
   }
 }
 
+class FloatButton extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final Color? color;
+
+  const FloatButton(
+      {super.key, required this.title, required this.icon, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 10),
+          Icon(
+            icon,
+            color: color ?? Colors.white,
+          ),
+          const SizedBox(height: 5),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
+      ),
+    );
+  }
+}

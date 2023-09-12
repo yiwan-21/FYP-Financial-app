@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../firebase_instance.dart';
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
 import '../components/tracker_transaction.dart';
@@ -35,6 +34,7 @@ class _EditTransactionState extends State<EditTransaction> {
     super.initState();
     final TransactionProvider transactionProvider =
         Provider.of<TransactionProvider>(context, listen: false);
+    
     _id = transactionProvider.getId;
     _title = transactionProvider.getTitle;
     _notes = transactionProvider.getNotes;
@@ -42,8 +42,7 @@ class _EditTransactionState extends State<EditTransaction> {
     _date = transactionProvider.getDate;
     _isExpense = transactionProvider.getIsExpense;
     _category = transactionProvider.getCategory;
-    _categoryList =
-        _isExpense ? Constant.expenseCategories : Constant.incomeCategories;
+    _categoryList = _isExpense ? Constant.expenseCategories : Constant.incomeCategories;
   }
 
   void updateTransaction() async {
@@ -52,7 +51,6 @@ class _EditTransactionState extends State<EditTransaction> {
       _formKey.currentState!.save();
       final editedTransaction = TrackerTransaction(
         id: _id,
-        userID: FirebaseInstance.auth.currentUser!.uid,
         title: _title,
         amount: _amount,
         date: _date,
@@ -60,17 +58,21 @@ class _EditTransactionState extends State<EditTransaction> {
         category: _category,
         notes: _notes,
       );
-
-      await TransactionService.updateTransaction(editedTransaction).then((_) {
-        Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
+      
+      // update budgeting if category is changed
+      TrackerTransaction previousTransaction = Provider.of<TransactionProvider>(context, listen: false).getTransaction;
+      await TransactionService.updateTransaction(editedTransaction, previousTransaction).then((_) {
+        Provider.of<TotalTransactionProvider>(context, listen: false)
+            .updateTransactions();
         Navigator.pop(context);
       });
     }
   }
 
   void deleteTransaction() async {
-    await TransactionService.deleteTransaction(_id).then((_) {
-      Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
+    await TransactionService.deleteTransaction(_id, _isExpense).then((_) {
+      Provider.of<TotalTransactionProvider>(context, listen: false)
+          .updateTransactions();
       // quit dialog box
       Navigator.pop(context);
       // quit edit transaction page
@@ -78,12 +80,13 @@ class _EditTransactionState extends State<EditTransaction> {
     });
   }
 
-  Future<void> _selectDate(BuildContext context, DateTime initialValue) async {
+  Future<void> _selectDate() async {
     final DateTime? picked = await showDatePicker(
-        context: context,
-        initialDate: initialValue,
-        firstDate: DateTime(2020),
-        lastDate: DateTime(2025));
+      context: context,
+      initialDate: _date,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
     if (picked != null) {
       setState(() {
         _date = picked;
@@ -204,9 +207,7 @@ class _EditTransactionState extends State<EditTransaction> {
                   // date
                   TextFormField(
                     readOnly: true,
-                    onTap: () {
-                      _selectDate(context, _date);
-                    },
+                    onTap: _selectDate,
                     decoration: const InputDecoration(
                       labelText: 'Date',
                       labelStyle: TextStyle(color: Colors.black),
