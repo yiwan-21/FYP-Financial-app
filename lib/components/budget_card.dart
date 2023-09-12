@@ -16,30 +16,27 @@ class BudgetCard extends StatefulWidget {
 
 class _BudgetCardState extends State<BudgetCard> {
   double _progress = 0;
-  @override
-  void initState() {
-    super.initState();
-    _progress = widget.used / widget.amount;
-    if (_progress > 1) {
-      _progress = 1;
-    }
+
+  void _calProgress() {
+    setState(() {
+      _progress = widget.used / widget.amount;
+      if (_progress > 1) {
+        _progress = 1;
+      }
+    });
   }
 
   void _detail() {
     Navigator.pushNamed(context, RouteName.budgetDetail, arguments: {
       'category': widget.category,
     }).then((_) {
-      setState(() {
-        _progress = widget.used / widget.amount;
-        if (_progress > 1) {
-          _progress = 1;
-        }
-      });
+      _calProgress();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    _calProgress();
     return GestureDetector(
       onTap: _detail,
       child: Card(
