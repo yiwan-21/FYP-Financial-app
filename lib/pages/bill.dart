@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../components/bill_card.dart';
 import '../components/custom_circular_progress.dart';
 import '../constants/style_constant.dart';
+import '../constants/route_name.dart';
 
 class Bill extends StatefulWidget {
   const Bill({super.key});
@@ -15,7 +16,9 @@ class _BillState extends State<Bill> {
   double value = 0.75;
   double radius = 90;
 
-  void _addBill() {}
+  void _addBill() {
+    Navigator.pushNamed(context, RouteName.manageBill, arguments: {'isEditing': false});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,18 +31,17 @@ class _BillState extends State<Bill> {
             padding: EdgeInsets.only(top: radius + 30, bottom: radius + 20),
             child: CustomPaint(
               painter: CustomCircularProgress(
-                value: value,
-                strokeWidth: radius / 10,
-                radius: radius,
-                startAngle: 3,
-                sweepAngle: 360,
-                heightMultiply: 0.5,
-                widthMultiply: 2,
-                colors: [
-                  Colors.deepPurpleAccent[100]!,
-                  Colors.deepPurpleAccent[700]!,
-                ]
-              ),
+                  value: value,
+                  strokeWidth: radius / 10,
+                  radius: radius,
+                  startAngle: 3,
+                  sweepAngle: 360,
+                  heightMultiply: 0.5,
+                  widthMultiply: 2,
+                  colors: [
+                    Colors.deepPurpleAccent[100]!,
+                    Colors.deepPurpleAccent[700]!,
+                  ]),
               child: Text(
                 'Paid ${(value * 100).toInt()}%',
                 style: const TextStyle(
@@ -59,12 +61,12 @@ class _BillState extends State<Bill> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 10),
-          const BillCard('Rental', 600, true, 5),
-          const BillCard('Water', 8, false, 3),
-          const BillCard('Internet', 52, true, 15),
-          const BillCard('Rental', 600, true, 7),
-          const BillCard('Water', 8, false, 20),
-          const BillCard('Internet', 52, true, 30),
+           BillCard('1','Rental', 600, true, DateTime.now(), true),
+           BillCard('2','Water', 8, false, DateTime.now().add(const Duration(days: 3)), false),
+           BillCard('3','Internet', 52, true, DateTime.now().add(const Duration(days: 5)), false),
+           BillCard('4','Rental', 600, true, DateTime.now().add(const Duration(days: 7)), true),
+           BillCard('5','Water', 8, false, DateTime.now().add(const Duration(days: 2)), false),
+           BillCard('6','Internet', 52, true, DateTime.now().add(const Duration(days: 1)), true),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,

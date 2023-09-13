@@ -1,24 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../constants/route_name.dart';
 import '../constants/style_constant.dart';
+import '../components/alert_with_checkbox.dart';
+import '../components/tracker_transaction.dart';
+import '../providers/total_transaction_provider.dart';
+import '../services/transaction_service.dart';
 
 class BillCard extends StatefulWidget {
+  final String id;
   final String title;
   final double amount;
   final bool paid;
-  final int dueIn;
-  
-  const BillCard(this.title, this.amount, this.paid, this.dueIn, {super.key});
+  final DateTime dueDate;
+  final bool fixed;
+
+  const BillCard(this.id, this.title, this.amount, this.paid, this.dueDate, this.fixed, {super.key});
 
   @override
   State<BillCard> createState() => _BillCardState();
 }
 
 class _BillCardState extends State<BillCard> {
-  void _editBill() {}
+  int get dueIn {
+    final int days = widget.dueDate.difference(DateTime.now()).inDays;
+    return days;
+  }
 
-  void _payBill() {}
-  
+  void _editBill() {
+    Navigator.pushNamed(context, RouteName.manageBill, arguments: {
+      'isEditing': true,
+      'id': widget.id,
+      'title': widget.title,
+      'amount': widget.amount,
+      'date': widget.dueDate,
+      'fixed': widget.fixed,
+    });
+  }
+
+  void _payBill() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithCheckbox(
+            title: 'Add Amount',
+            contentLabel: 'Amount',
+            checkboxLabel: 'Add an expense record',
+            defaultChecked: true,
+            onSaveFunction: _onSave,
+            checkedFunction: _checkedFunction,
+          );
+        });
+  }
+
+  void _onSave(double value) async {}
+
+  void _checkedFunction(double value) async {
+    final TrackerTransaction newTransaction = TrackerTransaction(
+      id: '',
+      title: 'Bill: ${widget.title}',
+      amount: value,
+      date: DateTime.now(),
+      isExpense: true,
+      category: 'Bill',
+      notes:
+          'Auto Generated: Paid RM ${value.toStringAsFixed(2)} for ${widget.title}',
+    );
+    await TransactionService.addTransaction(newTransaction).then((_) {
+      Provider.of<TotalTransactionProvider>(context, listen: false)
+          .updateTransactions();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -38,42 +92,43 @@ class _BillCardState extends State<BillCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.title, 
+                      widget.title,
                       style: const TextStyle(
-                        fontWeight: FontWeight.w500, 
+                        fontWeight: FontWeight.w500,
                         fontSize: 18,
                       ),
                     ),
                     const SizedBox(height: 5),
-                    Text(
-                      'Due in ${widget.dueIn} days',
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 12,
-                      )  
-                    ),
+                    Text('Due in $dueIn days',
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12,
+                        )),
                   ],
                 ),
                 const Spacer(),
                 Row(
                   children: [
                     Text(
-                      'RM ${widget.amount.toStringAsFixed(2)}', 
+                      'RM ${widget.amount.toStringAsFixed(2)}',
                       style: const TextStyle(
-                        fontWeight: FontWeight.w500, 
+                        fontWeight: FontWeight.w500,
                         fontSize: 16,
                       ),
                     ),
                     const SizedBox(width: 10),
                     CircleAvatar(
                       radius: 15,
-                      backgroundColor: widget.paid? Colors.greenAccent[700] : Colors.grey[300],
-                      child: widget.paid ? const Icon (
-                        Icons.check,
-                        color: Colors.white,
-                        size: 20,
-                      ) 
-                      : null,
+                      backgroundColor: widget.paid
+                          ? Colors.greenAccent[700]
+                          : Colors.grey[300],
+                      child: widget.paid
+                          ? const Icon(
+                              Icons.check,
+                              color: Colors.white,
+                              size: 20,
+                            )
+                          : null,
                     ),
                   ],
                 ),
@@ -81,7 +136,9 @@ class _BillCardState extends State<BillCard> {
             ),
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 4.0),
-              child: Divider(thickness: 0.5,),
+              child: Divider(
+                thickness: 0.5,
+              ),
             ),
             Row(
               children: [
@@ -98,41 +155,33 @@ class _BillCardState extends State<BillCard> {
                     SizedBox(height: 5),
                     Row(
                       children: [
-                        Text(
-                          'Aug',
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
-                          )  
-                        ),
+                        Text('Aug',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            )),
                         SizedBox(width: 30),
-                        Text(
-                          'RM 55000',
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
-                          )  
-                        ),
+                        Text('RM 55000',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            )),
                       ],
                     ),
                     SizedBox(height: 5),
                     Row(
                       children: [
-                        Text(
-                          'July',
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
-                          )  
-                        ),
+                        Text('July',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            )),
                         SizedBox(width: 30),
-                        Text(
-                          'RM 800',
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
-                          )  
-                        ),
+                        Text('RM 800',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            )),
                       ],
                     ),
                   ],
@@ -142,10 +191,11 @@ class _BillCardState extends State<BillCard> {
                   children: [
                     ElevatedButton(
                       style: ButtonStyle(
-                        fixedSize: MaterialStateProperty.all<Size>(const Size(80, 20)),
+                        fixedSize:
+                            MaterialStateProperty.all<Size>(const Size(80, 20)),
                         visualDensity: VisualDensity.compact,
                       ),
-                      onPressed: _editBill, 
+                      onPressed: _editBill,
                       child: const Text(
                         'Edit Bill',
                         style: TextStyle(
@@ -157,13 +207,15 @@ class _BillCardState extends State<BillCard> {
                     const SizedBox(width: 10),
                     ElevatedButton(
                       style: ButtonStyle(
-                        fixedSize: MaterialStateProperty.all<Size>(const Size(80, 20)),
+                        fixedSize:
+                            MaterialStateProperty.all<Size>(const Size(80, 20)),
                         visualDensity: VisualDensity.compact,
-                        backgroundColor: MaterialStateProperty.all<Color>(widget.paid ? Colors.grey[400]! : lightRed),
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            widget.paid ? Colors.grey[400]! : lightRed),
                       ),
-                      onPressed: widget.paid? null : _payBill, 
+                      onPressed: widget.paid ? null : _payBill,
                       child: Text(
-                        widget.paid? 'Paid':'Pay Now',
+                        widget.paid ? 'Paid' : 'Pay Now',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 11,

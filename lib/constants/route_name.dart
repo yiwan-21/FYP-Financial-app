@@ -13,4 +13,5 @@ class RouteName {
   static const splitMoneyExpense = '/group/expense';
   static const addGroupExpense = '/group/expense/add';
   static const budgetDetail = '/budget';
+  static const manageBill = '/bill/manage';
 }
