@@ -10,6 +10,7 @@ class AlertWithCheckbox extends StatefulWidget {
   final double? maxValue;
   final String checkboxLabel;
   final bool defaultChecked;
+  final String? confirmButtonLabel;
   final Function(double value) onSaveFunction;
   final Function(double value) checkedFunction;
 
@@ -22,6 +23,7 @@ class AlertWithCheckbox extends StatefulWidget {
     required this.checkedFunction,
     this.defaultValue, 
     this.maxValue,
+    this.confirmButtonLabel,
     super.key
   });
 
@@ -146,7 +148,7 @@ class _AlertWithCheckboxState extends State<AlertWithCheckbox> {
               borderRadius: BorderRadius.circular(4.0),
             ),
           ),
-          child: const Text('Save'),
+          child: Text(widget.confirmButtonLabel ?? 'Save'),
           onPressed: () {
             if (_formKey.currentState!.validate()) {
               // Submit form data to server or database

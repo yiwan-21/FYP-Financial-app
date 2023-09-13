@@ -1,3 +1,4 @@
+import 'package:financial_app/services/bill_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,8 +16,11 @@ class BillCard extends StatefulWidget {
   final bool paid;
   final DateTime dueDate;
   final bool fixed;
+  // final Map<DateTime, double> history;
 
-  const BillCard(this.id, this.title, this.amount, this.paid, this.dueDate, this.fixed, {super.key});
+  const BillCard(
+      this.id, this.title, this.amount, this.paid, this.dueDate, this.fixed,
+      {super.key});
 
   @override
   State<BillCard> createState() => _BillCardState();
@@ -39,7 +43,7 @@ class _BillCardState extends State<BillCard> {
     });
   }
 
-  void _payBill() {
+  void _payBillDialog() {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -48,15 +52,18 @@ class _BillCardState extends State<BillCard> {
             contentLabel: 'Amount',
             checkboxLabel: 'Add an expense record',
             defaultChecked: true,
-            onSaveFunction: _onSave,
+            onSaveFunction: _payBill,
             checkedFunction: _checkedFunction,
+            confirmButtonLabel: 'Pay',
           );
         });
   }
 
-  void _onSave(double value) async {}
+  Future<void> _payBill(double value) async {
+    await BillService.payBill(widget.id, value, widget.fixed);
+  }
 
-  void _checkedFunction(double value) async {
+  Future<void> _checkedFunction(double value) async {
     final TrackerTransaction newTransaction = TrackerTransaction(
       id: '',
       title: 'Bill: ${widget.title}',
@@ -109,13 +116,14 @@ class _BillCardState extends State<BillCard> {
                 const Spacer(),
                 Row(
                   children: [
-                    Text(
-                      'RM ${widget.amount.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
+                    if (widget.fixed || widget.paid)
+                      Text(
+                        'RM ${widget.amount.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                        ),
                       ),
-                    ),
                     const SizedBox(width: 10),
                     CircleAvatar(
                       radius: 15,
@@ -213,7 +221,7 @@ class _BillCardState extends State<BillCard> {
                         backgroundColor: MaterialStateProperty.all<Color>(
                             widget.paid ? Colors.grey[400]! : lightRed),
                       ),
-                      onPressed: widget.paid ? null : _payBill,
+                      onPressed: widget.paid ? null : _payBillDialog,
                       child: Text(
                         widget.paid ? 'Paid' : 'Pay Now',
                         style: const TextStyle(

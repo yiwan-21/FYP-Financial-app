@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../components/alert_confirm_action.dart';
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
+import '../services/bill_service.dart';
 
 class ManageBill extends StatefulWidget {
   final bool isEditing;
@@ -13,7 +14,9 @@ class ManageBill extends StatefulWidget {
   final DateTime? date;
   final bool? fixed;
 
-  const ManageBill(this.isEditing, this.id, this.title, this.amount, this.date, this.fixed, {super.key});
+  const ManageBill(
+      this.isEditing, this.id, this.title, this.amount, this.date, this.fixed,
+      {super.key});
 
   @override
   State<ManageBill> createState() => _ManageBillState();
@@ -35,13 +38,16 @@ class _ManageBillState extends State<ManageBill> {
       _date = widget.date ?? DateTime.now();
       _fixed = widget.fixed ?? false;
     });
-    debugPrint('title: $_title, amount: $_amount, date: $_date');
   }
 
   Future<void> _addBill() async {
     if (_formKey.currentState!.validate()) {
       // Submit form data to server or database
       _formKey.currentState!.save();
+
+      await BillService.addBill(_title, _amount, _date, _fixed).then((_) {
+        Navigator.pop(context);
+      });
     }
   }
 
@@ -49,11 +55,20 @@ class _ManageBillState extends State<ManageBill> {
     if (_formKey.currentState!.validate()) {
       // Submit form data to server or database
       _formKey.currentState!.save();
+
+      await BillService.editBill(widget.id!, _title, _amount, _date, _fixed).then((_) {
+        Navigator.pop(context);
+      });
     }
   }
 
   Future<void> _deleteBill() async {
-    
+    await BillService.deleteBill(widget.id!).then((_) {
+      // close dialog
+      Navigator.pop(context);
+      // back to bill page
+      Navigator.pop(context);
+    });
   }
 
   //only select within the month?
@@ -78,7 +93,8 @@ class _ManageBillState extends State<ManageBill> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: widget.isEditing? const Text('Edit Bill') : const Text('Add Bill'),
+        title:
+            widget.isEditing ? const Text('Edit Bill') : const Text('Add Bill'),
         actions: [
           if (widget.isEditing)
             IconButton(
@@ -140,11 +156,8 @@ class _ManageBillState extends State<ManageBill> {
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(width: 1.5),
                       ),
-                      enabledBorder: OutlineInputBorder(
+                      border: OutlineInputBorder(
                         borderSide: BorderSide(width: 1),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1.5, color: Colors.red),
                       ),
                     ),
                     validator: (value) {
@@ -174,57 +187,13 @@ class _ManageBillState extends State<ManageBill> {
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(width: 1.5),
                       ),
-                      enabledBorder: OutlineInputBorder(
+                      border: OutlineInputBorder(
                         borderSide: BorderSide(width: 1),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1.5, color: Colors.red),
                       ),
                     ),
                     controller: TextEditingController(
                       text: _date.toString().substring(0, 10),
                     ),
-                  ),
-                  const SizedBox(height: 24.0),
-                  TextFormField(
-                    initialValue: _amount == 0 ? null : _amount.toStringAsFixed(2),
-                    decoration: const InputDecoration(
-                      labelText: 'Amount',
-                      labelStyle: TextStyle(color: Colors.black),
-                      fillColor: Colors.white,
-                      filled: true,
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1.5),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1.5, color: Colors.red),
-                      ),
-                    ),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.allow(
-                          RegExp(r'^\d+\.?\d{0,2}')),
-                    ],
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return ValidatorMessage.emptyAmount;
-                      }
-                      if (double.tryParse(value) == null) {
-                        return ValidatorMessage.invalidAmount;
-                      }
-                      return null;
-                    },
-                    onChanged: (value) {
-                      setState(() {
-                        _amount = double.tryParse(value) == null
-                            ? 0
-                            : double.parse(value);
-                      });
-                    },
                   ),
                   const SizedBox(height: 10.0),
                   Row(
@@ -247,6 +216,50 @@ class _ManageBillState extends State<ManageBill> {
                         },
                       ),
                     ],
+                  ),
+                  TextFormField(
+                    enabled: _fixed,
+                    initialValue:
+                        _amount == 0 ? null : _amount.toStringAsFixed(2),
+                    decoration: InputDecoration(
+                      labelText: 'Amount',
+                      labelStyle: TextStyle(
+                        color: _fixed? Colors.black : Colors.black38 ,
+                      ),
+                      fillColor: _fixed ? Colors.white : null,
+                      filled: true,
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(width: 1.5),
+                      ),
+                      border: const OutlineInputBorder(
+                        borderSide: BorderSide(width: 1),
+                      ),
+                    ),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d+\.?\d{0,2}')),
+                    ],
+                    validator: (value) {
+                      if (!_fixed) {
+                        return null;
+                      }
+                      if (value!.isEmpty) {
+                        return ValidatorMessage.emptyAmount;
+                      }
+                      if (double.tryParse(value) == null) {
+                        return ValidatorMessage.invalidAmount;
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      setState(() {
+                        _amount = double.tryParse(value) == null
+                            ? 0
+                            : double.parse(value);
+                      });
+                    },
                   ),
                   const SizedBox(height: 24.0),
                   Row(
