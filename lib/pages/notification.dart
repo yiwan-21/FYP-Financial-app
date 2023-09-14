@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../constants/constant.dart';
 import '../firebase_instance.dart';
 import '../models/notifications.dart';
+import '../services/bill_service.dart';
 import '../services/goal_service.dart';
 import '../services/notification_service.dart';
 
@@ -20,6 +21,7 @@ class _NotificationMenuState extends State<NotificationMenu> {
     super.initState();
     NotificationService.cronJobDeletion();
     GoalService.expiringGoalNotification();
+    BillService.billDueNotification();
   }
 
   @override

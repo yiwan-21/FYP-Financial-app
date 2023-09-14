@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
+import 'notification_service.dart';
 
 class BillService {
   static CollectionReference billsCollection =
@@ -64,5 +66,73 @@ class BillService {
 
   static Future<void> deleteBill(String id) async {
     await billsCollection.doc(id).delete();
+  }
+
+  // Send Notification
+  // Cron Job
+  static Future<void> billDueNotification() async {
+    // Get Due Bill
+    final String uid = FirebaseInstance.auth.currentUser!.uid;
+    bool isSentToday = false;
+    // title: days
+    final List<Map<String, int>> dueBills = [];
+    // Send notification when bill is due in 3 days. 
+    final DateTime now = DateTime.now();
+    final DateTime futureThreshold = DateTime(now.year, now.month, now.day + 3);
+    final DateTime todayThreshold = DateTime(now.year, now.month, now.day);
+    final DateTime pastThreshold = DateTime(now.year, now.month, now.day - 3);
+
+    await FirebaseInstance.firestore.collection('notifications')
+        .where('receiverID', arrayContains: uid)
+        .where('type', whereIn: [NotificationType.BILL_DUE_NOTIFICATION])
+        .orderBy('createdAt', descending: true)
+        .get()
+        .then((snapshot) {
+          if (snapshot.docs.isNotEmpty) {
+            final DateTime lastNotificationDate = snapshot.docs.first['createdAt'].toDate();
+            final DateTime onlyDate = DateTime(lastNotificationDate.year, lastNotificationDate.month, lastNotificationDate.day);
+            if (onlyDate.isAtSameMomentAs(todayThreshold)) {
+              isSentToday = true;
+            }
+          }
+        });
+        
+    if (isSentToday) return;
+
+    // get due bills
+    String notificationMessage = '';
+    await billsCollection
+        .where('userID', isEqualTo: uid)
+        .where('paid', isEqualTo: false)
+        .where('dueDate', isLessThan: futureThreshold)
+        .where('dueDate', isGreaterThan: pastThreshold)
+        .get()
+        .then((snapshot) {
+          for (var bill in snapshot.docs) {
+            final DateTime dueDate = bill['dueDate'].toDate();
+            final int dueIn = dueDate.difference(todayThreshold).inDays;
+            final String title = bill['title'];
+            dueBills.add({
+              title: dueIn,
+            });
+
+            if (dueIn < 0) {
+              notificationMessage += '$title is due.\n';
+            } else if (dueIn == 0) {
+              notificationMessage += '$title is due today.\n';
+            } else {
+              notificationMessage += '$title is due in $dueIn ${dueIn > 1 ? 'days': 'day'}.\n';
+            }
+          }
+        });
+
+    // send notification
+    if (dueBills.isNotEmpty) {
+      const String type = NotificationType.BILL_DUE_NOTIFICATION;
+      final List<String> receiverID = [uid];
+      // remove last 'nextLine'
+      notificationMessage = notificationMessage.substring(0, notificationMessage.length - 1);
+      await NotificationService.sendNotification(type, receiverID, objName: notificationMessage);
+    }
   }
 }
