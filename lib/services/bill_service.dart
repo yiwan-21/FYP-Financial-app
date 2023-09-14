@@ -24,6 +24,7 @@ class BillService {
       'fixed': fixed,
       'paid': false,
       'history': {},
+      'notified': false,
     });
   }
 
@@ -72,20 +73,21 @@ class BillService {
   // Send Notification
   // Cron Job
   static Future<void> billDueNotification() async {
-    // Get Due Bill
     final String uid = FirebaseInstance.auth.currentUser!.uid;
     bool isSentToday = false;
-    // title: days
+    
+    // dueBills {
+    //  title: days
+    // }
     final List<Map<String, int>> dueBills = [];
     // Send notification when bill is due in 3 days. 
     final DateTime now = DateTime.now();
     final DateTime futureThreshold = DateTime(now.year, now.month, now.day + 3);
     final DateTime todayThreshold = DateTime(now.year, now.month, now.day);
-    final DateTime pastThreshold = DateTime(now.year, now.month, now.day - 3);
 
     await FirebaseInstance.firestore.collection('notifications')
         .where('receiverID', arrayContains: uid)
-        .where('type', whereIn: [NotificationType.BILL_DUE_NOTIFICATION])
+        .where('type', isEqualTo: [NotificationType.BILL_DUE_NOTIFICATION])
         .orderBy('createdAt', descending: true)
         .get()
         .then((snapshot) {
@@ -104,8 +106,8 @@ class BillService {
     await billsCollection
         .where('userID', isEqualTo: uid)
         .where('paid', isEqualTo: false)
+        .where('notified', isEqualTo: false)
         .where('dueDate', isLessThan: futureThreshold)
-        .where('dueDate', isGreaterThan: pastThreshold)
         .get()
         .then((snapshot) {
           for (var bill in snapshot.docs) {
@@ -115,9 +117,10 @@ class BillService {
             dueBills.add({
               title: dueIn,
             });
-
+            
             if (dueIn < 0) {
-              notificationMessage += '$title is due.\n';
+              notificationMessage += '$title is overdue.\n';
+              bill.reference.update({'notified': true});
             } else if (dueIn == 0) {
               notificationMessage += '$title is due today.\n';
             } else {
