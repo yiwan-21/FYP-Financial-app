@@ -52,6 +52,7 @@ class _BillCardState extends State<BillCard> {
             title: 'Add Amount',
             contentLabel: 'Amount',
             checkboxLabel: 'Add an expense record',
+            defaultValue: widget.fixed ? widget.amount: null,
             defaultChecked: true,
             onSaveFunction: _payBill,
             checkedFunction: _checkedFunction,
