@@ -2,6 +2,7 @@ import 'package:financial_app/services/bill_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../constants/constant.dart';
 import '../constants/route_name.dart';
 import '../constants/style_constant.dart';
 import '../components/alert_with_checkbox.dart';
@@ -17,10 +18,10 @@ class BillCard extends StatefulWidget {
   final bool paid;
   final DateTime dueDate;
   final bool fixed;
-  // final Map<DateTime, double> history;
+  final List<Map<String, dynamic>> history;
 
   const BillCard(
-      this.id, this.title, this.amount, this.paid, this.dueDate, this.fixed,
+      this.id, this.title, this.amount, this.paid, this.dueDate, this.fixed, this.history,
       {super.key});
 
   @override
@@ -160,48 +161,41 @@ class _BillCardState extends State<BillCard> {
             ),
             Row(
               children: [
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Past Bills',
-                      style: TextStyle(
+                      widget.history.isNotEmpty ? 'Past Bills' : 'No Past Bills Yet',
+                      style: const TextStyle(
                         color: Colors.black,
                         fontSize: 12,
                       ),
                     ),
-                    SizedBox(height: 5),
-                    Row(
-                      children: [
-                        Text('Aug',
-                            style: TextStyle(
+                    const SizedBox(height: 5),
+                    ...widget.history.map((hist) {
+                      return Row(
+                        children: [
+                          const SizedBox(height: 15),
+                          SizedBox(
+                            width: 80,
+                            child: Text(
+                              Constant.monthLabels[hist['date'].toDate().month - 1],
+                              style: const TextStyle(
+                                color: Colors.grey,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            '${hist['amount'].toStringAsFixed(2)}',
+                            style: const TextStyle(
                               color: Colors.grey,
                               fontSize: 12,
-                            )),
-                        SizedBox(width: 30),
-                        Text('RM 55000',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
-                            )),
-                      ],
-                    ),
-                    SizedBox(height: 5),
-                    Row(
-                      children: [
-                        Text('July',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
-                            )),
-                        SizedBox(width: 30),
-                        Text('RM 800',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
-                            )),
-                      ],
-                    ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
                   ],
                 ),
                 const Spacer(),

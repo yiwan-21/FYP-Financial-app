@@ -57,7 +57,7 @@ class _BillState extends State<Bill> {
                 paid,
                 doc['dueDate'].toDate(),
                 doc['fixed'],
-                // Map<DateTime, double>.from(doc['history']),
+                List<Map<String, dynamic>>.from(doc['history']),
               ));
             }
             

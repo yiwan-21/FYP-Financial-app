@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
 import '../utils/date_utils.dart';
-import 'notification_service.dart';
+import '../constants/notification_type.dart';
+import '../services/notification_service.dart';
 
 class BillService {
   static CollectionReference billsCollection =
@@ -23,7 +23,7 @@ class BillService {
       'dueDate': dueDate,
       'fixed': fixed,
       'paid': false,
-      'history': {},
+      'history': [],
       'notified': false,
     });
   }
@@ -46,20 +46,23 @@ class BillService {
         .get()
         .then((snapshot) async {
           if (snapshot.exists) {
-            // Map<Timestamp, double> history = Map<Timestamp, double>.from(snapshot['history']);
-            // if (history.length == 2) {
-            //   DateTime date1 = history.keys.first.toDate();
-            //   DateTime date2 = history.keys.last.toDate();
-            //   if (date1.isBefore(date2)) {
-            //     history.remove(date1);
-            //   } else {
-            //     history.remove(date2);
-            //   }
-            // }
-            // history[Timestamp.fromDate(DateTime.now())] = amount;
+            List<Map<String, dynamic>> history = List<Map<String, dynamic>>.from(snapshot['history']);
+            if (history.length == 2) {
+              DateTime date1 = history.first['date'].toDate();
+              DateTime date2 = history.last['date'].toDate();
+              if (date1.isBefore(date2)) {
+                history.removeAt(0);
+              } else {
+                history.removeAt(1);
+              }
+            }
+            history.add({
+              'date': getOnlyDate(DateTime.now()),
+              'amount': amount,
+            });
             await billsCollection.doc(id).update({
               'paid': true,
-              // 'history': history,
+              'history': history,
               'amount': fixed ? snapshot['amount'] : amount,
             });
           }
