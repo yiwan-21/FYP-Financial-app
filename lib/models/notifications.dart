@@ -133,7 +133,7 @@ class ExceedBudgetNotification extends NotificationModel {
 class BillDueNotification extends NotificationModel {
   BillDueNotification(message) :
   super(
-    'Bill Due', 
+    'Bill Payment Due', 
     '$message',
     () {
       Provider.of<NavigationProvider>(navigatorKey.currentContext!, listen: false).goToBill();

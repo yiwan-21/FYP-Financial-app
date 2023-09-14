@@ -106,11 +106,21 @@ class _BillCardState extends State<BillCard> {
                       ),
                     ),
                     const SizedBox(height: 5),
-                    Text('Due in $dueIn days',
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 12,
-                        )),
+                    widget.paid
+                      ? const Text(
+                          'Paid',
+                          style: TextStyle(
+                            color:  Colors.grey,
+                            fontSize: 12,
+                          ),
+                        )
+                      : Text(
+                          dueIn < 0 ? 'Overdue by ${dueIn.abs()} days': 'Due in $dueIn days',
+                          style: TextStyle(
+                            color: dueIn < 0 ? Colors.red: Colors.grey,
+                            fontSize: 12,
+                          ),
+                        ),
                   ],
                 ),
                 const Spacer(),
@@ -156,7 +166,7 @@ class _BillCardState extends State<BillCard> {
                     Text(
                       'Past Bills',
                       style: TextStyle(
-                        color: Colors.grey,
+                        color: Colors.black,
                         fontSize: 12,
                       ),
                     ),
