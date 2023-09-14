@@ -69,6 +69,9 @@ class NotificationService {
       case NotificationType.EXCEED_BUDGET_NOTIFICATION:
         notificationModel = ExceedBudgetNotification(objName);
         break;
+      case NotificationType.BILL_DUE_NOTIFICATION:
+        notificationModel = BillDueNotification(objName);
+        break;
     }
     return notificationModel;
   }
@@ -108,6 +111,9 @@ class NotificationService {
         break;
       case NotificationType.EXCEED_BUDGET_NOTIFICATION:
         notificationModel = ExceedBudgetNotification('');
+        break;
+      case NotificationType.BILL_DUE_NOTIFICATION:
+        notificationModel = BillDueNotification('');
         break;
     }
     if (notificationModel == null) {

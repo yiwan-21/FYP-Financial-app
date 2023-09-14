@@ -18,7 +18,9 @@ import './pages/split_money_expense.dart';
 import './pages/add_group_expense.dart';
 import './pages/group_settings.dart';
 import './pages/budget_detail.dart';
+import './pages/manage_bill.dart';
 import './constants/route_name.dart';
+import './constants/style_constant.dart';
 import './providers/goal_provider.dart';
 import './providers/navigation_provider.dart';
 import './providers/total_goal_provider.dart';
@@ -28,7 +30,6 @@ import './providers/transaction_provider.dart';
 import './providers/split_money_provider.dart';
 import './providers/total_split_money_provider.dart';
 import './providers/notification_provider.dart';
-import 'constants/style_constant.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -173,6 +174,23 @@ class MyApp extends StatelessWidget {
               final args = settings.arguments as Map<String, dynamic>;
               return MaterialPageRoute(
                 builder: (_) => BudgetDetail(category: args['category']),
+              );
+            } else {
+              return MaterialPageRoute(builder: (_) => const FinancialApp());
+            }
+          case RouteName.manageBill:
+            if (isLoggedIn()) {
+              // get argument from route
+              final args = settings.arguments as Map<String, dynamic>;
+              return MaterialPageRoute(
+                builder: (_) => ManageBill(
+                  args['isEditing'], 
+                  args['id'], 
+                  args['title'], 
+                  args['amount'], 
+                  args['date'],
+                  args['fixed'],
+                ),
               );
             } else {
               return MaterialPageRoute(builder: (_) => const FinancialApp());

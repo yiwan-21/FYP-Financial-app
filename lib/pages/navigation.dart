@@ -9,6 +9,7 @@ import '../pages/budgeting.dart';
 import '../pages/split_money.dart';
 import '../pages/notification.dart';
 import '../pages/savings_goal.dart';
+import '../pages/bill.dart';
 import '../pages/profile.dart';
 import '../constants/style_constant.dart';
 import '../providers/user_provider.dart';
@@ -46,12 +47,14 @@ class _NavigationState extends State<Navigation> {
       "Savings Goal": const SavingsGoal(),
       "Home": const Home(),
       "Tracker": const Tracker(),
-      "Financial Analytics": const Analytics(),
+      "Bill": const Bill(),
       "Budgeting Tool": const Budgeting(),
+      "Financial Analytics": const Analytics(),
     };
     _options = [
-      const FloatButton(title: 'Analytics', icon: Icons.align_vertical_bottom_outlined),
+      const FloatButton(title: 'Bill', icon: Icons.water_drop),
       const FloatButton(title: 'Budgeting', icon: Icons.account_balance_wallet),
+      const FloatButton(title: 'Analytics', icon: Icons.align_vertical_bottom_outlined),
     ];
     
     // check budgeting reset on app launch

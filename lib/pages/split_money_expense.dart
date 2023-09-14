@@ -164,7 +164,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
       amount: amount,
       date: DateTime.now(),
       isExpense: true,
-      category: 'Savings Goal',
+      category: 'Other Expenses',
       notes:
           'Auto Generated: Pay RM ${_expense.amount.toStringAsFixed(2)} to ${_expense.paidBy.name}',
     );

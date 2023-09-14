@@ -10,4 +10,5 @@ class NotificationType {
   static const String REMOVE_FROM_GROUP_NOTIFICATION = 'RemoveFromGroupNotification';
   static const String EXCEEDING_BUDGET_NOTIFICATION = 'ExceedingBudgetNotification';
   static const String EXCEED_BUDGET_NOTIFICATION = 'ExceedBudgetNotification';
+  static const String BILL_DUE_NOTIFICATION = 'BillDueNotification';
 }
