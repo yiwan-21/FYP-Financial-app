@@ -8,6 +8,7 @@ import '../components/alert_with_checkbox.dart';
 import '../components/tracker_transaction.dart';
 import '../providers/total_transaction_provider.dart';
 import '../services/transaction_service.dart';
+import '../utils/date_utils.dart';
 
 class BillCard extends StatefulWidget {
   final String id;
@@ -28,9 +29,7 @@ class BillCard extends StatefulWidget {
 
 class _BillCardState extends State<BillCard> {
   int get dueIn {
-    DateTime now = DateTime.now();
-    final int days = widget.dueDate.difference(DateTime(now.year, now.month, now.day)).inDays;
-    return days;
+    return widget.dueDate.difference(getOnlyDate(DateTime.now())).inDays;
   }
 
   void _editBill() {

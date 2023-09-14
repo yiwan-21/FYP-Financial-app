@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
+import '../utils/date_utils.dart';
 import 'notification_service.dart';
 
 class BillService {
@@ -89,9 +90,8 @@ class BillService {
         .get()
         .then((snapshot) {
           if (snapshot.docs.isNotEmpty) {
-            final DateTime lastNotificationDate = snapshot.docs.first['createdAt'].toDate();
-            final DateTime onlyDate = DateTime(lastNotificationDate.year, lastNotificationDate.month, lastNotificationDate.day);
-            if (onlyDate.isAtSameMomentAs(todayThreshold)) {
+            final DateTime lastNotificationDate = getOnlyDate(snapshot.docs.first['createdAt'].toDate());
+            if (lastNotificationDate.isAtSameMomentAs(todayThreshold)) {
               isSentToday = true;
             }
           }

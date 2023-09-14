@@ -7,6 +7,7 @@ import '../components/tracker_transaction.dart';
 import '../constants/notification_type.dart';
 import '../services/transaction_service.dart';
 import '../services/notification_service.dart';
+import '../utils/date_utils.dart';
 
 class BudgetService {
   static CollectionReference budgetsCollection =
@@ -243,15 +244,5 @@ class BudgetService {
   }
  
   // utils
-  static DateTime getOnlyDate(DateTime date) {
-    return DateTime(date.year, date.month, date.day);
-  }
-
-  static DateTime getNextMonth(DateTime date) {
-    DateTime nextMonth = DateTime(date.year, date.month + 1, date.day);
-    if (nextMonth.month - date.month > 1) {
-      nextMonth = DateTime(date.year, date.month, 0);
-    }
-    return nextMonth;
-  }
+  
 }

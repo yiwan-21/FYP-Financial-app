@@ -6,6 +6,7 @@ import '../constants/route_name.dart';
 import '../providers/goal_provider.dart';
 import '../providers/total_goal_provider.dart';
 import '../services/goal_service.dart';
+import '../utils/date_utils.dart';
 
 class Goal extends StatefulWidget {
   final String goalID;
@@ -51,10 +52,8 @@ class Goal extends StatefulWidget {
 }
 
 class _GoalState extends State<Goal> {
-  bool _expired() {
-    final DateTime now = DateTime.now();
-    final DateTime today = DateTime(now.year, now.month, now.day);
-    return widget.targetDate.isBefore(today);
+  bool get _expired {
+    return widget.targetDate.isBefore(getOnlyDate(DateTime.now()));
   }
 
   void _navigateToDetail() {
@@ -171,7 +170,7 @@ class _GoalState extends State<Goal> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
-                      color: _expired()? Colors.red : Colors.black,
+                      color: _expired? Colors.red : Colors.black,
                     ),
                   ),
                   const Icon(Icons.arrow_forward_ios),

@@ -4,6 +4,7 @@ import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
 import '../components/goal.dart';
 import '../components/history_card.dart';
+import '../utils/date_utils.dart';
 import 'notification_service.dart';
 
 class GoalService {
@@ -118,9 +119,8 @@ class GoalService {
         .get()
         .then((snapshot) {
           if (snapshot.docs.isNotEmpty) {
-            final DateTime lastNotificationDate = snapshot.docs.first['createdAt'].toDate();
-            final DateTime onlyDate = DateTime(lastNotificationDate.year, lastNotificationDate.month, lastNotificationDate.day);
-            if (onlyDate.isAtSameMomentAs(todayThreshold)) {
+            final DateTime lastNotificationDate = getOnlyDate(snapshot.docs.first['createdAt'].toDate());
+            if (lastNotificationDate.isAtSameMomentAs(todayThreshold)) {
               isSentToday = true;
             }
           }
@@ -137,12 +137,11 @@ class GoalService {
           for (var goal in goals.docs) {
             // if the goal is not achieved
             if (goal['saved'] < goal['amount']) {
-              final DateTime targetDate = goal['targetDate'].toDate();
-              final DateTime onlyDate = DateTime(targetDate.year, targetDate.month, targetDate.day);
-              if (onlyDate.isAtSameMomentAs(todayThreshold) || onlyDate.isAfter(todayThreshold)) {
+              final DateTime targetDate = getOnlyDate(goal['targetDate'].toDate());
+              if (targetDate.isAtSameMomentAs(todayThreshold) || targetDate.isAfter(todayThreshold)) {
                 expiringGoals.add(goal['title']);
               }
-              if (onlyDate.isBefore(todayThreshold)) {
+              if (targetDate.isBefore(todayThreshold)) {
                 expiredGoals.add(goal['title']);
               }
             }

@@ -7,6 +7,7 @@ import '../components/alert_confirm_action.dart';
 import '../pages/edit_budget.dart';
 import '../services/budget_service.dart';
 import '../services/transaction_service.dart';
+import '../utils/date_utils.dart';
 
 class BudgetDetail extends StatefulWidget {
   final String category;
@@ -146,7 +147,7 @@ class _BudgetDetailState extends State<BudgetDetail> {
                 int days = DateTime.now().difference(startDate).inDays + 1;
                 List<double> dailyAmount = List.filled(days, 0);
                 for (var card in historyCards) {
-                  final date = BudgetService.getOnlyDate(card.date);
+                  final date = getOnlyDate(card.date);
                   final amount = card.amount;
                   int index = date.difference(startDate).inDays;
                   dailyAmount[index] += amount;
