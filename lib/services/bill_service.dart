@@ -73,16 +73,39 @@ class BillService {
     await billsCollection.doc(id).delete();
   }
 
+  static Future<void> resetBill() async {
+    await billsCollection
+        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+        .get()
+        .then((snapshot) async {
+          if (snapshot.docs.isNotEmpty) {
+            final DateTime date = snapshot.docs.first['dueDate'].toDate();
+            final DateTime now = DateTime.now();
+            if (date.month != now.month) {
+              for (var bill in snapshot.docs) {
+                DateTime dueDate = bill['dueDate'].toDate();
+                DateTime nextMonth = DateTime(now.year, now.month, dueDate.day);
+                if (nextMonth.month != now.month) {
+                  nextMonth = DateTime(now.year, now.month + 1, 0);
+                }
+                await bill.reference.update({
+                  'paid': false,
+                  'notified': false,
+                  'dueDate': nextMonth,
+                });
+              }
+            }
+          }
+        });
+  }
+
   // Send Notification
   // Cron Job
   static Future<void> billDueNotification() async {
     final String uid = FirebaseInstance.auth.currentUser!.uid;
     bool isSentToday = false;
-    
-    // dueBills {
-    //  title: days
-    // }
     final List<Map<String, int>> dueBills = [];
+
     // Send notification when bill is due in 3 days. 
     final DateTime now = DateTime.now();
     final DateTime futureThreshold = DateTime(now.year, now.month, now.day + 3);

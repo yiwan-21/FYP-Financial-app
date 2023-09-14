@@ -21,7 +21,9 @@ class _NotificationMenuState extends State<NotificationMenu> {
     super.initState();
     NotificationService.cronJobDeletion();
     GoalService.expiringGoalNotification();
-    BillService.billDueNotification();
+    BillService.resetBill().then((_) {
+      BillService.billDueNotification();
+    });
   }
 
   @override
