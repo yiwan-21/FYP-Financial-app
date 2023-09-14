@@ -28,7 +28,8 @@ class BillCard extends StatefulWidget {
 
 class _BillCardState extends State<BillCard> {
   int get dueIn {
-    final int days = widget.dueDate.difference(DateTime.now()).inDays;
+    DateTime now = DateTime.now();
+    final int days = widget.dueDate.difference(DateTime(now.year, now.month, now.day)).inDays;
     return days;
   }
 
