@@ -162,7 +162,7 @@ class _ManageBillState extends State<ManageBill> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return ValidatorMessage.emptyGoalTitle;
+                        return ValidatorMessage.emptyBillTitle;
                       }
                       return null;
                     },
