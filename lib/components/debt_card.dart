@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 
+import '../constants/route_name.dart';
+
 class DebtCard extends StatefulWidget {
+  final String id;
   final String title;
-  final int duration;
+  final int duration; // in months
+  final double amount;
   final double interests;
   final double plan;
 
-  const DebtCard(this.title, this.duration, this.interests, this.plan,
+  const DebtCard(this.id, this.title, this.duration, this.amount,
+      this.interests, this.plan,
       {super.key});
 
   @override
@@ -14,6 +19,30 @@ class DebtCard extends StatefulWidget {
 }
 
 class _DebtCardState extends State<DebtCard> {
+  int _year = 0;
+  int _month = 0;
+  
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _year = widget.duration ~/ 12;
+      _month = widget.duration % 12;
+    });
+  }
+
+  void _editDebt() {
+    Navigator.pushNamed(context, RouteName.manageDebt, arguments: {
+      'isEditing': true,
+      'id': widget.id,
+      'title': widget.title,
+      'amount': widget.amount,
+      'interest': widget.interests,
+      'year': _year,
+      'month': _month,
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -24,7 +53,6 @@ class _DebtCardState extends State<DebtCard> {
         child: Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -34,13 +62,33 @@ class _DebtCardState extends State<DebtCard> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-            Text(
-              'Monthly plan: RM ${widget.plan.toStringAsFixed(2)}',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.brown[200],
-              ),
-            ),
+                const Spacer(),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Total: RM ${widget.amount.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      'Monthly plan: RM ${widget.plan.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.brown[200],
+                      ),
+                    ),
+                  ],
+                ),
+                IconButton(
+                  onPressed: _editDebt,
+                  icon: const Icon(Icons.edit),
+                  iconSize: 20,
+                  color: Colors.brown,
+                  alignment: Alignment.topRight,
+                  padding: const EdgeInsets.all(0),
+                ),
               ],
             ),
             const SizedBox(height: 20),
@@ -51,7 +99,7 @@ class _DebtCardState extends State<DebtCard> {
                 const SizedBox(width: 3),
                 SizedBox(
                   width: 160,
-                  child: Text('Duration: ${widget.duration}'),
+                  child: Text('$_year years and $_month months'),
                 ),
                 const Icon(Icons.auto_graph_rounded, size: 20),
                 const SizedBox(width: 3),
@@ -85,13 +133,12 @@ class _DebtCardState extends State<DebtCard> {
                     ),
                   ],
                 ),
-                TableRow(
-                  children: [
-                    SizedBox(height: 5),
-                    SizedBox(height: 5),
-                    SizedBox(height: 5),
-                  ]
-                ),
+                TableRow(children: [
+                  SizedBox(height: 5),
+                  SizedBox(height: 5),
+                  SizedBox(height: 5),
+                ]),
+                //TODO: Table Row List loop
                 TableRow(
                   children: [
                     Text('Aug 12'),

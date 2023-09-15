@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../constants/route_name.dart';
 import '../constants/style_constant.dart';
 import '../components/debt_card.dart';
 
@@ -11,7 +12,10 @@ class Debt extends StatefulWidget {
 }
 
 class _DebtState extends State<Debt> {
-  void _addDebt() {}
+  void _addDebt() {
+    Navigator.pushNamed(context, RouteName.manageDebt,
+        arguments: {'isEditing': false});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +25,9 @@ class _DebtState extends State<Debt> {
         padding: const EdgeInsets.only(bottom: 50),
         itemCount: 5,
         itemBuilder: (context, index) {
-          return DebtCard('Debt $index', index * 80, index.toDouble(), index * 80);
+          // TODO: fetch data from database
+          return DebtCard(
+              '1','Debt $index', index * 30, (index+1) * 5000, index.toDouble(), index * 80);
         },
         separatorBuilder: (context, index) {
           return const Padding(

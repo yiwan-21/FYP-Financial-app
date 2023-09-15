@@ -19,6 +19,7 @@ import './pages/add_group_expense.dart';
 import './pages/group_settings.dart';
 import './pages/budget_detail.dart';
 import './pages/manage_bill.dart';
+import './pages/manage_debt.dart';
 import './constants/route_name.dart';
 import './constants/style_constant.dart';
 import './providers/goal_provider.dart';
@@ -190,6 +191,24 @@ class MyApp extends StatelessWidget {
                   args['amount'], 
                   args['date'],
                   args['fixed'],
+                ),
+              );
+            } else {
+              return MaterialPageRoute(builder: (_) => const FinancialApp());
+            }
+          case RouteName.manageDebt:
+            if (isLoggedIn()) {
+              // get argument from route
+              final args = settings.arguments as Map<String, dynamic>;
+              return MaterialPageRoute(
+                builder: (_) => ManageDebt(
+                  args['isEditing'], 
+                  args['id'], 
+                  args['title'], 
+                  args['amount'], 
+                  args['interest'],
+                  args['year'],
+                  args['month'],
                 ),
               );
             } else {
