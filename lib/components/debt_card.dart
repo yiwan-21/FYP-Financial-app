@@ -1,6 +1,13 @@
+import 'package:financial_app/services/debt_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../constants/constant.dart';
 import '../constants/route_name.dart';
+import '../providers/total_transaction_provider.dart';
+import '../services/transaction_service.dart';
+import '../components/alert_with_checkbox.dart';
+import '../components/tracker_transaction.dart';
 
 class DebtCard extends StatefulWidget {
   final String id;
@@ -9,9 +16,10 @@ class DebtCard extends StatefulWidget {
   final double amount;
   final double interests;
   final double plan;
+  final List<Map<String, dynamic>> history;
 
   const DebtCard(this.id, this.title, this.duration, this.amount,
-      this.interests, this.plan,
+      this.interests, this.plan, this.history,
       {super.key});
 
   @override
@@ -21,10 +29,8 @@ class DebtCard extends StatefulWidget {
 class _DebtCardState extends State<DebtCard> {
   int _year = 0;
   int _month = 0;
-  
-  @override
-  void initState() {
-    super.initState();
+
+  void calculateDuration() {
     setState(() {
       _year = widget.duration ~/ 12;
       _month = widget.duration % 12;
@@ -43,8 +49,47 @@ class _DebtCardState extends State<DebtCard> {
     });
   }
 
+  void _payDebtDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithCheckbox(
+            title: 'Add Amount',
+            contentLabel: 'Amount',
+            checkboxLabel: 'Add an expense record',
+            defaultChecked: true,
+            defaultValue: widget.plan,
+            onSaveFunction: _payDebt,
+            checkedFunction: _addTransactionRecord,
+            confirmButtonLabel: 'Pay',
+          );
+        });
+  }
+
+  Future<void> _payDebt(double value) async {
+    await DebtService.payDebt(widget.id, value);
+  }
+
+  Future<void> _addTransactionRecord(double value) async {
+    final TrackerTransaction newTransaction = TrackerTransaction(
+      id: '',
+      title: 'Debt: ${widget.title}',
+      amount: value,
+      date: DateTime.now(),
+      isExpense: true,
+      category: 'Other Expenses',
+      notes:
+          'Auto Generated: Paid RM ${value.toStringAsFixed(2)} for ${widget.title}',
+    );
+    await TransactionService.addTransaction(newTransaction).then((_) {
+      Provider.of<TotalTransactionProvider>(context, listen: false)
+          .updateTransactions();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    calculateDuration();
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       color: const Color.fromARGB(255, 255, 250, 234),
@@ -91,30 +136,35 @@ class _DebtCardState extends State<DebtCard> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const Icon(Icons.access_time, size: 20),
                 const SizedBox(width: 3),
-                SizedBox(
-                  width: 160,
-                  child: Text('$_year years and $_month months'),
-                ),
+                Text('$_year years and $_month months'),
+                const Spacer(),
                 const Icon(Icons.auto_graph_rounded, size: 20),
                 const SizedBox(width: 3),
                 Text('Interests: ${widget.interests}%'),
+                if(widget.history.isEmpty || widget.history.last['balance'] >=0)
+                IconButton(
+                  onPressed: _payDebtDialog,
+                  icon: const Icon(Icons.payment_sharp),
+                  iconSize: 20,
+                  color: Colors.brown,
+                  alignment: Alignment.topRight,
+                  padding: const EdgeInsets.all(0),
+                ),
               ],
             ),
             const Divider(thickness: 1, height: 10),
             const SizedBox(height: 10),
             Table(
-              // border: TableBorder.all(),
               columnWidths: const <int, TableColumnWidth>{
                 0: FixedColumnWidth(80),
               },
-              children: const [
-                TableRow(
+              children: [
+                const TableRow(
                   children: [
                     Text(''),
                     Text(
@@ -133,33 +183,27 @@ class _DebtCardState extends State<DebtCard> {
                     ),
                   ],
                 ),
-                TableRow(children: [
+                const TableRow(children: [
                   SizedBox(height: 5),
                   SizedBox(height: 5),
                   SizedBox(height: 5),
                 ]),
-                //TODO: Table Row List loop
-                TableRow(
-                  children: [
-                    Text('Aug 12'),
-                    Text('1000', textAlign: TextAlign.center),
-                    Text('500', textAlign: TextAlign.center),
-                  ],
-                ),
-                TableRow(
-                  children: [
-                    Text('Sep 12'),
-                    Text('1000', textAlign: TextAlign.center),
-                    Text('500', textAlign: TextAlign.center),
-                  ],
-                ),
-                TableRow(
-                  children: [
-                    Text('Oct 12'),
-                    Text('1000', textAlign: TextAlign.center),
-                    Text('500', textAlign: TextAlign.center),
-                  ],
-                ),
+                if (widget.history.isNotEmpty)
+                  for (final row in widget.history.reversed)
+                    TableRow(
+                      children: [
+                        Text(
+                            '${Constant.monthLabels[row['date'].toDate().month - 1]} ${row['date'].toDate().day}'),
+                        Text(
+                          row['saved'].toStringAsFixed(2),
+                          textAlign: TextAlign.center,
+                        ),
+                        Text(
+                          row['balance'].toStringAsFixed(2),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
               ],
             ),
           ],

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../components/alert_confirm_action.dart';
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
+import '../services/debt_service.dart';
 
 class ManageDebt extends StatefulWidget {
   final bool isEditing;
@@ -14,16 +15,9 @@ class ManageDebt extends StatefulWidget {
   final int? year;
   final int? month;
 
-  const ManageDebt(
-    this.isEditing, 
-    this.id, 
-    this.title, 
-    this.amount, 
-    this.interest, 
-    this.year, 
-    this.month,
-    {super.key}
-  );
+  const ManageDebt(this.isEditing, this.id, this.title, this.amount,
+      this.interest, this.year, this.month,
+      {super.key});
 
   @override
   State<ManageDebt> createState() => _ManageDebtState();
@@ -53,6 +47,11 @@ class _ManageDebtState extends State<ManageDebt> {
     if (_formKey.currentState!.validate()) {
       // Submit form data to server or database
       _formKey.currentState!.save();
+
+      int duration = _year * 12 + _month;
+      await DebtService.addDebt(_title, duration, _amount, _interest).then((_) {
+        Navigator.pop(context);
+      });
     }
   }
 
@@ -60,10 +59,24 @@ class _ManageDebtState extends State<ManageDebt> {
     if (_formKey.currentState!.validate()) {
       // Submit form data to server or database
       _formKey.currentState!.save();
+
+      int duration = _year * 12 + _month;
+      await DebtService.editDebt(
+              widget.id!, _title, duration, _amount, _interest)
+          .then((_) {
+        Navigator.pop(context);
+      });
     }
   }
 
-  Future<void> _deleteDebt() async {}
+  Future<void> _deleteDebt() async {
+    await DebtService.deleteDebt(widget.id!).then((_) {
+      // close dialog
+      Navigator.pop(context);
+      // back to bill page
+      Navigator.pop(context);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,8 +166,7 @@ class _ManageDebtState extends State<ManageDebt> {
                     children: [
                       Expanded(
                         child: TextFormField(
-                          initialValue:
-                          _year == 0 ? null : _year.toString(),
+                          initialValue: _year == 0 ? null : _year.toString(),
                           decoration: const InputDecoration(
                             labelText: 'Duration(Year)',
                             labelStyle: TextStyle(
@@ -171,8 +183,7 @@ class _ManageDebtState extends State<ManageDebt> {
                           ),
                           keyboardType: const TextInputType.numberWithOptions(),
                           inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'^\d+')),
+                            FilteringTextInputFormatter.allow(RegExp(r'^\d+')),
                           ],
                           validator: (value) {
                             if (value!.isEmpty && _month == 0) {
@@ -197,8 +208,7 @@ class _ManageDebtState extends State<ManageDebt> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: TextFormField(
-                          initialValue:
-                          _month == 0 ? null : _month.toString(),
+                          initialValue: _month == 0 ? null : _month.toString(),
                           decoration: const InputDecoration(
                             labelText: 'Duration(Month)',
                             labelStyle: TextStyle(
@@ -213,11 +223,9 @@ class _ManageDebtState extends State<ManageDebt> {
                               borderSide: BorderSide(width: 1),
                             ),
                           ),
-                          keyboardType:
-                              const TextInputType.numberWithOptions(),
+                          keyboardType: const TextInputType.numberWithOptions(),
                           inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'^\d+')),
+                            FilteringTextInputFormatter.allow(RegExp(r'^\d+')),
                           ],
                           validator: (value) {
                             if (value!.isEmpty && _year == 0) {

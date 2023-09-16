@@ -42,6 +42,7 @@ class _AlertWithCheckboxState extends State<AlertWithCheckbox> {
     super.initState();
     _isChecked = widget.defaultChecked;
     if (widget.defaultValue != null) {
+      _value = widget.defaultValue!;
       _controller.text = widget.defaultValue!.toStringAsFixed(2);
     }
   }
