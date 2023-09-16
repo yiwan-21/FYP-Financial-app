@@ -36,9 +36,10 @@ class TransactionService {
   }
 
   static Future<void> addTransaction(TrackerTransaction newTransaction) async {
-    await transactionCollection.add(
-      {...newTransaction.toCollection(), 'userID': FirebaseInstance.auth.currentUser!.uid}
-        );
+    await transactionCollection.add({
+      ...newTransaction.toCollection(),
+      'userID': FirebaseInstance.auth.currentUser!.uid
+    });
 
     // update user's budgeting data
     if (newTransaction.isExpense) {
@@ -184,7 +185,8 @@ class TransactionService {
   }
 
   // Budgeting
-  static Future<double> getExpenseByCategory(String category, DateTime startingDate) async {
+  static Future<double> getExpenseByCategory(
+      String category, DateTime startingDate) async {
     double total = 0;
 
     await transactionCollection
@@ -202,8 +204,9 @@ class TransactionService {
 
     return total;
   }
-  
-  static Future<List<HistoryCard>> getHistoryCards(String category, DateTime startingDate) async {
+
+  static Future<List<HistoryCard>> getHistoryCards(
+      String category, DateTime startingDate) async {
     final List<HistoryCard> historyCards = [];
 
     await transactionCollection
@@ -223,5 +226,28 @@ class TransactionService {
     });
 
     return historyCards;
+  }
+
+  static Future<double> calSurplus() async {
+    double income = 0;
+    double expense = 0;
+    final DateTime thisMonth = DateTime(DateTime.now().year, DateTime.now().month, 1);
+    await transactionCollection
+        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+        .where('date', isGreaterThanOrEqualTo: thisMonth)
+        .get()
+        .then((snapshot) {
+      if (snapshot.docs.isNotEmpty) {
+        for (var transaction in snapshot.docs) {
+          if (transaction['isExpense']) {
+            expense += transaction['amount'];
+          } else {
+            income += transaction['amount'];
+          }
+        }
+      }
+    });
+
+    return income - expense;
   }
 }

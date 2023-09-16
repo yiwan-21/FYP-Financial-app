@@ -17,6 +17,10 @@ class ValidatorMessage {
   static String emptyGroupExpenseTitle = "Please enter a group expense title.";
   static String emptySharedBy = "Please select a member to share the cost.";
   static String repeatCategory = "The chosen category is existed.";
+  static String emptyBillTitle = "Please enter a bill title.";
+  static String emptyDebtTitle = "Please enter a debt title.";
+  static String emptyDuration = "Enter a debt duration.";
+  static String invalidDuration = "Please enter a valid duration.";
 }
 
 class SuccessMessage {
