@@ -16,6 +16,8 @@ class NotificationMenu extends StatefulWidget {
 }
 
 class _NotificationMenuState extends State<NotificationMenu> {
+  int _unread = 0;
+
   @override
   void initState() {
     super.initState();
@@ -24,6 +26,10 @@ class _NotificationMenuState extends State<NotificationMenu> {
     BillService.resetBill().then((_) {
       BillService.billDueNotification();
     });
+  }
+
+  Future<void> _markAllAsRead() async {
+    await NotificationService.markAllAsRead();
   }
 
   @override
@@ -46,36 +52,69 @@ class _NotificationMenuState extends State<NotificationMenu> {
             },
           );
         } else {
-          final List<QueryDocumentSnapshot> notifications = snapshot.data == null ? [] : snapshot.data!.docs;
+          final List<QueryDocumentSnapshot> notifications =
+              snapshot.data == null ? [] : snapshot.data!.docs;
+          final String uid = FirebaseInstance.auth.currentUser!.uid;
+          _unread = 0;
+          for (final QueryDocumentSnapshot doc in notifications) {
+            final int index = List<String>.from(doc['receiverID']).indexOf(uid);
+            final bool read = List<bool>.from(doc['read'])[index];
+            if (!read) {
+              _unread++;
+            }
+          }
           return PopupMenuButton<NotificationModel>(
             position: PopupMenuPosition.under,
             offset: const Offset(30, 0),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+            ),
             elevation: 5,
             constraints: BoxConstraints(
               maxHeight: MediaQuery.of(context).size.height * 0.7,
               maxWidth: 300,
             ),
-            icon: const Icon(Icons.notifications),
+            icon: Icon(_unread > 0 ? Icons.notifications_active : Icons.notifications),
             itemBuilder: (context) {
               return [
                 PopupMenuItem<NotificationModel>(
                   enabled: false,
                   child: ListTile(
+                    contentPadding: const EdgeInsets.only(left: 10),
                     title: Text(
-                      notifications.isNotEmpty ? 'Notifications' : 'No notification yet.',
+                      notifications.isNotEmpty
+                          ? 'Notifications ${_unread > 0 ? '($_unread)' : ''}'
+                          : 'No notification yet.',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                        // fontSize: 18,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                    trailing: _unread > 0
+                        ? TextButton(
+                            onPressed: _markAllAsRead,
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.all(0),
+                              alignment: Alignment.centerRight,
+                            ),
+                            child: const Text(
+                              'Mark all as read',
+                              style: TextStyle(
+                                color: Colors.pink,
+                                fontSize: 12,
+                              ),
+                            ),
+                          )
+                        : null,
                   ),
                 ),
                 ...notifications.map((doc) {
                   final String title = doc['title'];
                   final String message = doc['message'];
                   final DateTime date = doc['createdAt'].toDate();
-                  final int index = List<String>.from(doc['receiverID']).indexOf(FirebaseInstance.auth.currentUser!.uid);
+                  final int index = List<String>.from(doc['receiverID']).indexOf(uid);
                   final bool read = List<bool>.from(doc['read'])[index];
                   final String type = doc['type'];
                   final String? functionID = doc['functionID'];
@@ -96,16 +135,9 @@ class _NotificationMenuState extends State<NotificationMenu> {
                           color: Colors.black,
                           fontWeight: read ? FontWeight.normal : FontWeight.bold,
                         ),
-                        subtitle: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                message,
-                                textAlign: TextAlign.justify,
-                              ),
-                            ),
-                          ],
+                        subtitle: Text(
+                          message,
+                          textAlign: TextAlign.justify,
                         ),
                         subtitleTextStyle: const TextStyle(
                           color: Colors.black,
@@ -134,4 +166,3 @@ class _NotificationMenuState extends State<NotificationMenu> {
     );
   }
 }
-
