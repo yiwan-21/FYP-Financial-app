@@ -127,9 +127,10 @@ class _NotificationMenuState extends State<NotificationMenu> {
                     },
                     child: Container(
                       margin: const EdgeInsets.symmetric(vertical: 5),
-                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      // padding: const EdgeInsets.symmetric(vertical: 5),
                       color: read ? Colors.white : Colors.grey[100],
                       child: ListTile(
+                        isThreeLine: true,
                         title: Text(title),
                         titleTextStyle: TextStyle(
                           color: Colors.black,
@@ -138,6 +139,8 @@ class _NotificationMenuState extends State<NotificationMenu> {
                         subtitle: Text(
                           message,
                           textAlign: TextAlign.justify,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         subtitleTextStyle: const TextStyle(
                           color: Colors.black,
