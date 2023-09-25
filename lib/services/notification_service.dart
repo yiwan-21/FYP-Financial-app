@@ -134,6 +134,26 @@ class NotificationService {
         .snapshots();
   }
 
+  static Future<void> markAllAsRead() async {
+    final String uid = FirebaseInstance.auth.currentUser!.uid;
+    await notificationCollection
+        .where('receiverID', arrayContains: uid)
+        .get()
+        .then((snapshot) async {
+          for (final doc in snapshot.docs) {
+            int index = List<String>.from(doc['receiverID']).indexOf(uid);
+            List<bool> read = List<bool>.from(doc['read']);
+            
+            if (index == -1 || read[index]) {
+              continue;
+            }
+
+            read[index] = true;
+            await doc.reference.update({'read': read});
+          }
+        });
+  }
+
   static Future<void> markAsRead(String notificationID) async {
     final String uid = FirebaseInstance.auth.currentUser!.uid;
     await notificationCollection
