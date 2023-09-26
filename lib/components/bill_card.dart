@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:financial_app/services/bill_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +24,15 @@ class BillCard extends StatefulWidget {
   const BillCard(
       this.id, this.title, this.amount, this.paid, this.dueDate, this.fixed, this.history,
       {super.key});
+
+  BillCard.fromDocument(QueryDocumentSnapshot doc, {super.key})
+      : id = doc.id,
+        title = doc['title'],
+        amount = doc['amount'].toDouble(),
+        paid = doc['paid'],
+        dueDate = doc['dueDate'].toDate(),
+        fixed = doc['fixed'],
+        history = List<Map<String, dynamic>>.from(doc['history']);
 
   @override
   State<BillCard> createState() => _BillCardState();

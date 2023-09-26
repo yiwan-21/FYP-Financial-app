@@ -67,16 +67,8 @@ class SplitMoneyService {
         .get()
         .then((snapshot) {
       if (snapshot.docs.isNotEmpty) {
-        for (var expense in snapshot.docs) {
-          expenses.add(SplitExpenseCard(
-            id: expense.id,
-            title: expense['title'],
-            totalAmount: expense['amount'],
-            isSettle: expense['paidAmount'] >= expense['amount'],
-            isLent: expense['paidBy'] ==
-                'users/${FirebaseInstance.auth.currentUser!.uid}',
-            date: expense['date'].toDate(),
-          ));
+        for (var doc in snapshot.docs) {
+          expenses.add(SplitExpenseCard.fromDocument(doc));
         }
       }
     });
