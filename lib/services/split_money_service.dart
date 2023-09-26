@@ -76,6 +76,14 @@ class SplitMoneyService {
     return expenses;
   }
 
+  static Stream<QuerySnapshot> getExpenseStream(String groupID) {
+    return groupsCollection
+        .doc(groupID)
+        .collection('expenses')
+        .orderBy('date', descending: true)
+        .snapshots();
+  }
+
   static Future<List<SplitGroupCard>> getGroupCards() async {
     final List<SplitGroupCard> groups = [];
     await groupsCollection
