@@ -4,11 +4,9 @@ import 'package:provider/provider.dart';
 
 import '../components/bill_card.dart';
 import '../components/budget_card.dart';
-import '../components/debt_card.dart';
 import '../components/goal.dart';
 import '../components/split_expense_card.dart';
 import '../components/tracker_transaction.dart';
-import '../components/expense_income_graph.dart';
 
 import '../constants/constant.dart';
 import '../constants/route_name.dart';
@@ -19,8 +17,8 @@ import '../providers/total_transaction_provider.dart';
 import '../providers/user_provider.dart';
 import '../services/bill_service.dart';
 import '../services/budget_service.dart';
-import '../services/debt_service.dart';
 import '../services/split_money_service.dart';
+import '../utils/date_utils.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -107,22 +105,11 @@ class _HomeState extends State<Home> {
                       RecentBudget(),
                       SizedBox(height: 40.0),
                       UnpaidBills(),
-                      SizedBox(height: 40.0),
-                      RecentDebt(),
                     ],
                   ),
                 ),
-                const SizedBox(height: 20.0),
-                Flexible(
-                  flex: MediaQuery.of(context).size.width < 768 ? 0 : 1,
-                  child: const Column(
-                    children: [
-                      ExpenseIncomeGraph(),
-                    ],
-                  ),
-                )
               ],
-            )
+            ),
           ],
         ));
   }
@@ -251,6 +238,11 @@ class _RecentGoalState extends State<RecentGoal> {
         Consumer<TotalGoalProvider>(
           builder: (context, totalGoalProvider, _) {
             List<Goal> goal = totalGoalProvider.getPinnedGoal;
+            if (goal.isEmpty) {
+              return const Center(
+                child: Text("No goal yet"),
+              );
+            }
             return ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -282,16 +274,12 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
   @override
   void initState() {
     super.initState();
-    // TODO: might cause issues when website change route manually 
-    // (the group ID should be clear if the user is not in the group page)
     SplitMoneyService.setGroupID(_groupID);
   }
 
   void navigateToGroup() {
     Provider.of<SplitMoneyProvider>(context, listen: false).setNewSplitGroup(_groupID);
-    Navigator.pushNamed(context, RouteName.splitMoneyGroup).then((_) {
-      SplitMoneyService.resetGroupID();
-    });
+    Navigator.pushNamed(context, RouteName.splitMoneyGroup);
   }
 
   @override
@@ -302,14 +290,21 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 10.0, bottom: 10.0),
-              child: Text(
-                'Recent Group Expense',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold,
-                ),
+            Padding(
+              padding: const EdgeInsets.only(left: 10.0, bottom: 10.0),
+              child: FutureBuilder(
+                future: SplitMoneyService.getGroupName(_groupID),
+                builder: (context, snapshot) {
+                  return Text(
+                    snapshot.connectionState == ConnectionState.waiting 
+                      ? 'Recent Group Expenses'
+                      : '${snapshot.data}\'s Expenses',
+                    style: const TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }
               ),
             ),
             TextButton(
@@ -345,12 +340,11 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
             List<SplitExpenseCard> expenses = snapshot
                 .data!.docs
                 .map((doc) => SplitExpenseCard.fromDocument(doc))
-                .toList();
+                .toList();       
+
+            List<SplitExpenseCard> settled = expenses.where((card) => card.isSettle).take(3).toList();
             expenses.removeWhere((card) => card.isSettle);
-            if (expenses.isEmpty) {
-              return const Center(
-                  child: Text("All group expenses settled"));
-            }
+            expenses = expenses.followedBy(settled).take(3).toList();
 
             return ListView.builder(
               shrinkWrap: true,
@@ -387,11 +381,11 @@ class _RecentBudgetState extends State<RecentBudget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 10.0, bottom: 10.0),
+            Padding(
+              padding: const EdgeInsets.only(left: 10.0, bottom: 10.0),
               child: Text(
-                'Recent Budget',
-                style: TextStyle(
+                '$_category Budget',
+                style: const TextStyle(
                   fontSize: 18.0,
                   fontWeight: FontWeight.bold,
                 ),
@@ -519,9 +513,13 @@ class _UnpaidBillsState extends State<UnpaidBills> {
 
             List<BillCard> bills = snapshot.data!.docs
                 .where((doc) => !doc['paid'])
-                .take(2)
                 .map((doc) => BillCard.fromDocument(doc))
                 .toList();
+            DateTime now = getOnlyDate(DateTime.now());
+            // due date closest to now
+            bills.sort((a, b) => getOnlyDate(a.dueDate).difference(now).inDays.abs().compareTo(getOnlyDate(b.dueDate).difference(now).inDays.abs()));
+            bills = bills.take(2).toList();
+
             if (bills.isEmpty) {
               return const Center(
                 child: Text("All bills are paid"),
@@ -534,84 +532,6 @@ class _UnpaidBillsState extends State<UnpaidBills> {
               itemCount: bills.length,
               itemBuilder: (context, index) {
                 return bills[index];
-              },
-            );
-          },
-        ),
-      ],
-    );
-  }
-}
-
-
-class RecentDebt extends StatefulWidget {
-  const RecentDebt({super.key});
-
-  @override
-  State<RecentDebt> createState() => _RecentDebtState();
-}
-
-class _RecentDebtState extends State<RecentDebt> {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 10.0, bottom: 10.0),
-              child: Text(
-                'Recent Debt',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Provider.of<NavigationProvider>(context, listen: false).goToDebt();
-              },
-              child: const Text(
-                'View All',
-                style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.pink,
-                ),
-              ),
-            ),
-          ],
-        ),
-        StreamBuilder<QuerySnapshot>(
-          stream: DebtService.getDebtStream(), 
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            }
-            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return const Center(
-                child: Text("No Debt Yet"),
-              );
-            }
-
-            List<DebtCard> debts = snapshot.data!.docs
-                .take(2)
-                .map((doc) => DebtCard.fromDocument(doc))
-                .toList();
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: debts.length,
-              itemBuilder: (context, index) {
-                return debts[index];
               },
             );
           },
