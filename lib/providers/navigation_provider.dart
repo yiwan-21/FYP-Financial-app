@@ -66,7 +66,7 @@ class NavigationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void goToDebtt() {
+  void goToDebt() {
     _navIndex = 4;
     _pageIndex = 4;
     Navigation.appBarKey.currentState!.animateTo(_navIndex);
