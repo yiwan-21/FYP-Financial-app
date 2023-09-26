@@ -40,7 +40,7 @@ class BillCard extends StatefulWidget {
 
 class _BillCardState extends State<BillCard> {
   int get dueIn {
-    return widget.dueDate.difference(getOnlyDate(DateTime.now())).inDays;
+    return getOnlyDate(widget.dueDate).difference(getOnlyDate(DateTime.now())).inDays;
   }
 
   void _editBill() {

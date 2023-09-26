@@ -20,7 +20,7 @@ class BillService {
       'userID': FirebaseInstance.auth.currentUser!.uid,
       'title': title,
       'amount': amount,
-      'dueDate': dueDate,
+      'dueDate': getOnlyDate(dueDate),
       'fixed': fixed,
       'paid': false,
       'history': [],
