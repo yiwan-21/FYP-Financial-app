@@ -55,14 +55,6 @@ class _DebtState extends State<Debt> {
 
             List<DebtCard> debts = [];
             for (var doc in snapshot.data!.docs) {
-              // int duration = doc['duration'];
-              // double interests = doc['interest'].toDouble();
-              // double amount = doc['amount'].toDouble();
-
-              // double plan = amount * ((interests + 100) / 100) / duration.toDouble();
-              // // round plan to 2 decimal places
-              // plan = double.parse(plan.toStringAsFixed(2));
-
               debts.add(DebtCard.fromDocument(doc));
             }
 
