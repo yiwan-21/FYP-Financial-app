@@ -13,52 +13,48 @@ class BudgetService {
   static CollectionReference budgetsCollection =
       FirebaseInstance.firestore.collection('budgets');
 
-  static String documentID = '';
+  static String _uid = FirebaseInstance.auth.currentUser!.uid;
   static DateTime startingDate = DateTime.now();
     static DateTime resettingDate = DateTime.now();
 
   static Future<void> setDocumentID() async {
-    final String uid = FirebaseInstance.auth.currentUser!.uid;
+    _uid = FirebaseInstance.auth.currentUser!.uid;
     await budgetsCollection
-        .where('userID', isEqualTo: uid)
-        .limit(1)
+        .doc(_uid)
         .get()
         .then((snapshot) async {
-      if (snapshot.docs.isEmpty || !snapshot.docs.first.exists) {
+      if (snapshot.exists) {
+        startingDate = getOnlyDate(snapshot['startDate'].toDate());
+        resettingDate = getOnlyDate(snapshot['resetDate'].toDate());
+      } else {
         startingDate = getOnlyDate(DateTime.now());
         resettingDate = getNextMonth(startingDate);
-        DocumentReference budgetDoc = await budgetsCollection.add({
-          'userID': uid,
+        await budgetsCollection.doc(_uid).set({
           'startDate': startingDate,
           'resetDate': resettingDate,
         });
-        documentID = budgetDoc.id;
-      } else {
-        documentID = snapshot.docs.first.id;
-        startingDate = getOnlyDate(snapshot.docs.first['startDate'].toDate());
-        resettingDate = getOnlyDate(snapshot.docs.first['resetDate'].toDate());
       }
     });
   }
 
   static void resetDocumentID() {
-    documentID = '';
+    _uid = '';
   }
 
   static Future<Stream<QuerySnapshot>> getBudgetingStream() async {
-    if (FirebaseInstance.auth.currentUser == null || documentID == '') {
+    if (FirebaseInstance.auth.currentUser == null || _uid == '') {
       await setDocumentID();
     }
     
     return budgetsCollection
-        .doc(documentID)
+        .doc(_uid)
         .collection('details')
         .snapshots();
   }
 
   static Stream<DocumentSnapshot> getSingleBudgetStream(String category) {
     return budgetsCollection
-        .doc(documentID)
+        .doc(_uid)
         .collection('details')
         .doc(category)
         .snapshots();
@@ -68,7 +64,7 @@ class BudgetService {
     bool isExist = false;
 
     await budgetsCollection 
-        .doc(documentID)
+        .doc(_uid)
         .collection('details')
         .get()
         .then((snapshot) {
@@ -85,7 +81,7 @@ class BudgetService {
 
   static Future<void> addBudget(BudgetCard budget) async {
     await budgetsCollection
-        .doc(documentID)
+        .doc(_uid)
         .collection('details')
         .doc(budget.category)
         .set({
@@ -96,7 +92,7 @@ class BudgetService {
 
   static Future<void> updateTotalBudget(String category, double amount) async {
     await budgetsCollection
-        .doc(documentID)
+        .doc(_uid)
         .collection('details')
         .doc(category)
         .update({
@@ -107,19 +103,19 @@ class BudgetService {
   static Future<void> updateDate(DateTime date) async {
     DateTime resetDate = getOnlyDate(date);
     resettingDate = resetDate;
-    await budgetsCollection.doc(documentID).update({
+    await budgetsCollection.doc(_uid).update({
       'resetDate': resetDate,
     });
   }
 
   static Future<void> updateUsedAmount(
-      String category, double amount, DateTime transactionDate) async {
+    String category, double amount, DateTime transactionDate) async {
     // check if date is within budgeting date range
     if (transactionDate.isAfter(startingDate) ||
         transactionDate.isAtSameMomentAs(startingDate)) {
       // check if category exists
       await budgetsCollection
-          .doc(documentID)
+          .doc(_uid)
           .collection('details')
           .doc(category)
           .get()
@@ -139,7 +135,7 @@ class BudgetService {
 
   static Future<void> updateOnTransactionChanged(
     TrackerTransaction previous, TrackerTransaction current) async {
-    if (documentID == '') {
+    if (_uid == '') {
       await setDocumentID();
     }
     // subtract amount in previous category
@@ -150,7 +146,7 @@ class BudgetService {
         current.date.isAfter(startingDate) && current.isExpense;
 
     await budgetsCollection
-        .doc(documentID)
+        .doc(_uid)
         .collection('details')
         .get()
         .then((snapshot) async {
@@ -186,19 +182,19 @@ class BudgetService {
 
   static Future<void> deleteBudget(String category) async {
     await budgetsCollection
-        .doc(documentID)
+        .doc(_uid)
         .collection('details')
         .doc(category)
         .delete();
   }
  
   static Future<void> resetBudget() async {
-    if (FirebaseInstance.auth.currentUser == null || documentID == '') {
+    if (FirebaseInstance.auth.currentUser == null || _uid == '') {
       await setDocumentID();
     }
     
     await budgetsCollection
-        .doc(documentID)
+        .doc(_uid)
         .get()
         .then((snapshot) async {
           DateTime resetDate = snapshot['resetDate'].toDate();
