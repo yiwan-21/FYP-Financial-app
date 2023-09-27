@@ -116,22 +116,15 @@ class _HomeState extends State<Home> {
             }),
             
             const SizedBox(height: 20.0),
-            Flex(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              direction: MediaQuery.of(context).size.width < 768
-                  ? Axis.vertical
-                  : Axis.horizontal,
-              children: const [
-                    RecentTransactions(),
-                    SizedBox(height: 40.0),
-                    RecentGoal(),
-                    SizedBox(height: 40.0),
-                    RecentGroupExpense(),
-                    SizedBox(height: 40.0),
-                    RecentBudget(),
-                // SizedBox(height: 40.0),
-                // UnpaidBills(),
-              ],
+            Wrap(
+              direction: Axis.horizontal,
+              spacing: 20.0,
+              children: _items.map((item) {
+                return ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: _isMobile ? Constant.mobileMaxWidth : (MediaQuery.of(context).size.width / 2 - 20)),
+                  child: item,
+                );
+              }).toList(),
             ),
           ],
         ));
@@ -148,73 +141,70 @@ class RecentTransactions extends StatefulWidget {
 class _RecentTransactionsState extends State<RecentTransactions> {
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      flex: MediaQuery.of(context).size.width < 768 ? 0 : 1,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(left: 10.0, bottom: 10.0),
-                child: Text(
-                  'Recent Transactions',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                  ),
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(left: 10.0, bottom: 10.0),
+              child: Text(
+                'Recent Transactions',
+                style: TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  Provider.of<NavigationProvider>(context, listen: false).goToTracker();
-                },
-                child: const Text(
-                  'View All',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.pink,
-                  ),
+            ),
+            TextButton(
+              onPressed: () {
+                Provider.of<NavigationProvider>(context, listen: false).goToTracker();
+              },
+              child: const Text(
+                'View All',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.pink,
                 ),
               ),
-            ],
-          ),
-          StreamBuilder<QuerySnapshot>(
-            stream: Provider.of<TotalTransactionProvider>(context, listen: false).getHomeTransactionsStream,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              if (snapshot.hasError) {
-                return Text(
-                    'Something went wrong: ${snapshot.error}');
-              }
-              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return const Center(
-                    child: Text("No transaction yet"));
-              }
-    
-              List<TrackerTransaction> transactions = snapshot
-                  .data!.docs
-                  .take(3)
-                  .map((doc) => TrackerTransaction.fromDocument(doc))
-                  .toList();
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: transactions.length,
-                itemBuilder: (context, index) {
-                  return transactions[index];
-                },
+            ),
+          ],
+        ),
+        StreamBuilder<QuerySnapshot>(
+          stream: Provider.of<TotalTransactionProvider>(context, listen: false).getHomeTransactionsStream,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
               );
-            },
-          ),
-        ],
-      ),
+            }
+            if (snapshot.hasError) {
+              return Text(
+                  'Something went wrong: ${snapshot.error}');
+            }
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return const Center(
+                  child: Text("No transaction yet"));
+            }
+    
+            List<TrackerTransaction> transactions = snapshot
+                .data!.docs
+                .take(3)
+                .map((doc) => TrackerTransaction.fromDocument(doc))
+                .toList();
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: transactions.length,
+              itemBuilder: (context, index) {
+                return transactions[index];
+              },
+            );
+          },
+        ),
+      ],
     );
   }
 }
@@ -230,59 +220,56 @@ class RecentGoal extends StatefulWidget {
 class _RecentGoalState extends State<RecentGoal> {
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      flex: MediaQuery.of(context).size.width < 768 ? 0 : 1,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(left: 10.0, bottom: 10.0),
-                child: Text(
-                  'Recent Goal',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                  ),
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(left: 10.0, bottom: 10.0),
+              child: Text(
+                'Recent Goal',
+                style: TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  Provider.of<NavigationProvider>(context, listen: false).goToGoal();
-                },
-                child: const Text(
-                  'View All',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.pink,
-                  ),
+            ),
+            TextButton(
+              onPressed: () {
+                Provider.of<NavigationProvider>(context, listen: false).goToGoal();
+              },
+              child: const Text(
+                'View All',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.pink,
                 ),
               ),
-            ],
-          ),
-          Consumer<TotalGoalProvider>(
-            builder: (context, totalGoalProvider, _) {
-              List<Goal> goal = totalGoalProvider.getPinnedGoal;
-              if (goal.isEmpty) {
-                return const Center(
-                  child: Text("No goal yet"),
-                );
-              }
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: goal.length,
-                itemBuilder: (context, index) {
-                  return goal[index];
-                },
+            ),
+          ],
+        ),
+        Consumer<TotalGoalProvider>(
+          builder: (context, totalGoalProvider, _) {
+            List<Goal> goal = totalGoalProvider.getPinnedGoal;
+            if (goal.isEmpty) {
+              return const Center(
+                child: Text("No goal yet"),
               );
-            },
-          ),
-        ],
-      ),
+            }
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: goal.length,
+              itemBuilder: (context, index) {
+                return goal[index];
+              },
+            );
+          },
+        ),
+      ],
     );
   }
 }
@@ -315,82 +302,79 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      flex: MediaQuery.of(context).size.width < 768 ? 0 : 1,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 10.0, bottom: 10.0),
-                child: FutureBuilder(
-                  future: SplitMoneyService.getGroupName(_groupID),
-                  builder: (context, snapshot) {
-                    return Text(
-                      snapshot.connectionState == ConnectionState.waiting 
-                        ? 'Recent Group Expenses'
-                        : '${snapshot.data}\'s Expenses',
-                      style: const TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    );
-                  }
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 10.0, bottom: 10.0),
+              child: FutureBuilder(
+                future: SplitMoneyService.getGroupName(_groupID),
+                builder: (context, snapshot) {
+                  return Text(
+                    snapshot.connectionState == ConnectionState.waiting 
+                      ? 'Recent Group Expenses'
+                      : '${snapshot.data}\'s Expenses',
+                    style: const TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }
+              ),
+            ),
+            TextButton(
+              onPressed: navigateToGroup,
+              child: const Text(
+                'View All',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.pink,
                 ),
               ),
-              TextButton(
-                onPressed: navigateToGroup,
-                child: const Text(
-                  'View All',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.pink,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          StreamBuilder<QuerySnapshot>(
-            stream: _stream, 
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              if (snapshot.hasError) {
-                return Text(
-                    'Something went wrong: ${snapshot.error}');
-              }
-              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return const Center(
-                    child: Text("No group expense yet"));
-              }
-              
-              List<SplitExpenseCard> expenses = snapshot
-                  .data!.docs
-                  .map((doc) => SplitExpenseCard.fromDocument(doc))
-                  .toList();       
-    
-              List<SplitExpenseCard> settled = expenses.where((card) => card.isSettle).take(3).toList();
-              expenses.removeWhere((card) => card.isSettle);
-              expenses = expenses.followedBy(settled).take(3).toList();
-    
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: expenses.length,
-                itemBuilder: (context, index) {
-                  return expenses[index];
-                },
+            ),
+          ],
+        ),
+        StreamBuilder<QuerySnapshot>(
+          stream: _stream, 
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
               );
-            },
-          ),
-        ],
-      ),
+            }
+            if (snapshot.hasError) {
+              return Text(
+                  'Something went wrong: ${snapshot.error}');
+            }
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return const Center(
+                  child: Text("No group expense yet"));
+            }
+            
+            List<SplitExpenseCard> expenses = snapshot
+                .data!.docs
+                .map((doc) => SplitExpenseCard.fromDocument(doc))
+                .toList();       
+    
+            List<SplitExpenseCard> settled = expenses.where((card) => card.isSettle).take(3).toList();
+            expenses.removeWhere((card) => card.isSettle);
+            expenses = expenses.followedBy(settled).take(3).toList();
+    
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: expenses.length,
+              itemBuilder: (context, index) {
+                return expenses[index];
+              },
+            );
+          },
+        ),
+      ],
     );
   }
 }
@@ -416,63 +400,60 @@ class _RecentBudgetState extends State<RecentBudget> {
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      flex: MediaQuery.of(context).size.width < 768 ? 0 : 1,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 10.0, bottom: 10.0),
-                child: Text(
-                  '$_category Budget',
-                  style: const TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                  ),
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 10.0, bottom: 10.0),
+              child: Text(
+                '$_category Budget',
+                style: const TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  Provider.of<NavigationProvider>(context, listen: false).goToBudgeting();
-                },
-                child: const Text(
-                  'View All',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.pink,
-                  ),
+            ),
+            TextButton(
+              onPressed: () {
+                Provider.of<NavigationProvider>(context, listen: false).goToBudgeting();
+              },
+              child: const Text(
+                'View All',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.pink,
                 ),
               ),
-            ],
-          ),
-          StreamBuilder(
-            stream: _stream, 
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              if (snapshot.hasError) {
-                return Text('Something went wrong: ${snapshot.error}');
-              }
-              if (!snapshot.hasData || !snapshot.data!.exists) {
-                return const Center(child: Text("No Budget on this category yet"));
-              }
-
-              return BudgetCard(
-                _category,
-                snapshot.data!['amount'].toDouble(),
-                snapshot.data!['used'].toDouble(),
+            ),
+          ],
+        ),
+        StreamBuilder(
+          stream: _stream, 
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
               );
-            },
-          ),
-        ],
-      ),
+            }
+            if (snapshot.hasError) {
+              return Text('Something went wrong: ${snapshot.error}');
+            }
+            if (!snapshot.hasData || !snapshot.data!.exists) {
+              return const Center(child: Text("No Budget on this category yet"));
+            }
+
+            return BudgetCard(
+              _category,
+              snapshot.data!['amount'].toDouble(),
+              snapshot.data!['used'].toDouble(),
+            );
+          },
+        ),
+      ],
     );
   }
 }
@@ -496,85 +477,82 @@ class _UnpaidBillsState extends State<UnpaidBills> {
 
   @override
   Widget build(BuildContext context) {
-    return Flexible(
-      flex: MediaQuery.of(context).size.width < 768 ? 0 : 1,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(left: 10.0, bottom: 10.0),
-                child: Text(
-                  'Unpaid Bills',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                  ),
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(left: 10.0, bottom: 10.0),
+              child: Text(
+                'Unpaid Bills',
+                style: TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  Provider.of<NavigationProvider>(context, listen: false).goToBill();
-                },
-                child: const Text(
-                  'View All',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.pink,
-                  ),
+            ),
+            TextButton(
+              onPressed: () {
+                Provider.of<NavigationProvider>(context, listen: false).goToBill();
+              },
+              child: const Text(
+                'View All',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.pink,
                 ),
               ),
-            ],
-          ),
-          StreamBuilder<QuerySnapshot>(
-            stream: _stream, 
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              }
-    
-              
-              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return const Center(
-                  child: Text("No Bill Yet"),
-                );
-              }
-    
-              List<BillCard> bills = snapshot.data!.docs
-                  .where((doc) => !doc['paid'])
-                  .map((doc) => BillCard.fromDocument(doc))
-                  .toList();
-              DateTime now = getOnlyDate(DateTime.now());
-              // due date closest to now
-              bills.sort((a, b) => getOnlyDate(a.dueDate).difference(now).inDays.abs().compareTo(getOnlyDate(b.dueDate).difference(now).inDays.abs()));
-              bills = bills.take(2).toList();
-    
-              if (bills.isEmpty) {
-                return const Center(
-                  child: Text("All bills are paid"),
-                );
-              }
-              
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: bills.length,
-                itemBuilder: (context, index) {
-                  return bills[index];
-                },
+            ),
+          ],
+        ),
+        StreamBuilder<QuerySnapshot>(
+          stream: _stream, 
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
               );
-            },
-          ),
-        ],
-      ),
+            }
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+    
+            
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return const Center(
+                child: Text("No Bill Yet"),
+              );
+            }
+    
+            List<BillCard> bills = snapshot.data!.docs
+                .where((doc) => !doc['paid'])
+                .map((doc) => BillCard.fromDocument(doc))
+                .toList();
+            DateTime now = getOnlyDate(DateTime.now());
+            // due date closest to now
+            bills.sort((a, b) => getOnlyDate(a.dueDate).difference(now).inDays.abs().compareTo(getOnlyDate(b.dueDate).difference(now).inDays.abs()));
+            bills = bills.take(2).toList();
+    
+            if (bills.isEmpty) {
+              return const Center(
+                child: Text("All bills are paid"),
+              );
+            }
+            
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: bills.length,
+              itemBuilder: (context, index) {
+                return bills[index];
+              },
+            );
+          },
+        ),
+      ],
     );
   }
 }
