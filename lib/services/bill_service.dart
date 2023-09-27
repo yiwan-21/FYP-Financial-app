@@ -113,7 +113,7 @@ class BillService {
 
     await FirebaseInstance.firestore.collection('notifications')
         .where('receiverID', arrayContains: uid)
-        .where('type', isEqualTo: [NotificationType.BILL_DUE_NOTIFICATION])
+        .where('type', isEqualTo: NotificationType.BILL_DUE_NOTIFICATION)
         .orderBy('createdAt', descending: true)
         .get()
         .then((snapshot) {
