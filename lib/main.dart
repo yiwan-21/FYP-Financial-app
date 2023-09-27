@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import './firebase_instance.dart';
-import './pages/financial_app.dart';
+import 'pages/landing.dart';
 import './pages/login.dart';
 import './pages/register.dart';
 import './pages/navigation.dart';
@@ -91,7 +91,7 @@ class MyApp extends StatelessWidget {
             if (isLoggedIn()) {
               return MaterialPageRoute(builder: (_) => const Navigation());
             } else {
-              return MaterialPageRoute(builder: (_) => const FinancialApp());
+              return MaterialPageRoute(builder: (_) => const Landing());
             }
           case RouteName.login:
             if (isLoggedIn()) {
@@ -109,49 +109,49 @@ class MyApp extends StatelessWidget {
             if (isLoggedIn()) {
               return MaterialPageRoute(builder: (_) => const Navigation());
             } else {
-              return MaterialPageRoute(builder: (_) => const FinancialApp());
+              return MaterialPageRoute(builder: (_) => const Landing());
             }
           case RouteName.editProfile:
             if (isLoggedIn()) {
               return MaterialPageRoute(builder: (_) => const EditProfileForm());
             } else {
-              return MaterialPageRoute(builder: (_) => const FinancialApp());
+              return MaterialPageRoute(builder: (_) => const Landing());
             }
           case RouteName.addTransaction:
             if (isLoggedIn()) {
               return MaterialPageRoute(builder: (_) => const AddTransaction());
             } else {
-              return MaterialPageRoute(builder: (_) => const FinancialApp());
+              return MaterialPageRoute(builder: (_) => const Landing());
             }
           case RouteName.editTransaction:
             if (isLoggedIn()) {
               return MaterialPageRoute(builder: (_) => const EditTransaction());
             } else {
-              return MaterialPageRoute(builder: (_) => const FinancialApp());
+              return MaterialPageRoute(builder: (_) => const Landing());
             }
           case RouteName.addGoal:
             if (isLoggedIn()) {
               return MaterialPageRoute(builder: (_) => const AddGoal());
             } else {
-              return MaterialPageRoute(builder: (_) => const FinancialApp());
+              return MaterialPageRoute(builder: (_) => const Landing());
             }
           case RouteName.goalProgress:
             if (isLoggedIn()) {
               return MaterialPageRoute(builder: (_) => const GoalProgress());
             } else {
-              return MaterialPageRoute(builder: (_) => const FinancialApp());
+              return MaterialPageRoute(builder: (_) => const Landing());
             }
           case RouteName.splitMoneyGroup:
             if (isLoggedIn()) {
               return MaterialPageRoute(builder: (_) => const SplitMoneyGroup());
             } else {
-              return MaterialPageRoute(builder: (_) => const FinancialApp());
+              return MaterialPageRoute(builder: (_) => const Landing());
             }
           case RouteName.groupSettings:
             if (isLoggedIn()) {
               return MaterialPageRoute(builder: (_) => const GroupSettings());
             } else {
-              return MaterialPageRoute(builder: (_) => const FinancialApp());
+              return MaterialPageRoute(builder: (_) => const Landing());
             }
           case RouteName.splitMoneyExpense:
             if (isLoggedIn()) {
@@ -161,13 +161,13 @@ class MyApp extends StatelessWidget {
                   builder: (_) => SplitMoneyExpense(
                       expenseID: args['id'], tabIndex: args['tabIndex']));
             } else {
-              return MaterialPageRoute(builder: (_) => const FinancialApp());
+              return MaterialPageRoute(builder: (_) => const Landing());
             }
           case RouteName.addGroupExpense:
             if (isLoggedIn()) {
               return MaterialPageRoute(builder: (_) => const AddGroupExpense());
             } else {
-              return MaterialPageRoute(builder: (_) => const FinancialApp());
+              return MaterialPageRoute(builder: (_) => const Landing());
             }
           case RouteName.budgetDetail:
             if (isLoggedIn()) {
@@ -177,7 +177,7 @@ class MyApp extends StatelessWidget {
                 builder: (_) => BudgetDetail(category: args['category']),
               );
             } else {
-              return MaterialPageRoute(builder: (_) => const FinancialApp());
+              return MaterialPageRoute(builder: (_) => const Landing());
             }
           case RouteName.manageBill:
             if (isLoggedIn()) {
@@ -194,7 +194,7 @@ class MyApp extends StatelessWidget {
                 ),
               );
             } else {
-              return MaterialPageRoute(builder: (_) => const FinancialApp());
+              return MaterialPageRoute(builder: (_) => const Landing());
             }
           case RouteName.manageDebt:
             if (isLoggedIn()) {
@@ -212,7 +212,7 @@ class MyApp extends StatelessWidget {
                 ),
               );
             } else {
-              return MaterialPageRoute(builder: (_) => const FinancialApp());
+              return MaterialPageRoute(builder: (_) => const Landing());
             }
           default:
             return MaterialPageRoute(
