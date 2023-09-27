@@ -60,6 +60,25 @@ class BudgetService {
         .snapshots();
   }
 
+  static Future<List<String>> getBudgetCategories() async {
+    if (FirebaseInstance.auth.currentUser == null || _uid == '') {
+      await setDocumentID();
+    }
+    
+    final List<String> categories = [];
+    await budgetsCollection
+        .doc(_uid)
+        .collection('details')
+        .get()
+        .then((snapshot) {
+          for (var doc in snapshot.docs) {
+            categories.add(doc.id);
+          }
+        });
+
+    return categories;
+  }
+
   static Future<bool> isCategoryExist(String category) async {
     bool isExist = false;
 

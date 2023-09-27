@@ -9,7 +9,9 @@ import '../components/split_expense_card.dart';
 import '../components/tracker_transaction.dart';
 
 import '../constants/constant.dart';
+import '../constants/home_constant.dart';
 import '../constants/route_name.dart';
+import '../providers/home_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/split_money_provider.dart';
 import '../providers/total_goal_provider.dart';
@@ -28,9 +30,30 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  bool get _isMobile => Constant.isMobile(context);
+  List<Widget> _items = [];
+
   @override
   void initState() {
     super.initState();
+    _items = _getHomeItems();
+  }
+
+  void _navigateToHomeSettings() {
+    Navigator.pushNamed(context, RouteName.homeSettings);
+  }
+
+  List<Widget> _getHomeItems() {
+    final List<Widget> items = [];
+    Provider.of<HomeProvider>(context, listen: false).displayedItems.forEach((item) {
+      HomeConstant.homeItems.forEach((key, value) {
+        if (item == key) {
+          items.add(value);
+        }
+      });
+    });
+
+    return items;
   }
 
   @override
@@ -81,10 +104,17 @@ class _HomeState extends State<Home> {
                         ),
                       ],
                     ),
+                    const Spacer(),
+                    IconButton(
+                      visualDensity: VisualDensity.compact,
+                      onPressed: _navigateToHomeSettings,
+                      icon: const Icon(Icons.settings),
+                    ),
                   ],
                 ),
               );
             }),
+            
             const SizedBox(height: 20.0),
             Flex(
               crossAxisAlignment: CrossAxisAlignment.start,

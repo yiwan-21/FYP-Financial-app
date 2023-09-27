@@ -31,6 +31,8 @@ import './providers/transaction_provider.dart';
 import './providers/split_money_provider.dart';
 import './providers/total_split_money_provider.dart';
 import './providers/notification_provider.dart';
+import './pages/home_settings.dart';
+import 'providers/home_provider.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -61,6 +63,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => SplitMoneyProvider()),
         ChangeNotifierProvider(create: (_) => TotalSplitMoneyProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => HomeProvider()),
       ],
       child: const MyApp(),
     ),
@@ -108,6 +111,12 @@ class MyApp extends StatelessWidget {
           case RouteName.home:
             if (isLoggedIn()) {
               return MaterialPageRoute(builder: (_) => const Navigation());
+            } else {
+              return MaterialPageRoute(builder: (_) => const Landing());
+            }
+          case RouteName.homeSettings:
+            if (isLoggedIn()) {
+              return MaterialPageRoute(builder: (_) => const HomeSettings());
             } else {
               return MaterialPageRoute(builder: (_) => const Landing());
             }
