@@ -15,11 +15,11 @@ import '../providers/home_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/split_money_provider.dart';
 import '../providers/total_goal_provider.dart';
-import '../providers/total_transaction_provider.dart';
 import '../providers/user_provider.dart';
 import '../services/bill_service.dart';
 import '../services/budget_service.dart';
 import '../services/split_money_service.dart';
+import '../services/transaction_service.dart';
 import '../utils/date_utils.dart';
 
 class Home extends StatefulWidget {
@@ -31,29 +31,26 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool get _isMobile => Constant.isMobile(context);
-  List<Widget> _items = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _items = _getHomeItems();
-  }
 
   void _navigateToHomeSettings() {
     Navigator.pushNamed(context, RouteName.homeSettings);
   }
 
-  List<Widget> _getHomeItems() {
-    final List<Widget> items = [];
-    Provider.of<HomeProvider>(context, listen: false).displayedItems.forEach((item) {
-      HomeConstant.homeItems.forEach((key, value) {
-        if (item == key) {
-          items.add(value);
-        }
-      });
-    });
-
-    return items;
+  Widget _buildHomeItem(String item, String groupID, String budgetCategory) {
+    switch (item) {
+      case HomeConstant.recentTransactions:
+        return const RecentTransactions();
+      case HomeConstant.recentGoal:
+        return const RecentGoal();
+      case HomeConstant.recentGroupExpense:
+        return RecentGroupExpense(groupID: groupID);
+      case HomeConstant.budget:
+        return RecentBudget(category: budgetCategory);
+      case HomeConstant.unpaidBills:
+        return const UnpaidBills();
+      default:
+        return Container();
+    }
   }
 
   @override
@@ -116,15 +113,22 @@ class _HomeState extends State<Home> {
             }),
             
             const SizedBox(height: 20.0),
-            Wrap(
-              direction: Axis.horizontal,
-              spacing: 20.0,
-              children: _items.map((item) {
-                return ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: _isMobile ? Constant.mobileMaxWidth : (MediaQuery.of(context).size.width / 2 - 20)),
-                  child: item,
+            Consumer<HomeProvider>(
+              builder: (context, homeProvider, _) {
+                String groupID = homeProvider.customization.groupID;
+                String budgetCategory = homeProvider.customization.budgetCategory;
+                return Wrap(
+                  direction: Axis.horizontal,
+                  spacing: 20.0,
+                  runSpacing: 10.0,
+                  children: homeProvider.customization.items.map((item) {
+                    return ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: _isMobile ? Constant.mobileMaxWidth : (MediaQuery.of(context).size.width / 2 - 20)),
+                      child: _buildHomeItem(item, groupID, budgetCategory),
+                    );
+                  }).toList(),
                 );
-              }).toList(),
+              }
             ),
           ],
         ));
@@ -139,6 +143,16 @@ class RecentTransactions extends StatefulWidget {
 }
 
 class _RecentTransactionsState extends State<RecentTransactions> {
+  Stream<QuerySnapshot> _stream = const Stream.empty();
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _stream = TransactionService.getHomeTransactionStream();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -173,7 +187,7 @@ class _RecentTransactionsState extends State<RecentTransactions> {
           ],
         ),
         StreamBuilder<QuerySnapshot>(
-          stream: Provider.of<TotalTransactionProvider>(context, listen: false).getHomeTransactionsStream,
+          stream: _stream,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -276,27 +290,25 @@ class _RecentGoalState extends State<RecentGoal> {
 
 
 class RecentGroupExpense extends StatefulWidget {
-  const RecentGroupExpense({super.key});
+  final String groupID;
+  const RecentGroupExpense({required this.groupID, super.key});
 
   @override
   State<RecentGroupExpense> createState() => _RecentGroupExpenseState();
 }
 
 class _RecentGroupExpenseState extends State<RecentGroupExpense> {
-  // let user select group in customization setting page
-  // show the recent group expenses of the selected group
-  final String _groupID = '6ytSklvH87EYQUfVCfCN'; // ID of 'test' group
   Stream<QuerySnapshot> _stream = const Stream.empty();
 
   @override
   void initState() {
     super.initState();
-    SplitMoneyService.setGroupID(_groupID);
-    _stream = SplitMoneyService.getExpenseStream(_groupID);
+    SplitMoneyService.setGroupID(widget.groupID);
+    _stream = SplitMoneyService.getExpenseStream(widget.groupID);
   }
 
   void navigateToGroup() {
-    Provider.of<SplitMoneyProvider>(context, listen: false).setNewSplitGroup(_groupID);
+    Provider.of<SplitMoneyProvider>(context, listen: false).setNewSplitGroup(widget.groupID);
     Navigator.pushNamed(context, RouteName.splitMoneyGroup);
   }
 
@@ -311,7 +323,7 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
             Padding(
               padding: const EdgeInsets.only(left: 10.0, bottom: 10.0),
               child: FutureBuilder(
-                future: SplitMoneyService.getGroupName(_groupID),
+                future: SplitMoneyService.getGroupName(widget.groupID),
                 builder: (context, snapshot) {
                   return Text(
                     snapshot.connectionState == ConnectionState.waiting 
@@ -381,21 +393,20 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
 
 
 class RecentBudget extends StatefulWidget {
-  const RecentBudget({super.key});
+  final String category;
+  const RecentBudget({required this.category, super.key});
 
   @override
   State<RecentBudget> createState() => _RecentBudgetState();
 }
 
 class _RecentBudgetState extends State<RecentBudget> {
-  // let user select category in customization setting page
-  final String _category = Constant.expenseCategories[0]; // 'Food' category
   Stream<DocumentSnapshot> _stream = const Stream.empty();
 
   @override
   void initState() {
     super.initState();
-    _stream = BudgetService.getSingleBudgetStream(_category);
+    _stream = BudgetService.getSingleBudgetStream(widget.category);
   }
 
   @override
@@ -409,7 +420,7 @@ class _RecentBudgetState extends State<RecentBudget> {
             Padding(
               padding: const EdgeInsets.only(left: 10.0, bottom: 10.0),
               child: Text(
-                '$_category Budget',
+                '${widget.category} Budget',
                 style: const TextStyle(
                   fontSize: 18.0,
                   fontWeight: FontWeight.bold,
@@ -447,7 +458,7 @@ class _RecentBudgetState extends State<RecentBudget> {
             }
 
             return BudgetCard(
-              _category,
+              widget.category,
               snapshot.data!['amount'].toDouble(),
               snapshot.data!['used'].toDouble(),
             );

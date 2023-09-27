@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import '../constants/constant.dart';
 import '../constants/home_constant.dart';
 import '../components/split_group_card.dart';
+import '../models/home_customization.dart';
+import '../services/home_service.dart';
 
 class HomeSettings extends StatefulWidget {
   const HomeSettings({super.key});
@@ -15,7 +17,7 @@ class HomeSettings extends StatefulWidget {
 
 class _HomeSettingsState extends State<HomeSettings> {
   final _formKey = GlobalKey<FormState>();
-  final List<String> _selectedItems = [];
+  List<String> _selectedItems = [];
   List<SplitGroupCard> _groupList = [];
   String _selectedGroup = '';
   List<String> _budgetList = [];
@@ -24,11 +26,12 @@ class _HomeSettingsState extends State<HomeSettings> {
   @override
   void initState() {
     super.initState();
+    HomeCustomization customization  = Provider.of<HomeProvider>(context, listen: false).customization;
+    _selectedItems = customization.items;
     _groupList = Provider.of<HomeProvider>(context, listen: false).groupOptions;
-    _selectedGroup = _groupList[0].groupID;
-    _budgetList =
-        Provider.of<HomeProvider>(context, listen: false).budgetOptions;
-    _selectedBudget = _budgetList[0];
+    _selectedGroup = customization.groupID == "" ? _groupList[0].groupID : customization.groupID;
+    _budgetList = Provider.of<HomeProvider>(context, listen: false).budgetOptions;
+    _selectedBudget = customization.budgetCategory == "" ? _budgetList[0] : customization.budgetCategory;
   }
 
   void _toggleCheckbox(String item) {
@@ -39,6 +42,18 @@ class _HomeSettingsState extends State<HomeSettings> {
         _selectedItems.add(item);
       }
     });
+  }
+
+  Future<void> _updateHomeItems() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+
+      Provider.of<HomeProvider>(context, listen: false).updateDisplayedItems(_selectedItems, _selectedGroup, _selectedBudget);
+
+      await HomeService.updateHomeItems(_selectedItems, _selectedGroup, _selectedBudget).then((_) {
+        Navigator.pop(context);
+      });
+    }
   }
 
   @override
@@ -77,9 +92,9 @@ class _HomeSettingsState extends State<HomeSettings> {
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: HomeConstant.homeItems.keys.length,
+                    itemCount: HomeConstant.homeItems.length,
                     itemBuilder: ((context, index) {
-                      final item = HomeConstant.homeItems.keys.toList()[index];
+                      final item = HomeConstant.homeItems[index];
                       return CheckboxListTile(
                         title: Text(item),
                         value: _selectedItems.contains(item),
@@ -114,7 +129,7 @@ class _HomeSettingsState extends State<HomeSettings> {
                       }).toList(),
                     ),
                   ),
-                  _selectedItems.contains(HomeConstant.groupExpense)
+                  _selectedItems.contains(HomeConstant.recentGroupExpense)
                       ? DropdownButtonFormField<String>(
                           value: _selectedGroup,
                           onChanged: (value) {
@@ -183,15 +198,8 @@ class _HomeSettingsState extends State<HomeSettings> {
                           borderRadius: BorderRadius.circular(4.0),
                         ),
                       ),
+                      onPressed: _updateHomeItems,
                       child: const Text('Save'),
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          // Submit form data to server or database
-                          _formKey.currentState!.save();
-
-                          Navigator.pop(context);
-                        }
-                      },
                     ),
                   ),
                 ],
