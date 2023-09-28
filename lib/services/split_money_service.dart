@@ -252,6 +252,41 @@ class SplitMoneyService {
         functionID: _groupID);
   }
 
+  static Future<bool> allSettleUp(String memberID) async {
+    bool settleUp = true;
+    final String memberRef = 'users/$memberID';
+    await groupsCollection
+        .doc(_groupID)
+        .collection('expenses')
+        .get()
+        .then((snapshot) async {
+          for (var doc in snapshot.docs) {
+            if (doc['paidBy'] == memberRef) {
+              if (doc['paidAmount'] < doc['amount']) {
+                settleUp = false;
+                return;
+              }
+            } else if (List<String>.from(doc['sharedBy']).contains(memberRef)) {
+              await doc.reference
+                  .collection('records')
+                  .doc(memberID)
+                  .get()
+                  .then((snapshot) {
+                    if (snapshot['paid'] < snapshot['amount']) {
+                      settleUp = false;
+                      return;
+                    }
+                  });
+              if (!settleUp) {
+                return;
+              }
+            }
+          }
+        });
+
+    return settleUp;
+  }
+
   static Future<void> deleteMember(String memberID) async {
     String memberRef = "users/$memberID";
 
@@ -285,6 +320,24 @@ class SplitMoneyService {
     final functionID = _groupID;
     await NotificationService.sendNotification(type, receiverID,
         functionID: functionID);
+  }
+
+  static Future<bool> groupSettleUp() async {
+    bool settleUp = true;
+    await groupsCollection
+        .doc(_groupID)
+        .collection('expenses')
+        .get()
+        .then((snapshot) async {
+          for (var doc in snapshot.docs) {
+            if (doc['paidAmount'] < doc['amount']) {
+              settleUp = false;
+              return;
+            }
+          }
+        });
+
+    return settleUp;
   }
 
   static Future<void> deleteGroup() async {

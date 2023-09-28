@@ -50,8 +50,9 @@ class SplitMoneyProvider extends ChangeNotifier {
   }
 
   Future<void> removeMember(GroupUser member) async {
-    await SplitMoneyService.deleteMember(member.id);
-    _splitGroup.members!.remove(member);
+    await SplitMoneyService.deleteMember(member.id).then((_) {
+      _splitGroup.members!.remove(member);
+    });
     notifyListeners();
   }
 
