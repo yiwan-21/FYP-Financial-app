@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../constants/route_name.dart';
 import '../constants/style_constant.dart';
+import '../firebase_instance.dart';
 import '../providers/split_money_provider.dart';
 import '../services/chat_service.dart';
 
@@ -15,6 +17,14 @@ class SplitExpenseCard extends StatefulWidget {
   final DateTime date;
 
   const SplitExpenseCard({required this.id, required this.title, required this.totalAmount, required this.isSettle, required this.isLent, required this.date, super.key});
+
+  SplitExpenseCard.fromDocument(QueryDocumentSnapshot doc, {super.key}) 
+      : id = doc.id,
+        title = doc['title'],
+        totalAmount = doc['amount'],
+        isSettle = doc['paidAmount'] >= doc['amount'],
+        isLent = doc['paidBy'] == 'users/${FirebaseInstance.auth.currentUser!.uid}',
+        date = doc['date'].toDate();
 
   @override
   State<SplitExpenseCard> createState() => _SplitExpenseCardState();

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../constants/route_name.dart';
 
-class FinancialApp extends StatelessWidget {
-  const FinancialApp({super.key});
+class Landing extends StatelessWidget {
+  const Landing({super.key});
 
   Widget _getWidget(context) {
     return Column(

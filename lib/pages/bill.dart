@@ -45,20 +45,11 @@ class _BillState extends State<Bill> {
             List<BillCard> bills = [];
             int paidBills = 0;
             for (var doc in snapshot.data!.docs) {
-              bool paid = doc['paid'];
-              if (paid) {
+              if (doc['paid']) {
                 paidBills++;
               }
 
-              bills.add(BillCard(
-                doc.id,
-                doc['title'],
-                doc['amount'].toDouble(),
-                paid,
-                doc['dueDate'].toDate(),
-                doc['fixed'],
-                List<Map<String, dynamic>>.from(doc['history']),
-              ));
+              bills.add(BillCard.fromDocument(doc));
             }
             
             double paidPercentage = paidBills / bills.length;

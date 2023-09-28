@@ -3,6 +3,7 @@ class RouteName {
   static const login = '/login';
   static const register = '/register';
   static const home = '/home';
+  static const homeSettings = '/home/settings';
   static const editProfile = '/profile';
   static const addTransaction = '/tracker/add';
   static const editTransaction = '/tracker/edit';

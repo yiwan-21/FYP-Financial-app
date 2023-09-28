@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:financial_app/services/debt_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,16 @@ class DebtCard extends StatefulWidget {
   const DebtCard(this.id, this.title, this.duration, this.amount,
       this.interests, this.plan, this.history,
       {super.key});
+
+  DebtCard.fromDocument(QueryDocumentSnapshot doc, {super.key})
+      : id = doc.id,
+        title = doc['title'],
+        duration = doc['duration'],
+        amount = doc['amount'].toDouble(),
+        interests = doc['interest'].toDouble(),
+        // using double.parse to round up the decimal places
+        plan = double.parse((doc['amount'] * ((doc['interest'] + 100) / 100) / doc['duration']).toStringAsFixed(2)),
+        history = List<Map<String, dynamic>>.from(doc['history']);
 
   @override
   State<DebtCard> createState() => _DebtCardState();
