@@ -11,6 +11,7 @@ import '../components/tracker_transaction.dart';
 import '../constants/constant.dart';
 import '../constants/home_constant.dart';
 import '../constants/route_name.dart';
+import '../firebase_instance.dart';
 import '../providers/home_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/split_money_provider.dart';
@@ -358,7 +359,7 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
                 child: CircularProgressIndicator(),
               );
             }
-            if (snapshot.hasError) {
+            if (snapshot.hasError || FirebaseInstance.auth.currentUser == null) {
               return Text(
                   'Something went wrong: ${snapshot.error}');
             }
