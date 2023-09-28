@@ -168,38 +168,40 @@ class _DebtCardState extends State<DebtCard> {
                 ),
               ],
             ),
-            const Divider(thickness: 1, height: 10),
-            const SizedBox(height: 10),
-            Table(
-              columnWidths: const <int, TableColumnWidth>{
-                0: FixedColumnWidth(80),
-              },
-              children: [
-                const TableRow(
-                  children: [
-                    Text(''),
-                    Text(
-                      'Saved Amount',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
+            if (widget.history.isNotEmpty)
+              const Divider(thickness: 1, height: 10),
+            if (widget.history.isNotEmpty)
+              const SizedBox(height: 10),
+            if (widget.history.isNotEmpty)
+              Table(
+                columnWidths: const <int, TableColumnWidth>{
+                  0: FixedColumnWidth(80),
+                },
+                children: [
+                  const TableRow(
+                    children: [
+                      Text(''),
+                      Text(
+                        'Saved Amount',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                    Text(
-                      'Balance',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
+                      Text(
+                        'Balance',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const TableRow(children: [
-                  SizedBox(height: 5),
-                  SizedBox(height: 5),
-                  SizedBox(height: 5),
-                ]),
-                if (widget.history.isNotEmpty)
+                    ],
+                  ),
+                  const TableRow(children: [
+                    SizedBox(height: 5),
+                    SizedBox(height: 5),
+                    SizedBox(height: 5),
+                  ]),
                   for (final row in widget.history.reversed)
                     TableRow(
                       children: [
@@ -215,8 +217,8 @@ class _DebtCardState extends State<DebtCard> {
                         ),
                       ],
                     ),
-              ],
-            ),
+                ],
+              ),
           ],
         ),
       ),

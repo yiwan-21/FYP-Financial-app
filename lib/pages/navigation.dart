@@ -16,6 +16,7 @@ import '../constants/style_constant.dart';
 import '../providers/user_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../services/budget_service.dart';
+import '../services/transaction_service.dart';
 
 class Navigation extends StatefulWidget {
   static final GlobalKey<ConvexAppBarState> appBarKey =
@@ -60,6 +61,8 @@ class _NavigationState extends State<Navigation> {
       const FloatButton(title: 'Analytics', icon: Icons.align_vertical_bottom_outlined),
     ];
     
+    // tracker cron job deletion on app launch 
+    TransactionService.resetTransactions();
     // check budgeting reset on app launch
     BudgetService.resetBudget();
   }

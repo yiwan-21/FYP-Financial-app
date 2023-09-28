@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../components/history_card.dart';
 import '../firebase_instance.dart';
 import '../constants/constant.dart';
+import '../components/history_card.dart';
 import '../components/tracker_transaction.dart';
 import '../components/expense_income_graph.dart';
 import '../components/auto_dis_chart.dart';
@@ -231,7 +231,8 @@ class TransactionService {
   static Future<double> calSurplus() async {
     double income = 0;
     double expense = 0;
-    final DateTime thisMonth = DateTime(DateTime.now().year, DateTime.now().month, 1);
+    final DateTime thisMonth =
+        DateTime(DateTime.now().year, DateTime.now().month, 1);
     await transactionCollection
         .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
         .where('date', isGreaterThanOrEqualTo: thisMonth)
@@ -249,5 +250,42 @@ class TransactionService {
     });
 
     return income - expense;
+  }
+
+  // Cron Job Deletion
+  static Future<void> resetTransactions() async {
+    const String surplusTitle = 'Surplus from previous months';
+    double surplus = 0;
+    final DateTime now = DateTime.now();
+    final DateTime lastFive = DateTime(now.year, now.month - 5, 1);
+    await transactionCollection
+        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+        .where('date', isLessThan: lastFive)
+        .get()
+        .then((snapshot) async {
+      if (snapshot.docs.length == 1 && snapshot.docs.first['title'] == surplusTitle) {
+        return;
+      }
+      if (snapshot.docs.isNotEmpty) {
+        for (var transaction in snapshot.docs) {
+          if (transaction['isExpense']) {
+            surplus -= transaction['amount'];
+          } else {
+            surplus += transaction['amount'];
+          }
+          await transaction.reference.delete();
+        }
+
+        await transactionCollection.add({
+          'amount': surplus,
+          'category': surplus < 0 ? 'Other Expenses' : 'Savings',
+          'date': lastFive.subtract(const Duration(days: 1)),
+          'isExpense': surplus < 0,
+          'notes': 'Auto Generated: Surplus from previous months',
+          'title': surplusTitle,
+          'userID': FirebaseInstance.auth.currentUser!.uid
+        });
+      }
+    });
   }
 }
