@@ -11,6 +11,7 @@ import '../components/alert_with_checkbox.dart';
 import '../constants/constant.dart';
 import '../models/split_expense.dart';
 import '../models/group_user.dart';
+import '../models/split_record.dart';
 import '../pages/chat.dart';
 import '../providers/notification_provider.dart';
 import '../providers/split_money_provider.dart';
@@ -41,11 +42,15 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
     sharedRecords: [],
     createdAt: DateTime.now(),
   );
+  bool _isPayer = false;
+  bool _isSettle = false;
+  bool _allSettle = false;
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
+    _isPayer = _checkIsPayer();
 
     _tabController = TabController(vsync: this, length: 2);
     _tabController.animateTo(widget.tabIndex);
@@ -93,29 +98,31 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
     await ChatService.updateReadStatus();
   }
 
-  Future<SplitExpense> _getExpense() {
-    return SplitMoneyService.getExpenseByID(widget.expenseID);
-  }
-
   void _fetchExpenses() async {
-    await _getExpense().then((expense) {
+    await SplitMoneyService.getExpenseByID(widget.expenseID).then((expense) {
       setState(() {
         _expense = expense;
       });
     });
   }
 
-  bool _isPayer() {
+  bool _checkIsPayer() {
     return FirebaseInstance.auth.currentUser!.uid == _expense.paidBy.id;
   }
 
   String _getRemainingAmount() {
     double paidAmount = 0;
     for (var record in _expense.sharedRecords) {
+      if (record.id == FirebaseInstance.auth.currentUser!.uid) {
+        _isSettle = record.paidAmount == record.amount;
+      }
       paidAmount += record.paidAmount;
     }
     double amount = _expense.amount - paidAmount;
 
+    setState(() {   
+      _allSettle = amount == 0;
+    });
     return 'Remaining: RM ${amount.toStringAsFixed(2)}';
   }
 
@@ -279,34 +286,37 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
                       ],
                     ),
                     const SizedBox(height: 15),
-                    Container(
-                      alignment: Constant.isMobile(context)
-                          ? Alignment.center
-                          : Alignment.centerRight,
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 20, horizontal: 4),
-                      child: _isPayer()
-                          ? ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                fixedSize: const Size(150, 40),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4.0),
+                    if (!_allSettle)
+                      Container(
+                        alignment: Constant.isMobile(context)
+                            ? Alignment.center
+                            : Alignment.centerRight,
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 20, horizontal: 4),
+                        child: _isPayer
+                            ? ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  fixedSize: const Size(150, 40),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4.0),
+                                  ),
                                 ),
-                              ),
-                              onPressed: _remind,
-                              child: const Text('Remind'),
-                            )
-                          : ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                fixedSize: const Size(150, 40),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4.0),
+                                onPressed: _remind,
+                                child: const Text('Remind'),
+                              )
+                            : !_isSettle
+                            ? ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  fixedSize: const Size(150, 40),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4.0),
+                                  ),
                                 ),
-                              ),
-                              onPressed: _settleUp,
-                              child: const Text('Settle Up'),
-                            ),
-                    ),
+                                onPressed: _settleUp,
+                                child: const Text('Settle Up'),
+                              )
+                            : const SizedBox(height: 40),
+                      ),
                     ..._expense.sharedRecords.map((record) {
                       return SplitRecordCard(record: record);
                     }).toList(),

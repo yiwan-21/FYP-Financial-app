@@ -60,6 +60,9 @@ class SplitMoneyService {
 
   static Future<List<SplitExpenseCard>> getExpenseCards(String groupID) async {
     List<SplitExpenseCard> expenses = [];
+    if (groupID.isEmpty || FirebaseInstance.auth.currentUser == null) {
+      return expenses;
+    }
     await groupsCollection
         .doc(groupID)
         .collection('expenses')
