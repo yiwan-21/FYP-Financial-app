@@ -1,9 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../components/add_group.dart';
 import '../components/split_group_card.dart';
 import '../constants/style_constant.dart';
-import '../providers/total_split_money_provider.dart';
+import '../services/split_money_service.dart';
 
 class SplitMoney extends StatefulWidget {
   const SplitMoney({super.key});
@@ -13,6 +13,16 @@ class SplitMoney extends StatefulWidget {
 }
 
 class _SplitMoneyState extends State<SplitMoney> {
+  Stream<QuerySnapshot> _stream = const Stream.empty();
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {  
+      _stream = SplitMoneyService.getGroupStream();
+    });
+  }
+
   void addGroup() {
     showDialog(
         context: context,
@@ -24,10 +34,26 @@ class _SplitMoneyState extends State<SplitMoney> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer<TotalSplitMoneyProvider>(
-        builder: (context, totalSplitMoneyProvider, _) {
-          List<SplitGroupCard> groupCards =
-              totalSplitMoneyProvider.groupCards;
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _stream,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (snapshot.hasError) {
+            return Text('Something went wrong: ${snapshot.error}');
+          }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(
+              child: Text('No group yet'),
+            );
+          }
+
+          List<SplitGroupCard> groupCards = snapshot.data!.docs
+              .map((doc) => SplitGroupCard(doc.id, groupName: doc['name']))
+              .toList();
           return ListView(
             children: List.generate(
               groupCards.length,

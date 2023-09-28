@@ -80,15 +80,30 @@ class _GroupSettingsState extends State<GroupSettings> {
     return ownerId != null && ownerId == 'users/$memberId';
   }
 
-  void _removeMember(GroupUser member) async {
-    await Provider.of<SplitMoneyProvider>(context, listen: false)
-        .removeMember(member);
-    if (context.mounted && _isLeaving) {
-      // quit to SplitMoneyGroup page
+  Future<void> _removeMember(GroupUser member) async {
+    await SplitMoneyService.allSettleUp(member.id).then((isSettleUp) async {
+      // close dialog
       Navigator.of(context).pop();
-      // quit to Group list page
-      Navigator.of(context).pop();
-    }
+      if (!isSettleUp) {
+        SnackBar snackBar = const SnackBar(
+              content: Text('Cannot remove this member because there are still unsettled expenses'));
+        if (_isLeaving) {
+          snackBar = const SnackBar(
+              content: Text('You cannot leave the group because there are still unsettled expenses'));
+        }
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        return;
+      }
+      await Provider.of<SplitMoneyProvider>(context, listen: false).removeMember(member)
+          .then((_) {
+            if (_isLeaving) {
+              // quit to SplitMoneyGroup page
+              Navigator.of(context).pop();
+              // quit to Group list page
+              Navigator.of(context).pop();
+            }
+          });
+    });
   }
 
   void _removeMemberConfirmation(GroupUser member) {
@@ -104,7 +119,6 @@ class _GroupSettingsState extends State<GroupSettings> {
                 confirmText: 'Leave',
                 confirmAction: () {
                   _removeMember(member);
-                  Navigator.of(context).pop();
                 },
               );
             },
@@ -120,19 +134,26 @@ class _GroupSettingsState extends State<GroupSettings> {
                 confirmText: 'Remove',
                 confirmAction: () {
                   _removeMember(member);
-                  Navigator.of(context).pop();
                 },
               );
             },
           );
   }
 
-  void _deleteGroup() async {
-    await SplitMoneyService.deleteGroup().then((_) {
-      // quit to SplitMoneyGroup page
-      Navigator.of(context).pop();
-      // quit to Group list page
-      Navigator.of(context).pop();
+  Future<void> _deleteGroup() async {
+    await SplitMoneyService.groupSettleUp().then((isSettleUp) async {
+      if (!isSettleUp) {
+        SnackBar snackBar = const SnackBar(
+              content: Text('Cannot delete this group because there are still unsettled expenses'));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        return;
+      }
+      await SplitMoneyService.deleteGroup().then((_) {
+        // quit to SplitMoneyGroup page
+        Navigator.of(context).pop();
+        // quit to Group list page
+        Navigator.of(context).pop();
+      });
     });
   }
 
@@ -371,13 +392,9 @@ class _GroupSettingsState extends State<GroupSettings> {
                                 onPressed: () {
                                   _isLeaving = true;
                                   _removeMemberConfirmation(
-                                      Provider.of<SplitMoneyProvider>(context,
-                                              listen: false)
-                                          .members!
-                                          .firstWhere((member) =>
-                                              member.id ==
-                                              FirebaseInstance
-                                                  .auth.currentUser!.uid));
+                                      Provider.of<SplitMoneyProvider>(context, listen: false).members!
+                                          .firstWhere((member) => member.id == FirebaseInstance.auth.currentUser!.uid),
+                                  );
                                 },
                                 child: const Text('Leave Group'),
                               )

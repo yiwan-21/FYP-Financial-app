@@ -84,7 +84,7 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
 
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      
+
       SplitMoneyService.addExpense(_splitExpense).then((_) {
         Navigator.pop(context, _splitExpense);
       });
@@ -125,10 +125,20 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
               child: Column(
                 children: <Widget>[
                   Row(
-                    mainAxisAlignment: Constant.isMobile(context)
-                        ? MainAxisAlignment.end
-                        : MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: const Size(100, 40),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                        ),
+                        onPressed: _addGroupExpense,
+                        child: const Text('Save'),
+                      ),
+                      if (!Constant.isMobile(context))
+                        const SizedBox(width: 10),
                       if (!Constant.isMobile(context))
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -142,18 +152,6 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                             Navigator.pop(context);
                           },
                         ),
-                      if (!Constant.isMobile(context))
-                        const SizedBox(width: 12),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          fixedSize: const Size(100, 40),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                        ),
-                        onPressed: _addGroupExpense,
-                        child: const Text('Save'),
-                      ),
                     ],
                   ),
                   const SizedBox(height: 18.0),
@@ -372,13 +370,15 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                                   ),
                                   onPressed: () {
                                     setState(() {
-                                      _splitExpense.sharedRecords.removeAt(index);
+                                      _splitExpense.sharedRecords
+                                          .removeAt(index);
                                       _amountControllers[index].dispose();
                                       _amountControllers.removeAt(index);
                                       _calAmount();
                                     });
                                   }),
-                              title: Text(_splitExpense.sharedRecords[index].name),
+                              title:
+                                  Text(_splitExpense.sharedRecords[index].name),
                               trailing: SizedBox(
                                 width: 120,
                                 child: TextFormField(
@@ -422,7 +422,8 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                                       _splitExpense.splitMethod =
                                           Constant.splitUnequally;
 
-                                      _splitExpense.sharedRecords[index].amount =
+                                      _splitExpense
+                                              .sharedRecords[index].amount =
                                           double.tryParse(value) == null
                                               ? 0
                                               : double.parse(value);

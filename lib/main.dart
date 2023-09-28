@@ -29,7 +29,6 @@ import './providers/total_transaction_provider.dart';
 import './providers/user_provider.dart';
 import './providers/transaction_provider.dart';
 import './providers/split_money_provider.dart';
-import './providers/total_split_money_provider.dart';
 import './providers/notification_provider.dart';
 import './pages/home_settings.dart';
 import 'providers/home_provider.dart';
@@ -61,7 +60,6 @@ void main() async {
         ChangeNotifierProvider(create: (_) => TotalTransactionProvider()),
         ChangeNotifierProvider(create: (_) => TotalGoalProvider()),
         ChangeNotifierProvider(create: (_) => SplitMoneyProvider()),
-        ChangeNotifierProvider(create: (_) => TotalSplitMoneyProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => HomeProvider()),
       ],
