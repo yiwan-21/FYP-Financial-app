@@ -132,16 +132,10 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
               }),
               Consumer<SplitMoneyProvider>(
                 builder: (context, splitMoneyProvider, _) {
-                  if (splitMoneyProvider.members != null &&
-                      splitMoneyProvider.members!.length > 1) {
-                    if (splitMoneyProvider.expenses == null ||
-                        splitMoneyProvider.expenses!.isEmpty) {
-                      return const Text(
-                        "No expenses yet.",
-                        textAlign: TextAlign.center,
-                      );
-                    }
-
+                  bool moreThanOneMember = splitMoneyProvider.members != null && splitMoneyProvider.members!.length > 1;
+                  bool hasExpenses = splitMoneyProvider.expenses != null && splitMoneyProvider.expenses!.isNotEmpty;
+                  
+                  if (hasExpenses) {
                     // Group expenses by month
                     final Map<String, List<SplitExpenseCard>> expensesByMonth =
                         {};
@@ -182,8 +176,16 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
                         );
                       },
                     );
+                  } else {
+                    if (moreThanOneMember) {
+                      return const Text(
+                        "No expenses yet.",
+                        textAlign: TextAlign.center,
+                      );
+                    } else {
+                      return Container();
+                    }
                   }
-                  return Container();
                 },
               ),
             ],
