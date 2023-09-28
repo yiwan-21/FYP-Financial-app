@@ -36,16 +36,26 @@ class SplitMoneyService {
       return const Stream.empty();
     }
     return groupsCollection
-        .where('members', arrayContains: 'users/${FirebaseInstance.auth.currentUser!.uid}')
+        .where('members',
+            arrayContains: 'users/${FirebaseInstance.auth.currentUser!.uid}')
         .snapshots();
   }
 
   static Future<SplitGroup> getGroupByID(String groupID) async {
     setGroupID(groupID);
     SplitGroup group = SplitGroup();
+    if (groupID.isEmpty) {
+      return group;
+    }
+
     final groupDoc = await groupsCollection.doc(groupID).get();
 
-    final membersReferences = (List<String>.from(groupDoc['members'])).map((member) {
+    if (!groupDoc.exists) {
+      return group;
+    }
+
+    final membersReferences =
+        (List<String>.from(groupDoc['members'])).map((member) {
       return FirebaseInstance.firestore.doc(member);
     }).toList();
 
@@ -89,6 +99,9 @@ class SplitMoneyService {
   }
 
   static Stream<QuerySnapshot> getExpenseStream(String groupID) {
+    if (groupID.isEmpty) {
+      return const Stream.empty();
+    }
     return groupsCollection
         .doc(groupID)
         .collection('expenses')
@@ -235,7 +248,8 @@ class SplitMoneyService {
     // Send Notification
     const type = NotificationType.NEW_GROUP_NOTIFICATION;
     final receiverID = [member.id];
-    await NotificationService.sendNotification(type, receiverID, functionID: _groupID);
+    await NotificationService.sendNotification(type, receiverID,
+        functionID: _groupID);
   }
 
   static Future<void> deleteMember(String memberID) async {
@@ -254,11 +268,23 @@ class SplitMoneyService {
         .doc(_groupID)
         .update({'members': members});
 
+    // check if the member's having the group as their home customization
+    await FirebaseInstance.firestore
+        .collection('homes')
+        .doc(memberID)
+        .get()
+        .then((snapshot) async {
+      if (snapshot.exists && snapshot['groupID'] == _groupID) {
+        await snapshot.reference.update({'groupID': ''});
+      }
+    });
+
     // Send Notification
     const type = NotificationType.REMOVE_FROM_GROUP_NOTIFICATION;
     final receiverID = [memberID];
     final functionID = _groupID;
-    await NotificationService.sendNotification(type, receiverID, functionID: functionID);
+    await NotificationService.sendNotification(type, receiverID,
+        functionID: functionID);
   }
 
   static Future<void> deleteGroup() async {
@@ -282,15 +308,15 @@ class SplitMoneyService {
     // add new 'expense' document
     DocumentReference newExpense =
         await groupsCollection.doc(_groupID).collection('expenses').add({
-          'title': expense.title,
-          'amount': expense.amount,
-          'paidAmount': expense.paidAmount,
-          'splitMethod': expense.splitMethod,
-          'paidBy': 'users/${expense.paidBy.id}',
-          'sharedBy':
-              expense.sharedRecords.map((record) => 'users/${record.id}').toList(),
-          'date': DateTime.now(),
-        });
+      'title': expense.title,
+      'amount': expense.amount,
+      'paidAmount': expense.paidAmount,
+      'splitMethod': expense.splitMethod,
+      'paidBy': 'users/${expense.paidBy.id}',
+      'sharedBy':
+          expense.sharedRecords.map((record) => 'users/${record.id}').toList(),
+      'date': DateTime.now(),
+    });
     await newExpense.update({'id': newExpense.id});
 
     // add new 'records' documents
@@ -314,17 +340,20 @@ class SplitMoneyService {
 
     // Send Notification
     const type = NotificationType.NEW_EXPENSE_NOTIFICATION;
-    final receiverID = expense.sharedRecords.map((record) => record.id).toList();
+    final receiverID =
+        expense.sharedRecords.map((record) => record.id).toList();
     receiverID.remove(FirebaseInstance.auth.currentUser!.uid);
     final functionID = _groupID;
-    await NotificationService.sendNotification(type, receiverID, functionID: functionID);
+    await NotificationService.sendNotification(type, receiverID,
+        functionID: functionID);
 
     return expense;
   }
 
   static Future<void> deleteExpense(String expenseID) async {
     WriteBatch batch = FirebaseInstance.firestore.batch();
-    DocumentReference expenseRef = groupsCollection.doc(_groupID).collection('expenses').doc(expenseID);
+    DocumentReference expenseRef =
+        groupsCollection.doc(_groupID).collection('expenses').doc(expenseID);
 
     // delete records
     await expenseRef.collection('records').get().then((snapshot) {
@@ -381,5 +410,4 @@ class SplitMoneyService {
     }
     return expenseName;
   }
-
 }

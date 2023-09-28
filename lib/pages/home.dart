@@ -12,6 +12,7 @@ import '../constants/constant.dart';
 import '../constants/home_constant.dart';
 import '../constants/route_name.dart';
 import '../firebase_instance.dart';
+import '../models/split_group.dart';
 import '../providers/home_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/split_money_provider.dart';
@@ -131,6 +132,7 @@ class _HomeState extends State<Home> {
                 );
               }
             ),
+            const SizedBox(height: 20.0),
           ],
         ));
   }
@@ -308,9 +310,15 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
     _stream = SplitMoneyService.getExpenseStream(widget.groupID);
   }
 
-  void navigateToGroup() {
-    Provider.of<SplitMoneyProvider>(context, listen: false).setNewSplitGroup(widget.groupID);
-    Navigator.pushNamed(context, RouteName.splitMoneyGroup);
+  Future<void> navigateToGroup() async {
+    await Provider.of<SplitMoneyProvider>(context, listen: false).setNewSplitGroup(widget.groupID)
+        .then((SplitGroup group) {
+          if (group.id == null) {
+            Provider.of<NavigationProvider>(context, listen: false).goToSplitMoney();
+          } else {
+            Navigator.pushNamed(context, RouteName.splitMoneyGroup);
+          }
+        });
   }
 
   @override
@@ -327,7 +335,7 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
                 future: SplitMoneyService.getGroupName(widget.groupID),
                 builder: (context, snapshot) {
                   return Text(
-                    snapshot.connectionState == ConnectionState.waiting 
+                    snapshot.connectionState == ConnectionState.waiting || snapshot.data == ""
                       ? 'Recent Group Expenses'
                       : '${snapshot.data}\'s Expenses',
                     style: const TextStyle(

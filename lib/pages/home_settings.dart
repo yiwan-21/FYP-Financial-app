@@ -29,9 +29,16 @@ class _HomeSettingsState extends State<HomeSettings> {
     HomeCustomization customization  = Provider.of<HomeProvider>(context, listen: false).customization;
     _selectedItems = customization.items;
     _groupList = Provider.of<HomeProvider>(context, listen: false).groupOptions;
-    _selectedGroup = customization.groupID == "" ? _groupList[0].groupID : customization.groupID;
+    _selectedGroup = customization.groupID; // currently selected group
+    if (_groupList.isNotEmpty &&  (customization.groupID.isEmpty || !_groupList.any((group) => group.groupID == customization.groupID))) {
+      _selectedGroup = _groupList[0].groupID; // default to first group
+    }
+
     _budgetList = Provider.of<HomeProvider>(context, listen: false).budgetOptions;
-    _selectedBudget = customization.budgetCategory == "" ? _budgetList[0] : customization.budgetCategory;
+    _selectedBudget = customization.budgetCategory;
+    if (customization.budgetCategory.isEmpty && _budgetList.isNotEmpty) {
+      _selectedBudget = _budgetList[0];
+    }
   }
 
   void _toggleCheckbox(String item) {
@@ -129,7 +136,7 @@ class _HomeSettingsState extends State<HomeSettings> {
                       }).toList(),
                     ),
                   ),
-                  _selectedItems.contains(HomeConstant.recentGroupExpense)
+                  _selectedItems.contains(HomeConstant.recentGroupExpense) && _groupList.isNotEmpty
                       ? DropdownButtonFormField<String>(
                           value: _selectedGroup,
                           onChanged: (value) {
@@ -158,7 +165,7 @@ class _HomeSettingsState extends State<HomeSettings> {
                           ),
                         )
                       : SizedBox(height: Constant.isMobile(context) ? null : 72),
-                  _selectedItems.contains(HomeConstant.budget)
+                  _selectedItems.contains(HomeConstant.budget) && _budgetList.isNotEmpty
                       ? DropdownButtonFormField<String>(
                           value: _selectedBudget,
                           onChanged: (value) {
@@ -186,7 +193,7 @@ class _HomeSettingsState extends State<HomeSettings> {
                             ),
                           ),
                         )
-                      : SizedBox(height: Constant.isMobile(context) ? null : 72),
+                      : SizedBox(height: Constant.isMobile(context) ? null : 72,),
                   Container(
                     alignment: Alignment.bottomRight,
                     margin:
