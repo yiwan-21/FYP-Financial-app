@@ -78,6 +78,9 @@ class TransactionService {
 
   static Future<Map<String, double>> getPieChartData() async {
     Map<String, double> data = {};
+    if (FirebaseInstance.auth.currentUser == null) {
+      return data;
+    }
     await transactionCollection
         .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
         .where('isExpense', isEqualTo: true)
