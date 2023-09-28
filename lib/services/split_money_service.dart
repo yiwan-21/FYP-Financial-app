@@ -31,6 +31,15 @@ class SplitMoneyService {
   static CollectionReference get groupsCollection =>
       FirebaseInstance.firestore.collection('groups');
 
+  static Stream<QuerySnapshot> getGroupStream() {
+    if (FirebaseInstance.auth.currentUser == null) {
+      return const Stream.empty();
+    }
+    return groupsCollection
+        .where('members', arrayContains: 'users/${FirebaseInstance.auth.currentUser!.uid}')
+        .snapshots();
+  }
+
   static Future<SplitGroup> getGroupByID(String groupID) async {
     setGroupID(groupID);
     SplitGroup group = SplitGroup();

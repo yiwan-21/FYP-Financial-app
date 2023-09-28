@@ -2,12 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
 import '../firebase_instance.dart';
-import '../providers/total_split_money_provider.dart';
 import '../services/split_money_service.dart';
 
 class AddGroup extends StatefulWidget {
@@ -27,8 +25,6 @@ class _AddGroupState extends State<AddGroup> {
       
       await SplitMoneyService.addGroup(_groupName).then((_) {
         Navigator.pop(context);
-        Provider.of<TotalSplitMoneyProvider>(context, listen: false)
-            .updateGroups();
       });
     }
   }

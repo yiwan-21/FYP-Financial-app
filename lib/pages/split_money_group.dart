@@ -5,7 +5,6 @@ import '../components/split_expense_card.dart';
 import '../constants/constant.dart';
 import '../constants/route_name.dart';
 import '../providers/split_money_provider.dart';
-import '../providers/total_split_money_provider.dart';
 
 class SplitMoneyGroup extends StatefulWidget {
   const SplitMoneyGroup({super.key});
@@ -25,10 +24,7 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
   }
 
   void _navigateToSettings() {
-    Navigator.pushNamed(context, RouteName.groupSettings).then((_) {
-      Provider.of<TotalSplitMoneyProvider>(context, listen: false)
-          .updateGroups();
-    });
+    Navigator.pushNamed(context, RouteName.groupSettings);
   }
 
   String formatMonthYear(DateTime date) {
