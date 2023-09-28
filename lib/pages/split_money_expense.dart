@@ -11,7 +11,6 @@ import '../components/alert_with_checkbox.dart';
 import '../constants/constant.dart';
 import '../models/split_expense.dart';
 import '../models/group_user.dart';
-import '../models/split_record.dart';
 import '../pages/chat.dart';
 import '../providers/notification_provider.dart';
 import '../providers/split_money_provider.dart';
