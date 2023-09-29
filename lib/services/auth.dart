@@ -7,6 +7,7 @@ import '../constants/message_constant.dart';
 import '../firebase_instance.dart';
 import '../components/alert_confirm_action.dart';
 import '../constants/route_name.dart';
+import '../providers/home_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/total_goal_provider.dart';
 import '../providers/total_transaction_provider.dart';
@@ -25,6 +26,7 @@ class Auth {
             Provider.of<UserProvider>(context, listen: false).init();
             Provider.of<TotalTransactionProvider>(context, listen: false).init();
             Provider.of<TotalGoalProvider>(context, listen: false).init();
+            Provider.of<HomeProvider>(context, listen: false).init();
             Navigator.pushNamedAndRemoveUntil(context, RouteName.home, (route) => false);
           });
     } on FirebaseAuthException catch (e) {
@@ -84,6 +86,7 @@ class Auth {
       Provider.of<UserProvider>(context, listen: false).signOut();
       Provider.of<TotalTransactionProvider>(context, listen: false).reset();
       Provider.of<TotalGoalProvider>(context, listen: false).reset();
+      Provider.of<HomeProvider>(context, listen: false).reset();
       Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
     });
   }
