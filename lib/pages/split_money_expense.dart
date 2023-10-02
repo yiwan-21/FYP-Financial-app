@@ -64,7 +64,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
     chatStream.listen((querySnapshot) {
       try {
         // the widget has been disposed of, so don't proceed
-        if (!mounted) {
+        if (!mounted || querySnapshot.docs.isEmpty) {
           return;
         }
         
