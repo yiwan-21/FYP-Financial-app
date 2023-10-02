@@ -49,7 +49,6 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
   @override
   void initState() {
     super.initState();
-    _isPayer = _checkIsPayer();
 
     _tabController = TabController(vsync: this, length: 2);
     _tabController.animateTo(widget.tabIndex);
@@ -101,6 +100,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
     await SplitMoneyService.getExpenseByID(widget.expenseID).then((expense) {
       setState(() {
         _expense = expense;
+        _isPayer = _checkIsPayer();
       });
     });
   }
