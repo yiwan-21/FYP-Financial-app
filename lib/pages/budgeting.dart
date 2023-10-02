@@ -14,6 +14,7 @@ class Budgeting extends StatefulWidget {
 }
 
 class _BudgetingState extends State<Budgeting> {
+  final Future<Stream<QuerySnapshot>> _streamFuture = BudgetService.getBudgetingStream();
   final TextEditingController _textController = TextEditingController();
   DateTime _startingDate = DateTime.now();
   DateTime _resetDate = DateTime.now();
@@ -165,7 +166,7 @@ class _BudgetingState extends State<Budgeting> {
                 height: 10,
               ),
               FutureBuilder(
-                future: BudgetService.getBudgetingStream(),
+                future: _streamFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(

@@ -16,6 +16,8 @@ class NotificationMenu extends StatefulWidget {
 }
 
 class _NotificationMenuState extends State<NotificationMenu> {
+  final Stream<QuerySnapshot> _stream = NotificationService.getNotificationStream();
+
   int _unread = 0;
 
   @override
@@ -35,7 +37,7 @@ class _NotificationMenuState extends State<NotificationMenu> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: NotificationService.getNotificationStream(),
+      stream: _stream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return IconButton(

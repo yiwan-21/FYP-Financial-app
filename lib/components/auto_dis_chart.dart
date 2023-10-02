@@ -25,13 +25,7 @@ class AutoDisChart extends StatefulWidget {
 }
 
 class _AutoDisChartState extends State<AutoDisChart> {
-  Future<List<AutoDisData>> _barData = Future.value([]);
-
-  @override
-  void initState() {
-    super.initState();
-    _barData = TransactionService.getBarData();
-  }
+  final Future<List<AutoDisData>> _barData = TransactionService.getBarData();
 
   @override
   Widget build(BuildContext context) {

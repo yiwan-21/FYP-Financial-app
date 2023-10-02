@@ -15,6 +15,7 @@ class Debt extends StatefulWidget {
 }
 
 class _DebtState extends State<Debt> {
+  final Stream<QuerySnapshot> _stream = DebtService.getDebtStream();
   double _surplus = 0;
 
   void _addDebt() {
@@ -42,7 +43,7 @@ class _DebtState extends State<Debt> {
             maxWidth: 768,
           ),
           child: StreamBuilder<QuerySnapshot>(
-              stream: DebtService.getDebtStream(),
+              stream: _stream,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(

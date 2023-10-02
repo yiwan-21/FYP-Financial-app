@@ -43,8 +43,7 @@ class _GoalProgressState extends State<GoalProgress>
   @override
   void initState() {
     super.initState();
-    final GoalProvider goalProvider =
-        Provider.of<GoalProvider>(context, listen: false);
+    final GoalProvider goalProvider = Provider.of<GoalProvider>(context, listen: false);
     _id = goalProvider.getId;
     _title = goalProvider.getTitle;
     _totalAmount = goalProvider.getAmount;

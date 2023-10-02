@@ -19,12 +19,23 @@ class BudgetDetail extends StatefulWidget {
 }
 
 class _BudgetDetailState extends State<BudgetDetail> {
+  Future<List<HistoryCard>> _future = Future.value([]);
+  Stream<DocumentSnapshot> _stream = const Stream.empty();
   Future<void> _deleteBudget() async {
     await BudgetService.deleteBudget(widget.category).then((_) {
       // close alert dialog
       Navigator.pop(context);
       // back to budgeting page
       Navigator.pop(context);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _future = TransactionService.getHistoryCards(widget.category, BudgetService.startingDate);
+      _stream = BudgetService.getSingleBudgetStream(widget.category);
     });
   }
 
@@ -81,7 +92,7 @@ class _BudgetDetailState extends State<BudgetDetail> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20),
                     child: StreamBuilder<DocumentSnapshot>(
-                      stream: BudgetService.getSingleBudgetStream(widget.category),
+                      stream: _stream,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting || 
                             snapshot.hasError || 
@@ -122,8 +133,7 @@ class _BudgetDetailState extends State<BudgetDetail> {
           ),
           const SizedBox(height: 24),
           FutureBuilder(
-              future: TransactionService.getHistoryCards(
-                  widget.category, BudgetService.startingDate),
+              future: _future,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(

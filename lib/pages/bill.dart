@@ -15,6 +15,7 @@ class Bill extends StatefulWidget {
 }
 
 class _BillState extends State<Bill> {
+  final Stream<QuerySnapshot> _stream = BillService.getBillStream();
   final double _radius = 90;
 
   void _addBill() {
@@ -31,7 +32,7 @@ class _BillState extends State<Bill> {
             maxWidth: 768,
           ),
           child: StreamBuilder<QuerySnapshot>(
-              stream: BillService.getBillStream(),
+              stream: _stream,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(

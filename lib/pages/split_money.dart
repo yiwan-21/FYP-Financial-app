@@ -13,15 +13,7 @@ class SplitMoney extends StatefulWidget {
 }
 
 class _SplitMoneyState extends State<SplitMoney> {
-  Stream<QuerySnapshot> _stream = const Stream.empty();
-
-  @override
-  void initState() {
-    super.initState();
-    setState(() {  
-      _stream = SplitMoneyService.getGroupStream();
-    });
-  }
+  final Stream<QuerySnapshot> _stream = SplitMoneyService.getGroupStream();
 
   void addGroup() {
     showDialog(

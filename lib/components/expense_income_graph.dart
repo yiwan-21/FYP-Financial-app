@@ -26,13 +26,7 @@ class ExpenseIncomeGraph extends StatefulWidget {
 }
 
 class _ExpenseIncomeGraphState extends State<ExpenseIncomeGraph> {
-  Future<List<IncomeExpenseData>> _lineData = Future.value([]);
-
-  @override
-  void initState() {
-    super.initState();
-    _lineData = TransactionService.getLineData();
-  }
+  final Future<List<IncomeExpenseData>> _lineData = TransactionService.getLineData();
 
   @override
   Widget build(BuildContext context) {

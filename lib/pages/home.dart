@@ -311,10 +311,16 @@ class RecentGroupExpense extends StatefulWidget {
 
 class _RecentGroupExpenseState extends State<RecentGroupExpense> {
   Stream<QuerySnapshot> _stream = const Stream.empty();
+  Future<String> _future = Future.value('');
 
   @override
   void initState() {
     super.initState();
+    _setGroup();
+  }
+
+  void _setGroup() {
+    _future = SplitMoneyService.getGroupName(widget.groupID);
     SplitMoneyService.setGroupID(widget.groupID);
     _stream = SplitMoneyService.getExpenseStream(widget.groupID);
   }
@@ -322,7 +328,15 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
   @override
   void didUpdateWidget(covariant RecentGroupExpense oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _stream = SplitMoneyService.getExpenseStream(widget.groupID);
+    if (oldWidget.groupID != widget.groupID) {
+      _setGroup();
+    }
+  }
+
+  @override
+  void dispose() {
+    SplitMoneyService.setGroupID('');
+    super.dispose();
   }
 
   Future<void> navigateToGroup() async {
@@ -347,7 +361,7 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
             Padding(
               padding: const EdgeInsets.only(left: 10.0, bottom: 10.0),
               child: FutureBuilder(
-                future: SplitMoneyService.getGroupName(widget.groupID),
+                future: _future,
                 builder: (context, snapshot) {
                   return Text(
                     snapshot.connectionState == ConnectionState.waiting || snapshot.data == ""
@@ -436,7 +450,9 @@ class _RecentBudgetState extends State<RecentBudget> {
   @override
   void didUpdateWidget(covariant RecentBudget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _stream = BudgetService.getSingleBudgetStream(widget.category);
+    if (oldWidget.category != widget.category) {
+      _stream = BudgetService.getSingleBudgetStream(widget.category);
+    }
   }
 
   @override
@@ -472,7 +488,7 @@ class _RecentBudgetState extends State<RecentBudget> {
             ),
           ],
         ),
-        StreamBuilder(
+        StreamBuilder<DocumentSnapshot>(
           stream: _stream, 
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
