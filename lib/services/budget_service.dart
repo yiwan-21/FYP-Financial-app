@@ -34,7 +34,7 @@ class BudgetService {
     });
   }
 
-  static void resetDocumentID() {
+  static resetDocumentID() {
     _uid = '';
   }
 

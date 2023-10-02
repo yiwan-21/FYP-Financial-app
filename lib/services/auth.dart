@@ -1,3 +1,4 @@
+import 'package:financial_app/services/budget_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -81,6 +82,7 @@ class Auth {
 
   static Future<void> signout(BuildContext context) async {
     await removeFcmToken();
+    await BudgetService.resetDocumentID();
     await FirebaseInstance.auth.signOut().then((_) {
       Provider.of<NavigationProvider>(context, listen: false).reset();
       Provider.of<UserProvider>(context, listen: false).signOut();
