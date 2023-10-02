@@ -53,55 +53,57 @@ class _AddGroupState extends State<AddGroup> {
         key: _formKey,
         child: SizedBox(
           width: Constant.isMobile(context) ? null : 500,
-          child: Flex(
-            direction: Constant.isMobile(context) ? Axis.vertical : Axis.horizontal,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: IconButton(
-                  iconSize: 60,
-                  icon: const Icon(
-                    Icons.add_a_photo,
+          child: SingleChildScrollView(
+            child: Flex(
+              direction: Constant.isMobile(context) ? Axis.vertical : Axis.horizontal,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  onPressed: _groupImage,
-                ),
-              ),
-              const SizedBox(width: 20, height: 20),
-              Flexible(
-                child: TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Group Name',
-                    labelStyle: TextStyle(color: Colors.black),
-                    fillColor: Colors.white,
-                    filled: true,
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1.5),
+                  child: IconButton(
+                    iconSize: 60,
+                    icon: const Icon(
+                      Icons.add_a_photo,
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1.5, color: Colors.red),
-                    ),
+                    onPressed: _groupImage,
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return ValidatorMessage.emptyGroupName;
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    setState(() {
-                      _groupName = value;
-                    });
-                  },
                 ),
-              ),
-            ],
+                const SizedBox(width: 20, height: 20),
+                Flexible(
+                  child: TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: 'Group Name',
+                      labelStyle: TextStyle(color: Colors.black),
+                      fillColor: Colors.white,
+                      filled: true,
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(width: 1.5),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(width: 1.5, color: Colors.red),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return ValidatorMessage.emptyGroupName;
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      setState(() {
+                        _groupName = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

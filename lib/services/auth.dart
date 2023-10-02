@@ -1,3 +1,4 @@
+import 'package:financial_app/services/budget_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,6 +8,7 @@ import '../constants/message_constant.dart';
 import '../firebase_instance.dart';
 import '../components/alert_confirm_action.dart';
 import '../constants/route_name.dart';
+import '../providers/home_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/total_goal_provider.dart';
 import '../providers/total_transaction_provider.dart';
@@ -25,6 +27,7 @@ class Auth {
             Provider.of<UserProvider>(context, listen: false).init();
             Provider.of<TotalTransactionProvider>(context, listen: false).init();
             Provider.of<TotalGoalProvider>(context, listen: false).init();
+            Provider.of<HomeProvider>(context, listen: false).init();
             Navigator.pushNamedAndRemoveUntil(context, RouteName.home, (route) => false);
           });
     } on FirebaseAuthException catch (e) {
@@ -79,11 +82,13 @@ class Auth {
 
   static Future<void> signout(BuildContext context) async {
     await removeFcmToken();
+    await BudgetService.resetDocumentID();
     await FirebaseInstance.auth.signOut().then((_) {
       Provider.of<NavigationProvider>(context, listen: false).reset();
       Provider.of<UserProvider>(context, listen: false).signOut();
       Provider.of<TotalTransactionProvider>(context, listen: false).reset();
       Provider.of<TotalGoalProvider>(context, listen: false).reset();
+      Provider.of<HomeProvider>(context, listen: false).reset();
       Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
     });
   }

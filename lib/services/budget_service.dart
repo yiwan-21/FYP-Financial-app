@@ -34,7 +34,7 @@ class BudgetService {
     });
   }
 
-  static void resetDocumentID() {
+  static resetDocumentID() {
     _uid = '';
   }
 
@@ -204,7 +204,7 @@ class BudgetService {
   }
 
   static Future<void> resetBudget() async {
-    if (FirebaseInstance.auth.currentUser == null || _uid == '') {
+    if (FirebaseInstance.auth.currentUser == null || _uid == '' || getOnlyDate(startingDate) == getOnlyDate(DateTime.now())) {
       await setDocumentID();
     }
 

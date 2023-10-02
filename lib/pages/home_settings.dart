@@ -6,7 +6,9 @@ import '../constants/constant.dart';
 import '../constants/home_constant.dart';
 import '../components/split_group_card.dart';
 import '../models/home_customization.dart';
+import '../services/budget_service.dart';
 import '../services/home_service.dart';
+import '../services/split_money_service.dart';
 
 class HomeSettings extends StatefulWidget {
   const HomeSettings({super.key});
@@ -18,27 +20,20 @@ class HomeSettings extends StatefulWidget {
 class _HomeSettingsState extends State<HomeSettings> {
   final _formKey = GlobalKey<FormState>();
   List<String> _selectedItems = [];
-  List<SplitGroupCard> _groupList = [];
+  Future<List<SplitGroupCard>> _groupList = Future.value([]);
   String _selectedGroup = '';
-  List<String> _budgetList = [];
+  Future<List<String>> _budgetList = Future.value([]);
   String _selectedBudget = '';
 
   @override
   void initState() {
     super.initState();
-    HomeCustomization customization  = Provider.of<HomeProvider>(context, listen: false).customization;
+    HomeCustomization customization = Provider.of<HomeProvider>(context, listen: false).customization;
     _selectedItems = customization.items;
-    _groupList = Provider.of<HomeProvider>(context, listen: false).groupOptions;
-    _selectedGroup = customization.groupID; // currently selected group
-    if (_groupList.isNotEmpty &&  (customization.groupID.isEmpty || !_groupList.any((group) => group.groupID == customization.groupID))) {
-      _selectedGroup = _groupList[0].groupID; // default to first group
-    }
-
-    _budgetList = Provider.of<HomeProvider>(context, listen: false).budgetOptions;
+    _groupList = SplitMoneyService.getGroupCards();
+    _selectedGroup = customization.groupID;
     _selectedBudget = customization.budgetCategory;
-    if (customization.budgetCategory.isEmpty && _budgetList.isNotEmpty) {
-      _selectedBudget = _budgetList[0];
-    }
+    _budgetList = BudgetService.getBudgetCategories();
   }
 
   void _toggleCheckbox(String item) {
@@ -136,64 +131,104 @@ class _HomeSettingsState extends State<HomeSettings> {
                       }).toList(),
                     ),
                   ),
-                  _selectedItems.contains(HomeConstant.recentGroupExpense) && _groupList.isNotEmpty
-                      ? DropdownButtonFormField<String>(
-                          value: _selectedGroup,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedGroup = value!;
-                            });
-                          },
-                          items: _groupList
-                              .map((group) => DropdownMenuItem(
-                                    value: group.groupID,
-                                    child: Text(group.groupName),
-                                  ))
-                              .toList(),
-                          padding: const EdgeInsets.all(8.0),
-                          decoration: const InputDecoration(
-                            labelText: 'Select Group to track expenses',
-                            labelStyle: TextStyle(color: Colors.black),
-                            fillColor: Colors.white,
-                            filled: true,
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(width: 1.5),
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(width: 1),
-                            ),
-                          ),
-                        )
-                      : SizedBox(height: Constant.isMobile(context) ? null : 72),
-                  _selectedItems.contains(HomeConstant.budget) && _budgetList.isNotEmpty
-                      ? DropdownButtonFormField<String>(
-                          value: _selectedBudget,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedBudget = value!;
-                            });
-                          },
-                          items: _budgetList
-                              .map((budget) => DropdownMenuItem(
-                                    value: budget,
-                                    child: Text(budget),
-                                  ))
-                              .toList(),
-                          padding: const EdgeInsets.all(8.0),
-                          decoration: const InputDecoration(
-                            labelText: 'Select Budget Category',
-                            labelStyle: TextStyle(color: Colors.black),
-                            fillColor: Colors.white,
-                            filled: true,
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(width: 1.5),
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(width: 1),
-                            ),
-                          ),
-                        )
-                      : SizedBox(height: Constant.isMobile(context) ? null : 72,),
+                  FutureBuilder(
+                    future: _groupList,
+                    builder: (context, snapshot) {
+                      if (!_selectedItems.contains(HomeConstant.recentGroupExpense)) {
+                        return SizedBox(height: Constant.isMobile(context) ? null : 72);
+                      }
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.hasError) {
+                        return const Center(child: Text('Error loading groups'));
+                      }
+                      if (snapshot.data == null || snapshot.data!.isEmpty) {
+                        return const Center(child: Text('No groups found'));
+                      }
+
+                      List<SplitGroupCard> groupList = snapshot.data!;
+                      if (_selectedGroup.isEmpty || !groupList.any((group) => group.groupID == _selectedGroup)) {
+                        _selectedGroup = groupList[0].groupID; // default to first group
+                      }
+                      return DropdownButtonFormField<String>(
+                              value: _selectedGroup,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedGroup = value!;
+                                });
+                              },
+                              items: groupList
+                                  .map((group) => DropdownMenuItem(
+                                        value: group.groupID,
+                                        child: Text(group.groupName),
+                                      ))
+                                  .toList(),
+                              padding: const EdgeInsets.all(8.0),
+                              decoration: const InputDecoration(
+                                labelText: 'Select Group to track expenses',
+                                labelStyle: TextStyle(color: Colors.black),
+                                fillColor: Colors.white,
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(width: 1.5),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(width: 1),
+                                ),
+                              ),
+                            );
+                    }
+                  ),
+                  FutureBuilder(
+                    future: _budgetList,
+                    builder: (context, snapshot) {
+                      if (!_selectedItems.contains(HomeConstant.budget)) {
+                        return SizedBox(height: Constant.isMobile(context) ? null : 72);
+                      }
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.hasError) {
+                        return const Center(child: Text('Error loading budgets'));
+                      }
+                      if (snapshot.data == null || snapshot.data!.isEmpty) {
+                        return const Center(child: Text('No budgets found'));
+                      }
+
+                      List<String> budgetList = snapshot.data!;
+                      if (_selectedBudget.isEmpty || !budgetList.contains(_selectedBudget)) {
+                        _selectedBudget = budgetList[0];
+                      }
+                      return DropdownButtonFormField<String>(
+                              value: _selectedBudget,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedBudget = value!;
+                                });
+                              },
+                              items: budgetList
+                                  .map((budget) => DropdownMenuItem(
+                                        value: budget,
+                                        child: Text(budget),
+                                      ))
+                                  .toList(),
+                              padding: const EdgeInsets.all(8.0),
+                              decoration: const InputDecoration(
+                                labelText: 'Select Budget Category',
+                                labelStyle: TextStyle(color: Colors.black),
+                                fillColor: Colors.white,
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(width: 1.5),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(width: 1),
+                                ),
+                              ),
+                            );
+                    }
+                  ),
                   Container(
                     alignment: Alignment.bottomRight,
                     margin:

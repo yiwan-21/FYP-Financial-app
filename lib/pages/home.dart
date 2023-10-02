@@ -310,6 +310,12 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
     _stream = SplitMoneyService.getExpenseStream(widget.groupID);
   }
 
+  @override
+  void didUpdateWidget(covariant RecentGroupExpense oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _stream = SplitMoneyService.getExpenseStream(widget.groupID);
+  }
+
   Future<void> navigateToGroup() async {
     await Provider.of<SplitMoneyProvider>(context, listen: false).setNewSplitGroup(widget.groupID)
         .then((SplitGroup group) {
@@ -415,6 +421,12 @@ class _RecentBudgetState extends State<RecentBudget> {
   @override
   void initState() {
     super.initState();
+    _stream = BudgetService.getSingleBudgetStream(widget.category);
+  }
+
+  @override
+  void didUpdateWidget(covariant RecentBudget oldWidget) {
+    super.didUpdateWidget(oldWidget);
     _stream = BudgetService.getSingleBudgetStream(widget.category);
   }
 
