@@ -11,6 +11,7 @@ import '../components/alert_with_checkbox.dart';
 import '../constants/constant.dart';
 import '../models/split_expense.dart';
 import '../models/group_user.dart';
+import '../models/split_record.dart';
 import '../pages/chat.dart';
 import '../providers/notification_provider.dart';
 import '../providers/split_money_provider.dart';
@@ -136,12 +137,14 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
             defaultChecked: true,
             onSaveFunction: _onSettleUp,
             checkedFunction: _checkedFunction,
-            maxValue: _expense.sharedRecords
-                .firstWhere((record) =>
-                    record.id == FirebaseInstance.auth.currentUser!.uid)
-                .amount,
+            maxValue: _getMaxValue(),
           );
         });
+  }
+
+  double _getMaxValue() {
+    SplitRecord record = _expense.sharedRecords.firstWhere((record) => record.id == FirebaseInstance.auth.currentUser!.uid);
+    return record.amount - record.paidAmount;
   }
 
   Future<void> _onSettleUp(double amount) async {
