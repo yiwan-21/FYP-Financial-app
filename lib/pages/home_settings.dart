@@ -197,7 +197,7 @@ class _HomeSettingsState extends State<HomeSettings> {
                       }
 
                       List<String> budgetList = snapshot.data!;
-                      if (_selectedBudget.isEmpty) {
+                      if (_selectedBudget.isEmpty || !budgetList.contains(_selectedBudget)) {
                         _selectedBudget = budgetList[0];
                       }
                       return DropdownButtonFormField<String>(
