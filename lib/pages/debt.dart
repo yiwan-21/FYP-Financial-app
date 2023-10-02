@@ -36,90 +36,97 @@ class _DebtState extends State<Debt> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder<QuerySnapshot>(
-          stream: DebtService.getDebtStream(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            }
-            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return const Center(
-                child: Text("No Debt Yet"),
-              );
-            }
-
-            List<DebtCard> debts = [];
-            for (var doc in snapshot.data!.docs) {
-              debts.add(DebtCard.fromDocument(doc));
-            }
-
-            return ListView(
-              children: [
-                const SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
-                    ),
-                    onPressed: _calSurplus,
-                    child: const Text(
-                      'Calculate Savings',
-                      style: TextStyle(
-                        color: Colors.pink,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                ),
-                if (_surplus != 0)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      const Tooltip(
-                        message:
-                            'Surplus: Balance from the total income deduct the total expenses from tracker in this month',
-                        triggerMode: TooltipTriggerMode.tap,
-                        showDuration: Duration(seconds: 5),
-                        child: Icon(Icons.info_outline_rounded, size: 20),
-                      ),
-                      const SizedBox(width: 2),
-                      Text(
-                        'Surplus: ${_surplus.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 16,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 768,
+          ),
+          child: StreamBuilder<QuerySnapshot>(
+              stream: DebtService.getDebtStream(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                }
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return const Center(
+                    child: Text("No Debt Yet"),
+                  );
+                }
+        
+                List<DebtCard> debts = [];
+                for (var doc in snapshot.data!.docs) {
+                  debts.add(DebtCard.fromDocument(doc));
+                }
+        
+                return ListView(
+                  children: [
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                        ),
+                        onPressed: _calSurplus,
+                        child: const Text(
+                          'Calculate Savings',
+                          style: TextStyle(
+                            color: Colors.pink,
+                            fontSize: 18,
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                    ],
-                  ),
-                if (_surplus != 0) const SizedBox(height: 20),
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.only(bottom: 50),
-                  itemCount: debts.length,
-                  itemBuilder: (context, index) {
-                    return debts[index];
-                  },
-                  separatorBuilder: (context, index) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 40),
-                      child: Divider(height: 20),
-                    );
-                  },
-                ),
-              ],
-            );
-          }),
+                    ),
+                    if (_surplus != 0)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          const Tooltip(
+                            message:
+                                'Surplus: Balance from the total income deduct the total expenses from tracker in this month',
+                            triggerMode: TooltipTriggerMode.tap,
+                            showDuration: Duration(seconds: 5),
+                            child: Icon(Icons.info_outline_rounded, size: 20),
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            'Surplus: ${_surplus.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
+                      ),
+                    if (_surplus != 0) const SizedBox(height: 20),
+                    ListView.separated(
+                      shrinkWrap: true,
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.only(bottom: 50),
+                      itemCount: debts.length,
+                      itemBuilder: (context, index) {
+                        return debts[index];
+                      },
+                      separatorBuilder: (context, index) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 40),
+                          child: Divider(height: 20),
+                        );
+                      },
+                    ),
+                  ],
+                );
+              }),
+        ),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       floatingActionButton: FloatingActionButton(
         backgroundColor: ColorConstant.lightBlue,

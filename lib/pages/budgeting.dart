@@ -122,61 +122,50 @@ class _BudgetingState extends State<Budgeting> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        children: [
-          const SizedBox(height: 15),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 768,
+          ),
+          child: ListView(
             children: [
-              const SizedBox(width: 10),
-              const Text(
-                'Starting date    :\nResetting date :   ',
-                style: TextStyle(
-                  fontSize: 16,
-                ),
-              ),
-              Text(
-                '${_startingDate.toString().substring(0, 10)}\n${_resetDate.toString().substring(0, 10)}',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              TextButton(
-                onPressed: setResetDate,
-                child: const Text(
-                  'Change',
-                  style: TextStyle(
-                    color: Colors.pink,
-                    fontSize: 16,
+              const SizedBox(height: 15),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(width: 10),
+                  const Text(
+                    'Starting date    :\nResetting date :   ',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
                   ),
-                ),
+                  Text(
+                    '${_startingDate.toString().substring(0, 10)}\n${_resetDate.toString().substring(0, 10)}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: setResetDate,
+                    child: const Text(
+                      'Change',
+                      style: TextStyle(
+                        color: Colors.pink,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
               ),
-              const SizedBox(width: 8),
-            ],
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          FutureBuilder(
-            future: BudgetService.getBudgetingStream(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              }
-              if (!snapshot.hasData) {
-                return const Center(
-                  child: Text("No budgeting yet"),
-                );
-              }
-              return StreamBuilder<QuerySnapshot>(
-                stream: snapshot.data,
+              const SizedBox(
+                height: 10,
+              ),
+              FutureBuilder(
+                future: BudgetService.getBudgetingStream(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
@@ -186,32 +175,50 @@ class _BudgetingState extends State<Budgeting> {
                   if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  if (!snapshot.hasData) {
                     return const Center(
                       child: Text("No budgeting yet"),
                     );
                   }
-                  List<BudgetCard> budgets = [];
-                  for (var doc in snapshot.data!.docs) {
-                    budgets.add(BudgetCard(
-                      doc.id,
-                      doc['amount'].toDouble(),
-                      doc['used'].toDouble(),
-                    ));
-                  }
-                  return ListView(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: List.generate(
-                      budgets.length,
-                      (index) => budgets[index],
-                    ),
+                  return StreamBuilder<QuerySnapshot>(
+                    stream: snapshot.data,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      }
+                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        return const Center(
+                          child: Text("No budgeting yet"),
+                        );
+                      }
+                      List<BudgetCard> budgets = [];
+                      for (var doc in snapshot.data!.docs) {
+                        budgets.add(BudgetCard(
+                          doc.id,
+                          doc['amount'].toDouble(),
+                          doc['used'].toDouble(),
+                        ));
+                      }
+                      return ListView(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: List.generate(
+                          budgets.length,
+                          (index) => budgets[index],
+                        ),
+                      );
+                    },
                   );
                 },
-              );
-            },
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       floatingActionButton: FloatingActionButton(

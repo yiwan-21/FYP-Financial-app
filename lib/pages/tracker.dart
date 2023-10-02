@@ -47,12 +47,12 @@ class _TrackerState extends State<Tracker> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 "Transactions (RM)",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
+              const SizedBox(width: 12),
               DropdownButton<String>(
                 value: _selectedItem,
                 icon: const Icon(Icons.filter_alt_outlined), // Icon to display
@@ -72,6 +72,7 @@ class _TrackerState extends State<Tracker> {
                   );
                 }).toList(),
               ),
+              const Spacer(),
               FloatingActionButton.small(
                 elevation: 2,
                 onPressed: () {

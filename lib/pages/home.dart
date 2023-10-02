@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -57,84 +59,91 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        alignment: Alignment.center,
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Container(
         margin: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 5.0),
         child: ListView(
           shrinkWrap: true,
           children: [
             Consumer<UserProvider>(builder: (context, userProvider, _) {
               String image = userProvider.profileImage;
-              return Padding(
-                padding: const EdgeInsets.only(left: 15.0),
-                child: Row(
-                  children: [
-                    image.isNotEmpty
-                        ? CircleAvatar(
-                            radius: 20.0,
-                            backgroundImage: NetworkImage(image),
-                          )
-                        : const CircleAvatar(
-                            radius: 20.0,
-                            child: Icon(
-                              Icons.account_circle,
-                              color: Colors.white,
-                              size: 40.0,
+              return Center(
+                child: Container(
+                  padding: _isMobile ? const EdgeInsets.only(left: 15.0) : null,
+                  constraints: BoxConstraints(maxWidth: _isMobile ? Constant.mobileMaxWidth : min(768*2, MediaQuery.of(context).size.width - 40)),
+                  child: Row(
+                    children: [
+                      image.isNotEmpty
+                          ? CircleAvatar(
+                              radius: 20.0,
+                              backgroundImage: NetworkImage(image),
+                            )
+                          : const CircleAvatar(
+                              radius: 20.0,
+                              child: Icon(
+                                Icons.account_circle,
+                                color: Colors.white,
+                                size: 40.0,
+                              ),
+                            ),
+                      const SizedBox(width: 20.0),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Hello,",
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[600],
                             ),
                           ),
-                    const SizedBox(width: 20.0),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Hello,",
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[600],
+                          Text(
+                            userProvider.name,
+                            style: const TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        Text(
-                          userProvider.name,
-                          style: const TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      visualDensity: VisualDensity.compact,
-                      onPressed: _navigateToHomeSettings,
-                      icon: const Icon(Icons.settings),
-                    ),
-                  ],
+                        ],
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        onPressed: _navigateToHomeSettings,
+                        icon: const Icon(Icons.settings),
+                      ),
+                    ],
+                  ),
                 ),
               );
             }),
             
             const SizedBox(height: 20.0),
-            Consumer<HomeProvider>(
-              builder: (context, homeProvider, _) {
-                String groupID = homeProvider.customization.groupID;
-                String budgetCategory = homeProvider.customization.budgetCategory;
-                return Wrap(
-                  direction: Axis.horizontal,
-                  spacing: 20.0,
-                  runSpacing: 10.0,
-                  children: homeProvider.customization.items.map((item) {
-                    return ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: _isMobile ? Constant.mobileMaxWidth : (MediaQuery.of(context).size.width / 2 - 20)),
-                      child: _buildHomeItem(item, groupID, budgetCategory),
-                    );
-                  }).toList(),
-                );
-              }
+            Center(
+              child: Consumer<HomeProvider>(
+                builder: (context, homeProvider, _) {
+                  String groupID = homeProvider.customization.groupID;
+                  String budgetCategory = homeProvider.customization.budgetCategory;
+                  return Wrap(
+                    direction: Axis.horizontal,
+                    spacing: 20.0,
+                    runSpacing: 10.0,
+                    children: homeProvider.customization.items.map((item) {
+                      return ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: _isMobile ? Constant.mobileMaxWidth : min(768, MediaQuery.of(context).size.width / 2 - 20)),
+                        child: _buildHomeItem(item, groupID, budgetCategory),
+                      );
+                    }).toList(),
+                  );
+                }
+              ),
             ),
             const SizedBox(height: 20.0),
           ],
-        ));
+        )),
+    );
   }
 }
 
