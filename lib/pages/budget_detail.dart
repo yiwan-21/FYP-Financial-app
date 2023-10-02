@@ -19,6 +19,7 @@ class BudgetDetail extends StatefulWidget {
 }
 
 class _BudgetDetailState extends State<BudgetDetail> {
+  final double _maxWidth = 900;
   Future<List<HistoryCard>> _future = Future.value([]);
   Stream<DocumentSnapshot> _stream = const Stream.empty();
   Future<void> _deleteBudget() async {
@@ -78,57 +79,64 @@ class _BudgetDetailState extends State<BudgetDetail> {
       body: ListView(
         physics: const BouncingScrollPhysics(),
         children: [
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-            elevation: 1,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            color: const Color.fromARGB(255, 255, 220, 225),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-              child: CustomPaint(
-                  foregroundPainter: LinePainter(),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: StreamBuilder<DocumentSnapshot>(
-                      stream: _stream,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting || 
-                            snapshot.hasError || 
-                            !snapshot.hasData ||
-                            !snapshot.data!.exists) {
-                          return Container();
-                        }
-                        double total = snapshot.data!['amount'].toDouble();
-                        double used = snapshot.data!['used'].toDouble();
-                        return Column(
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'RM ${used.toStringAsFixed(2)}',
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w500,
+          Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: _maxWidth,
+              ),
+              child: Card(
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+                elevation: 1,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                color: const Color.fromARGB(255, 255, 220, 225),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                  child: CustomPaint(
+                      foregroundPainter: LinePainter(),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: StreamBuilder<DocumentSnapshot>(
+                          stream: _stream,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting || 
+                                snapshot.hasError || 
+                                !snapshot.hasData ||
+                                !snapshot.data!.exists) {
+                              return Container();
+                            }
+                            double total = snapshot.data!['amount'].toDouble();
+                            double used = snapshot.data!['used'].toDouble();
+                            return Column(
+                              children: [
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'RM ${used.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                'RM ${total.toStringAsFixed(2)}',
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w500,
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    'RM ${total.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }
-                    ),
-                  )),
+                              ],
+                            );
+                          }
+                        ),
+                      )),
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -177,11 +185,18 @@ class _BudgetDetailState extends State<BudgetDetail> {
                     ),
                     BudgetChart(budgetData),
                     const SizedBox(height: 24),
-                    Wrap(
-                      verticalDirection: VerticalDirection.up,
-                      children: List.generate(historyCards.length, (index) {
-                        return historyCards[index];
-                      }),
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: _maxWidth,
+                        ),
+                        child: Wrap(
+                          verticalDirection: VerticalDirection.up,
+                          children: List.generate(historyCards.length, (index) {
+                            return historyCards[index];
+                          }),
+                        ),
+                      ),
                     ),
                   ],
                 );
