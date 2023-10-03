@@ -130,7 +130,7 @@ class _NavigationState extends State<Navigation> {
           ),
           floatingActionButton: navigationProvider.isMoreTabActive
               ? Container(
-                  margin: const EdgeInsets.only(bottom: 10.0),
+                  margin: EdgeInsets.only(bottom: 10.0, right: Constant.isMobile(context)? 0 : MediaQuery.of(context).size.width*0.05 ),
                   padding: const EdgeInsets.symmetric(
                       vertical: 10.0, horizontal: 8.0),
                   decoration: BoxDecoration(
