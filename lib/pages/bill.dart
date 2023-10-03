@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../components/bill_card.dart';
 import '../components/custom_circular_progress.dart';
+import '../constants/constant.dart';
 import '../constants/style_constant.dart';
 import '../constants/route_name.dart';
 import '../services/bill_service.dart';
+import 'manage_bill.dart';
 
 class Bill extends StatefulWidget {
   const Bill({super.key});
@@ -19,8 +22,16 @@ class _BillState extends State<Bill> {
   final double _radius = 90;
 
   void _addBill() {
-    Navigator.pushNamed(context, RouteName.manageBill,
-        arguments: {'isEditing': false});
+    if (Constant.isMobile(context) && !kIsWeb) {
+      Navigator.pushNamed(context, RouteName.manageBill, arguments: {'isEditing': false});
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return const ManageBill(false);
+        },
+      );
+    }
   }
 
   @override

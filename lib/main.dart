@@ -195,11 +195,11 @@ class MyApp extends StatelessWidget {
               return MaterialPageRoute(
                 builder: (_) => ManageBill(
                   args['isEditing'],
-                  args['id'],
-                  args['title'],
-                  args['amount'],
-                  args['date'],
-                  args['fixed'],
+                  id: args['id'],
+                  title: args['title'],
+                  amount: args['amount'],
+                  date: args['date'],
+                  fixed: args['fixed'],
                 ),
               );
             } else {
