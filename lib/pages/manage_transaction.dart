@@ -16,10 +16,10 @@ class ManageTransaction extends StatefulWidget {
   const ManageTransaction(this.isEditing, {super.key});
 
   @override
-  State<ManageTransaction> createState() => ManageTransactionState();
+  State<ManageTransaction> createState() => _ManageTransactionState();
 }
 
-class ManageTransactionState extends State<ManageTransaction> {
+class _ManageTransactionState extends State<ManageTransaction> {
   final _formKey = GlobalKey<FormState>();
   String _id = '';
   String _title = '';
