@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
 import '../components/goal.dart';
-import '../components/history_card.dart';
 import '../utils/date_utils.dart';
 import 'notification_service.dart';
 
@@ -40,40 +39,27 @@ class GoalService {
     return goalData;
   }
 
-  static Future<List<HistoryCard>> getHistory(goalId) async {
-    final List<HistoryCard> history = [];
-    await goalsCollection
-        .doc(goalId)
+  static Stream<QuerySnapshot> getHistoryStream(goalID) {
+    return goalsCollection
+        .doc(goalID)
         .collection('history')
         .orderBy('date', descending: true)
-        .get()
-        .then((value) => {
-              for (var historyData in value.docs)
-                {
-                  history.add(
-                    HistoryCard(
-                      historyData['amount'].toDouble(),
-                      historyData['date'].toDate(),
-                    ),
-                  ),
-                }
-            });
-    return history;
+        .snapshots();
   }
 
   static Future<dynamic> addGoal(newGoal) async {
     return goalsCollection.add(newGoal.toCollection());
   }
 
-  static Future<dynamic> addHistory(goalId, amount) async {
-    return await goalsCollection.doc(goalId).collection('history').add({
+  static Future<void> addHistory(goalId, amount) async {
+    await goalsCollection.doc(goalId).collection('history').add({
       'amount': amount,
       'date': DateTime.now(),
     });
   }
 
   static Future<void> updateGoalSavedAmount(goalId, amount) async {
-    return await goalsCollection.doc(goalId).update({'saved': amount});
+    await goalsCollection.doc(goalId).update({'saved': amount});
   }
 
   static Future<void> deleteGoal(goalId) async {

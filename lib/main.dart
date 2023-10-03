@@ -14,7 +14,7 @@ import './pages/home_settings.dart';
 import './pages/manage_transaction.dart';
 import './pages/edit_profile.dart';
 import './pages/add_goal.dart';
-import './pages/goal_progress.dart';
+import 'pages/goal_detail.dart';
 import './pages/split_money_group.dart';
 import './pages/split_money_expense.dart';
 import './pages/add_group_expense.dart';
@@ -146,7 +146,7 @@ class MyApp extends StatelessWidget {
             }
           case RouteName.goalProgress:
             if (isLoggedIn()) {
-              return MaterialPageRoute(builder: (_) => const GoalProgress());
+              return MaterialPageRoute(builder: (_) => const GoalDetail());
             } else {
               return MaterialPageRoute(builder: (_) => const Landing());
             }

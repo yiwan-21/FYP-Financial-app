@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
+import '../constants/constant.dart';
 
 class HistoryCard extends StatelessWidget {
   final double amount;
@@ -6,10 +9,16 @@ class HistoryCard extends StatelessWidget {
 
   const HistoryCard(this.amount, this.date, {super.key});
 
+  HistoryCard.fromDocument(QueryDocumentSnapshot doc, {super.key})
+      : amount = doc['amount'].toDouble(),
+        date = doc['date'].toDate();
+
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.only(left: 12, right: 12, bottom: 12),
+      margin: Constant.isMobile(context)
+          ? const EdgeInsets.only(left: 12, right: 12, bottom: 12)
+          : const EdgeInsets.only(left: 12, right: 12, bottom: 20),
       elevation: 5,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
