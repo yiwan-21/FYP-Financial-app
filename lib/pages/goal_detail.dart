@@ -32,7 +32,8 @@ class _GoalDetailState extends State<GoalDetail> {
   @override
   void initState() {
     super.initState();
-    final GoalProvider goalProvider = Provider.of<GoalProvider>(context, listen: false);
+    final GoalProvider goalProvider =
+        Provider.of<GoalProvider>(context, listen: false);
     _id = goalProvider.getId;
     _title = goalProvider.getTitle;
     _pinned = goalProvider.getPinned;
@@ -114,17 +115,21 @@ class _GoalDetailState extends State<GoalDetail> {
           title: Text(_title),
           actions: [
             IconButton(
+              iconSize: 30,
               icon: const Icon(Icons.delete),
               onPressed: _deleteDialog,
             ),
+            const SizedBox(width: 10),
             IconButton(
               // push_pin with a slash
+              iconSize: 30,
               icon: Icon(
                 _pinned ? Icons.push_pin : Icons.push_pin_outlined,
                 semanticLabel: _pinned ? 'Unpin' : 'Pin',
               ),
               onPressed: _setPinned,
-            )
+            ),
+            const SizedBox(width: 15),
           ],
         ),
         body: Center(
@@ -138,7 +143,8 @@ class _GoalDetailState extends State<GoalDetail> {
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 50.0, bottom: 50.0, right: 20.0),
+                  padding: const EdgeInsets.only(
+                      top: 50.0, bottom: 50.0, right: 20.0),
                   child: Center(
                     child: Column(
                       children: [
@@ -189,13 +195,14 @@ class _GoalProgressState extends State<GoalProgress> {
   @override
   void initState() {
     super.initState();
-    final GoalProvider goalProvider = Provider.of<GoalProvider>(context, listen: false);
+    final GoalProvider goalProvider =
+        Provider.of<GoalProvider>(context, listen: false);
     _id = goalProvider.getId;
     _title = goalProvider.getTitle;
     _totalAmount = goalProvider.getAmount;
     _saved = goalProvider.getSaved;
     _remaining = goalProvider.getRemaining;
-    
+
     _progress = _saved / _totalAmount * 100;
 
     _days = goalProvider.targetDate.difference(DateTime.now()).abs().inDays + 1;
@@ -221,7 +228,7 @@ class _GoalProgressState extends State<GoalProgress> {
       _saved += value;
       _remaining -= value;
     });
-    
+
     _updateProgress();
     Provider.of<GoalProvider>(context, listen: false).setSaved(_saved);
     await GoalService.updateGoalSavedAmount(_id, _saved);
@@ -274,7 +281,9 @@ class _GoalProgressState extends State<GoalProgress> {
             style: ElevatedButton.styleFrom(
                 backgroundColor: ColorConstant.lightBlue,
                 shape: const CircleBorder(),
-                padding: kIsWeb ? const EdgeInsets.all(25) : const EdgeInsets.all(15)),
+                padding: kIsWeb
+                    ? const EdgeInsets.all(25)
+                    : const EdgeInsets.all(15)),
             child: Image.asset(
               'assets/images/wateringCan.png',
               width: kIsWeb ? 40 : 32,
@@ -301,14 +310,11 @@ class _GoalProgressState extends State<GoalProgress> {
                       )),
                 ],
               ),
-              _remaining == 0
-                  ? Container()
-                  : const SizedBox(width: 40),
+              _remaining == 0 ? Container() : const SizedBox(width: 40),
               _remaining == 0
                   ? Container()
                   : Column(
-                      mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('REMAINING',
                             style: TextStyle(
@@ -396,7 +402,6 @@ class _GoalProgressState extends State<GoalProgress> {
 
 //widget for the second tab
 class GoalHistory extends StatefulWidget {
-
   const GoalHistory({super.key});
 
   @override
@@ -409,7 +414,8 @@ class _GoalHistoryState extends State<GoalHistory> {
   @override
   void initState() {
     super.initState();
-    final GoalProvider goalProvider = Provider.of<GoalProvider>(context, listen: false);
+    final GoalProvider goalProvider =
+        Provider.of<GoalProvider>(context, listen: false);
     _stream = GoalService.getHistoryStream(goalProvider.id);
   }
 
@@ -439,7 +445,8 @@ class _GoalHistoryState extends State<GoalHistory> {
               );
             }
 
-            final List<HistoryCard> historyData = snapshot.data!.docs.map((doc) {
+            final List<HistoryCard> historyData =
+                snapshot.data!.docs.map((doc) {
               return HistoryCard.fromDocument(doc);
             }).toList();
             return ListView.builder(

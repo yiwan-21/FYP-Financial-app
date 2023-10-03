@@ -12,6 +12,7 @@ import '../pages/savings_goal.dart';
 import '../pages/bill.dart';
 import '../pages/debt.dart';
 import '../pages/profile.dart';
+import '../constants/constant.dart';
 import '../constants/style_constant.dart';
 import '../providers/user_provider.dart';
 import '../providers/navigation_provider.dart';
@@ -77,6 +78,8 @@ class _NavigationState extends State<Navigation> {
             title: Text(_pages.keys.elementAt(navigationProvider.pageIndex)),
             actions: [
               const NotificationMenu(),
+              if(!Constant.isMobile(context))
+              const SizedBox(width: 18),
               Builder(builder: (BuildContext context) {
                 return GestureDetector(
                   onTap: () {
@@ -87,7 +90,7 @@ class _NavigationState extends State<Navigation> {
                       String? image = userProvider.profileImage;
                       if (image.isNotEmpty) {
                         return CircleAvatar(
-                          radius: 12.0,
+                          radius: Constant.isMobile(context)? 12.0 : 20.0,
                           backgroundImage: NetworkImage(image),
                         );
                       } else {
@@ -103,7 +106,7 @@ class _NavigationState extends State<Navigation> {
                   ),
                 );
               }),
-              const SizedBox(width: 12),
+              SizedBox(width: Constant.isMobile(context)? 12 : 20),
             ],
           ),
           endDrawer: const Profile(),

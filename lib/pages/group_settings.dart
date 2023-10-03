@@ -183,9 +183,12 @@ class _GroupSettingsState extends State<GroupSettings> {
         title: const Text('Group Settings'),
         actions: [
           IconButton(
+            iconSize: Constant.isMobile(context)? 25 : 30,
             onPressed: _openEditGroup,
             icon: const Icon(Icons.edit),
           ),
+          if(!Constant.isMobile(context))
+          const SizedBox(width: 15),
         ],
       ),
       body: Center(

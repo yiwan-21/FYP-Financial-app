@@ -20,7 +20,8 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
     if (Constant.isMobile(context) && !kIsWeb) {
       Navigator.pushNamed(context, RouteName.addGroupExpense).then((expense) {
         if (expense != null) {
-          Provider.of<SplitMoneyProvider>(context, listen: false).updateExpenses();
+          Provider.of<SplitMoneyProvider>(context, listen: false)
+              .updateExpenses();
         }
       });
     } else {
@@ -30,7 +31,8 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
           return const AddGroupExpense();
         },
       ).then((_) {
-        Provider.of<SplitMoneyProvider>(context, listen: false).updateExpenses();
+        Provider.of<SplitMoneyProvider>(context, listen: false)
+            .updateExpenses();
       });
     }
   }
@@ -53,15 +55,18 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
         }),
         actions: [
           IconButton(
+            iconSize: Constant.isMobile(context) ? 25 : 30,
             icon: const Icon(Icons.group),
             onPressed: _navigateToSettings,
           ),
+          if (!Constant.isMobile(context)) const SizedBox(width: 15),
         ],
       ),
       bottomNavigationBar: Constant.isMobile(context)
           ? Consumer<SplitMoneyProvider>(
               builder: (context, splitMoneyProvider, _) {
-              if (splitMoneyProvider.members != null && splitMoneyProvider.members!.length > 1) {
+              if (splitMoneyProvider.members != null &&
+                  splitMoneyProvider.members!.length > 1) {
                 return Padding(
                   padding: const EdgeInsets.all(8),
                   child: ElevatedButton(
@@ -144,9 +149,11 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
               }),
               Consumer<SplitMoneyProvider>(
                 builder: (context, splitMoneyProvider, _) {
-                  bool moreThanOneMember = splitMoneyProvider.members != null && splitMoneyProvider.members!.length > 1;
-                  bool hasExpenses = splitMoneyProvider.expenses != null && splitMoneyProvider.expenses!.isNotEmpty;
-                  
+                  bool moreThanOneMember = splitMoneyProvider.members != null &&
+                      splitMoneyProvider.members!.length > 1;
+                  bool hasExpenses = splitMoneyProvider.expenses != null &&
+                      splitMoneyProvider.expenses!.isNotEmpty;
+
                   if (hasExpenses) {
                     // Group expenses by month
                     final Map<String, List<SplitExpenseCard>> expensesByMonth =

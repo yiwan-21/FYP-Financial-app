@@ -62,87 +62,119 @@ class _HomeState extends State<Home> {
     return Align(
       alignment: Alignment.topCenter,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 5.0),
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            Consumer<UserProvider>(builder: (context, userProvider, _) {
-              String image = userProvider.profileImage;
-              return Center(
-                child: Container(
-                  padding: _isMobile ? const EdgeInsets.only(left: 15.0) : null,
-                  constraints: BoxConstraints(maxWidth: _isMobile ? Constant.mobileMaxWidth : min(768*2, MediaQuery.of(context).size.width - 40)),
-                  child: Row(
-                    children: [
-                      image.isNotEmpty
-                          ? CircleAvatar(
-                              radius: 20.0,
-                              backgroundImage: NetworkImage(image),
-                            )
-                          : const CircleAvatar(
-                              radius: 20.0,
-                              child: Icon(
-                                Icons.account_circle,
-                                color: Colors.white,
-                                size: 40.0,
+          margin: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 5.0),
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              Consumer<UserProvider>(builder: (context, userProvider, _) {
+                String image = userProvider.profileImage;
+                return Center(
+                  child: Container(
+                    padding:
+                        _isMobile ? const EdgeInsets.only(left: 15.0) : null,
+                    constraints: BoxConstraints(
+                        maxWidth: _isMobile
+                            ? Constant.mobileMaxWidth
+                            : min(768 * 2,
+                                MediaQuery.of(context).size.width - 40)),
+                    child: Row(
+                      children: [
+                        image.isNotEmpty
+                            ? CircleAvatar(
+                                radius:
+                                    Constant.isMobile(context) ? 20.0 : 25.0,
+                                backgroundImage: NetworkImage(image),
+                              )
+                            : CircleAvatar(
+                                radius: Constant.isMobile(context) ? 20.0 : 25.0,
+                                child: const Icon(
+                                  Icons.account_circle,
+                                  color: Colors.white,
+                                  size: 40.0,
+                                ),
+                              ),
+                        const SizedBox(width: 20.0),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Hello,",
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[600],
                               ),
                             ),
-                      const SizedBox(width: 20.0),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Hello,",
-                            style: TextStyle(
-                              fontSize: 16.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[600],
+                            Text(
+                              userProvider.name,
+                              style: const TextStyle(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          Text(
-                            userProvider.name,
-                            style: const TextStyle(
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold,
+                          ],
+                        ),
+                        const Spacer(),
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: _navigateToHomeSettings,
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.settings,
+                                    size: 25,
+                                    color: Colors.black,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  if (!Constant.isMobile(context))
+                                    const Text(
+                                      'Home Settings',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        visualDensity: VisualDensity.compact,
-                        onPressed: _navigateToHomeSettings,
-                        icon: const Icon(Icons.settings),
-                      ),
-                    ],
+                          ],
+                        )
+                      ],
+                    ),
                   ),
-                ),
-              );
-            }),
-            
-            const SizedBox(height: 20.0),
-            Center(
-              child: Consumer<HomeProvider>(
-                builder: (context, homeProvider, _) {
+                );
+              }),
+              const SizedBox(height: 20.0),
+              Center(
+                child:
+                    Consumer<HomeProvider>(builder: (context, homeProvider, _) {
                   String groupID = homeProvider.customization.groupID;
-                  String budgetCategory = homeProvider.customization.budgetCategory;
+                  String budgetCategory =
+                      homeProvider.customization.budgetCategory;
                   return Wrap(
                     direction: Axis.horizontal,
                     spacing: 20.0,
                     runSpacing: 10.0,
                     children: homeProvider.customization.items.map((item) {
                       return ConstrainedBox(
-                        constraints: BoxConstraints(maxWidth: _isMobile ? Constant.mobileMaxWidth : min(768, MediaQuery.of(context).size.width / 2 - 20)),
+                        constraints: BoxConstraints(
+                            maxWidth: _isMobile
+                                ? Constant.mobileMaxWidth
+                                : min(
+                                    768,
+                                    MediaQuery.of(context).size.width / 2 -
+                                        20)),
                         child: _buildHomeItem(item, groupID, budgetCategory),
                       );
                     }).toList(),
                   );
-                }
+                }),
               ),
-            ),
-            const SizedBox(height: 20.0),
-          ],
-        )),
+              const SizedBox(height: 20.0),
+            ],
+          )),
     );
   }
 }
@@ -185,7 +217,8 @@ class _RecentTransactionsState extends State<RecentTransactions> {
             ),
             TextButton(
               onPressed: () {
-                Provider.of<NavigationProvider>(context, listen: false).goToTracker();
+                Provider.of<NavigationProvider>(context, listen: false)
+                    .goToTracker();
               },
               child: const Text(
                 'View All',
@@ -207,16 +240,13 @@ class _RecentTransactionsState extends State<RecentTransactions> {
               );
             }
             if (snapshot.hasError) {
-              return Text(
-                  'Something went wrong: ${snapshot.error}');
+              return Text('Something went wrong: ${snapshot.error}');
             }
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return const Center(
-                  child: Text("No transaction yet"));
+              return const Center(child: Text("No transaction yet"));
             }
-    
-            List<TrackerTransaction> transactions = snapshot
-                .data!.docs
+
+            List<TrackerTransaction> transactions = snapshot.data!.docs
                 .take(3)
                 .map((doc) => TrackerTransaction.fromDocument(doc))
                 .toList();
@@ -234,7 +264,6 @@ class _RecentTransactionsState extends State<RecentTransactions> {
     );
   }
 }
-
 
 class RecentGoal extends StatefulWidget {
   const RecentGoal({super.key});
@@ -264,7 +293,8 @@ class _RecentGoalState extends State<RecentGoal> {
             ),
             TextButton(
               onPressed: () {
-                Provider.of<NavigationProvider>(context, listen: false).goToGoal();
+                Provider.of<NavigationProvider>(context, listen: false)
+                    .goToGoal();
               },
               child: const Text(
                 'View All',
@@ -299,7 +329,6 @@ class _RecentGoalState extends State<RecentGoal> {
     );
   }
 }
-
 
 class RecentGroupExpense extends StatefulWidget {
   final String groupID;
@@ -340,14 +369,16 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
   }
 
   Future<void> navigateToGroup() async {
-    await Provider.of<SplitMoneyProvider>(context, listen: false).setNewSplitGroup(widget.groupID)
+    await Provider.of<SplitMoneyProvider>(context, listen: false)
+        .setNewSplitGroup(widget.groupID)
         .then((SplitGroup group) {
-          if (group.id == null) {
-            Provider.of<NavigationProvider>(context, listen: false).goToSplitMoney();
-          } else {
-            Navigator.pushNamed(context, RouteName.splitMoneyGroup);
-          }
-        });
+      if (group.id == null) {
+        Provider.of<NavigationProvider>(context, listen: false)
+            .goToSplitMoney();
+      } else {
+        Navigator.pushNamed(context, RouteName.splitMoneyGroup);
+      }
+    });
   }
 
   @override
@@ -361,19 +392,19 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
             Padding(
               padding: const EdgeInsets.only(left: 10.0, bottom: 10.0),
               child: FutureBuilder(
-                future: _future,
-                builder: (context, snapshot) {
-                  return Text(
-                    snapshot.connectionState == ConnectionState.waiting || snapshot.data == ""
-                      ? 'Recent Group Expenses'
-                      : '${snapshot.data}\'s Expenses',
-                    style: const TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  );
-                }
-              ),
+                  future: _future,
+                  builder: (context, snapshot) {
+                    return Text(
+                      snapshot.connectionState == ConnectionState.waiting ||
+                              snapshot.data == ""
+                          ? 'Recent Group Expenses'
+                          : '${snapshot.data}\'s Expenses',
+                      style: const TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  }),
             ),
             TextButton(
               onPressed: navigateToGroup,
@@ -389,31 +420,30 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
           ],
         ),
         StreamBuilder<QuerySnapshot>(
-          stream: _stream, 
+          stream: _stream,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
                 child: CircularProgressIndicator(),
               );
             }
-            if (snapshot.hasError || FirebaseInstance.auth.currentUser == null) {
-              return Text(
-                  'Something went wrong: ${snapshot.error}');
+            if (snapshot.hasError ||
+                FirebaseInstance.auth.currentUser == null) {
+              return Text('Something went wrong: ${snapshot.error}');
             }
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return const Center(
-                  child: Text("No group expense yet"));
+              return const Center(child: Text("No group expense yet"));
             }
-            
-            List<SplitExpenseCard> expenses = snapshot
-                .data!.docs
+
+            List<SplitExpenseCard> expenses = snapshot.data!.docs
                 .map((doc) => SplitExpenseCard.fromDocument(doc))
-                .toList();       
-    
-            List<SplitExpenseCard> settled = expenses.where((card) => card.isSettle).take(3).toList();
+                .toList();
+
+            List<SplitExpenseCard> settled =
+                expenses.where((card) => card.isSettle).take(3).toList();
             expenses.removeWhere((card) => card.isSettle);
             expenses = expenses.followedBy(settled).take(3).toList();
-    
+
             return ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -428,7 +458,6 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
     );
   }
 }
-
 
 class RecentBudget extends StatefulWidget {
   final String category;
@@ -475,7 +504,8 @@ class _RecentBudgetState extends State<RecentBudget> {
             ),
             TextButton(
               onPressed: () {
-                Provider.of<NavigationProvider>(context, listen: false).goToBudgeting();
+                Provider.of<NavigationProvider>(context, listen: false)
+                    .goToBudgeting();
               },
               child: const Text(
                 'View All',
@@ -489,7 +519,7 @@ class _RecentBudgetState extends State<RecentBudget> {
           ],
         ),
         StreamBuilder<DocumentSnapshot>(
-          stream: _stream, 
+          stream: _stream,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -500,7 +530,8 @@ class _RecentBudgetState extends State<RecentBudget> {
               return Text('Something went wrong: ${snapshot.error}');
             }
             if (!snapshot.hasData || !snapshot.data!.exists) {
-              return const Center(child: Text("No Budget on this category yet"));
+              return const Center(
+                  child: Text("No Budget on this category yet"));
             }
 
             return BudgetCard(
@@ -514,7 +545,6 @@ class _RecentBudgetState extends State<RecentBudget> {
     );
   }
 }
-
 
 class UnpaidBills extends StatefulWidget {
   const UnpaidBills({super.key});
@@ -552,7 +582,8 @@ class _UnpaidBillsState extends State<UnpaidBills> {
             ),
             TextButton(
               onPressed: () {
-                Provider.of<NavigationProvider>(context, listen: false).goToBill();
+                Provider.of<NavigationProvider>(context, listen: false)
+                    .goToBill();
               },
               child: const Text(
                 'View All',
@@ -566,7 +597,7 @@ class _UnpaidBillsState extends State<UnpaidBills> {
           ],
         ),
         StreamBuilder<QuerySnapshot>(
-          stream: _stream, 
+          stream: _stream,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -576,29 +607,33 @@ class _UnpaidBillsState extends State<UnpaidBills> {
             if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             }
-    
-            
+
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
               return const Center(
                 child: Text("No Bill Yet"),
               );
             }
-    
+
             List<BillCard> bills = snapshot.data!.docs
                 .where((doc) => !doc['paid'])
                 .map((doc) => BillCard.fromDocument(doc))
                 .toList();
             DateTime now = getOnlyDate(DateTime.now());
             // due date closest to now
-            bills.sort((a, b) => getOnlyDate(a.dueDate).difference(now).inDays.abs().compareTo(getOnlyDate(b.dueDate).difference(now).inDays.abs()));
+            bills.sort((a, b) => getOnlyDate(a.dueDate)
+                .difference(now)
+                .inDays
+                .abs()
+                .compareTo(
+                    getOnlyDate(b.dueDate).difference(now).inDays.abs()));
             bills = bills.take(2).toList();
-    
+
             if (bills.isEmpty) {
               return const Center(
                 child: Text("All bills are paid"),
               );
             }
-            
+
             return ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),

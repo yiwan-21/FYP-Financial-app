@@ -26,13 +26,15 @@ class SplitMoneyExpense extends StatefulWidget {
   // 0 for record tab, 1 for chat tab
   final int tabIndex;
 
-  const SplitMoneyExpense({required this.expenseID, required this.tabIndex, super.key});
+  const SplitMoneyExpense(
+      {required this.expenseID, required this.tabIndex, super.key});
 
   @override
   State<SplitMoneyExpense> createState() => _SplitMoneyExpenseState();
 }
 
-class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTickerProviderStateMixin {
+class _SplitMoneyExpenseState extends State<SplitMoneyExpense>
+    with SingleTickerProviderStateMixin {
   SplitExpense _expense = SplitExpense(
     title: '',
     amount: 0,
@@ -58,7 +60,8 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
     // set expense ID for chat service
     ChatService.setExpenseID(widget.expenseID);
 
-    Provider.of<NotificationProvider>(context, listen: false).getCurrentChatNotification();
+    Provider.of<NotificationProvider>(context, listen: false)
+        .getCurrentChatNotification();
 
     Stream<QuerySnapshot> chatStream = ChatService.getChatStream();
     chatStream.listen((querySnapshot) {
@@ -67,7 +70,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
         if (!mounted || querySnapshot.docs.isEmpty) {
           return;
         }
-        
+
         // the user is currently on the chat page, no need to search for unread messages
         if (_tabController.index == 1) {
           // real time update the read status when message arrives
@@ -76,10 +79,12 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
         }
 
         String userID = FirebaseInstance.auth.currentUser!.uid;
-        bool hasUnreadMessage = querySnapshot.docs.last['senderID'] != userID && !querySnapshot.docs.last['readStatus'].contains(userID);
+        bool hasUnreadMessage = querySnapshot.docs.last['senderID'] != userID &&
+            !querySnapshot.docs.last['readStatus'].contains(userID);
 
         if (hasUnreadMessage) {
-          Provider.of<NotificationProvider>(context, listen: false).setChatNotification(true);
+          Provider.of<NotificationProvider>(context, listen: false)
+              .setChatNotification(true);
         }
       } catch (e) {
         debugPrint('Error on getting chat messages: $e');
@@ -120,7 +125,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
     }
     double amount = _expense.amount - paidAmount;
 
-    setState(() {   
+    setState(() {
       _allSettle = amount == 0;
     });
     return 'Remaining: RM ${amount.toStringAsFixed(2)}';
@@ -143,7 +148,8 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
   }
 
   double _getMaxValue() {
-    SplitRecord record = _expense.sharedRecords.firstWhere((record) => record.id == FirebaseInstance.auth.currentUser!.uid);
+    SplitRecord record = _expense.sharedRecords.firstWhere(
+        (record) => record.id == FirebaseInstance.auth.currentUser!.uid);
     return record.amount - record.paidAmount;
   }
 
@@ -185,10 +191,12 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
 
   Future<void> _remind() async {
     const type = NotificationType.EXPENSE_REMINDER_NOTIFICATION;
-    final receiverID = _expense.sharedRecords.map((record) => record.id).toList();
+    final receiverID =
+        _expense.sharedRecords.map((record) => record.id).toList();
     receiverID.remove(FirebaseInstance.auth.currentUser!.uid);
     final functionID = widget.expenseID;
-    await NotificationService.sendNotification(type, receiverID, functionID: functionID);
+    await NotificationService.sendNotification(type, receiverID,
+        functionID: functionID);
   }
 
   Future<void> _deleteExpense() async {
@@ -205,131 +213,133 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense> with SingleTicker
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(_expense.title),
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: [
-              const Tab(text: 'Record'),
-              Consumer<NotificationProvider>(
-                  builder: (context, notificationProvider, _) {
-                return Tab(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('Chat'),
-                      const SizedBox(width: 10),
-                      if (notificationProvider.chatNotification)
-                        const Icon(
-                          Icons.circle,
-                          color: Colors.white,
-                          size: 10,
-                        ),
-                    ],
-                  ),
-                );
-              }),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertConfirmAction(
-                      title: 'Delete Expense',
-                      content: 'Are you sure you want to delete this expense?',
-                      cancelText: 'Cancel',
-                      confirmText: 'Delete',
-                      confirmAction: _deleteExpense,
-                    );
-                  },
-                );
-              },
-            ),
-          ],
-        ),
-        body: TabBarView(
+      appBar: AppBar(
+        title: Text(_expense.title),
+        bottom: TabBar(
           controller: _tabController,
-          children: [
-            // Widget for the first tab
-            Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 768),
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+          tabs: [
+            const Tab(text: 'Record'),
+            Consumer<NotificationProvider>(
+                builder: (context, notificationProvider, _) {
+              return Tab(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Column(
-                      children: [
-                        const SizedBox(height: 30),
-                        Text(
-                          'RM ${_expense.amount.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 36,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _getRemainingAmount(),
-                          style: const TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'paid by ${_expense.paidBy.name}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 15),
-                    if (!_allSettle)
-                      Container(
-                        alignment: Constant.isMobile(context)
-                            ? Alignment.center
-                            : Alignment.centerRight,
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 20, horizontal: 4),
-                        child: _isPayer
-                            ? ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  fixedSize: const Size(150, 40),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4.0),
-                                  ),
-                                ),
-                                onPressed: _remind,
-                                child: const Text('Remind'),
-                              )
-                            : !_isSettle
-                            ? ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  fixedSize: const Size(150, 40),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4.0),
-                                  ),
-                                ),
-                                onPressed: _settleUp,
-                                child: const Text('Settle Up'),
-                              )
-                            : const SizedBox(height: 40),
+                    const Text('Chat'),
+                    const SizedBox(width: 10),
+                    if (notificationProvider.chatNotification)
+                      const Icon(
+                        Icons.circle,
+                        color: Colors.white,
+                        size: 10,
                       ),
-                    ..._expense.sharedRecords.map((record) {
-                      return SplitRecordCard(record: record);
-                    }).toList(),
                   ],
                 ),
-              ),
-            ),
-            // Widget for the second tab
-            const Chat(),
+              );
+            }),
           ],
         ),
-      );
+        actions: [
+          IconButton(
+            iconSize: Constant.isMobile(context) ? 25 : 30,
+            icon: const Icon(Icons.delete),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertConfirmAction(
+                    title: 'Delete Expense',
+                    content: 'Are you sure you want to delete this expense?',
+                    cancelText: 'Cancel',
+                    confirmText: 'Delete',
+                    confirmAction: _deleteExpense,
+                  );
+                },
+              );
+            },
+          ),
+          if (!Constant.isMobile(context)) const SizedBox(width: 15),
+        ],
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          // Widget for the first tab
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 768),
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                children: [
+                  Column(
+                    children: [
+                      const SizedBox(height: 30),
+                      Text(
+                        'RM ${_expense.amount.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 36,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _getRemainingAmount(),
+                        style: const TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'paid by ${_expense.paidBy.name}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  if (!_allSettle)
+                    Container(
+                      alignment: Constant.isMobile(context)
+                          ? Alignment.center
+                          : Alignment.centerRight,
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 20, horizontal: 4),
+                      child: _isPayer
+                          ? ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                fixedSize: const Size(150, 40),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
+                              ),
+                              onPressed: _remind,
+                              child: const Text('Remind'),
+                            )
+                          : !_isSettle
+                              ? ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    fixedSize: const Size(150, 40),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4.0),
+                                    ),
+                                  ),
+                                  onPressed: _settleUp,
+                                  child: const Text('Settle Up'),
+                                )
+                              : const SizedBox(height: 40),
+                    ),
+                  ..._expense.sharedRecords.map((record) {
+                    return SplitRecordCard(record: record);
+                  }).toList(),
+                ],
+              ),
+            ),
+          ),
+          // Widget for the second tab
+          const Chat(),
+        ],
+      ),
+    );
   }
 }
