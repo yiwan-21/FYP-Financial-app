@@ -275,7 +275,7 @@ class _ManageDebtState extends State<ManageDebt> {
                       if (value!.isEmpty) {
                         return ValidatorMessage.emptyAmount;
                       }
-                      if (double.tryParse(value) == null) {
+                      if (double.tryParse(value) == null || double.parse(value) <= 0) {
                         return ValidatorMessage.invalidAmount;
                       }
                       return null;

@@ -210,7 +210,7 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                       if (value!.isEmpty) {
                         return ValidatorMessage.emptyAmount;
                       }
-                      if (double.tryParse(value) == null) {
+                      if (double.tryParse(value) == null || double.parse(value) <= 0) {
                         return ValidatorMessage.invalidAmount;
                       }
                       if (_checkAmount) {
@@ -410,10 +410,8 @@ class _AddGroupExpenseState extends State<AddGroupExpense> {
                                     if (value!.isEmpty) {
                                       return ValidatorMessage.emptyAmountToPay;
                                     }
-                                    if (double.tryParse(value) == null ||
-                                        double.parse(value) <= 0) {
-                                      return ValidatorMessage
-                                          .invalidAmountToPay;
+                                    if (double.tryParse(value) == null || double.parse(value) <= 0) {
+                                      return ValidatorMessage.invalidAmountToPay;
                                     }
                                     return null;
                                   },
