@@ -22,7 +22,7 @@ class _CustomSwitchState extends State<CustomSwitch>
   late final AnimationController _controller;
   late final Animation<Offset> _animation;
 
-  bool _value = false;
+  bool _active = false;
 
   @override
   void initState() {
@@ -41,7 +41,7 @@ class _CustomSwitchState extends State<CustomSwitch>
       _controller.forward();
       _controller.duration = duration;
     }
-    _value = widget.isIncome;
+    _active = widget.isIncome;
   }
 
   @override
@@ -51,10 +51,10 @@ class _CustomSwitchState extends State<CustomSwitch>
   }
 
   void _toggle() {
-    _value = !_value;
-    widget.onToggle(_value);
+    _active = !_active;
+    widget.onToggle(_active);
 
-    if (_value) {
+    if (_active) {
       _controller.forward();
     } else {
       _controller.reverse();
@@ -69,38 +69,40 @@ class _CustomSwitchState extends State<CustomSwitch>
         width: 125.0,
         height: 34.0,
         decoration: BoxDecoration(
-          border: _value
+          border: _active
               ? Border.all(color: Colors.green[600]!, width: 2.0)
               : Border.all(color: Colors.red[600]!, width: 2.0),
           borderRadius: BorderRadius.circular(16.0),
-          color: _value ? widget.activeColor : widget.inactiveColor,
+          color: _active ? widget.activeColor : widget.inactiveColor,
         ),
         child: Padding(
-          padding: _value
+          padding: _active
               ? const EdgeInsets.only(left: 14.0)
               : const EdgeInsets.only(right: 14.0),
           child: Stack(
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  widget.labels[0],
-                  style: TextStyle(
-                    color: _value ? Colors.black : widget.inactiveColor,
-                    fontWeight: FontWeight.bold,
+              if (_active)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    widget.labels[0],
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  widget.labels[1],
-                  style: TextStyle(
-                    color: _value ? widget.activeColor : Colors.black,
-                    fontWeight: FontWeight.bold,
+              if (!_active)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    widget.labels[1],
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
               AnimatedBuilder(
                 animation: _controller,
                 builder: (BuildContext context, Widget? child) {
@@ -111,7 +113,7 @@ class _CustomSwitchState extends State<CustomSwitch>
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Colors.white,
-                        border: _value
+                        border: _active
                             ? Border.all(color: Colors.green[600]!, width: 2.0)
                             : Border.all(color: Colors.red[600]!, width: 2.0),
                         boxShadow: [
