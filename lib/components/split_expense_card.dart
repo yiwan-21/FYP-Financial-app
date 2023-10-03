@@ -21,7 +21,7 @@ class SplitExpenseCard extends StatefulWidget {
   SplitExpenseCard.fromDocument(QueryDocumentSnapshot doc, {super.key}) 
       : id = doc.id,
         title = doc['title'],
-        totalAmount = doc['amount'],
+        totalAmount = doc['amount'].toDouble(),
         isSettle = doc['paidAmount'] >= doc['amount'],
         isLent = doc['paidBy'] == 'users/${FirebaseInstance.auth.currentUser!.uid}',
         date = doc['date'].toDate();
