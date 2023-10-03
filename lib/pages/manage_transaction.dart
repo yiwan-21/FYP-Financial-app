@@ -11,38 +11,61 @@ import '../providers/total_transaction_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../services/transaction_service.dart';
 
-class EditTransaction extends StatefulWidget {
-  const EditTransaction({super.key});
+class ManageTransaction extends StatefulWidget {
+  final bool isEditing;
+  const ManageTransaction(this.isEditing, {super.key});
 
   @override
-  State<EditTransaction> createState() => _EditTransactionState();
+  State<ManageTransaction> createState() => ManageTransactionState();
 }
 
-class _EditTransactionState extends State<EditTransaction> {
+class ManageTransactionState extends State<ManageTransaction> {
   final _formKey = GlobalKey<FormState>();
   String _id = '';
   String _title = '';
   String? _notes;
   double _amount = 0;
   bool _isExpense = true;
-  String _category = '';
   DateTime _date = DateTime.now();
-  List<String> _categoryList = [];
+  List<String> _categoryList = Constant.expenseCategories;
+  String _category = Constant.expenseCategories[0];
 
   @override
   void initState() {
     super.initState();
-    final TransactionProvider transactionProvider =
-        Provider.of<TransactionProvider>(context, listen: false);
-    
-    _id = transactionProvider.getId;
-    _title = transactionProvider.getTitle;
-    _notes = transactionProvider.getNotes;
-    _amount = transactionProvider.getAmount;
-    _date = transactionProvider.getDate;
-    _isExpense = transactionProvider.getIsExpense;
-    _category = transactionProvider.getCategory;
-    _categoryList = _isExpense ? Constant.expenseCategories : Constant.incomeCategories;
+    if (widget.isEditing) {
+      final TransactionProvider transactionProvider =
+          Provider.of<TransactionProvider>(context, listen: false);
+
+      _id = transactionProvider.getId;
+      _title = transactionProvider.getTitle;
+      _notes = transactionProvider.getNotes;
+      _amount = transactionProvider.getAmount;
+      _date = transactionProvider.getDate;
+      _isExpense = transactionProvider.getIsExpense;
+      _category = transactionProvider.getCategory;
+      _categoryList =
+       _isExpense ? Constant.expenseCategories : Constant.incomeCategories;
+    }
+  }
+
+  Future<void> addTransaction() async {
+    if (_formKey.currentState!.validate()) {
+      // Form is valid
+      _formKey.currentState!.save();
+      final newTransaction = TrackerTransaction(
+        id: 'Auto Generate',
+        title: _title,
+        amount: _amount,
+        date: _date,
+        isExpense: _isExpense,
+        category: _category,
+        notes: _notes,
+      );
+      await TransactionService.addTransaction(newTransaction).then((_) {
+        Navigator.pop(context, newTransaction);
+      });
+    }
   }
 
   void updateTransaction() async {
@@ -58,10 +81,14 @@ class _EditTransactionState extends State<EditTransaction> {
         category: _category,
         notes: _notes,
       );
-      
+
       // update budgeting if category is changed
-      TrackerTransaction previousTransaction = Provider.of<TransactionProvider>(context, listen: false).getTransaction;
-      await TransactionService.updateTransaction(editedTransaction, previousTransaction).then((_) {
+      TrackerTransaction previousTransaction =
+          Provider.of<TransactionProvider>(context, listen: false)
+              .getTransaction;
+      await TransactionService.updateTransaction(
+              editedTransaction, previousTransaction)
+          .then((_) {
         Provider.of<TotalTransactionProvider>(context, listen: false)
             .updateTransactions();
         Navigator.pop(context);
@@ -98,26 +125,29 @@ class _EditTransactionState extends State<EditTransaction> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Transaction'),
+        title: widget.isEditing
+            ? const Text('Edit Transaction')
+            : const Text('Add Transaction'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertConfirmAction(
-                    title: 'Delete Transaction',
-                    content:
-                        'Are you sure you want to delete this transaction?',
-                    cancelText: 'Cancel',
-                    confirmText: 'Delete',
-                    confirmAction: deleteTransaction,
-                  );
-                },
-              );
-            },
-          ),
+          if (widget.isEditing)
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertConfirmAction(
+                      title: 'Delete Transaction',
+                      content:
+                          'Are you sure you want to delete this transaction?',
+                      cancelText: 'Cancel',
+                      confirmText: 'Delete',
+                      confirmAction: deleteTransaction,
+                    );
+                  },
+                );
+              },
+            ),
         ],
       ),
       body: Container(
@@ -339,8 +369,12 @@ class _EditTransactionState extends State<EditTransaction> {
                             borderRadius: BorderRadius.circular(4.0),
                           ),
                         ),
-                        onPressed: updateTransaction,
-                        child: const Text('Edit Transaction'),
+                        onPressed: widget.isEditing
+                            ? updateTransaction
+                            : addTransaction,
+                        child: widget.isEditing
+                            ? const Text('Edit Transaction')
+                            : const Text('Add Transaction'),
                       ),
                       if (!Constant.isMobile(context))
                         const SizedBox(width: 12),

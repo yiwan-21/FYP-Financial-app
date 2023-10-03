@@ -6,12 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import './firebase_instance.dart';
-import 'pages/landing.dart';
+import './pages/landing.dart';
 import './pages/login.dart';
 import './pages/register.dart';
 import './pages/navigation.dart';
-import './pages/add_transaction.dart';
-import './pages/edit_transaction.dart';
+import './pages/home_settings.dart';
+import './pages/manage_transaction.dart';
 import './pages/edit_profile.dart';
 import './pages/add_goal.dart';
 import './pages/goal_progress.dart';
@@ -32,8 +32,7 @@ import './providers/user_provider.dart';
 import './providers/transaction_provider.dart';
 import './providers/split_money_provider.dart';
 import './providers/notification_provider.dart';
-import './pages/home_settings.dart';
-import 'providers/home_provider.dart';
+import './providers/home_provider.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -127,15 +126,15 @@ class MyApp extends StatelessWidget {
             } else {
               return MaterialPageRoute(builder: (_) => const Landing());
             }
-          case RouteName.addTransaction:
+          case RouteName.manageTransaction:
             if (isLoggedIn()) {
-              return MaterialPageRoute(builder: (_) => const AddTransaction());
-            } else {
-              return MaterialPageRoute(builder: (_) => const Landing());
-            }
-          case RouteName.editTransaction:
-            if (isLoggedIn()) {
-              return MaterialPageRoute(builder: (_) => const EditTransaction());
+              // get argument from route
+              final args = settings.arguments as Map<String, dynamic>;
+              return MaterialPageRoute(
+                builder: (_) => ManageTransaction(
+                  args['isEditing'],
+                ),
+              );
             } else {
               return MaterialPageRoute(builder: (_) => const Landing());
             }
@@ -195,10 +194,10 @@ class MyApp extends StatelessWidget {
               final args = settings.arguments as Map<String, dynamic>;
               return MaterialPageRoute(
                 builder: (_) => ManageBill(
-                  args['isEditing'], 
-                  args['id'], 
-                  args['title'], 
-                  args['amount'], 
+                  args['isEditing'],
+                  args['id'],
+                  args['title'],
+                  args['amount'],
                   args['date'],
                   args['fixed'],
                 ),
@@ -212,10 +211,10 @@ class MyApp extends StatelessWidget {
               final args = settings.arguments as Map<String, dynamic>;
               return MaterialPageRoute(
                 builder: (_) => ManageDebt(
-                  args['isEditing'], 
-                  args['id'], 
-                  args['title'], 
-                  args['amount'], 
+                  args['isEditing'],
+                  args['id'],
+                  args['title'],
+                  args['amount'],
                   args['interest'],
                   args['year'],
                   args['month'],
@@ -241,9 +240,9 @@ class MyApp extends StatelessWidget {
 class MyCustomScrollBehavior extends MaterialScrollBehavior {
   @override
   Set<PointerDeviceKind> get dragDevices => {
-    PointerDeviceKind.touch,
-    PointerDeviceKind.mouse,
-    PointerDeviceKind.stylus,
-    PointerDeviceKind.unknown,
-  };
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.unknown,
+      };
 }

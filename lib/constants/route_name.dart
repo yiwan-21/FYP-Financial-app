@@ -5,8 +5,7 @@ class RouteName {
   static const home = '/home';
   static const homeSettings = '/home/settings';
   static const editProfile = '/profile';
-  static const addTransaction = '/tracker/add';
-  static const editTransaction = '/tracker/edit';
+  static const manageTransaction = '/tracker/manage';
   static const addGoal = '/goal/add';
   static const goalProgress = '/goal/progress';
   static const splitMoneyGroup = '/group';

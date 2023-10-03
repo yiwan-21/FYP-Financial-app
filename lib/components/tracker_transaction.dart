@@ -69,7 +69,7 @@ class _TrackerTransactionState extends State<TrackerTransaction> {
       notes: widget.notes,
     );
 
-    Navigator.pushNamed(context, RouteName.editTransaction);
+    Navigator.pushNamed(context, RouteName.manageTransaction, arguments: {'isEditing': true});
   }
 
   @override

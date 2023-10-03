@@ -76,7 +76,7 @@ class _TrackerState extends State<Tracker> {
               FloatingActionButton.small(
                 elevation: 2,
                 onPressed: () {
-                  Navigator.pushNamed(context, RouteName.addTransaction).then((value) {
+                  Navigator.pushNamed(context, RouteName.manageTransaction, arguments: {'isEditing': false}).then((value) {
                     if (value != null && value is TrackerTransaction) {
                       Provider.of<TotalTransactionProvider>(context,
                               listen: false)
