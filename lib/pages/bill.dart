@@ -2,13 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import '../components/bill_card.dart';
-import '../components/custom_circular_progress.dart';
 import '../constants/constant.dart';
 import '../constants/style_constant.dart';
 import '../constants/route_name.dart';
+import '../components/bill_card.dart';
+import '../components/custom_circular_progress.dart';
+import '../pages/manage_bill.dart';
 import '../services/bill_service.dart';
-import 'manage_bill.dart';
 
 class Bill extends StatefulWidget {
   const Bill({super.key});
@@ -23,7 +23,8 @@ class _BillState extends State<Bill> {
 
   void _addBill() {
     if (Constant.isMobile(context) && !kIsWeb) {
-      Navigator.pushNamed(context, RouteName.manageBill, arguments: {'isEditing': false});
+      Navigator.pushNamed(context, RouteName.manageBill,
+          arguments: {'isEditing': false});
     } else {
       showDialog(
         context: context,
@@ -58,28 +59,29 @@ class _BillState extends State<Bill> {
                     child: Text("No Bill Yet"),
                   );
                 }
-        
+
                 List<BillCard> bills = [];
                 int paidBills = 0;
                 for (var doc in snapshot.data!.docs) {
                   if (doc['paid']) {
                     paidBills++;
                   }
-        
+
                   bills.add(BillCard.fromDocument(doc));
                 }
-                
+
                 double paidPercentage = paidBills / bills.length;
                 if (bills.isEmpty) {
                   paidPercentage = 0;
                 }
-        
+
                 return ListView(
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.only(bottom: 50),
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(top: _radius + 30, bottom: _radius + 20),
+                      padding: EdgeInsets.only(
+                          top: _radius + 30, bottom: _radius + 20),
                       child: CustomPaint(
                         painter: CustomCircularProgress(
                             value: paidPercentage,
@@ -118,16 +120,36 @@ class _BillState extends State<Bill> {
               }),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: ColorConstant.lightBlue,
-        onPressed: _addBill,
-        child: const Icon(
-          Icons.edit_note,
-          size: 27,
-          color: Colors.black,
-        ),
-      ),
+      floatingActionButtonLocation: Constant.isMobile(context)
+          ? FloatingActionButtonLocation.startFloat
+          : null,
+      floatingActionButton: Constant.isMobile(context)
+          ? FloatingActionButton(
+              backgroundColor: ColorConstant.lightBlue,
+              onPressed: _addBill,
+              child: const Icon(
+                Icons.edit_note,
+                size: 27,
+                color: Colors.black,
+              ),
+            )
+          : Stack(
+              children: [
+                Positioned(
+                  right: (MediaQuery.of(context).size.width - 768) / 2,
+                  top: 200,
+                  child: FloatingActionButton(
+                    backgroundColor: ColorConstant.lightBlue,
+                    onPressed: _addBill,
+                    child: const Icon(
+                      Icons.edit_note,
+                      size: 27,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }
