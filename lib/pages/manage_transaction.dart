@@ -91,23 +91,18 @@ class _ManageTransactionState extends State<ManageTransaction> {
                 ),
             ],
           ),
-          body: Container(
-            alignment: Alignment.topCenter,
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 24, 12, 0),
-                child: TransactionForm(
-                  id: _id,
-                  title: _title,
-                  notes: _notes,
-                  amount: _amount,
-                  isExpense: _isExpense,
-                  date: _date,
-                  category: _category,
-                  categoryList: _categoryList,
-                  isEditing: widget.isEditing,
-                )
-              ),
+          body: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 24, 12, 0),
+            child: TransactionForm(
+              id: _id,
+              title: _title,
+              notes: _notes,
+              amount: _amount,
+              isExpense: _isExpense,
+              date: _date,
+              category: _category,
+              categoryList: _categoryList,
+              isEditing: widget.isEditing,
             ),
           ),
         );
