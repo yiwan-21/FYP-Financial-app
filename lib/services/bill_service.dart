@@ -35,7 +35,7 @@ class BillService {
     await billsCollection.doc(id).update({
       'title': title,
       'amount': amount,
-      'dueDate': dueDate,
+      'dueDate': getOnlyDate(dueDate),
       'fixed': fixed,
     });
   }
