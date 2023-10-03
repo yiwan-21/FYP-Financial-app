@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../constants/constant.dart';
 import '../constants/style_constant.dart';
 import '../components/budget_card.dart';
 import '../pages/set_budget.dart';
@@ -14,7 +15,8 @@ class Budgeting extends StatefulWidget {
 }
 
 class _BudgetingState extends State<Budgeting> {
-  final Future<Stream<QuerySnapshot>> _streamFuture = BudgetService.getBudgetingStream();
+  final Future<Stream<QuerySnapshot>> _streamFuture =
+      BudgetService.getBudgetingStream();
   final TextEditingController _textController = TextEditingController();
   DateTime _startingDate = DateTime.now();
   DateTime _resetDate = DateTime.now();
@@ -218,16 +220,36 @@ class _BudgetingState extends State<Budgeting> {
           ),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: ColorConstant.lightBlue,
-        onPressed: setBudget,
-        child: const Icon(
-          Icons.note_add_outlined,
-          size: 27,
-          color: Colors.black,
-        ),
-      ),
+      floatingActionButtonLocation: Constant.isMobile(context)
+          ? FloatingActionButtonLocation.startFloat
+          : null,
+      floatingActionButton: Constant.isMobile(context)
+          ? FloatingActionButton(
+              backgroundColor: ColorConstant.lightBlue,
+              onPressed: setBudget,
+              child: const Icon(
+                Icons.note_add_outlined,
+                size: 27,
+                color: Colors.black,
+              ),
+            )
+          : Stack(
+              children: [
+                Positioned(
+                  left: (MediaQuery.of(context).size.width - 768) / 2,
+                  bottom: 5,
+                  child: FloatingActionButton(
+                    backgroundColor: ColorConstant.lightBlue,
+                    onPressed: setBudget,
+                    child: const Icon(
+                      Icons.note_add_outlined,
+                      size: 27,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

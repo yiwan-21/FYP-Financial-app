@@ -22,7 +22,7 @@ class _SavingsGoalState extends State<SavingsGoal> {
       Navigator.pushNamed(context, RouteName.addGoal);
     } else {
       showDialog(
-        context: context, 
+        context: context,
         builder: (context) {
           return const AddGoal();
         },
@@ -43,7 +43,8 @@ class _SavingsGoalState extends State<SavingsGoal> {
             children: [
               const SizedBox(height: 12),
               StreamBuilder<QuerySnapshot>(
-                stream: Provider.of<TotalGoalProvider>(context, listen: false).getGoalsStream,
+                stream: Provider.of<TotalGoalProvider>(context, listen: false)
+                    .getGoalsStream,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
@@ -56,11 +57,11 @@ class _SavingsGoalState extends State<SavingsGoal> {
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return const Center(child: Text("No goal yet"));
                   }
-          
+
                   List<Goal> goals = snapshot.data!.docs
                       .map((doc) => Goal.fromDocument(doc))
                       .toList();
-                      
+
                   return Wrap(
                     children: List.generate(goals.length, (index) {
                       return goals[index];
@@ -72,15 +73,33 @@ class _SavingsGoalState extends State<SavingsGoal> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: ColorConstant.lightBlue,
-        onPressed: _navigateToAddGoal,
-        child: const Icon(
-          Icons.add,
-          size: 27,
-          color: Colors.black,
-        ),
-      ),
+      floatingActionButton: Constant.isMobile(context)
+          ? FloatingActionButton(
+              backgroundColor: ColorConstant.lightBlue,
+              onPressed: _navigateToAddGoal,
+              child: const Icon(
+                Icons.add,
+                size: 27,
+                color: Colors.black,
+              ),
+            )
+          : Stack(
+              children: [
+                Positioned(
+                  right: (MediaQuery.of(context).size.width - 768) / 2,
+                  bottom: 5,
+                  child: FloatingActionButton(
+                    backgroundColor: ColorConstant.lightBlue,
+                    onPressed: _navigateToAddGoal,
+                    child: const Icon(
+                      Icons.add,
+                      size: 27,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

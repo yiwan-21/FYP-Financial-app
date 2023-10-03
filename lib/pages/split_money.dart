@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../constants/constant.dart';
 import '../constants/style_constant.dart';
 import '../components/manage_group.dart';
 import '../components/split_group_card.dart';
@@ -65,15 +66,32 @@ class _SplitMoneyState extends State<SplitMoney> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: ColorConstant.lightBlue,
-        onPressed: addGroup,
-        child: const Icon(
-          Icons.group_add_outlined,
-          size: 27,
-          color: Colors.black,
-        ),
-      ),
+      floatingActionButton: Constant.isMobile(context)
+          ? FloatingActionButton(
+              backgroundColor: ColorConstant.lightBlue,
+              onPressed: addGroup,
+              child: const Icon(
+                Icons.group_add_outlined,
+                size: 27,
+                color: Colors.black,
+              ),
+            )
+          : Stack(
+              children: [
+                Positioned(
+                    right: (MediaQuery.of(context).size.width - 768) / 2,
+                    bottom: 5,
+                    child: FloatingActionButton(
+                      backgroundColor: ColorConstant.lightBlue,
+                      onPressed: addGroup,
+                      child: const Icon(
+                        Icons.group_add_outlined,
+                        size: 27,
+                        color: Colors.black,
+                      ),
+                    ))
+              ],
+            ),
     );
   }
 }

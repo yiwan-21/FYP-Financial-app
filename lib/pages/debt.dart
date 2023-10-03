@@ -23,7 +23,8 @@ class _DebtState extends State<Debt> {
 
   void _addDebt() {
     if (Constant.isMobile(context) && !kIsWeb) {
-      Navigator.pushNamed(context, RouteName.manageDebt, arguments: {'isEditing': false});
+      Navigator.pushNamed(context, RouteName.manageDebt,
+          arguments: {'isEditing': false});
     } else {
       showDialog(
         context: context,
@@ -69,12 +70,12 @@ class _DebtState extends State<Debt> {
                     child: Text("No Debt Yet"),
                   );
                 }
-        
+
                 List<DebtCard> debts = [];
                 for (var doc in snapshot.data!.docs) {
                   debts.add(DebtCard.fromDocument(doc));
                 }
-        
+
                 return ListView(
                   children: [
                     const SizedBox(height: 10),
@@ -139,16 +140,36 @@ class _DebtState extends State<Debt> {
               }),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: ColorConstant.lightBlue,
-        onPressed: _addDebt,
-        child: const Icon(
-          Icons.add,
-          size: 27,
-          color: Colors.black,
-        ),
-      ),
+      floatingActionButtonLocation: Constant.isMobile(context)
+          ? FloatingActionButtonLocation.startFloat
+          : null,
+      floatingActionButton: Constant.isMobile(context)
+          ? FloatingActionButton(
+              backgroundColor: ColorConstant.lightBlue,
+              onPressed: _addDebt,
+              child: const Icon(
+                Icons.add,
+                size: 27,
+                color: Colors.black,
+              ),
+            )
+          : Stack(
+              children: [
+                Positioned(
+                  left: (MediaQuery.of(context).size.width - 768) / 2,
+                  bottom: 5,
+                  child: FloatingActionButton(
+                    backgroundColor: ColorConstant.lightBlue,
+                    onPressed: _addDebt,
+                    child: const Icon(
+                      Icons.add,
+                      size: 27,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }
