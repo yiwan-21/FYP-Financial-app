@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../pages/add_goal.dart';
 import '../components/goal.dart';
+import '../constants/constant.dart';
 import '../constants/route_name.dart';
 import '../constants/style_constant.dart';
 import '../providers/total_goal_provider.dart';
@@ -14,6 +17,19 @@ class SavingsGoal extends StatefulWidget {
 }
 
 class _SavingsGoalState extends State<SavingsGoal> {
+  _navigateToAddGoal() {
+    if (Constant.isMobile(context) && !kIsWeb) {
+      Navigator.pushNamed(context, RouteName.addGoal);
+    } else {
+      showDialog(
+        context: context, 
+        builder: (context) {
+          return const AddGoal();
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,9 +74,7 @@ class _SavingsGoalState extends State<SavingsGoal> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: ColorConstant.lightBlue,
-        onPressed: () {
-          Navigator.pushNamed(context, RouteName.addGoal);
-        },
+        onPressed: _navigateToAddGoal,
         child: const Icon(
           Icons.add,
           size: 27,
