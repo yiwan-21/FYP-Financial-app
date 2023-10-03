@@ -2,30 +2,50 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
 import '../firebase_instance.dart';
+import '../providers/split_money_provider.dart';
 import '../services/split_money_service.dart';
 
-class AddGroup extends StatefulWidget {
-  const AddGroup({super.key});
+class ManageGroup extends StatefulWidget {
+  final bool isEditing;
+  const ManageGroup(this.isEditing, {super.key});
 
   @override
-  State<AddGroup> createState() => _AddGroupState();
+  State<ManageGroup> createState() => _ManageGroupState();
 }
 
-class _AddGroupState extends State<AddGroup> {
+class _ManageGroupState extends State<ManageGroup> {
   final _formKey = GlobalKey<FormState>();
+
   String _groupName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isEditing) {
+      _groupName = Provider.of<SplitMoneyProvider>(context, listen: false).name ?? '';
+    }
+  }
 
   Future<void> _addGroup() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      
+
       await SplitMoneyService.addGroup(_groupName).then((_) {
         Navigator.pop(context);
       });
+    }
+  }
+
+  void _editGroup() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      Provider.of<SplitMoneyProvider>(context, listen: false).updateName(_groupName);
+      Navigator.pop(context);
     }
   }
 
@@ -48,7 +68,7 @@ class _AddGroupState extends State<AddGroup> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Create Group'),
+      title: widget.isEditing ? const Text('Edit Group') : const Text('Create Group'),
       content: Form(
         key: _formKey,
         child: SizedBox(
@@ -63,17 +83,20 @@ class _AddGroupState extends State<AddGroup> {
                     color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: IconButton(
-                    iconSize: 60,
-                    icon: const Icon(
-                      Icons.add_a_photo,
+                  child: Material(
+                    child: InkWell(
+                      onTap: _groupImage,
+                      child: const Icon(
+                        Icons.add_a_photo,
+                        size: 100,
+                      ), // to be changed to read the group image from firebase
                     ),
-                    onPressed: _groupImage,
                   ),
                 ),
                 const SizedBox(width: 20, height: 20),
                 Flexible(
                   child: TextFormField(
+                    initialValue: widget.isEditing ? _groupName : '',
                     decoration: const InputDecoration(
                       labelText: 'Group Name',
                       labelStyle: TextStyle(color: Colors.black),
@@ -115,10 +138,11 @@ class _AddGroupState extends State<AddGroup> {
               borderRadius: BorderRadius.circular(4.0),
             ),
           ),
-          onPressed: _addGroup,
-          child: const Text('Create'),
+          onPressed: widget.isEditing ? _editGroup : _addGroup,
+          child: const Text('Save'),
         ),
-        if (!Constant.isMobile(context)) const SizedBox(width: 12),
+        if (!Constant.isMobile(context)) 
+          const SizedBox(width: 12),
         if (!Constant.isMobile(context))
           ElevatedButton(
             style: ElevatedButton.styleFrom(

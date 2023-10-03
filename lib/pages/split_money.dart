@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../components/add_group.dart';
-import '../components/split_group_card.dart';
+
 import '../constants/style_constant.dart';
+import '../components/manage_group.dart';
+import '../components/split_group_card.dart';
 import '../services/split_money_service.dart';
 
 class SplitMoney extends StatefulWidget {
@@ -17,10 +18,11 @@ class _SplitMoneyState extends State<SplitMoney> {
 
   void addGroup() {
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return const AddGroup();
-        });
+      context: context,
+      builder: (BuildContext context) {
+        return const ManageGroup(false);
+      },
+    );
   }
 
   @override
@@ -47,7 +49,7 @@ class _SplitMoneyState extends State<SplitMoney> {
                   child: Text('No group yet'),
                 );
               }
-        
+
               List<SplitGroupCard> groupCards = snapshot.data!.docs
                   .map((doc) => SplitGroupCard(doc.id, groupName: doc['name']))
                   .toList();
@@ -63,15 +65,15 @@ class _SplitMoneyState extends State<SplitMoney> {
           ),
         ),
       ),
-          floatingActionButton: FloatingActionButton(
-            backgroundColor: ColorConstant.lightBlue,
-            onPressed: addGroup,
-            child: const Icon(
-              Icons.group_add_outlined,
-              size: 27,
-              color: Colors.black,
-            ),
-          ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: ColorConstant.lightBlue,
+        onPressed: addGroup,
+        child: const Icon(
+          Icons.group_add_outlined,
+          size: 27,
+          color: Colors.black,
+        ),
+      ),
     );
   }
 }
