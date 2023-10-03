@@ -114,13 +114,14 @@ class _ManageTransactionState extends State<ManageTransaction> {
             widget.isEditing
                   ? const Text('Edit Transaction')
                   : const Text('Add Transaction'),
-            IconButton(
-              iconSize: 30,
-              splashRadius: 30,
-              color: lightRed,
-              icon: const Icon(Icons.delete),
-              onPressed: _deleteDialog,
-            ),
+            if (widget.isEditing)
+              IconButton(
+                iconSize: 30,
+                splashRadius: 30,
+                color: lightRed,
+                icon: const Icon(Icons.delete),
+                onPressed: _deleteDialog,
+              ),
           ],
         ),    
         content: SizedBox(
