@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:financial_app/services/debt_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../constants/constant.dart';
 import '../constants/route_name.dart';
+import '../pages/manage_debt.dart';
 import '../providers/total_transaction_provider.dart';
 import '../services/transaction_service.dart';
 import '../components/alert_with_checkbox.dart';
@@ -49,15 +51,32 @@ class _DebtCardState extends State<DebtCard> {
   }
 
   void _editDebt() {
-    Navigator.pushNamed(context, RouteName.manageDebt, arguments: {
-      'isEditing': true,
-      'id': widget.id,
-      'title': widget.title,
-      'amount': widget.amount,
-      'interest': widget.interests,
-      'year': _year,
-      'month': _month,
-    });
+    if (Constant.isMobile(context) && !kIsWeb) {
+      Navigator.pushNamed(context, RouteName.manageDebt, arguments: {
+        'isEditing': true,
+        'id': widget.id,
+        'title': widget.title,
+        'amount': widget.amount,
+        'interest': widget.interests,
+        'year': _year,
+        'month': _month,
+      });
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return ManageDebt(
+            true,
+            id: widget.id,
+            title: widget.title,
+            amount: widget.amount,
+            interest: widget.interests,
+            year: _year,
+            month: _month,
+          );
+        },
+      );
+    }
   }
 
   void _payDebtDialog() {

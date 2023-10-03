@@ -212,12 +212,12 @@ class MyApp extends StatelessWidget {
               return MaterialPageRoute(
                 builder: (_) => ManageDebt(
                   args['isEditing'],
-                  args['id'],
-                  args['title'],
-                  args['amount'],
-                  args['interest'],
-                  args['year'],
-                  args['month'],
+                  id: args['id'],
+                  title: args['title'],
+                  amount: args['amount'],
+                  interest: args['interest'],
+                  year: args['year'],
+                  month: args['month'],
                 ),
               );
             } else {

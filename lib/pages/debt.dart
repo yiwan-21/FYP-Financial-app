@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../pages/manage_debt.dart';
+import '../constants/constant.dart';
 import '../constants/route_name.dart';
 import '../constants/style_constant.dart';
 import '../components/debt_card.dart';
@@ -19,8 +22,16 @@ class _DebtState extends State<Debt> {
   double _surplus = 0;
 
   void _addDebt() {
-    Navigator.pushNamed(context, RouteName.manageDebt,
-        arguments: {'isEditing': false});
+    if (Constant.isMobile(context) && !kIsWeb) {
+      Navigator.pushNamed(context, RouteName.manageDebt, arguments: {'isEditing': false});
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return const ManageDebt(false);
+        },
+      );
+    }
   }
 
   Future<void> _calSurplus() async {
