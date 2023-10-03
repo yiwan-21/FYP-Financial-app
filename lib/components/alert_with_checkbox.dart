@@ -97,11 +97,8 @@ class _AlertWithCheckboxState extends State<AlertWithCheckbox> {
                 focusedBorder: const OutlineInputBorder(
                   borderSide: BorderSide(width: 1.5),
                 ),
-                enabledBorder: const OutlineInputBorder(
+                border: const OutlineInputBorder(
                   borderSide: BorderSide(width: 1),
-                ),
-                errorBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5, color: Colors.red),
                 ),
               ),
               keyboardType:

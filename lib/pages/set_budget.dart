@@ -69,11 +69,8 @@ class _SetBudgetState extends State<SetBudget> {
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(width: 1.5),
                   ),
-                  enabledBorder: OutlineInputBorder(
+                  border: OutlineInputBorder(
                     borderSide: BorderSide(width: 1),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(width: 1.5, color: Colors.red),
                   ),
                 ),
                 validator: (value) {
@@ -93,11 +90,8 @@ class _SetBudgetState extends State<SetBudget> {
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(width: 1.5),
                   ),
-                  enabledBorder: OutlineInputBorder(
+                  border: OutlineInputBorder(
                     borderSide: BorderSide(width: 1),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(width: 1.5, color: Colors.red),
                   ),
                 ),
                 keyboardType:

@@ -142,11 +142,8 @@ class _TransactionFormState extends State<TransactionForm> {
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(width: 1.5),
                 ),
-                enabledBorder: OutlineInputBorder(
+                border: OutlineInputBorder(
                   borderSide: BorderSide(width: 1),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5, color: Colors.red),
                 ),
               ),
               validator: (value) {
@@ -199,11 +196,8 @@ class _TransactionFormState extends State<TransactionForm> {
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(width: 1.5),
                 ),
-                enabledBorder: OutlineInputBorder(
+                border: OutlineInputBorder(
                   borderSide: BorderSide(width: 1),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5, color: Colors.red),
                 ),
               ),
               controller: TextEditingController(
@@ -224,12 +218,8 @@ class _TransactionFormState extends State<TransactionForm> {
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(width: 1.5),
                       ),
-                      enabledBorder: OutlineInputBorder(
+                      border: OutlineInputBorder(
                         borderSide: BorderSide(width: 1),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide:
-                            BorderSide(width: 1.5, color: Colors.red),
                       ),
                     ),
                     keyboardType: const TextInputType.numberWithOptions(
@@ -302,11 +292,8 @@ class _TransactionFormState extends State<TransactionForm> {
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(width: 1.5),
                 ),
-                enabledBorder: OutlineInputBorder(
+                border: OutlineInputBorder(
                   borderSide: BorderSide(width: 1),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5, color: Colors.red),
                 ),
               ),
             ),

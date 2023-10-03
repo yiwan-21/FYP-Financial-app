@@ -108,11 +108,8 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(width: 1.5),
                 ),
-                enabledBorder: OutlineInputBorder(
+                border: OutlineInputBorder(
                   borderSide: BorderSide(width: 1),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5, color: Colors.red),
                 ),
               ),
               validator: (value) {
@@ -137,11 +134,8 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(width: 1.5),
                 ),
-                enabledBorder: OutlineInputBorder(
+                border: OutlineInputBorder(
                   borderSide: BorderSide(width: 1),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5, color: Colors.red),
                 ),
               ),
               keyboardType:
@@ -193,11 +187,8 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(width: 1.5),
                 ),
-                enabledBorder: OutlineInputBorder(
+                border: OutlineInputBorder(
                   borderSide: BorderSide(width: 1),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5, color: Colors.red),
                 ),
               ),
             ),
@@ -224,11 +215,8 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(width: 1.5),
                 ),
-                enabledBorder: OutlineInputBorder(
+                border: OutlineInputBorder(
                   borderSide: BorderSide(width: 1),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5, color: Colors.red),
                 ),
               ),
             ),
@@ -280,11 +268,8 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(width: 1.5),
                 ),
-                enabledBorder: OutlineInputBorder(
+                border: OutlineInputBorder(
                   borderSide: BorderSide(width: 1),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5, color: Colors.red),
                 ),
               ),
               validator: (value) {
