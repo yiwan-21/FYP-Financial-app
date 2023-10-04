@@ -159,6 +159,7 @@ class _BillFormState extends State<BillForm> {
                 ),
               ],
             ),
+            const SizedBox(height: 5),
             TextFormField(
               enabled: _fixed,
               initialValue:
