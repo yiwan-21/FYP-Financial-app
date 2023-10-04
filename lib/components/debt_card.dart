@@ -158,12 +158,12 @@ class _DebtCardState extends State<DebtCard> {
                 ),
                 IconButton(
                   iconSize: 20,
+                  splashRadius: 10,
                   onPressed: _editDebt,
                   icon: const Icon(Icons.edit),
                   color: Colors.brown,
                   alignment: Alignment.topRight,
                   padding: const EdgeInsets.all(0),
-                  hoverColor: Colors.transparent,
                 ),
               ],
             ),
@@ -180,12 +180,12 @@ class _DebtCardState extends State<DebtCard> {
                 if(widget.history.isEmpty || widget.history.last['balance'] >=0)
                 IconButton(
                   iconSize: 20,
+                  splashRadius: 10,
                   onPressed: _payDebtDialog,
                   icon: const Icon(Icons.payment_sharp),
                   color: Colors.brown,
                   alignment: Alignment.topRight,
                   padding: const EdgeInsets.all(0),
-                  hoverColor: Colors.transparent,
                 ),
               ],
             ),
