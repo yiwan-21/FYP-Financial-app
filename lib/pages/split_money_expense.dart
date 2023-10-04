@@ -204,10 +204,6 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense>
                   expense: _expense,
                 ),
               ),
-              // const VerticalDivider(
-              //   thickness: 1,
-              //   width: 1,
-              // ),
               Flexible(
                 flex: 2,
                 child: ConstrainedBox(
