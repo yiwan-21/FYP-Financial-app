@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../pages/edit_budget.dart';
+import '../constants/constant.dart';
 import '../components/budget_chart.dart';
 import '../components/history_card.dart';
 import '../components/alert_confirm_action.dart';
-import '../pages/edit_budget.dart';
 import '../services/budget_service.dart';
 import '../services/transaction_service.dart';
 import '../utils/date_utils.dart';
@@ -19,6 +20,9 @@ class BudgetDetail extends StatefulWidget {
 }
 
 class _BudgetDetailState extends State<BudgetDetail> {
+  final double _maxWidth = 900;
+  Future<List<HistoryCard>> _future = Future.value([]);
+  Stream<DocumentSnapshot> _stream = const Stream.empty();
   Future<void> _deleteBudget() async {
     await BudgetService.deleteBudget(widget.category).then((_) {
       // close alert dialog
@@ -29,12 +33,23 @@ class _BudgetDetailState extends State<BudgetDetail> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _future = TransactionService.getHistoryCards(
+          widget.category, BudgetService.startingDate);
+      _stream = BudgetService.getSingleBudgetStream(widget.category);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.category),
         actions: [
           IconButton(
+            iconSize: Constant.isMobile(context)? 25 : 30,
             icon: const Icon(Icons.edit),
             onPressed: () {
               showDialog(
@@ -45,7 +60,9 @@ class _BudgetDetailState extends State<BudgetDetail> {
               );
             },
           ),
+          if (!Constant.isMobile(context)) const SizedBox(width: 10),
           IconButton(
+            iconSize: Constant.isMobile(context)? 25 : 30,
             icon: const Icon(Icons.delete),
             onPressed: () {
               showDialog(
@@ -62,68 +79,78 @@ class _BudgetDetailState extends State<BudgetDetail> {
               );
             },
           ),
+          if (!Constant.isMobile(context)) const SizedBox(width: 15),
         ],
       ),
       body: ListView(
         physics: const BouncingScrollPhysics(),
         children: [
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-            elevation: 1,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            color: const Color.fromARGB(255, 255, 220, 225),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-              child: CustomPaint(
-                  foregroundPainter: LinePainter(),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: StreamBuilder<DocumentSnapshot>(
-                      stream: BudgetService.getSingleBudgetStream(widget.category),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting || 
-                            snapshot.hasError || 
-                            !snapshot.hasData ||
-                            !snapshot.data!.exists) {
-                          return Container();
-                        }
-                        double total = snapshot.data!['amount'].toDouble();
-                        double used = snapshot.data!['used'].toDouble();
-                        return Column(
-                          children: [
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'RM ${used.toStringAsFixed(2)}',
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                'RM ${total.toStringAsFixed(2)}',
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }
-                    ),
-                  )),
+          Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: _maxWidth,
+              ),
+              child: Card(
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+                elevation: 1,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                color: const Color.fromARGB(255, 255, 220, 225),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                  child: CustomPaint(
+                      foregroundPainter: LinePainter(),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: StreamBuilder<DocumentSnapshot>(
+                            stream: _stream,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                      ConnectionState.waiting ||
+                                  snapshot.hasError ||
+                                  !snapshot.hasData ||
+                                  !snapshot.data!.exists) {
+                                return Container();
+                              }
+                              double total =
+                                  snapshot.data!['amount'].toDouble();
+                              double used = snapshot.data!['used'].toDouble();
+                              return Column(
+                                children: [
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'RM ${used.toStringAsFixed(2)}',
+                                      style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(
+                                      'RM ${total.toStringAsFixed(2)}',
+                                      style: const TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }),
+                      )),
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 24),
           FutureBuilder(
-              future: TransactionService.getHistoryCards(
-                  widget.category, BudgetService.startingDate),
+              future: _future,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
@@ -153,9 +180,10 @@ class _BudgetDetailState extends State<BudgetDetail> {
                   dailyAmount[index] += amount;
                 }
                 for (int i = 0; i < days; i++) {
-                  budgetData.add(BudgetChartData(dailyAmount[i], startDate.add(Duration(days: i))));
+                  budgetData.add(BudgetChartData(
+                      dailyAmount[i], startDate.add(Duration(days: i))));
                 }
-                
+
                 return ListView(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -163,15 +191,23 @@ class _BudgetDetailState extends State<BudgetDetail> {
                     const Text(
                       'Daily Spending',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                     BudgetChart(budgetData),
                     const SizedBox(height: 24),
-                    Wrap(
-                      verticalDirection: VerticalDirection.up,
-                      children: List.generate(historyCards.length, (index) {
-                        return historyCards[index];
-                      }),
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: _maxWidth,
+                        ),
+                        child: Wrap(
+                          verticalDirection: VerticalDirection.up,
+                          children: List.generate(historyCards.length, (index) {
+                            return historyCards[index];
+                          }),
+                        ),
+                      ),
                     ),
                   ],
                 );

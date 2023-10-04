@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../constants/constant.dart';
 import '../constants/route_name.dart';
 import '../constants/style_constant.dart';
+import '../pages/manage_transaction.dart';
 import '../providers/transaction_provider.dart';
 
 class TrackerTransaction extends StatefulWidget {
@@ -68,8 +71,17 @@ class _TrackerTransactionState extends State<TrackerTransaction> {
       widget.category,
       notes: widget.notes,
     );
-
-    Navigator.pushNamed(context, RouteName.editTransaction);
+    
+    if (Constant.isMobile(context) && !kIsWeb) {
+      Navigator.pushNamed(context, RouteName.manageTransaction, arguments: {'isEditing': true});
+    } else{
+      showDialog(
+        context: context, 
+        builder: (context) {
+          return const ManageTransaction(true);
+        },
+      );
+    }
   }
 
   @override

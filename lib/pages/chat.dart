@@ -16,13 +16,12 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<Chat> {
   final TextEditingController _controller = TextEditingController();
-  Stream<QuerySnapshot>? _stream;
+  final Stream<QuerySnapshot> _stream = ChatService.getChatStream();
   String _sendMessage = '';
 
   @override
   void initState() {
     super.initState();
-    _stream = ChatService.getChatStream();
     // update read status when chat page is opened
     updateReadStatus();
   }

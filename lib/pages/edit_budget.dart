@@ -56,11 +56,8 @@ class _EditBudgetState extends State<EditBudget> {
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(width: 1.5),
             ),
-            enabledBorder: OutlineInputBorder(
+            border: OutlineInputBorder(
               borderSide: BorderSide(width: 1),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderSide: BorderSide(width: 1.5, color: Colors.red),
             ),
           ),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -71,7 +68,7 @@ class _EditBudgetState extends State<EditBudget> {
             if (value!.isEmpty) {
               return ValidatorMessage.emptyAmount;
             }
-            if (double.tryParse(value) == null) {
+            if (double.tryParse(value) == null || double.parse(value) <= 0) {
               return ValidatorMessage.invalidAmount;
             }
             return null;

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../firebase_instance.dart';
+import '../models/group_user.dart';
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
 import '../components/alert_confirm_action.dart';
-import '../firebase_instance.dart';
-import '../components/edit_group.dart';
-import '../models/group_user.dart';
+import '../components/manage_group.dart';
 import '../providers/split_money_provider.dart';
 import '../services/split_money_service.dart';
 
@@ -28,11 +28,9 @@ class _GroupSettingsState extends State<GroupSettings> {
   @override
   void initState() {
     super.initState();
-    SplitMoneyProvider splitMoneyProvider =
-        Provider.of<SplitMoneyProvider>(context, listen: false);
+    SplitMoneyProvider splitMoneyProvider = Provider.of<SplitMoneyProvider>(context, listen: false);
     setState(() {
-      _isOwner = _checkIsOwner(
-          splitMoneyProvider.ownerId, FirebaseInstance.auth.currentUser!.uid);
+      _isOwner = _checkIsOwner(splitMoneyProvider.ownerId, FirebaseInstance.auth.currentUser!.uid);
     });
   }
 
@@ -40,7 +38,7 @@ class _GroupSettingsState extends State<GroupSettings> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return const EditGroup();
+        return const ManageGroup(true);
       },
     );
   }
@@ -59,11 +57,9 @@ class _GroupSettingsState extends State<GroupSettings> {
       GroupUser? member = await SplitMoneyService.hasAccount(_targetEmail);
       if (context.mounted) {
         if (member != null) {
-          Provider.of<SplitMoneyProvider>(context, listen: false)
-              .addMember(member);
+          Provider.of<SplitMoneyProvider>(context, listen: false).addMember(member);
         } else {
-          SnackBar snackBar =
-              SnackBar(content: Text(ExceptionMessage.noSuchUser));
+          SnackBar snackBar = SnackBar(content: Text(ExceptionMessage.noSuchUser));
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
       }
@@ -86,10 +82,12 @@ class _GroupSettingsState extends State<GroupSettings> {
       Navigator.of(context).pop();
       if (!isSettleUp) {
         SnackBar snackBar = const SnackBar(
-              content: Text('Cannot remove this member because there are still unsettled expenses'));
+          content: Text('Cannot remove this member because there are still unsettled expenses'),
+        );
         if (_isLeaving) {
           snackBar = const SnackBar(
-              content: Text('You cannot leave the group because there are still unsettled expenses'));
+            content: Text('You cannot leave the group because there are still unsettled expenses'),
+          );
         }
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
         return;
@@ -113,8 +111,7 @@ class _GroupSettingsState extends State<GroupSettings> {
             builder: (BuildContext context) {
               return AlertConfirmAction(
                 title: 'Leave Group',
-                content:
-                    'Are you sure you want to leave the group?\n\nThis action cannot be undone.',
+                content: 'Are you sure you want to leave the group?\n\nThis action cannot be undone.',
                 cancelText: 'Cancel',
                 confirmText: 'Leave',
                 confirmAction: () {
@@ -128,8 +125,7 @@ class _GroupSettingsState extends State<GroupSettings> {
             builder: (BuildContext context) {
               return AlertConfirmAction(
                 title: 'Remove ${member.name}',
-                content:
-                    'Are you sure you want to remove this member?\n\nThis action cannot be undone.',
+                content: 'Are you sure you want to remove this member?\n\nThis action cannot be undone.',
                 cancelText: 'Cancel',
                 confirmText: 'Remove',
                 confirmAction: () {
@@ -144,7 +140,8 @@ class _GroupSettingsState extends State<GroupSettings> {
     await SplitMoneyService.groupSettleUp().then((isSettleUp) async {
       if (!isSettleUp) {
         SnackBar snackBar = const SnackBar(
-              content: Text('Cannot delete this group because there are still unsettled expenses'));
+          content: Text('Cannot delete this group because there are still unsettled expenses'),
+        );
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
         return;
       }
@@ -186,9 +183,12 @@ class _GroupSettingsState extends State<GroupSettings> {
         title: const Text('Group Settings'),
         actions: [
           IconButton(
+            iconSize: Constant.isMobile(context)? 25 : 30,
             onPressed: _openEditGroup,
             icon: const Icon(Icons.edit),
           ),
+          if(!Constant.isMobile(context))
+          const SizedBox(width: 15),
         ],
       ),
       body: Center(
@@ -211,16 +211,16 @@ class _GroupSettingsState extends State<GroupSettings> {
                       return Text(
                         splitMoneyProvider.name ?? 'Loading',
                         style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 28),
+                          fontWeight: FontWeight.bold, 
+                          fontSize: 28,
+                        ),
                       );
                     },
                   ),
                 ],
               ),
               const SizedBox(height: 20),
-              const Divider(
-                thickness: 1.5,
-              ),
+              const Divider(thickness: 1.5),
               const SizedBox(height: 20),
               const Text(
                 'Group Members',

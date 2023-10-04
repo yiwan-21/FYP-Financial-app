@@ -83,11 +83,8 @@ class _EditProfileFormState extends State<EditProfileForm> {
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(width: 1.5),
                         ),
-                        enabledBorder: OutlineInputBorder(
+                        border: OutlineInputBorder(
                           borderSide: BorderSide(width: 1),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderSide: BorderSide(width: 1.5, color: Colors.red),
                         ),
                       ),
                       validator: (value) {

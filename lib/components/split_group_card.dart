@@ -18,7 +18,7 @@ class SplitGroupCard extends StatefulWidget {
 class _SplitGroupCardState extends State<SplitGroupCard> {
   void _initGroup() {
     Provider.of<SplitMoneyProvider>(context, listen: false).setNewSplitGroup(widget.groupID);
-    Navigator.pushNamed(context, RouteName.splitMoneyGroup).then((_) {
+    Navigator.pushNamed(context, RouteName.splitMoneyGroup, arguments: {'id': widget.groupID}).then((_) {
       SplitMoneyService.resetGroupID();
     });
   }
@@ -32,6 +32,7 @@ class _SplitGroupCardState extends State<SplitGroupCard> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            //TODO: changeable photo
             const Icon(
               Icons.diversity_3,
               size: 55,
@@ -40,6 +41,7 @@ class _SplitGroupCardState extends State<SplitGroupCard> {
             const SizedBox(width: 10),
             Column(
               children: [
+                //TODO: total owe and lent
                 Text(
                   widget.groupName,
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),

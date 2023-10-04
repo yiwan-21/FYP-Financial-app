@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../pages/manage_transaction.dart';
 import '../constants/constant.dart';
 import '../constants/route_name.dart';
 import '../components/category_chart.dart';
 import '../components/tracker_transaction.dart';
-
 import '../providers/total_transaction_provider.dart';
 
 class Tracker extends StatefulWidget {
@@ -19,6 +20,25 @@ class Tracker extends StatefulWidget {
 class _TrackerState extends State<Tracker> {
   final List<String> _categories = [Constant.noFilter, ...Constant.categories];
   String _selectedItem = Constant.noFilter;
+
+  void _addTransaction() {
+    if (Constant.isMobile(context) && !kIsWeb) {
+      Navigator.pushNamed(context, RouteName.manageTransaction, arguments: {'isEditing': false}).then((value) {
+        if (value != null && value is TrackerTransaction) {
+          Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
+        }
+      });
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const ManageTransaction(false);
+        },
+      ).then((_) {
+        Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,12 +67,12 @@ class _TrackerState extends State<Tracker> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 "Transactions (RM)",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
+              const SizedBox(width: 12),
               DropdownButton<String>(
                 value: _selectedItem,
                 icon: const Icon(Icons.filter_alt_outlined), // Icon to display
@@ -72,17 +92,10 @@ class _TrackerState extends State<Tracker> {
                   );
                 }).toList(),
               ),
+              const Spacer(),
               FloatingActionButton.small(
                 elevation: 2,
-                onPressed: () {
-                  Navigator.pushNamed(context, RouteName.addTransaction).then((value) {
-                    if (value != null && value is TrackerTransaction) {
-                      Provider.of<TotalTransactionProvider>(context,
-                              listen: false)
-                          .updateTransactions();
-                    }
-                  });
-                },
+                onPressed: _addTransaction,
                 child: const Icon(
                   Icons.add,
                 ),

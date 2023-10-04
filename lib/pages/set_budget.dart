@@ -43,91 +43,79 @@ class _SetBudgetState extends State<SetBudget> {
         key: _formKey,
         child: SizedBox(
           width: Constant.isMobile(context) ? null : 500,
-          child: Flex(
-            direction:
-                Constant.isMobile(context) ? Axis.vertical : Axis.horizontal,
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 18),
-              Flexible(
-                child: DropdownButtonFormField<String>(
-                  value: _category,
-                  onChanged: (value) {
-                    setState(() {
-                      _categoryExist = false;
-                      _category = value!;
-                    });
-                  },
-                  items: Constant.expenseCategories
-                      .map((category) => DropdownMenuItem(
-                            value: category,
-                            child: Text(category),
-                          ))
-                      .toList(),
-                  decoration: const InputDecoration(
-                    labelText: 'Category',
-                    labelStyle: TextStyle(color: Colors.black),
-                    fillColor: Colors.white,
-                    filled: true,
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1.5),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1.5, color: Colors.red),
-                    ),
+              DropdownButtonFormField<String>(
+                value: _category,
+                onChanged: (value) {
+                  setState(() {
+                    _categoryExist = false;
+                    _category = value!;
+                  });
+                },
+                items: Constant.expenseCategories
+                    .map((category) => DropdownMenuItem(
+                          value: category,
+                          child: Text(category),
+                        ))
+                    .toList(),
+                decoration: const InputDecoration(
+                  labelText: 'Category',
+                  labelStyle: TextStyle(color: Colors.black),
+                  fillColor: Colors.white,
+                  filled: true,
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(width: 1.5),
                   ),
-                  validator: (value) {
-                    if (_categoryExist) {
-                      return ValidatorMessage.repeatCategory;
-                    }
-                    return null;
-                  },
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(width: 1),
+                  ),
                 ),
+                validator: (value) {
+                  if (_categoryExist) {
+                    return ValidatorMessage.repeatCategory;
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 18),
-              Flexible(
-                child: TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Amount',
-                    labelStyle: TextStyle(color: Colors.black),
-                    fillColor: Colors.white,
-                    filled: true,
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1.5),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1.5, color: Colors.red),
-                    ),
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Amount',
+                  labelStyle: TextStyle(color: Colors.black),
+                  fillColor: Colors.white,
+                  filled: true,
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(width: 1.5),
                   ),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.allow(
-                        RegExp(r'^\d+\.?\d{0,2}')),
-                  ],
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return ValidatorMessage.emptyAmount;
-                    }
-                    if (double.tryParse(value) == null) {
-                      return ValidatorMessage.invalidAmount;
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    setState(() {
-                      _amount = double.tryParse(value) == null
-                          ? 0
-                          : double.parse(value);
-                    });
-                  },
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(width: 1),
+                  ),
                 ),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(
+                      RegExp(r'^\d+\.?\d{0,2}')),
+                ],
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return ValidatorMessage.emptyAmount;
+                  }
+                  if (double.tryParse(value) == null || double.parse(value) <= 0) {
+                    return ValidatorMessage.invalidAmount;
+                  }
+                  return null;
+                },
+                onChanged: (value) {
+                  setState(() {
+                    _amount = double.tryParse(value) == null
+                        ? 0
+                        : double.parse(value);
+                  });
+                },
               ),
             ],
           ),

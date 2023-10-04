@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class GrowingTree extends StatefulWidget {
@@ -76,7 +77,7 @@ class _GrowingTreeState extends State<GrowingTree>
             image: _growing ? images[(_controller.value * _index).floor() % images.length] 
               // if not growing: show images from index to newIndex
               : images[(_controller.value * (_newIndex - _index) + _index).floor() % images.length], 
-            height: 300,
+            height: kIsWeb ? 400 : 300,
             fit: BoxFit.fitHeight,
           );
         });

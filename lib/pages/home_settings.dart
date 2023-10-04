@@ -20,9 +20,9 @@ class HomeSettings extends StatefulWidget {
 class _HomeSettingsState extends State<HomeSettings> {
   final _formKey = GlobalKey<FormState>();
   List<String> _selectedItems = [];
-  Future<List<SplitGroupCard>> _groupList = Future.value([]);
+  final Future<List<SplitGroupCard>> _groupList = SplitMoneyService.getGroupCards();
   String _selectedGroup = '';
-  Future<List<String>> _budgetList = Future.value([]);
+  final Future<List<String>> _budgetList = BudgetService.getBudgetCategories();
   String _selectedBudget = '';
 
   @override
@@ -30,10 +30,8 @@ class _HomeSettingsState extends State<HomeSettings> {
     super.initState();
     HomeCustomization customization = Provider.of<HomeProvider>(context, listen: false).customization;
     _selectedItems = customization.items;
-    _groupList = SplitMoneyService.getGroupCards();
     _selectedGroup = customization.groupID;
     _selectedBudget = customization.budgetCategory;
-    _budgetList = BudgetService.getBudgetCategories();
   }
 
   void _toggleCheckbox(String item) {

@@ -41,6 +41,13 @@ class SplitMoneyService {
         .snapshots();
   }
 
+  static Stream<DocumentSnapshot> getSingleGroupStream(String? groupID) {
+    if (groupID == null && _groupID.isEmpty) {
+      return const Stream.empty();
+    }
+    return groupsCollection.doc(groupID ?? _groupID).snapshots();
+  }
+
   static Future<SplitGroup> getGroupByID(String groupID) async {
     setGroupID(groupID);
     SplitGroup group = SplitGroup();
@@ -150,8 +157,8 @@ class SplitMoneyService {
           if (snapshot.exists)
             {
               title = snapshot['title'],
-              amount = snapshot['amount'],
-              paidAmount = snapshot['paidAmount'],
+              amount = snapshot['amount'].toDouble(),
+              paidAmount = snapshot['paidAmount'].toDouble(),
               splitMethod = snapshot['splitMethod'],
               await FirebaseInstance.firestore
                   .doc(snapshot['paidBy'])

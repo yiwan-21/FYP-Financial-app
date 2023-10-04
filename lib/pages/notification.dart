@@ -16,6 +16,9 @@ class NotificationMenu extends StatefulWidget {
 }
 
 class _NotificationMenuState extends State<NotificationMenu> {
+  final Stream<QuerySnapshot> _stream =
+      NotificationService.getNotificationStream();
+
   int _unread = 0;
 
   @override
@@ -35,10 +38,11 @@ class _NotificationMenuState extends State<NotificationMenu> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: NotificationService.getNotificationStream(),
+      stream: _stream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return IconButton(
+            iconSize: Constant.isMobile(context) ? 25 : 30,
             icon: const Icon(Icons.notifications),
             onPressed: () {
               // Handle loading state
@@ -46,6 +50,7 @@ class _NotificationMenuState extends State<NotificationMenu> {
           );
         } else if (snapshot.hasError) {
           return IconButton(
+            iconSize: Constant.isMobile(context) ? 25 : 30,
             icon: const Icon(Icons.notifications),
             onPressed: () {
               // Handle error state
@@ -74,7 +79,10 @@ class _NotificationMenuState extends State<NotificationMenu> {
               maxHeight: MediaQuery.of(context).size.height * 0.7,
               maxWidth: 300,
             ),
-            icon: Icon(_unread > 0 ? Icons.notifications_active : Icons.notifications),
+            icon: Icon(
+              _unread > 0 ? Icons.notifications_active : Icons.notifications,
+              size: Constant.isMobile(context) ? 25 : 30,
+            ),
             itemBuilder: (context) {
               return [
                 PopupMenuItem<NotificationModel>(
@@ -114,11 +122,14 @@ class _NotificationMenuState extends State<NotificationMenu> {
                   final String title = doc['title'];
                   final String message = doc['message'];
                   final DateTime date = doc['createdAt'].toDate();
-                  final int index = List<String>.from(doc['receiverID']).indexOf(uid);
+                  final int index =
+                      List<String>.from(doc['receiverID']).indexOf(uid);
                   final bool read = List<bool>.from(doc['read'])[index];
                   final String type = doc['type'];
                   final String? functionID = doc['functionID'];
-                  final Function navigateTo = NotificationService.getNotificationFunction(type, functionID);
+                  final Function navigateTo =
+                      NotificationService.getNotificationFunction(
+                          type, functionID);
 
                   return PopupMenuItem<NotificationModel>(
                     onTap: () {
@@ -127,14 +138,14 @@ class _NotificationMenuState extends State<NotificationMenu> {
                     },
                     child: Container(
                       margin: const EdgeInsets.symmetric(vertical: 5),
-                      // padding: const EdgeInsets.symmetric(vertical: 5),
                       color: read ? Colors.white : Colors.grey[100],
                       child: ListTile(
                         isThreeLine: true,
                         title: Text(title),
                         titleTextStyle: TextStyle(
                           color: Colors.black,
-                          fontWeight: read ? FontWeight.normal : FontWeight.bold,
+                          fontWeight:
+                              read ? FontWeight.normal : FontWeight.bold,
                         ),
                         subtitle: Text(
                           message,
@@ -149,7 +160,8 @@ class _NotificationMenuState extends State<NotificationMenu> {
                         trailing: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('${Constant.monthLabels[date.month - 1]} ${date.day}'),
+                            Text(
+                                '${Constant.monthLabels[date.month - 1]} ${date.day}'),
                             const SizedBox(height: 5),
                             Text(date.toString().substring(11, 16)),
                           ],

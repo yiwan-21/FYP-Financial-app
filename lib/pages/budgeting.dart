@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../constants/constant.dart';
 import '../constants/style_constant.dart';
 import '../components/budget_card.dart';
 import '../pages/set_budget.dart';
@@ -14,6 +15,8 @@ class Budgeting extends StatefulWidget {
 }
 
 class _BudgetingState extends State<Budgeting> {
+  final Future<Stream<QuerySnapshot>> _streamFuture =
+      BudgetService.getBudgetingStream();
   final TextEditingController _textController = TextEditingController();
   DateTime _startingDate = DateTime.now();
   DateTime _resetDate = DateTime.now();
@@ -93,11 +96,8 @@ class _BudgetingState extends State<Budgeting> {
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(width: 1.5),
               ),
-              enabledBorder: OutlineInputBorder(
+              border: OutlineInputBorder(
                 borderSide: BorderSide(width: 1),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderSide: BorderSide(width: 1.5, color: Colors.red),
               ),
             ),
             controller: _textController,
@@ -122,61 +122,50 @@ class _BudgetingState extends State<Budgeting> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        children: [
-          const SizedBox(height: 15),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 768,
+          ),
+          child: ListView(
             children: [
-              const SizedBox(width: 10),
-              const Text(
-                'Starting date    :\nResetting date :   ',
-                style: TextStyle(
-                  fontSize: 16,
-                ),
-              ),
-              Text(
-                '${_startingDate.toString().substring(0, 10)}\n${_resetDate.toString().substring(0, 10)}',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Spacer(),
-              TextButton(
-                onPressed: setResetDate,
-                child: const Text(
-                  'Change',
-                  style: TextStyle(
-                    color: Colors.pink,
-                    fontSize: 16,
+              const SizedBox(height: 15),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(width: 10),
+                  const Text(
+                    'Starting date    :\nResetting date :   ',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
                   ),
-                ),
+                  Text(
+                    '${_startingDate.toString().substring(0, 10)}\n${_resetDate.toString().substring(0, 10)}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: setResetDate,
+                    child: const Text(
+                      'Change',
+                      style: TextStyle(
+                        color: Colors.pink,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                ],
               ),
-              const SizedBox(width: 8),
-            ],
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          FutureBuilder(
-            future: BudgetService.getBudgetingStream(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              }
-              if (!snapshot.hasData) {
-                return const Center(
-                  child: Text("No budgeting yet"),
-                );
-              }
-              return StreamBuilder<QuerySnapshot>(
-                stream: snapshot.data,
+              const SizedBox(
+                height: 10,
+              ),
+              FutureBuilder(
+                future: _streamFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
@@ -186,43 +175,81 @@ class _BudgetingState extends State<Budgeting> {
                   if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  if (!snapshot.hasData) {
                     return const Center(
                       child: Text("No budgeting yet"),
                     );
                   }
-                  List<BudgetCard> budgets = [];
-                  for (var doc in snapshot.data!.docs) {
-                    budgets.add(BudgetCard(
-                      doc.id,
-                      doc['amount'].toDouble(),
-                      doc['used'].toDouble(),
-                    ));
-                  }
-                  return ListView(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: List.generate(
-                      budgets.length,
-                      (index) => budgets[index],
-                    ),
+                  return StreamBuilder<QuerySnapshot>(
+                    stream: snapshot.data,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      if (snapshot.hasError) {
+                        return Text('Error: ${snapshot.error}');
+                      }
+                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        return const Center(
+                          child: Text("No budgeting yet"),
+                        );
+                      }
+                      List<BudgetCard> budgets = [];
+                      for (var doc in snapshot.data!.docs) {
+                        budgets.add(BudgetCard(
+                          doc.id,
+                          doc['amount'].toDouble(),
+                          doc['used'].toDouble(),
+                        ));
+                      }
+                      return ListView(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: List.generate(
+                          budgets.length,
+                          (index) => budgets[index],
+                        ),
+                      );
+                    },
                   );
                 },
-              );
-            },
+              ),
+            ],
           ),
-        ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: ColorConstant.lightBlue,
-        onPressed: setBudget,
-        child: const Icon(
-          Icons.note_add_outlined,
-          size: 27,
-          color: Colors.black,
         ),
       ),
+      floatingActionButtonLocation: Constant.isMobile(context)
+          ? FloatingActionButtonLocation.startFloat
+          : null,
+      floatingActionButton: Constant.isMobile(context)
+          ? FloatingActionButton(
+              backgroundColor: ColorConstant.lightBlue,
+              onPressed: setBudget,
+              child: const Icon(
+                Icons.note_add_outlined,
+                size: 27,
+                color: Colors.black,
+              ),
+            )
+          : Stack(
+              children: [
+                Positioned(
+                  left: (MediaQuery.of(context).size.width - 768) / 2,
+                  bottom: 5,
+                  child: FloatingActionButton(
+                    backgroundColor: ColorConstant.lightBlue,
+                    onPressed: setBudget,
+                    child: const Icon(
+                      Icons.note_add_outlined,
+                      size: 27,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }
