@@ -152,7 +152,9 @@ class MyApp extends StatelessWidget {
             }
           case RouteName.splitMoneyGroup:
             if (isLoggedIn()) {
-              return MaterialPageRoute(builder: (_) => const SplitMoneyGroup());
+              // get argument from route
+              final args = settings.arguments as Map<String, dynamic>;
+              return MaterialPageRoute(builder: (_) => SplitMoneyGroup(groupID: args['id']));
             } else {
               return MaterialPageRoute(builder: (_) => const Landing());
             }

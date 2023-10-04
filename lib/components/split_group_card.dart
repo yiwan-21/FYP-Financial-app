@@ -18,7 +18,7 @@ class SplitGroupCard extends StatefulWidget {
 class _SplitGroupCardState extends State<SplitGroupCard> {
   void _initGroup() {
     Provider.of<SplitMoneyProvider>(context, listen: false).setNewSplitGroup(widget.groupID);
-    Navigator.pushNamed(context, RouteName.splitMoneyGroup).then((_) {
+    Navigator.pushNamed(context, RouteName.splitMoneyGroup, arguments: {'id': widget.groupID}).then((_) {
       SplitMoneyService.resetGroupID();
     });
   }

@@ -376,7 +376,7 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
         Provider.of<NavigationProvider>(context, listen: false)
             .goToSplitMoney();
       } else {
-        Navigator.pushNamed(context, RouteName.splitMoneyGroup);
+        Navigator.pushNamed(context, RouteName.splitMoneyGroup, arguments: {'id': widget.groupID});
       }
     });
   }
