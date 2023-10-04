@@ -7,6 +7,7 @@ import '../constants/style_constant.dart';
 import '../firebase_instance.dart';
 import '../providers/split_money_provider.dart';
 import '../services/chat_service.dart';
+import '../services/user_service.dart';
 
 class SplitExpenseCard extends StatefulWidget {
   final String id;
@@ -14,16 +15,27 @@ class SplitExpenseCard extends StatefulWidget {
   final double totalAmount;
   final bool isSettle;
   final bool isLent;
+  final String paidBy;
   final DateTime date;
 
-  const SplitExpenseCard({required this.id, required this.title, required this.totalAmount, required this.isSettle, required this.isLent, required this.date, super.key});
+  const SplitExpenseCard({
+      required this.id,
+      required this.title,
+      required this.totalAmount,
+      required this.isSettle,
+      required this.isLent,
+      required this.paidBy,
+      required this.date,
+      super.key,
+    });
 
-  SplitExpenseCard.fromDocument(QueryDocumentSnapshot doc, {super.key}) 
+  SplitExpenseCard.fromDocument(QueryDocumentSnapshot doc, {super.key})
       : id = doc.id,
         title = doc['title'],
         totalAmount = doc['amount'].toDouble(),
         isSettle = doc['paidAmount'] >= doc['amount'],
         isLent = doc['paidBy'] == 'users/${FirebaseInstance.auth.currentUser!.uid}',
+        paidBy = doc['paidBy'].toString().split('/')[1],
         date = doc['date'].toDate();
 
   @override
@@ -42,7 +54,7 @@ class _SplitExpenseCardState extends State<SplitExpenseCard> {
       });
   }
 
-  Text _getIsLentText() {
+  Future<Text> _getIsLentText() async {
     if (widget.isSettle) {
       return const Text(
         "Settled",
@@ -53,20 +65,21 @@ class _SplitExpenseCardState extends State<SplitExpenseCard> {
       );
     } else if (widget.isLent) {
       return const Text(
-        'You lent',
+        'You paid',
         style: TextStyle(
           fontWeight: FontWeight.bold,
-          fontSize: 16,
-          color: Colors.green,
+          fontSize: 14,
+          color: Colors.red,
         ),
       );
     } else {
-      return const Text(
-        "You owe",
+      String name = await UserService.getNameByID(widget.paidBy);
+      return Text(
+        "$name paid",
         style: TextStyle(
           fontWeight: FontWeight.bold,
-          fontSize: 16,
-          color: Colors.red,
+          fontSize: 14,
+          color: Colors.green[600],
         ),
       );
     }
@@ -80,7 +93,8 @@ class _SplitExpenseCardState extends State<SplitExpenseCard> {
         elevation: 4,
         color: widget.isSettle ? Colors.greenAccent[100] : Colors.white,
         child: Container(
-          margin: const EdgeInsets.only(top: 20, bottom: 20, left: 15, right: 20),
+          margin:
+              const EdgeInsets.only(top: 20, bottom: 20, left: 15, right: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -113,7 +127,24 @@ class _SplitExpenseCardState extends State<SplitExpenseCard> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  _getIsLentText(),
+                  FutureBuilder(
+                    future: _getIsLentText(), 
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return snapshot.data!;
+                      } else {
+                        return const Text(
+                          'Total',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  if (!widget.isSettle)
+                    const SizedBox(height: 5),
                   Text(
                     'RM ${widget.totalAmount.toStringAsFixed(2)}',
                     style: const TextStyle(

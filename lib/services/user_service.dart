@@ -21,4 +21,16 @@ class UserService {
       return '';
     }
   }
+
+  static Future<String> getNameByID(String id) async {
+    try {
+      return await FirebaseInstance.firestore.collection('users')
+          .doc(id)
+          .get()
+          .then((doc) => doc['name']);
+    } catch (e) {
+      debugPrint('Error on getting name by ID: $e');
+      return '';
+    }
+  }
 }
