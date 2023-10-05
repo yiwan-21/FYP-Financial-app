@@ -54,15 +54,18 @@ class _GroupSettingsState extends State<GroupSettings> {
       _formKey.currentState!.save();
       _isAddingMember(false);
 
-      GroupUser? member = await SplitMoneyService.hasAccount(_targetEmail);
-      if (context.mounted) {
+      await SplitMoneyService.getAccountByEmail(_targetEmail).then((member) async{
         if (member != null) {
-          Provider.of<SplitMoneyProvider>(context, listen: false).addMember(member);
+          // Provider.of<SplitMoneyProvider>(context, listen: false).addMember(member);
+          await SplitMoneyService.sendGroupRequest(member).then((result) {
+            SnackBar snackBar = SnackBar(content: Text(result));
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          });
         } else {
           SnackBar snackBar = SnackBar(content: Text(ExceptionMessage.noSuchUser));
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
         }
-      }
+      });
     }
   }
 

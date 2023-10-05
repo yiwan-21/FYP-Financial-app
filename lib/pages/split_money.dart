@@ -6,7 +6,9 @@ import '../constants/constant.dart';
 import '../constants/style_constant.dart';
 import '../components/manage_group.dart';
 import '../components/split_group_card.dart';
+import '../firebase_instance.dart';
 import '../services/split_money_service.dart';
+import '../services/user_service.dart';
 
 class SplitMoney extends StatefulWidget {
   const SplitMoney({super.key});
@@ -137,6 +139,7 @@ class GroupRequest extends StatefulWidget {
 
 class _GroupRequestState extends State<GroupRequest> {
   bool _expanded = true;
+  final Stream<QuerySnapshot> _stream = SplitMoneyService.getGroupRequestStream();
 
   bool get _topDownAlign {
     return Constant.isMobile(context) || Constant.isTablet(context);
@@ -180,14 +183,57 @@ class _GroupRequestState extends State<GroupRequest> {
           ),
           if (_expanded)
             Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: const BouncingScrollPhysics(),
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return SplitGroupRequest(
-                      'Testing 123 123 123 123 Group $index', 'inviter 1');
-                },
+              child: StreamBuilder<QuerySnapshot>(
+                stream: _stream,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Something went wrong: ${snapshot.error}');
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                      child: Text('No group request yet'),
+                    );
+                  }
+
+                  final String uid = FirebaseInstance.auth.currentUser!.uid;
+                  snapshot.data!.docs
+                      .retainWhere((doc) =>
+                          List<Map>.from(doc['requests']).any((obj) => 
+                              obj['to'] == uid)
+                      );
+                  List<Future<SplitGroupRequest>> groupRequests = snapshot.data!.docs
+                      .map((doc) async { 
+                        String from = List<Map>.from(doc['requests']).firstWhere((obj) => obj['to'] == uid)['from'];
+                        return await UserService.getNameByID(from).then((name) {
+                          return SplitGroupRequest(doc.id ,doc['name'], name);
+                        });
+                      }).toList();
+                  return ListView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: groupRequests.length,
+                    itemBuilder: (context, index) {
+                      return FutureBuilder(
+                        future: groupRequests[index],
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting ) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );  
+                          }
+                          if (snapshot.hasError) {
+                            return Text('Something went wrong: ${snapshot.error}');
+                          }
+                          return snapshot.data!;
+                        },
+                      );
+                    },
+                  );
+                }
               ),
             ),
         ],

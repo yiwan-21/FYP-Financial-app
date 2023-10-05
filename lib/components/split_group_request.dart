@@ -2,20 +2,27 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/constant.dart';
+import '../services/split_money_service.dart';
 
 class SplitGroupRequest extends StatefulWidget {
+  final String groupID;
   final String groupName;
   final String name;
 
-  const SplitGroupRequest(this.groupName, this.name, {super.key});
+  const SplitGroupRequest(this.groupID, this.groupName, this.name, {super.key});
 
   @override
   State<SplitGroupRequest> createState() => _SplitGroupRequestState();
 }
 
 class _SplitGroupRequestState extends State<SplitGroupRequest> {
-  void _accept() {}
-  void _ignore() {}
+  Future<void> _accept() async {
+    await SplitMoneyService.acceptGroupRequest(widget.groupID);
+  }
+  
+  Future<void> _ignore() async {
+    await SplitMoneyService.deleteGroupRequest(widget.groupID);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,28 +34,25 @@ class _SplitGroupRequestState extends State<SplitGroupRequest> {
       ),
       child: Row(
         children: [
-          Flexible(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.groupName,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.groupName,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
-                Text(
-                  'from ${widget.name}',
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.black54,
-                  ),
+              ),
+              Text(
+                'from ${widget.name}',
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.black54,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
           const Spacer(),
           ElevatedButton(
