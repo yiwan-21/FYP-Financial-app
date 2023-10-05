@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:financial_app/components/split_expense_card.dart';
 import 'package:flutter/material.dart';
 
+import '../constants/message_constant.dart';
 import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
 import '../components/split_group_card.dart';
@@ -82,6 +83,15 @@ class SplitMoneyService {
     );
 
     return group;
+  }
+
+  static Stream<QuerySnapshot> getGroupRequestStream() {
+    if (FirebaseInstance.auth.currentUser == null) {
+      return const Stream.empty();
+    }
+    return groupsCollection
+        .where('requests', isNotEqualTo: [])
+        .snapshots();
   }
 
   static Future<List<SplitExpenseCard>> getExpenseCards(String groupID) async {
@@ -228,7 +238,7 @@ class SplitMoneyService {
     });
   }
 
-  static Future<GroupUser?> hasAccount(String targetEmail) async {
+  static Future<GroupUser?> getAccountByEmail(String targetEmail) async {
     return await FirebaseInstance.firestore
         .collection('users')
         .where('email', isEqualTo: targetEmail)
@@ -247,6 +257,51 @@ class SplitMoneyService {
     });
   }
 
+  static Future<String> sendGroupRequest(GroupUser target) async {
+    return await groupsCollection.doc(_groupID)
+    .get()
+    .then((snapshot) async {
+      if (!List<String>.from(snapshot['members']).contains('users/${target.id}')) { 
+        snapshot.reference.update({
+          'requests': FieldValue.arrayUnion([{
+            'to': target.id,
+            'from': FirebaseInstance.auth.currentUser!.uid,
+          }])
+        });
+        return SuccessMessage.invitationSent;
+      } else {
+        return ExceptionMessage.alreadyInGroup;
+      }
+    });
+  }
+
+  static Future<void> acceptGroupRequest(String groupID) async {
+    String uid = FirebaseInstance.auth.currentUser!.uid;
+    await groupsCollection
+        .doc(groupID)
+        .get()
+        .then((snapshot) async {
+          List<Map> requests = List<Map>.from(snapshot['requests']);
+          requests.removeWhere((request) => request['to'] == uid);
+          await snapshot.reference.update({
+            'members': FieldValue.arrayUnion(['users/$uid']),
+            'requests': requests,
+          });
+        });
+  }
+
+  static Future<void> deleteGroupRequest(String groupID) async {
+    String uid = FirebaseInstance.auth.currentUser!.uid;
+    await groupsCollection
+        .doc(groupID)
+        .get()
+        .then((snapshot) async {
+          List<Map> requests = List<Map>.from(snapshot['requests']);
+          requests.removeWhere((request) => request['to'] == uid);
+          await snapshot.reference.update({'requests': requests});
+        });
+  }
+  
   static Future<void> addMember(GroupUser member) async {
     await groupsCollection.doc(_groupID).update({
       'members': FieldValue.arrayUnion(['users/${member.id}'])
@@ -444,6 +499,9 @@ class SplitMoneyService {
   }
 
   static Future<String> getGroupName(String groupID) async {
+    if (groupID.isEmpty) {
+      return '';
+    }
     String groupName = '';
     try {
       await groupsCollection.doc(groupID).get().then((snapshot) {

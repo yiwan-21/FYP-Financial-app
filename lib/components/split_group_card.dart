@@ -41,7 +41,6 @@ class _SplitGroupCardState extends State<SplitGroupCard> {
             const SizedBox(width: 10),
             Column(
               children: [
-                //TODO: total owe and lent
                 Text(
                   widget.groupName,
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),

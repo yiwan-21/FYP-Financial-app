@@ -24,12 +24,13 @@ class ValidatorMessage {
 }
 
 class SuccessMessage {
-  static String resetPassword =
-      "Password reset email has been sent to your email address.";
+  static String resetPassword = "Password reset email has been sent to your email address.";
+  static String invitationSent = "An group invitation has been sent to the user.";
 }
 
 class ExceptionMessage {
   static String noSuchUser = "No user found for this email.";
+  static String alreadyInGroup = "The user is already in this group.";
 }
 
 class AuthExceptionMessage {
