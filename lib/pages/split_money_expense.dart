@@ -69,7 +69,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense>
         }
 
         // the user is currently on the chat page, no need to search for unread messages
-        if (_tabController.index == 1) {
+        if (_tabController.index == 1 || !Constant.isMobile(context)) {
           // real time update the read status when message arrives
           updateReadStatus();
           return;
@@ -210,16 +210,11 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense>
                   constraints: const BoxConstraints(maxWidth: 500),
                   child: const Card(
                     elevation: 10,
-                    margin: EdgeInsets.only(top: 20, bottom: 20, left: 10),
+                    margin: EdgeInsets.only(top: 20, bottom: 40, left: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(0)),
                     ),
-                    child: Padding(
-                      padding: EdgeInsets.only(bottom: 8.0),
-                      child: Expanded(
-                        child: Chat(),
-                      ),
-                    ),
+                    child: Chat(),
                   ),
                 ),
               ),
