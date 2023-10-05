@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../constants/constant.dart';
 import '../firebase_instance.dart';
 import '../constants/style_constant.dart';
 import '../providers/notification_provider.dart';
@@ -198,17 +199,28 @@ class _ChatState extends State<Chat> {
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-                color: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 10),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: Constant.isMobile(context) ? 0 : 5),
+                decoration:  BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey[400] ?? Colors.grey,
+                      offset: const Offset(0, -2),
+                      blurRadius: 4,
+                      blurStyle: BlurStyle.outer
+                    ),
+                  ],
+                ),
                 child: Row(
                   children: [
                     Expanded(
                       child: TextFormField(
                         controller: _controller,
                         decoration: const InputDecoration(
-                            hintText: "Send a message...",
-                            hintStyle: TextStyle(fontSize: 16),
-                            border: InputBorder.none),
+                          hintText: "Send a message...",
+                          hintStyle: TextStyle(fontSize: 16),
+                          border: InputBorder.none,
+                        ),
                         onChanged: (value) {
                           setState(() {
                             _sendMessage = value;
@@ -220,16 +232,24 @@ class _ChatState extends State<Chat> {
                     GestureDetector(
                       onTap: _send,
                       child: Container(
-                          height: 40,
-                          width: 40,
-                          decoration: const BoxDecoration(
-                            color: ColorConstant.lightBlue,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.send_rounded,
-                            size: 20,
-                          )),
+                        height: 40,
+                        width: 40,
+                        decoration: const BoxDecoration(
+                          color: ColorConstant.lightBlue,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black26,
+                              offset: Offset(2, 2),
+                              blurRadius: 4,
+                            )
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.send_rounded,
+                          size: 20,
+                        ),
+                      ),
                     )
                   ],
                 )),
