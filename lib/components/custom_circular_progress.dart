@@ -44,8 +44,8 @@ class CustomCircularProgress extends CustomPainter {
         ..strokeWidth = strokeWidth,
     );
     canvas.saveLayer(
-      // radius * 5 to make sure the circle won't be clipped
-      Rect.fromCenter(center: center, width: radius * 5, height: radius * 5),
+      // radius * 10 to make sure the circle won't be clipped
+      Rect.fromCenter(center: center, width: radius * 10, height: radius * 10),
       Paint(),
     );
 
