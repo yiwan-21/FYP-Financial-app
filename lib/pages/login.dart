@@ -18,8 +18,14 @@ class _LoginState extends State<Login> {
   String _password = '';
   String _emailReset = '';
 
-  void login() {
-    Auth.login(_email, _password, context);
+  Future<void> onSubmit() async {
+    if (_formKey.currentState!.validate()) {
+      await login();
+    }
+  }
+
+  Future<void> login() async {
+    await Auth.login(_email, _password, context);
   }
 
   void resetPassword() async {
@@ -37,9 +43,11 @@ class _LoginState extends State<Login> {
         } else if (e.code == AuthExceptionMessage.invalidEmail.getCode) {
           msg = AuthExceptionMessage.invalidEmail.getMessage;
         }
-        Navigator.pop(context);
-        SnackBar snackBar = SnackBar(content: Text(msg));
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        if (mounted && context.mounted) {
+          Navigator.pop(context);
+          SnackBar snackBar = SnackBar(content: Text(msg));
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }
       }
     }
   }
@@ -84,6 +92,7 @@ class _LoginState extends State<Login> {
                       }
                       return null;
                     },
+                    onFieldSubmitted: (_) async => await onSubmit(),
                   ),
                   const SizedBox(height: 16.0),
                   TextFormField(
@@ -104,6 +113,7 @@ class _LoginState extends State<Login> {
                       }
                       return null;
                     },
+                    onFieldSubmitted: (_) async => await onSubmit(),
                   ),
                   const SizedBox(height: 32.0),
                   TextButton(
@@ -165,12 +175,8 @@ class _LoginState extends State<Login> {
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                           minimumSize: const Size(180, 40)),
+                      onPressed: () async => await onSubmit(),
                       child: const Text('Login'),
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          login();
-                        }
-                      },
                     ),
                   )
                 ],
