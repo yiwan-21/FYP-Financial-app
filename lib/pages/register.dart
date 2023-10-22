@@ -16,8 +16,14 @@ class _RegisterState extends State<Register> {
   String _email = '';
   String _password = '';
 
-  void signup() async {
-    Auth.signup(_email, _password, _name, context);
+  Future<void> onSubmit() async {
+    if (_formKey.currentState!.validate()) {
+      await signup();
+    }
+  }
+
+  Future<void> signup() async {
+    await Auth.signup(_email, _password, _name, context);
   }
 
   @override
@@ -44,40 +50,44 @@ class _RegisterState extends State<Register> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: 'Username',
-                        prefixIcon: Icon(Icons.person),
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          _name = value.trim();
-                        });
-                      },
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return ValidatorMessage.emptyUsername;
-                        }
-                        return null;
-                      }),
+                    decoration: const InputDecoration(
+                      labelText: 'Username',
+                      prefixIcon: Icon(Icons.person),
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _name = value.trim();
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return ValidatorMessage.emptyUsername;
+                      }
+                      return null;
+                    },
+                    onFieldSubmitted: (_) async => await onSubmit(),
+                  ),
                   const SizedBox(height: 16.0),
                   TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: Icon(Icons.email),
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          _email = value.trim();
-                        });
-                      },
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return ValidatorMessage.emptyEmail;
-                        }
-                        return null;
-                      }),
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: Icon(Icons.email),
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _email = value.trim();
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return ValidatorMessage.emptyEmail;
+                      }
+                      return null;
+                    },
+                    onFieldSubmitted: (_) async => await onSubmit(),
+                  ),
                   const SizedBox(height: 16.0),
                   TextFormField(
                     obscureText: true,
@@ -100,6 +110,7 @@ class _RegisterState extends State<Register> {
                       }
                       return null;
                     },
+                    onFieldSubmitted: (_) async => await onSubmit(),
                   ),
                   const SizedBox(height: 16.0),
                   TextFormField(
@@ -115,17 +126,14 @@ class _RegisterState extends State<Register> {
                       }
                       return null;
                     },
+                    onFieldSubmitted: (_) async => await onSubmit(),
                   ),
                   const SizedBox(height: 32.0),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         minimumSize: const Size(180, 40)),
                     child: const Text('Register'),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        signup();
-                      }
-                    },
+                    onPressed: () async => await onSubmit(),
                   ),
                 ],
               ),

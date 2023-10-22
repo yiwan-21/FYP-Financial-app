@@ -39,8 +39,10 @@ class Auth {
       } else if (e.code == AuthExceptionMessage.invalidEmail.getCode) {
         msg = AuthExceptionMessage.invalidEmail.getMessage;
       }
-      SnackBar snackBar = SnackBar(content: Text(msg));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      if (context.mounted) {
+        SnackBar snackBar = SnackBar(content: Text(msg));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
     }
   }
 
@@ -75,8 +77,10 @@ class Auth {
       if (e.code == AuthExceptionMessage.invalidEmail.getCode) {
         msg = AuthExceptionMessage.invalidEmail.getMessage;
       }
-      SnackBar snackBar = SnackBar(content: Text(msg));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      if (context.mounted) {
+        SnackBar snackBar = SnackBar(content: Text(msg));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
     }
   }
 
