@@ -70,13 +70,13 @@ class _TrackerState extends State<Tracker> {
             children: [
               const Text(
                 "Transactions (RM)",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               DropdownButton<String>(
                 value: _selectedItem,
                 icon: const Icon(Icons.filter_alt_outlined), // Icon to display
-                iconSize: 24,
+                iconSize: 22,
                 elevation: 16,
                 hint: const Text('Filter'),
                 onChanged: (newValue) {

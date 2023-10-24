@@ -305,7 +305,7 @@ class _GoalProgressState extends State<GoalProgress> {
                           color: Colors.grey)),
                   Text('RM ${_saved.toStringAsFixed(2)}',
                       style: const TextStyle(
-                        fontSize: 28,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                       )),
                 ],
@@ -323,7 +323,7 @@ class _GoalProgressState extends State<GoalProgress> {
                                 color: Colors.grey)),
                         Text('RM ${_remaining.toStringAsFixed(2)}',
                             style: const TextStyle(
-                              fontSize: 28,
+                              fontSize: 24,
                               fontWeight: FontWeight.bold,
                             )),
                       ],

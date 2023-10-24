@@ -67,7 +67,7 @@ class _BudgetCardState extends State<BudgetCard> {
                     'RM ${widget.amount.toStringAsFixed(2)}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 22,
+                      fontSize: 18,
                     ),
                   ),
                 ],

@@ -57,7 +57,7 @@ class _SplitRecordCardState extends State<SplitRecordCard> {
                   'RM ${_getRemainingAmount()}',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                    fontSize: 18,
                     color: Colors.black,
                   ),
                 ),

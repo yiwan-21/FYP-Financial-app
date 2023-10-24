@@ -129,7 +129,7 @@ class _GoalState extends State<Goal> {
                         'RM ${widget.amount.toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 20,
+                          fontSize: 18,
                           color: Colors.black,
                         ),
                       ),
