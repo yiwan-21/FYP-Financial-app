@@ -1,11 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import '../firebase_instance.dart';
+import '../services/user_service.dart';
+import '../utils/gallery_utils.dart';
 import '../constants/route_name.dart';
 import '../providers/user_provider.dart';
 import '../services/auth.dart';
@@ -22,53 +20,27 @@ class _ProfileState extends State<Profile> {
     Auth.signout(context);
   }
 
-// Pick from gallery
+  // Pick from gallery
   void galleryImage() async {
-    final picker = ImagePicker();
-    XFile? pickedImage = await picker.pickImage(
-      source: ImageSource.gallery,
-    );
+    var pickedImage = await pickFromGallery();
     if (pickedImage != null) {
-      if (kIsWeb) {
-        var pickedImageFile = await pickedImage.readAsBytes();
-        final storageRef = FirebaseInstance.storage
-            .ref('profile/${FirebaseInstance.auth.currentUser!.uid}');
-        await storageRef.putData(pickedImageFile);
-      } else {
-        final pickedImageFile = File(pickedImage.path);
-        final storageRef = FirebaseInstance.storage
-            .ref('profile/${FirebaseInstance.auth.currentUser!.uid}');
-        await storageRef.putFile(pickedImageFile);
-      }
-      if (context.mounted) {
+      await UserService.setProfileImage(pickedImage).then((String url) {
         final userProvider = Provider.of<UserProvider>(context, listen: false);
-        userProvider.updateProfileImage();
-      }
-    }
-    if (context.mounted) {
-      Navigator.pop(context);
+        userProvider.updateProfileImage(url);
+        Navigator.pop(context);
+      });
     }
   }
 
-// Pick from camera
+  // Pick from camera
   void cameraImage() async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(
-      source: ImageSource.camera,
-    );
+    var pickedImage = await pickFromCamera();
     if (pickedImage != null) {
-      final pickedImageFile = File(pickedImage.path);
-      final storageRef = FirebaseInstance.storage
-          .ref('profile/${FirebaseInstance.auth.currentUser!.uid}');
-      await storageRef.putFile(pickedImageFile);
-
-      if (context.mounted) {
+      await UserService.setProfileImage(pickedImage).then((String url) {
         final userProvider = Provider.of<UserProvider>(context, listen: false);
-        userProvider.updateProfileImage();
-      }
-    }
-    if (context.mounted) {
-      Navigator.pop(context);
+        userProvider.updateProfileImage(url);
+          Navigator.pop(context);
+      });
     }
   }
 
