@@ -88,7 +88,7 @@ class _ManageGroupState extends State<ManageGroup> {
                       onTap: _groupImage,
                       child: const Icon(
                         Icons.add_a_photo,
-                        size: 100,
+                        size: 60,
                       ), // to be changed to read the group image from firebase
                     ),
                   ),

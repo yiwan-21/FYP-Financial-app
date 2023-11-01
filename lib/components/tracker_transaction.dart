@@ -148,7 +148,7 @@ class _TrackerTransactionState extends State<TrackerTransaction> {
                             '${widget.isExpense ? "-" : "+"}${widget.amount.toStringAsFixed(2)}',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 20,
+                              fontSize: 18,
                               color: Colors.black,
                             ),
                             overflow: TextOverflow.ellipsis,

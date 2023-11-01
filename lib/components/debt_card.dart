@@ -32,7 +32,9 @@ class DebtCard extends StatefulWidget {
         amount = doc['amount'].toDouble(),
         interests = doc['interest'].toDouble(),
         // using double.parse to round up the decimal places
-        plan = double.parse((doc['amount'] * ((doc['interest'] + 100) / 100) / doc['duration']).toStringAsFixed(2)),
+        plan = double.parse(
+            (doc['amount'] * ((doc['interest'] + 100) / 100) / doc['duration'])
+                .toStringAsFixed(2)),
         history = List<Map<String, dynamic>>.from(doc['history']);
 
   @override
@@ -168,6 +170,22 @@ class _DebtCardState extends State<DebtCard> {
               ],
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (widget.history.isEmpty ||
+                    widget.history.last['balance'] >= 0)
+                  IconButton(
+                    iconSize: 20,
+                    splashRadius: 10,
+                    onPressed: _payDebtDialog,
+                    icon: const Icon(Icons.payment_sharp),
+                    color: Colors.brown,
+                    alignment: Alignment.topRight,
+                    padding: const EdgeInsets.all(0),
+                  ),
+              ],
+            ),
+            Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 const Icon(Icons.access_time, size: 20),
@@ -177,22 +195,11 @@ class _DebtCardState extends State<DebtCard> {
                 const Icon(Icons.auto_graph_rounded, size: 20),
                 const SizedBox(width: 3),
                 Text('Interests: ${widget.interests}%'),
-                if(widget.history.isEmpty || widget.history.last['balance'] >=0)
-                IconButton(
-                  iconSize: 20,
-                  splashRadius: 10,
-                  onPressed: _payDebtDialog,
-                  icon: const Icon(Icons.payment_sharp),
-                  color: Colors.brown,
-                  alignment: Alignment.topRight,
-                  padding: const EdgeInsets.all(0),
-                ),
               ],
             ),
             if (widget.history.isNotEmpty)
               const Divider(thickness: 1, height: 10),
-            if (widget.history.isNotEmpty)
-              const SizedBox(height: 10),
+            if (widget.history.isNotEmpty) const SizedBox(height: 10),
             if (widget.history.isNotEmpty)
               Table(
                 columnWidths: const <int, TableColumnWidth>{

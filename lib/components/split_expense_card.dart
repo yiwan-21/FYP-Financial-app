@@ -149,7 +149,7 @@ class _SplitExpenseCardState extends State<SplitExpenseCard> {
                     'RM ${widget.totalAmount.toStringAsFixed(2)}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 20,
+                      fontSize: 18,
                       color: Colors.black,
                     ),
                   ),
