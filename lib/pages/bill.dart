@@ -113,6 +113,22 @@ class _BillState extends State<Bill> {
                       ),
                       textAlign: TextAlign.center,
                     ),
+                    if (!Constant.isMobile(context)) // if not in mobile view
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Container(
+                          margin: const EdgeInsets.all(8.0),
+                          child: FloatingActionButton(
+                            backgroundColor: ColorConstant.lightBlue,
+                            onPressed: _addBill,
+                            child: const Icon(
+                              Icons.edit_note,
+                              size: 27,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
                     const SizedBox(height: 10),
                     ...List.generate(bills.length, (index) => bills[index]),
                   ],
@@ -133,23 +149,7 @@ class _BillState extends State<Bill> {
                 color: Colors.black,
               ),
             )
-          : Stack(
-              children: [
-                Positioned(
-                  right: (MediaQuery.of(context).size.width - 768) / 2,
-                  top: 200,
-                  child: FloatingActionButton(
-                    backgroundColor: ColorConstant.lightBlue,
-                    onPressed: _addBill,
-                    child: const Icon(
-                      Icons.edit_note,
-                      size: 27,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          : null,
     );
   }
 }

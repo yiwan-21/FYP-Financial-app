@@ -349,7 +349,7 @@ class _ExpenseRecordsState extends State<ExpenseRecords> {
                   'RM ${widget.expense.amount.toStringAsFixed(2)}',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 36,
+                    fontSize: 34,
                   ),
                 ),
                 const SizedBox(height: 8),
