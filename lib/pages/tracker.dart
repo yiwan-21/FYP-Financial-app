@@ -67,32 +67,36 @@ class _TrackerState extends State<Tracker> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "Transactions (RM)",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Column(
+                children: [
+                  const Text(
+                    "Transactions (RM)",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10,),
+                  DropdownButton<String>(
+                    value: _selectedItem,
+                    icon: const Icon(Icons.filter_alt_outlined), // Icon to display
+                    iconSize: 22,
+                    elevation: 16,
+                    hint: const Text('Filter'),
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedItem = newValue!;
+                      });
+                    },
+                    items:
+                        _categories.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ],
               ),
-              const SizedBox(width: 10),
-              DropdownButton<String>(
-                value: _selectedItem,
-                icon: const Icon(Icons.filter_alt_outlined), // Icon to display
-                iconSize: 22,
-                elevation: 16,
-                hint: const Text('Filter'),
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedItem = newValue!;
-                  });
-                },
-                items:
-                    _categories.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-              const Spacer(),
               FloatingActionButton.small(
                 elevation: 2,
                 onPressed: _addTransaction,
