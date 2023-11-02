@@ -203,10 +203,22 @@ class _GroupSettingsState extends State<GroupSettings> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.diversity_3,
-                    size: 60,
-                    color: Colors.black,
+                  Consumer<SplitMoneyProvider>(
+                    builder: (context, splitMoneyProvider, _) {
+                      if (splitMoneyProvider.image != null) {
+                        return CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Colors.transparent,
+                          backgroundImage: NetworkImage(splitMoneyProvider.image!),
+                        );
+                      } else {
+                        return const Icon(
+                          Icons.diversity_3,
+                          size: 60,
+                          color: Colors.black,
+                        );
+                      }
+                    },
                   ),
                   const SizedBox(width: 20),
                   Consumer<SplitMoneyProvider>(

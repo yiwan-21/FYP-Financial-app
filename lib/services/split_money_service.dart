@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:financial_app/components/split_expense_card.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/message_constant.dart';
@@ -40,6 +41,17 @@ class SplitMoneyService {
         .where('members',
             arrayContains: 'users/${FirebaseInstance.auth.currentUser!.uid}')
         .snapshots();
+  }
+
+  // get group image
+  static Future<String?> getGroupImage(String groupID) async {
+    try {
+      final groupRef = FirebaseInstance.storage.ref('group/');
+      return await groupRef.child(groupID).getDownloadURL();
+    } catch (e) {
+      debugPrint('Error on getting group image: $e');
+      return null;
+    }
   }
 
   static Stream<DocumentSnapshot> getSingleGroupStream(String? groupID) {
@@ -230,12 +242,19 @@ class SplitMoneyService {
     return memberID;
   }
 
-  static Future<void> addGroup(String groupName) async {
-    await groupsCollection.add({
+  static Future<DocumentReference> addGroup(String groupName) async {
+    return await groupsCollection.add({
       'name': groupName,
       'owner': 'users/${FirebaseInstance.auth.currentUser!.uid}',
       'members': ['users/${FirebaseInstance.auth.currentUser!.uid}'],
     });
+  }
+
+  static Future<String> setGroupImage(pickedImageFile, String groupID) async {
+    final storageRef = FirebaseInstance.storage
+        .ref('group/$groupID');
+    TaskSnapshot task = await storageRef.putFile(pickedImageFile);
+    return await task.ref.getDownloadURL();
   }
 
   static Future<GroupUser?> getAccountByEmail(String targetEmail) async {

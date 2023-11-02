@@ -15,12 +15,14 @@ class SplitMoneyProvider extends ChangeNotifier {
   SplitGroup get splitGroup => _splitGroup;
   String? get id => splitGroup.id;
   String? get name => _splitGroup.name;
+  String? get image => _splitGroup.image;
   String? get ownerId => _splitGroup.owner;
   List<GroupUser>? get members => _splitGroup.members;
   List<SplitExpenseCard>? get expenses => _splitGroup.expenses;
 
   Future<SplitGroup> setNewSplitGroup(String id) async {
     _splitGroup = await SplitMoneyService.getGroupByID(id);
+    _splitGroup.image = await SplitMoneyService.getGroupImage(id);
     notifyListeners();
     return _splitGroup;
   }
@@ -40,6 +42,10 @@ class SplitMoneyProvider extends ChangeNotifier {
     SplitMoneyService.updateGroupName(name);
     _splitGroup.name = name;
     notifyListeners();
+  }
+
+  void setImage(String url) {
+    _splitGroup.image = url;
   }
 
   // no need wait for response so no async (?)
