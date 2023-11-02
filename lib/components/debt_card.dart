@@ -164,25 +164,9 @@ class _DebtCardState extends State<DebtCard> {
                   onPressed: _editDebt,
                   icon: const Icon(Icons.edit),
                   color: Colors.brown,
-                  alignment: Alignment.topRight,
+                  alignment: Alignment.topCenter,
                   padding: const EdgeInsets.all(0),
                 ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                if (widget.history.isEmpty ||
-                    widget.history.last['balance'] >= 0)
-                  IconButton(
-                    iconSize: 20,
-                    splashRadius: 10,
-                    onPressed: _payDebtDialog,
-                    icon: const Icon(Icons.payment_sharp),
-                    color: Colors.brown,
-                    alignment: Alignment.topRight,
-                    padding: const EdgeInsets.all(0),
-                  ),
               ],
             ),
             Row(
@@ -191,10 +175,27 @@ class _DebtCardState extends State<DebtCard> {
                 const Icon(Icons.access_time, size: 20),
                 const SizedBox(width: 3),
                 Text('$_year years and $_month months'),
-                const Spacer(),
+                
+              ],
+            ),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
                 const Icon(Icons.auto_graph_rounded, size: 20),
                 const SizedBox(width: 3),
                 Text('Interests: ${widget.interests}%'),
+                const Spacer(),
+                 if (widget.history.isEmpty ||
+                    widget.history.last['balance'] >= 0)
+                  IconButton(
+                    iconSize: 20,
+                    splashRadius: 10,
+                    onPressed: _payDebtDialog,
+                    icon: const Icon(Icons.payment_sharp),
+                    color: Colors.brown,
+                    alignment: Alignment.center,
+                  ),
               ],
             ),
             if (widget.history.isNotEmpty)
