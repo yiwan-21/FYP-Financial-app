@@ -114,7 +114,7 @@ class _TrackerTransactionState extends State<TrackerTransaction> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           SizedBox(
-                            width: 140, // Adjust the width as needed
+                            width: 130, // Adjust the width as needed
                             child: Text(
                               widget.title,
                               style: const TextStyle(
@@ -143,7 +143,7 @@ class _TrackerTransactionState extends State<TrackerTransaction> {
                           horizontal: 10,
                         ),
                         child: SizedBox(
-                          width: 100,
+                          width: 95,
                           child: Text(
                             '${widget.isExpense ? "-" : "+"}${widget.amount.toStringAsFixed(2)}',
                             style: const TextStyle(
