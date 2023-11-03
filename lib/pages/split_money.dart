@@ -192,7 +192,8 @@ class _GroupRequestState extends State<GroupRequest> {
                     );
                   }
                   if (snapshot.hasError) {
-                    return Text('Something went wrong: ${snapshot.error}');
+                    debugPrint('Something went wrong in all group requests: ${snapshot.error}');
+                    return const Text('');
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return const Center(
@@ -201,14 +202,21 @@ class _GroupRequestState extends State<GroupRequest> {
                   }
 
                   final String uid = FirebaseInstance.auth.currentUser!.uid;
-                  snapshot.data!.docs
-                      .retainWhere((doc) =>
-                          List<Map>.from(doc['requests']).any((obj) => 
-                              obj['to'] == uid)
-                      );
-                  List<Future<SplitGroupRequest>> groupRequests = snapshot.data!.docs
+                  List<QueryDocumentSnapshot> docs = snapshot.data!.docs;
+                  docs.retainWhere((doc) => List<Map>.from(doc['requests']).any((obj) {
+                    return obj['to'] == uid;
+                  }));
+
+                  if (docs.isEmpty) {
+                    return const Center(
+                      child: Text('No group request yet'),
+                    );
+                  }
+
+                  List<Future<SplitGroupRequest>> groupRequests = docs
                       .map((doc) async { 
-                        String from = List<Map>.from(doc['requests']).firstWhere((obj) => obj['to'] == uid)['from'];
+                        List<Map> req = List<Map>.from(doc['requests']);
+                        String from = req.firstWhere((obj) => obj['to'] == uid)['from'];
                         return await UserService.getNameByID(from).then((name) {
                           return SplitGroupRequest(doc.id ,doc['name'], name);
                         });
@@ -226,7 +234,8 @@ class _GroupRequestState extends State<GroupRequest> {
                             );  
                           }
                           if (snapshot.hasError) {
-                            return Text('Something went wrong: ${snapshot.error}');
+                            debugPrint('Something went wrong in filter group Requests: ${snapshot.error}');
+                            return const Text('');
                           }
                           return snapshot.data!;
                         },

@@ -20,6 +20,9 @@ class _SplitGroupCardState extends State<SplitGroupCard> {
     Provider.of<SplitMoneyProvider>(context, listen: false).setNewSplitGroup(widget.groupID);
     Navigator.pushNamed(context, RouteName.splitMoneyGroup, arguments: {'id': widget.groupID}).then((_) {
       SplitMoneyService.resetGroupID();
+      if (mounted && context.mounted) {
+        setState(() {});
+      }
     });
   }
   
@@ -32,11 +35,23 @@ class _SplitGroupCardState extends State<SplitGroupCard> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            //TODO: changeable photo
-            const Icon(
-              Icons.diversity_3,
-              size: 55,
-              color: Colors.black,
+            FutureBuilder(
+              future: SplitMoneyService.getGroupImage(widget.groupID), 
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Colors.transparent,
+                    backgroundImage: NetworkImage(snapshot.data as String),
+                  );
+                } else {
+                  return const Icon(
+                    Icons.diversity_3,
+                    size: 55,
+                    color: Colors.black,
+                  );
+                }
+              },
             ),
             const SizedBox(width: 10),
             Column(

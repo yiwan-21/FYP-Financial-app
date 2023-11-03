@@ -1,12 +1,10 @@
-import 'dart:io';
-
+import 'package:financial_app/utils/gallery_utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
-import '../firebase_instance.dart';
 import '../providers/split_money_provider.dart';
 import '../services/split_money_service.dart';
 
@@ -20,6 +18,8 @@ class ManageGroup extends StatefulWidget {
 
 class _ManageGroupState extends State<ManageGroup> {
   final _formKey = GlobalKey<FormState>();
+  var pickedImage = null;
+  bool setGroupImage = false;
 
   String _groupName = '';
 
@@ -35,33 +35,39 @@ class _ManageGroupState extends State<ManageGroup> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      await SplitMoneyService.addGroup(_groupName).then((_) {
-        Navigator.pop(context);
+      await SplitMoneyService.addGroup(_groupName).then((docRef) async {
+        if (setGroupImage && pickedImage != null) {
+          await SplitMoneyService.setGroupImage(pickedImage, docRef.id);
+        }
+        if (mounted && context.mounted) {
+          Navigator.pop(context);
+        }
       });
     }
   }
 
-  void _editGroup() {
+  Future<void> _editGroup() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      Provider.of<SplitMoneyProvider>(context, listen: false).updateName(_groupName);
-      Navigator.pop(context);
+      SplitMoneyProvider splitMoneyProvider = Provider.of<SplitMoneyProvider>(context, listen: false);
+      splitMoneyProvider.updateName(_groupName);
+      if (setGroupImage && pickedImage != null) {
+        await SplitMoneyService.setGroupImage(pickedImage, splitMoneyProvider.id!).then((String url) {
+          splitMoneyProvider.setImage(url);
+        });
+      }
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
     }
   }
 
-  void _groupImage() async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(
-      source: ImageSource.gallery,
-    );
+  void _setGroupImage() async {
+    pickedImage = await pickFromGallery();
     if (pickedImage != null) {
-      final pickedImageFile = File(pickedImage.path);
-      final storageRef = FirebaseInstance.storage
-          .ref('profile/${FirebaseInstance.auth.currentUser!.uid}');
-      await storageRef.putFile(pickedImageFile);
-    }
-    if (context.mounted) {
-      Navigator.pop(context);
+      setState(() {
+        setGroupImage = true;
+      });
     }
   }
 
@@ -78,21 +84,64 @@ class _ManageGroupState extends State<ManageGroup> {
               direction: Constant.isMobile(context) ? Axis.vertical : Axis.horizontal,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Material(
-                    child: InkWell(
-                      onTap: _groupImage,
-                      child: const Icon(
-                        Icons.add_a_photo,
-                        size: 60,
-                      ), // to be changed to read the group image from firebase
+                widget.isEditing && !setGroupImage
+                ? Consumer<SplitMoneyProvider>(
+                  builder: (context, splitMoneyProvider, _) {
+                    if (splitMoneyProvider.image != null) {
+                      return GestureDetector(
+                        onTap: _setGroupImage,
+                        child: CircleAvatar(
+                          radius: 60,
+                          backgroundColor: Colors.transparent,
+                          backgroundImage: NetworkImage(splitMoneyProvider.image!),
+                        ),
+                      );
+                    } else {
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Material(
+                          child: InkWell(
+                            onTap: _setGroupImage,
+                            child: const Icon(
+                              Icons.add_a_photo,
+                              size: 60,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                )
+                : setGroupImage
+                ? kIsWeb
+                  ? CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.transparent,
+                      backgroundImage: MemoryImage(pickedImage),
+                    )
+                  : CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.transparent,
+                      backgroundImage: FileImage(pickedImage),
+                    )
+                : Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Material(
+                      child: InkWell(
+                        onTap: _setGroupImage,
+                        child: const Icon(
+                          Icons.add_a_photo,
+                          size: 60,
+                        ),
+                      ),
                     ),
                   ),
-                ),
                 const SizedBox(width: 20, height: 20),
                 Flexible(
                   child: TextFormField(

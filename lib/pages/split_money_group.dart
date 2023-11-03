@@ -68,7 +68,8 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
             if (snapshot.connectionState == ConnectionState.waiting ||
                 snapshot.hasError ||
                 !snapshot.hasData ||
-                snapshot.data == null) {
+                snapshot.data == null ||
+                !snapshot.data!.exists) {
               return const Text('Group Expenses');
             }
 
@@ -116,10 +117,22 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.diversity_3,
-                    size: 60,
-                    color: Colors.black,
+                  Consumer<SplitMoneyProvider>(
+                    builder: (context, splitMoneyProvider, _) {
+                      if (splitMoneyProvider.image != null) {
+                        return CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Colors.transparent,
+                          backgroundImage: NetworkImage(splitMoneyProvider.image!),
+                        );
+                      } else {
+                        return const Icon(
+                          Icons.diversity_3,
+                          size: 60,
+                          color: Colors.black,
+                        );
+                      }
+                    },
                   ),
                   const SizedBox(width: 20),
                   StreamBuilder<DocumentSnapshot>(
@@ -127,7 +140,8 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting ||
                           !snapshot.hasData ||
-                          snapshot.data == null) {
+                          snapshot.data == null ||
+                          !snapshot.data!.exists) {
                         return const Center(child: CircularProgressIndicator());
                       }
                       if (snapshot.hasError) {

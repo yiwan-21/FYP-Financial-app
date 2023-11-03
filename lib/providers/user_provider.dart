@@ -43,8 +43,8 @@ class UserProvider extends ChangeNotifier {
     await reload();
   }
 
-  Future<void> updateProfileImage() async {
-    _profileImage = await UserService.getProfileImage();
+  Future<void> updateProfileImage(String url) async {
+    _profileImage = url;
     await reload();
   }
 
