@@ -16,18 +16,13 @@ class SplitGroupCard extends StatefulWidget {
 }
 
 class _SplitGroupCardState extends State<SplitGroupCard> {
-  Future<String?> imageFuture = Future.value(null);
-
-  @override
-  void initState() {
-    super.initState();
-    imageFuture = SplitMoneyService.getGroupImage(widget.groupID);
-  }
-
   void _initGroup() {
     Provider.of<SplitMoneyProvider>(context, listen: false).setNewSplitGroup(widget.groupID);
     Navigator.pushNamed(context, RouteName.splitMoneyGroup, arguments: {'id': widget.groupID}).then((_) {
       SplitMoneyService.resetGroupID();
+      if (mounted && context.mounted) {
+        setState(() {});
+      }
     });
   }
   
@@ -41,7 +36,7 @@ class _SplitGroupCardState extends State<SplitGroupCard> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             FutureBuilder(
-              future: imageFuture, 
+              future: SplitMoneyService.getGroupImage(widget.groupID), 
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return CircleAvatar(

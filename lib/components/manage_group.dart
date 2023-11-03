@@ -39,7 +39,7 @@ class _ManageGroupState extends State<ManageGroup> {
         if (setGroupImage && pickedImage != null) {
           await SplitMoneyService.setGroupImage(pickedImage, docRef.id);
         }
-        if (context.mounted) {
+        if (mounted && context.mounted) {
           Navigator.pop(context);
         }
       });

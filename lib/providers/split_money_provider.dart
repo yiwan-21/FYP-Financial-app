@@ -46,6 +46,7 @@ class SplitMoneyProvider extends ChangeNotifier {
 
   void setImage(String url) {
     _splitGroup.image = url;
+    notifyListeners();
   }
 
   // no need wait for response so no async (?)

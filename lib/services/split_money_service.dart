@@ -46,8 +46,8 @@ class SplitMoneyService {
   // get group image
   static Future<String?> getGroupImage(String groupID) async {
     try {
-      final groupRef = FirebaseInstance.storage.ref('group/');
-      return await groupRef.child(groupID).getDownloadURL();
+      final groupRef = FirebaseInstance.storage.ref('group/$groupID');
+      return await groupRef.getDownloadURL();
     } catch (e) {
       debugPrint('Error on getting group image: $e');
       return null;
