@@ -389,7 +389,7 @@ class _GroupSettingsState extends State<GroupSettings> {
                         _isOwner
                             ? ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  fixedSize: const Size(120, 40),
+                                  fixedSize: const Size(140, 40),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(4.0),
                                   ),
