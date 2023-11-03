@@ -68,7 +68,8 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
             if (snapshot.connectionState == ConnectionState.waiting ||
                 snapshot.hasError ||
                 !snapshot.hasData ||
-                snapshot.data == null) {
+                snapshot.data == null ||
+                !snapshot.data!.exists) {
               return const Text('Group Expenses');
             }
 
@@ -139,7 +140,8 @@ class _SplitMoneyGroupState extends State<SplitMoneyGroup> {
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting ||
                           !snapshot.hasData ||
-                          snapshot.data == null) {
+                          snapshot.data == null ||
+                          !snapshot.data!.exists) {
                         return const Center(child: CircularProgressIndicator());
                       }
                       if (snapshot.hasError) {
