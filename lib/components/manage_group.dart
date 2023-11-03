@@ -1,4 +1,5 @@
 import 'package:financial_app/utils/gallery_utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -115,11 +116,17 @@ class _ManageGroupState extends State<ManageGroup> {
                   },
                 )
                 : setGroupImage
-                ? CircleAvatar(
-                    radius: 60,
-                    backgroundColor: Colors.transparent,
-                    backgroundImage: NetworkImage(pickedImage),
-                  )
+                ? kIsWeb
+                  ? CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.transparent,
+                      backgroundImage: MemoryImage(pickedImage),
+                    )
+                  : CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.transparent,
+                      backgroundImage: FileImage(pickedImage),
+                    )
                 : Container(
                     decoration: BoxDecoration(
                       color: Colors.grey[300],
