@@ -50,7 +50,7 @@ class BudgetService {
     if (category == '') {
       return const Stream.empty();
     }
-    
+
     return budgetsCollection
         .doc(_uid)
         .collection('details')
@@ -141,11 +141,11 @@ class BudgetService {
         if (snapshot.exists) {
           await snapshot.reference.update({
             'used': FieldValue.increment(amount),
-          }).then((_) async {
-            double total = snapshot['amount'].toDouble();
-            double used = snapshot['used'].toDouble();
-            await notifyExceedingBudget(category, total, used);
           });
+          final updatedSnapshot = await snapshot.reference.get();
+          double total = updatedSnapshot['amount'].toDouble();
+          double used = updatedSnapshot['used'].toDouble();
+          await notifyExceedingBudget(category, total, used);
         }
       });
     }
@@ -204,7 +204,9 @@ class BudgetService {
   }
 
   static Future<void> resetBudget() async {
-    if (FirebaseInstance.auth.currentUser == null || _uid == '' || getOnlyDate(startingDate) == getOnlyDate(DateTime.now())) {
+    if (FirebaseInstance.auth.currentUser == null ||
+        _uid == '' ||
+        getOnlyDate(startingDate) == getOnlyDate(DateTime.now())) {
       await setDocumentID();
     }
 
