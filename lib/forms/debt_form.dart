@@ -256,7 +256,7 @@ class _DebtFormState extends State<DebtForm> {
               ],
               onChanged: (value) {
                 setState(() {
-                  _amount =
+                  _interest =
                       double.tryParse(value) == null ? 0 : double.parse(value);
                 });
               },
