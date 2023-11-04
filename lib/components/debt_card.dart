@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:financial_app/services/debt_service.dart';
 import 'package:flutter/foundation.dart';
@@ -18,11 +20,10 @@ class DebtCard extends StatefulWidget {
   final int duration; // in months
   final double amount;
   final double interests;
-  final double plan;
   final List<Map<String, dynamic>> history;
 
   const DebtCard(this.id, this.title, this.duration, this.amount,
-      this.interests, this.plan, this.history,
+      this.interests, this.history,
       {super.key});
 
   DebtCard.fromDocument(QueryDocumentSnapshot doc, {super.key})
@@ -31,11 +32,27 @@ class DebtCard extends StatefulWidget {
         duration = doc['duration'],
         amount = doc['amount'].toDouble(),
         interests = doc['interest'].toDouble(),
-        // using double.parse to round up the decimal places
-        plan = double.parse(
-            (doc['amount'] * ((doc['interest'] + 100) / 100) / doc['duration'])
-                .toStringAsFixed(2)),
         history = List<Map<String, dynamic>>.from(doc['history']);
+
+  double get plan {
+    if (history.isNotEmpty) {
+      final lastRecord = history.last;
+      final lastBalance = lastRecord['balance'] ?? 0.0;
+      return interests == 0
+          ? double.parse((lastBalance / duration).toStringAsFixed(2))
+          : double.parse(((lastBalance * ((interests / 100) / 12)) /
+                  (1 -
+                      pow((1 + (interests / 100) / 12), (-12 * duration / 12))))
+              .toStringAsFixed(2));
+    } else {
+      return interests == 0
+          ? double.parse((amount / duration).toStringAsFixed(2))
+          : double.parse(((amount * ((interests / 100) / 12)) /
+                  (1 -
+                      pow((1 + (interests / 100) / 12), (-12 * duration / 12))))
+              .toStringAsFixed(2));
+    }
+  }
 
   @override
   State<DebtCard> createState() => _DebtCardState();
@@ -174,11 +191,19 @@ class _DebtCardState extends State<DebtCard> {
               children: [
                 const Icon(Icons.access_time, size: 20),
                 const SizedBox(width: 3),
-                Text('$_year years and $_month months'),
-                
+                Text('Debt Duration: $_year years and $_month months'),
               ],
             ),
-
+            const SizedBox(height: 15),
+            //TODO: add remaining duration logic
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Icon(Icons.timer_outlined, size: 20),
+                SizedBox(width: 3),
+                Text('Remaining Duration: '),
+              ],
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -186,7 +211,7 @@ class _DebtCardState extends State<DebtCard> {
                 const SizedBox(width: 3),
                 Text('Interests: ${widget.interests}%'),
                 const Spacer(),
-                 if (widget.history.isEmpty ||
+                if (widget.history.isEmpty ||
                     widget.history.last['balance'] >= 0)
                   IconButton(
                     iconSize: 20,
@@ -211,7 +236,21 @@ class _DebtCardState extends State<DebtCard> {
                     children: [
                       Text(''),
                       Text(
-                        'Saved Amount',
+                        'Interest',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        'Principal',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        'Total Paid',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
@@ -230,12 +269,23 @@ class _DebtCardState extends State<DebtCard> {
                     SizedBox(height: 5),
                     SizedBox(height: 5),
                     SizedBox(height: 5),
+                    SizedBox(height: 5),
+                    SizedBox(height: 5),
                   ]),
                   for (final row in widget.history.reversed)
                     TableRow(
                       children: [
                         Text(
                             '${Constant.monthLabels[row['date'].toDate().month - 1]} ${row['date'].toDate().day}'),
+                        //TODO: change interest,principal and the name of total
+                        const Text(
+                          'interest amount',
+                          textAlign: TextAlign.center,
+                        ),
+                        const Text(
+                          'Principal amount',
+                          textAlign: TextAlign.center,
+                        ),
                         Text(
                           row['saved'].toStringAsFixed(2),
                           textAlign: TextAlign.center,
