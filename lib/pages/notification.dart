@@ -95,7 +95,6 @@ class _NotificationMenuState extends State<NotificationMenu> {
                           : 'No notification yet.',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        // fontSize: 18,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
