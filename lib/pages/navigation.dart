@@ -131,8 +131,7 @@ class _NavigationState extends State<Navigation> {
           floatingActionButton: navigationProvider.isMoreTabActive
               ? Container(
                   margin: EdgeInsets.only(bottom: 10.0, right: Constant.isMobile(context)? 0 : MediaQuery.of(context).size.width*0.05 ),
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 8.0),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
                     color: lightRed,
                     borderRadius: BorderRadius.circular(15.0),
@@ -143,6 +142,7 @@ class _NavigationState extends State<Navigation> {
                       _options.length,
                       (index) {
                         return GestureDetector(
+                          behavior: HitTestBehavior.translucent,
                           onTap: () {
                             int newIndex = index + 4;
                             navigationProvider.setIndex(4, newIndex);
@@ -170,7 +170,8 @@ class FloatButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
