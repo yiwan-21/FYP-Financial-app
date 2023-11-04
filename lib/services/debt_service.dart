@@ -13,6 +13,7 @@ class DebtService {
         .snapshots();
   }
 
+  //TODO: Add date to addDebt and editDebt
   static Future<void> addDebt(
       String title, int duration, double amount, double interests) async {
     await debtsCollection.add({
@@ -40,6 +41,7 @@ class DebtService {
   }
 
   static Future<void> payDebt(String id, double savedAmount) async {
+    //TODO: Move to loan amortization logic
     await debtsCollection.doc(id).get().then((snapshot) async {
       if (snapshot.exists) {
         List<Map<String, dynamic>> history =
