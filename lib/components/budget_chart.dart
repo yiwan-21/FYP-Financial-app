@@ -38,7 +38,7 @@ class _BudgetGraphState extends State<BudgetChart> {
           series: <ChartSeries<BudgetChartData, String>>[
             ColumnSeries<BudgetChartData, String>(
               color: const Color.fromRGBO(174, 74, 174, 1),
-              width: 0.3,
+              width: _noScroll? 0.05 : 0.3,
               borderRadius: BorderRadius.circular(8),
               dataSource: widget.budgetData,
               xValueMapper: (BudgetChartData record, _) => '${Constant.monthLabels[record.date.month - 1]} ${record.date.day}',
