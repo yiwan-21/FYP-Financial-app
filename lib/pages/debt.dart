@@ -104,14 +104,16 @@ class _DebtState extends State<Debt> {
                         children: [
                           const Tooltip(
                             message:
-                                'Surplus: Balance from the total income deduct the total expenses from tracker in this month',
+                                'Balance from the total income deduct the total expenses from tracker in this month',
                             triggerMode: TooltipTriggerMode.tap,
                             showDuration: Duration(seconds: 5),
                             child: Icon(Icons.info_outline_rounded, size: 20),
                           ),
                           const SizedBox(width: 2),
                           Text(
-                            'Surplus: ${_surplus.toStringAsFixed(2)}',
+                            _surplus > 0
+                                ? 'Surplus: ${_surplus.toStringAsFixed(2)}'
+                                : 'Deficit: ${(_surplus * -1).toStringAsFixed(2)}',
                             style: const TextStyle(
                               fontSize: 16,
                             ),
