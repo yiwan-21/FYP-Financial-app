@@ -54,8 +54,8 @@ class Auth {
             password: password,
           )
           .then((userCredential) async {
-            userCredential.user!.updateDisplayName(name);
-            logToFirestore();
+            await userCredential.user!.updateDisplayName(name);
+            await logToFirestore();
             await userCredential.user!.sendEmailVerification().then((_) {
               showDialog(
                 context: context,
