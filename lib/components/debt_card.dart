@@ -21,9 +21,10 @@ class DebtCard extends StatefulWidget {
   final double amount;
   final double interests;
   final List<Map<String, dynamic>> history;
+  final int remainingDuration; // in months
 
   const DebtCard(this.id, this.title, this.duration, this.amount,
-      this.interests, this.history,
+      this.interests, this.history, this.remainingDuration,
       {super.key});
 
   DebtCard.fromDocument(QueryDocumentSnapshot doc, {super.key})
@@ -32,7 +33,8 @@ class DebtCard extends StatefulWidget {
         duration = doc['duration'],
         amount = doc['amount'].toDouble(),
         interests = doc['interest'].toDouble(),
-        history = List<Map<String, dynamic>>.from(doc['history']);
+        history = List<Map<String, dynamic>>.from(doc['history']),
+        remainingDuration = doc['duration'] - getDifferenceInMonths(doc['created_date'].toDate(), DateTime.now());
 
   double get plan {
     if (history.isNotEmpty) {
@@ -54,6 +56,11 @@ class DebtCard extends StatefulWidget {
     }
   }
 
+  static int getDifferenceInMonths(DateTime createdDate, DateTime currentDate) {
+    return createdDate.month -
+        ((currentDate.year - createdDate.year) * 12 + currentDate.month);
+  }
+
   @override
   State<DebtCard> createState() => _DebtCardState();
 }
@@ -61,11 +68,15 @@ class DebtCard extends StatefulWidget {
 class _DebtCardState extends State<DebtCard> {
   int _year = 0;
   int _month = 0;
+  int _remainYear = 0;
+  int _remainMonth = 0;
 
   void calculateDuration() {
     setState(() {
       _year = widget.duration ~/ 12;
       _month = widget.duration % 12;
+      _remainYear = widget.remainingDuration ~/ 12;
+      _remainMonth = widget.remainingDuration % 12;
     });
   }
 
@@ -191,17 +202,16 @@ class _DebtCardState extends State<DebtCard> {
               children: [
                 const Icon(Icons.access_time, size: 20),
                 const SizedBox(width: 3),
-                Text('Debt Duration: $_year years and $_month months'),
+                Text('Debt Duration: $_year years $_month months'),
               ],
             ),
             const SizedBox(height: 15),
-            //TODO: add remaining duration logic
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Icon(Icons.timer_outlined, size: 20),
-                SizedBox(width: 3),
-                Text('Remaining Duration: '),
+                const Icon(Icons.timer_outlined, size: 20),
+                const SizedBox(width: 3),
+                Text('Remaining Duration: $_remainYear years $_remainMonth months'),
               ],
             ),
             Row(

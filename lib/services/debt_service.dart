@@ -13,7 +13,6 @@ class DebtService {
         .snapshots();
   }
 
-  //TODO: Add date to addDebt and editDebt
   static Future<void> addDebt(
       String title, int duration, double amount, double interests) async {
     await debtsCollection.add({
@@ -23,6 +22,7 @@ class DebtService {
       'amount': amount,
       'interest': interests,
       'history': [],
+      'created_date': DateTime.now(),
     });
   }
 
