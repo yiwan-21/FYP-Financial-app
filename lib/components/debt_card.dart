@@ -37,23 +37,9 @@ class DebtCard extends StatefulWidget {
         remainingDuration = doc['duration'] - getDifferenceInMonths(doc['created_date'].toDate(), DateTime.now());
 
   double get plan {
-    if (history.isNotEmpty) {
-      final lastRecord = history.last;
-      final lastBalance = lastRecord['balance'] ?? 0.0;
-      return interests == 0
-          ? double.parse((lastBalance / duration).toStringAsFixed(2))
-          : double.parse(((lastBalance * ((interests / 100) / 12)) /
-                  (1 -
-                      pow((1 + (interests / 100) / 12), (-12 * duration / 12))))
-              .toStringAsFixed(2));
-    } else {
-      return interests == 0
-          ? double.parse((amount / duration).toStringAsFixed(2))
-          : double.parse(((amount * ((interests / 100) / 12)) /
-                  (1 -
-                      pow((1 + (interests / 100) / 12), (-12 * duration / 12))))
-              .toStringAsFixed(2));
-    }
+    return interests == 0
+        ? double.parse((amount / duration).toStringAsFixed(2))
+        : double.parse(((amount * ((interests / 100) / 12)) /(1 - pow((1 + (interests / 100) / 12), (-12 * duration / 12)))).toStringAsFixed(2));
   }
 
   static int getDifferenceInMonths(DateTime createdDate, DateTime currentDate) {
@@ -211,7 +197,8 @@ class _DebtCardState extends State<DebtCard> {
               children: [
                 const Icon(Icons.timer_outlined, size: 20),
                 const SizedBox(width: 3),
-                Text('Remaining Duration: $_remainYear years $_remainMonth months'),
+                Text(
+                    'Remaining Duration: $_remainYear years $_remainMonth months'),
               ],
             ),
             Row(
@@ -287,13 +274,12 @@ class _DebtCardState extends State<DebtCard> {
                       children: [
                         Text(
                             '${Constant.monthLabels[row['date'].toDate().month - 1]} ${row['date'].toDate().day}'),
-                        //TODO: change interest,principal and the name of total
-                        const Text(
-                          'interest amount',
+                        Text(
+                          row['interest'].toStringAsFixed(2),
                           textAlign: TextAlign.center,
                         ),
-                        const Text(
-                          'Principal amount',
+                        Text(
+                          row['principal'].toStringAsFixed(2),
                           textAlign: TextAlign.center,
                         ),
                         Text(
