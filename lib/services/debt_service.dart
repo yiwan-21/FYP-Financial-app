@@ -22,6 +22,7 @@ class DebtService {
       'amount': amount,
       'interest': interests,
       'history': [],
+      'created_date': DateTime.now(),
     });
   }
 
@@ -40,29 +41,45 @@ class DebtService {
   }
 
   static Future<void> payDebt(String id, double savedAmount) async {
-    await debtsCollection.doc(id).get().then((snapshot) async {
-      if (snapshot.exists) {
-        List<Map<String, dynamic>> history =
-            List<Map<String, dynamic>>.from(snapshot['history']);
-        double balance;
-        if (history.length == 6) {
-          history.removeAt(0);
-        }
-        if (history.isEmpty) {
-          balance = snapshot['amount'].toDouble() - savedAmount;
-        } else {
-          balance = history.last['balance'].toDouble() - savedAmount;
-        }
-        history.add({
-          'date': getOnlyDate(DateTime.now()),
-          'saved': savedAmount,
-          'balance': balance,
-        });
+    final snapshot = await debtsCollection.doc(id).get();
 
-        await debtsCollection.doc(id).update({
-          'history': history,
-        });
+    if (snapshot.exists) {
+      final history = List<Map<String, dynamic>>.from(snapshot['history']);
+      double balance = 0;
+      double principal = savedAmount;
+      double interestAmount = 0;
+      final interestRate = snapshot['interest'].toDouble() ?? 0.0;
+      final totalAmount = snapshot['amount'].toDouble() ?? 0.0;
+
+      if (history.length == 6) {
+        history.removeAt(0);
       }
-    });
+
+
+      if (history.isNotEmpty) {
+        final previousBalance = history.last['balance']?.toDouble() ?? 0;
+        interestAmount = interestRate > 0? previousBalance * ((interestRate / 100) / 12) : 0;
+        principal = savedAmount - interestAmount;
+        balance = previousBalance - principal;
+      } else {
+        interestAmount = interestRate > 0? totalAmount * (interestRate / 100 / 12):0;
+        principal = savedAmount - interestAmount;
+        balance = totalAmount - principal;
+      }
+
+
+      final paymentRecord = {
+        'date': getOnlyDate(DateTime.now()),
+        'principal': principal.toDouble(),
+        'interest': interestAmount.toDouble(),
+        'balance': balance.toDouble(),
+      };
+
+      history.add(paymentRecord);
+
+      await debtsCollection.doc(id).update({
+        'history': history,
+      });
+    }
   }
 }
