@@ -70,7 +70,6 @@ class DebtService {
 
       final paymentRecord = {
         'date': getOnlyDate(DateTime.now()),
-        'saved': savedAmount,
         'principal': principal.toDouble(),
         'interest': interestAmount.toDouble(),
         'balance': balance.toDouble(),

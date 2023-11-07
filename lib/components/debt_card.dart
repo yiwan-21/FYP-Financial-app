@@ -117,7 +117,10 @@ class _DebtCardState extends State<DebtCard> {
   }
 
   double _getMaxValue() {
-    return widget.history.last['balance'];
+    if (widget.history.isNotEmpty) {
+      return widget.history.last['balance'];
+    }
+    return widget.amount;
   }
 
   Future<void> _payDebt(double value) async {
@@ -291,7 +294,8 @@ class _DebtCardState extends State<DebtCard> {
                           textAlign: TextAlign.center,
                         ),
                         Text(
-                          row['saved'].toStringAsFixed(2),
+                          (row['interest'] + row['principal'])
+                              .toStringAsFixed(2),
                           textAlign: TextAlign.center,
                         ),
                         Text(
