@@ -34,12 +34,15 @@ class DebtCard extends StatefulWidget {
         amount = doc['amount'].toDouble(),
         interests = doc['interest'].toDouble(),
         history = List<Map<String, dynamic>>.from(doc['history']),
-        remainingDuration = doc['duration'] - getDifferenceInMonths(doc['created_date'].toDate(), DateTime.now());
+        remainingDuration = doc['duration'] -
+            getDifferenceInMonths(doc['created_date'].toDate(), DateTime.now());
 
   double get plan {
     return interests == 0
         ? double.parse((amount / duration).toStringAsFixed(2))
-        : double.parse(((amount * ((interests / 100) / 12)) /(1 - pow((1 + (interests / 100) / 12), (-12 * duration / 12)))).toStringAsFixed(2));
+        : double.parse(((amount * ((interests / 100) / 12)) /
+                (1 - pow((1 + (interests / 100) / 12), (-12 * duration / 12))))
+            .toStringAsFixed(2));
   }
 
   static int getDifferenceInMonths(DateTime createdDate, DateTime currentDate) {
@@ -108,8 +111,13 @@ class _DebtCardState extends State<DebtCard> {
             onSaveFunction: _payDebt,
             checkedFunction: _addTransactionRecord,
             confirmButtonLabel: 'Pay',
+            maxValue: _getMaxValue(),
           );
         });
+  }
+
+  double _getMaxValue() {
+    return widget.history.last['balance'];
   }
 
   Future<void> _payDebt(double value) async {
