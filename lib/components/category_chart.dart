@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../constants/constant.dart';
 import '../constants/style_constant.dart';
 import '../providers/total_transaction_provider.dart';
@@ -78,13 +79,31 @@ class _CategoryChartState extends State<CategoryChart> {
           value: values[i],
           color: getColor(i),
           title:
-              '${(values[i] / values.reduce((double a, double b) => a + b) * 100).toStringAsFixed(0)}%',
+              '${(values[i] / values.reduce((double a, double b) => a + b) * 100).toStringAsFixed(1)}%',
           radius: touchedIndex == i ? 60 : 50,
           titleStyle: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: touchedIndex == i ? Colors.white : Colors.black,
           ),
+          // tooltip message
+          badgeWidget: touchedIndex == i
+              ? Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Text(
+                    '${objData.keys.toList()[i]}: ${values[i].toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                )
+              : null,
         ),
       );
     }
