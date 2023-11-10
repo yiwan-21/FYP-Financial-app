@@ -10,10 +10,6 @@ class MonitorDebtData {
   final String debtName;
 
   MonitorDebtData(this.paidAmount, this.balance, this.debtName);
-
-  void findPaid() {
-    paidAmount = paidAmount - balance;
-  }
 }
 
 class MonitorDebtChart extends StatefulWidget {
