@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../constants/constant.dart';
 import '../services/debt_service.dart';
 
 class MonitorDebtData {
@@ -46,7 +47,7 @@ class _MonitorDebtChartState extends State<MonitorDebtChart> {
                   xValueMapper: (MonitorDebtData record, _) => record.debtName,
                   yValueMapper: (MonitorDebtData record, _) => record.paidAmount,
                   borderRadius: const BorderRadius.only( topLeft: Radius.circular(5), bottomLeft: Radius.circular(5)),
-                  width: snapshot.data!.length == 1 ? 0.3 : 0.8,
+                  width: snapshot.data!.length == 1 || Constant.isMobile(context) ? 0.3 : 0.8,
                   name: 'Total Paid',
                 ),
                 StackedBarSeries(
@@ -56,7 +57,7 @@ class _MonitorDebtChartState extends State<MonitorDebtChart> {
                   borderRadius: const BorderRadius.only( topRight: Radius.circular(5), bottomRight: Radius.circular(5)),
                   pointColorMapper: (MonitorDebtData record, _) =>const Color.fromRGBO(198, 201, 207, 1),
                   color: const Color.fromRGBO(198, 201, 207, 1),
-                  width: snapshot.data!.length == 1 ? 0.3 : 0.8,
+                  width: snapshot.data!.length == 1 || Constant.isMobile(context) ? 0.3 : 0.8,
                   name: 'Balance',
                 ),
               ],
