@@ -16,6 +16,7 @@ class Goal extends StatefulWidget {
   final double saved;
   final DateTime targetDate;
   final bool pinned;
+  final DateTime createdAt;
 
   const Goal(
     {required this.goalID, 
@@ -25,6 +26,7 @@ class Goal extends StatefulWidget {
     required this.saved,
     required this.targetDate, 
     required this.pinned,
+    required this.createdAt,
     super.key});
 
   Goal.fromDocument(QueryDocumentSnapshot doc, {super.key})
@@ -34,7 +36,8 @@ class Goal extends StatefulWidget {
         amount = doc['amount'].toDouble(),
         saved = doc['saved'].toDouble(),
         targetDate = doc['targetDate'].toDate(),
-        pinned = doc['pinned'];
+        pinned = doc['pinned'],
+        createdAt = doc['created_at'].toDate();
 
   @override
   State<Goal> createState() => _GoalState();
@@ -47,13 +50,14 @@ class Goal extends StatefulWidget {
       'saved': saved,
       'targetDate': targetDate,
       'pinned': pinned,
+      'created_at': createdAt
     };
   }
 }
 
 class _GoalState extends State<Goal> {
   bool get _expired {
-    return widget.targetDate.isBefore(getOnlyDate(DateTime.now()));
+    return widget.targetDate.isBefore(getOnlyDate(DateTime.now())) && widget.saved < widget.amount;
   }
 
   void _navigateToDetail() {
