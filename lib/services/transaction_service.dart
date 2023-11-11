@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:financial_app/components/daily_surplus_chart.dart';
+import 'package:financial_app/utils/date_utils.dart';
 
 import '../firebase_instance.dart';
 import '../constants/constant.dart';
@@ -187,6 +189,42 @@ class TransactionService {
     return barData;
   }
 
+static Future<List<DailySurplusData>> getSplineData() async {
+  final List<DailySurplusData> splineData = [];
+
+  final DateTime displayDays = DateTime.now().subtract(const Duration(days: 6));
+  final DateTime startOfDay = DateTime(displayDays.year, displayDays.month, displayDays.day);
+
+  // fill SplineData with DailySurplusData objects
+  for (int i = 0; i < 7; i++) {
+    splineData.add(DailySurplusData(displayDays.add(Duration(days: i)), 0));
+  }
+
+  await transactionCollection
+      .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+      .where('date', isGreaterThanOrEqualTo: startOfDay)
+      .get()
+      .then((snapshot) {
+    if (snapshot.docs.isNotEmpty) {
+      for (var transaction in snapshot.docs) {
+        final DateTime transactionDate = transaction['date'].toDate();
+        final double surplus = transaction['isExpense']
+            ? -transaction['amount'].toDouble()
+            : transaction['amount'].toDouble();
+
+        int existingIndex = splineData.indexWhere((data) => getOnlyDate(data.date).isAtSameMomentAs(getOnlyDate(transactionDate)));
+
+        if (existingIndex != -1) {
+          splineData[existingIndex].addSurplus(surplus);
+        }
+      }
+    }
+  });
+
+  return splineData;
+}
+
+
   // Budgeting
   static Future<double> getExpenseByCategory(
       String category, DateTime startingDate) async {
@@ -266,7 +304,8 @@ class TransactionService {
         .where('date', isLessThan: lastFive)
         .get()
         .then((snapshot) async {
-      if (snapshot.docs.length == 1 && snapshot.docs.first['title'] == surplusTitle) {
+      if (snapshot.docs.length == 1 &&
+          snapshot.docs.first['title'] == surplusTitle) {
         return;
       }
       if (snapshot.docs.isNotEmpty) {

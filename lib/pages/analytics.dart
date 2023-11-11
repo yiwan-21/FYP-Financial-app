@@ -4,6 +4,7 @@ import '../components/expense_income_graph.dart';
 import '../components/auto_dis_chart.dart';
 import '../components/monitor_debt_chart.dart';
 import '../components/monitor_goal_chart.dart';
+import '../components/daily_surplus_chart.dart';
 
 class Analytics extends StatelessWidget {
   const Analytics({super.key});
@@ -36,6 +37,8 @@ class Analytics extends StatelessWidget {
           const MonitorDebtChart(),
           const SizedBox(height: 24),
           const MonitorGoalChart(),
+          const SizedBox(height: 24),
+          const DailySurplusChart(),
         ],
       ),
     );
