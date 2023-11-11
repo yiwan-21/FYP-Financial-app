@@ -33,6 +33,7 @@ class Constant {
     'Pocket Money',
     'Part-time Job',
     'Scholarships',
+    'Savings Goal',
     'Other Income'
   ];
 

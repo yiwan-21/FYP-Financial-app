@@ -11,19 +11,21 @@ class AlertWithCheckbox extends StatefulWidget {
   final String checkboxLabel;
   final bool defaultChecked;
   final String? confirmButtonLabel;
+  final bool disableCheckbox;
   final Function(double value) onSaveFunction;
-  final Function(double value) checkedFunction;
+  final Function(double value)? checkedFunction;
 
   const AlertWithCheckbox({
     required this.title, 
     required this.contentLabel, 
     required this.checkboxLabel,
-    required this.defaultChecked, 
+    this.defaultChecked = false, 
     required this.onSaveFunction, 
-    required this.checkedFunction,
+    this.checkedFunction,
     this.defaultValue, 
     this.maxValue,
     this.confirmButtonLabel,
+    this.disableCheckbox = false,
     super.key
   });
 
@@ -122,19 +124,19 @@ class _AlertWithCheckboxState extends State<AlertWithCheckbox> {
               },
             ),
             const SizedBox(height: 10),
-            Row(
-              children: [
-                Checkbox(
-                  value: _isChecked,
-                  onChanged: (value) {
-                    setState(() {
-                      _isChecked = value!;
-                    });
-                  },
-                ),
-                Text(widget.checkboxLabel),
-              ],
-            ),
+            if (!widget.disableCheckbox)
+              CheckboxListTile(
+                title: Text(widget.checkboxLabel),
+                visualDensity: VisualDensity.compact,
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: const EdgeInsets.only(left: 0),
+                value: _isChecked, 
+                onChanged: (value) {
+                  setState(() {
+                    _isChecked = value!;
+                  });
+                },
+              ),
           ],
         ),
       ),
@@ -152,8 +154,8 @@ class _AlertWithCheckboxState extends State<AlertWithCheckbox> {
               // Submit form data to server or database
               _formKey.currentState!.save();
               widget.onSaveFunction(_value);
-              if (_isChecked) {
-                widget.checkedFunction(_value);
+              if (!widget.disableCheckbox && widget.checkedFunction != null && _isChecked) {
+                widget.checkedFunction!(_value);
               }
               Navigator.pop(context);
             }

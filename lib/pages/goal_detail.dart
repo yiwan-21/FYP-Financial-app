@@ -220,7 +220,7 @@ class _GoalProgressState extends State<GoalProgress> {
     });
   }
 
-  void _onSave(double value) async {
+  void _onSubmit(double value) async {
     if (value > _remaining) {
       value = _remaining;
     }
@@ -233,20 +233,31 @@ class _GoalProgressState extends State<GoalProgress> {
     Provider.of<GoalProvider>(context, listen: false).setSaved(_saved);
     await GoalService.updateGoalSavedAmount(_id, _saved);
     await GoalService.addHistory(_id, value);
+    await _addTransactionRecords(value);
   }
 
-  void _checkedFunction(double value) async {
-    final TrackerTransaction newTransaction = TrackerTransaction(
+  Future<void> _addTransactionRecords(double value) async {
+    final TrackerTransaction expenseTransaction = TrackerTransaction(
       id: '',
-      title: 'Goal: $_title',
+      title: 'Goal: $_title - Debit record',
       amount: value,
       date: DateTime.now(),
       isExpense: true,
       category: 'Savings Goal',
-      notes: 'Auto Generated: Saved RM ${value.toStringAsFixed(2)} for $_title',
+      notes: 'Auto Generated: Debit to Income',
     );
-    await TransactionService.addTransaction(newTransaction).then((_) {
-      Provider.of<TotalTransactionProvider>(context, listen: false)
+    final TrackerTransaction incomeTransaction = TrackerTransaction(
+      id: '',
+      title: 'Goal: $_title - Credit record',
+      amount: value,
+      date: DateTime.now(),
+      isExpense: false,
+      category: 'Savings Goal',
+      notes: 'Auto Generated: Credit to Savings Goal $_title',
+    );
+    await TransactionService.addTransaction(expenseTransaction);
+    await TransactionService.addTransaction(incomeTransaction).then((_) async {
+      await Provider.of<TotalTransactionProvider>(context, listen: false)
           .updateTransactions();
     });
   }
@@ -271,9 +282,8 @@ class _GoalProgressState extends State<GoalProgress> {
                           title: _dialogTitle,
                           contentLabel: _contentLabel,
                           checkboxLabel: _checkboxLabel,
-                          defaultChecked: true,
-                          onSaveFunction: _onSave,
-                          checkedFunction: _checkedFunction,
+                          onSaveFunction: _onSubmit,
+                          disableCheckbox: true,
                         );
                       },
                     );
