@@ -1,6 +1,7 @@
-import 'package:financial_app/services/goal_service.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../services/goal_service.dart';
 
 class MonitorGoalData {
   final String month;
