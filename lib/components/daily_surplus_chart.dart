@@ -33,22 +33,37 @@ class _DailySurplusChartState extends State<DailySurplusChart> {
           if (snapshot.connectionState == ConnectionState.done &&
               snapshot.data != null) {
             return SfCartesianChart(
-              primaryXAxis: CategoryAxis(),
+              primaryXAxis: CategoryAxis(title: AxisTitle(text: 'Date')),
               // Chart title
               title: ChartTitle(text: 'Daily Surplus or Deficit'),
               // Enable legend
-              legend: Legend(isVisible: true),
+              // legend: Legend(isVisible: true),
               // Enable tooltip
               tooltipBehavior: TooltipBehavior(enable: true),
+              onTooltipRender: (TooltipArgs tooltipArgs) {
+                if (tooltipArgs.dataPoints != null && tooltipArgs.dataPoints!.isNotEmpty) {
+                  int index = tooltipArgs.pointIndex!.toInt();
+                  CartesianChartPoint<dynamic> point = tooltipArgs.dataPoints![index];
+                  num surplus = point.y;
+                  // Setting the tooltip header
+                  tooltipArgs.header = surplus >= 0 ? 'Surplus' : 'Deficit';
+                  // Setting the tooltip text
+                  tooltipArgs.text = '${point.x}: ${surplus.toStringAsFixed(2)}';
+                }
+              },
               series: <ChartSeries<DailySurplusData, String>>[
                 SplineSeries(
                   dataSource: snapshot.data!,
                   xValueMapper: (DailySurplusData record, _) => '${Constant.monthLabels[record.date.month - 1]} ${record.date.day}',
                   yValueMapper: (DailySurplusData record, _) => record.surplus,
-                  dataLabelSettings: const DataLabelSettings(isVisible: true),
-                  dataLabelMapper: (DailySurplusData record, _) => record.surplus > 0 ? 'Surplus' : 'Deficit',
+                  dataLabelSettings: const DataLabelSettings(
+                    isVisible: true,
+                    labelAlignment: ChartDataLabelAlignment.top,
+                  ),
+                  dataLabelMapper: (DailySurplusData record, _) => record.surplus.toStringAsFixed(2),
+                  splineType: SplineType.cardinal,
                   markerSettings: const MarkerSettings(isVisible: true),
-                  name: 'Surplus/\nDeficit',
+                  name: 'Daily Surplus or Deficit',
                 ),
               ],
             );
