@@ -244,7 +244,7 @@ class _GoalProgressState extends State<GoalProgress> {
       date: DateTime.now(),
       isExpense: true,
       category: 'Savings Goal',
-      notes: 'Auto Generated: Debit to Income',
+      notes: 'Auto Generated: Debit to Current Account',
     );
     final TrackerTransaction incomeTransaction = TrackerTransaction(
       id: '',
