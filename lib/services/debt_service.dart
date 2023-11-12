@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../firebase_instance.dart';
 import '../utils/date_utils.dart';
+import '../components/monitor_debt_chart.dart';
 
 class DebtService {
   static CollectionReference debtsCollection =
@@ -55,18 +56,19 @@ class DebtService {
         history.removeAt(0);
       }
 
-
       if (history.isNotEmpty) {
         final previousBalance = history.last['balance']?.toDouble() ?? 0;
-        interestAmount = interestRate > 0? previousBalance * ((interestRate / 100) / 12) : 0;
+        interestAmount = interestRate > 0
+            ? previousBalance * ((interestRate / 100) / 12)
+            : 0;
         principal = savedAmount - interestAmount;
         balance = previousBalance - principal;
       } else {
-        interestAmount = interestRate > 0? totalAmount * (interestRate / 100 / 12):0;
+        interestAmount =
+            interestRate > 0 ? totalAmount * (interestRate / 100 / 12) : 0;
         principal = savedAmount - interestAmount;
         balance = totalAmount - principal;
       }
-
 
       final paymentRecord = {
         'date': getOnlyDate(DateTime.now()),
@@ -82,4 +84,24 @@ class DebtService {
       });
     }
   }
+
+static Future<List<MonitorDebtData>> getBarData() async {
+  final List<MonitorDebtData> barData = [];
+
+  final QuerySnapshot querySnapshot = await debtsCollection
+      .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+      .get();
+
+  for (var debt in querySnapshot.docs) {
+    double balance = debt['history']?.isNotEmpty == true
+        ? debt['history'].last['balance']?.toDouble() ?? 0
+        : debt['amount'].toDouble();
+
+    double paid = debt['amount'].toDouble() - balance;
+
+    barData.add(MonitorDebtData(paid, balance, debt['title']));
+  }
+
+  return barData;
+}
 }
