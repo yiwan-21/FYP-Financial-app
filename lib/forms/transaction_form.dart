@@ -46,7 +46,7 @@ class _TransactionFormState extends State<TransactionForm> {
   double _amount = 0;
   bool _isExpense = true;
   DateTime _date = DateTime.now();
-  List<String> _categoryList = Constant.expenseCategories;
+  List<String> _categoryList = [...Constant.expenseCategories, ...Constant.excludedCategories];
   String _category = Constant.expenseCategories[0];
 
   @override
@@ -258,6 +258,7 @@ class _TransactionFormState extends State<TransactionForm> {
                       _categoryList = _isExpense
                           ? Constant.expenseCategories
                           : Constant.incomeCategories;
+                      _categoryList.addAll(Constant.excludedCategories);
                       if (_categoryList
                           .contains(transactionProvider.getCategory)) {
                         _category = transactionProvider.getCategory;

@@ -26,7 +26,7 @@ class _ManageTransactionState extends State<ManageTransaction> {
   double _amount = 0;
   bool _isExpense = true;
   DateTime _date = DateTime.now();
-  List<String> _categoryList = Constant.expenseCategories;
+  List<String> _categoryList = [...Constant.expenseCategories, ...Constant.excludedCategories];
   String _category = Constant.expenseCategories[0];
 
   @override
@@ -43,8 +43,8 @@ class _ManageTransactionState extends State<ManageTransaction> {
       _date = transactionProvider.getDate;
       _isExpense = transactionProvider.getIsExpense;
       _category = transactionProvider.getCategory;
-      _categoryList =
-       _isExpense ? Constant.expenseCategories : Constant.incomeCategories;
+      _categoryList = _isExpense ? Constant.expenseCategories : Constant.incomeCategories;
+      _categoryList.addAll(Constant.excludedCategories);
     }
   }
 
