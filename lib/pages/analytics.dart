@@ -80,6 +80,7 @@ class Analytics extends StatelessWidget {
               isMobile ? portraitLayout() : landscapeLayout(),
               const SizedBox(height: verticalSpacing),
               const DailySurplusChart(),
+              const SizedBox(height: verticalSpacing),
             ],
           );
         },
