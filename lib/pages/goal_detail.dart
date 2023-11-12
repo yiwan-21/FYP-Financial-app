@@ -74,44 +74,46 @@ class _GoalDetailState extends State<GoalDetail> {
     final double saved = Provider.of<GoalProvider>(context, listen: false).getSaved;
     // savings goal expense (debit)
     // cash account income (credit)
-    if (didSpent) {
-      final TrackerTransaction expenseTransaction = TrackerTransaction(
-        id: '',
-        title: 'Completed Goal: $_title',
-        amount: saved,
-        date: DateTime.now(),
-        isExpense: true,
-        category: 'Savings Goal',
-        notes: 'Auto Generated: Debit to Savings Goal: $_title',
-      );
-      await TransactionService.addTransaction(expenseTransaction).then((_) async {
-        await Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
-      });
+    if (saved > 0) {
+      if (didSpent) {
+        final TrackerTransaction expenseTransaction = TrackerTransaction(
+          id: '',
+          title: 'Completed Goal: $_title',
+          amount: saved,
+          date: DateTime.now(),
+          isExpense: true,
+          category: 'Savings Goal',
+          notes: 'Auto Generated: Debit to Savings Goal: $_title',
+        );
+        await TransactionService.addTransaction(expenseTransaction).then((_) async {
+          await Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
+        });
 
-    } else {
-      final TrackerTransaction expenseTransaction = TrackerTransaction(
-        id: '',
-        title: 'Cancelled Goal: $_title',
-        amount: saved,
-        date: DateTime.now(),
-        isExpense: true,
-        category: 'Savings Goal',
-        notes: 'Auto Generated: Debit to Savings Goal: $_title',
-      );
-      await TransactionService.addTransaction(expenseTransaction);
-      // return the remaining amount to cash account
-      final TrackerTransaction incomeTransaction = TrackerTransaction(
-        id: '',
-        title: 'Cancelled Goal: $_title',
-        amount: saved,
-        date: DateTime.now(),
-        isExpense: false,
-        category: 'Savings Goal',
-        notes: 'Auto Generated: Credit to Cash Account',
-      );
-      await TransactionService.addTransaction(incomeTransaction).then((_) async {
-        await Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
-      });
+      } else {
+        final TrackerTransaction expenseTransaction = TrackerTransaction(
+          id: '',
+          title: 'Cancelled Goal: $_title',
+          amount: saved,
+          date: DateTime.now(),
+          isExpense: true,
+          category: 'Savings Goal',
+          notes: 'Auto Generated: Debit to Savings Goal: $_title',
+        );
+        await TransactionService.addTransaction(expenseTransaction);
+        // return the remaining amount to cash account
+        final TrackerTransaction incomeTransaction = TrackerTransaction(
+          id: '',
+          title: 'Cancelled Goal: $_title',
+          amount: saved,
+          date: DateTime.now(),
+          isExpense: false,
+          category: 'Savings Goal',
+          notes: 'Auto Generated: Credit to Cash Account',
+        );
+        await TransactionService.addTransaction(incomeTransaction).then((_) async {
+          await Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
+        });
+      }
     }
     
     await GoalService.deleteGoal(_id).then((_) {
