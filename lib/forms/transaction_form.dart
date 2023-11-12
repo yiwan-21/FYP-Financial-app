@@ -258,12 +258,12 @@ class _TransactionFormState extends State<TransactionForm> {
                       _categoryList = _isExpense
                           ? Constant.expenseCategories
                           : Constant.incomeCategories;
-                      _categoryList.addAll(Constant.excludedCategories);
-                      if (_categoryList
-                          .contains(transactionProvider.getCategory)) {
-                        _category = transactionProvider.getCategory;
-                      } else {
+                      _categoryList = [..._categoryList, ...Constant.excludedCategories];
+                      if (!_categoryList.contains(transactionProvider.getCategory) || 
+                          (!widget.isEditing && Constant.excludedCategories.contains(transactionProvider.getCategory))) {
                         _category = _categoryList[0];
+                      } else {
+                        _category = transactionProvider.getCategory;
                       }
                     });
                   },
@@ -288,6 +288,7 @@ class _TransactionFormState extends State<TransactionForm> {
               decoration: const InputDecoration(
                 labelText: 'Category',
                 labelStyle: TextStyle(color: Colors.black),
+                helperText: '* Savings Goal is different from Savings',
                 fillColor: Colors.white,
                 filled: true,
                 focusedBorder: OutlineInputBorder(

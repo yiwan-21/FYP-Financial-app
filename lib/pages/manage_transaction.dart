@@ -44,7 +44,7 @@ class _ManageTransactionState extends State<ManageTransaction> {
       _isExpense = transactionProvider.getIsExpense;
       _category = transactionProvider.getCategory;
       _categoryList = _isExpense ? Constant.expenseCategories : Constant.incomeCategories;
-      _categoryList.addAll(Constant.excludedCategories);
+      _categoryList = [..._categoryList, ...Constant.excludedCategories];
     }
   }
 
