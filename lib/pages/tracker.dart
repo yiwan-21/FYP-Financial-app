@@ -18,7 +18,7 @@ class Tracker extends StatefulWidget {
 }
 
 class _TrackerState extends State<Tracker> {
-  final List<String> _categories = [Constant.noFilter, ...Constant.categories];
+  final List<String> _categories = [Constant.noFilter, ...Constant.allCategories];
   String _selectedItem = Constant.noFilter;
 
   void _addTransaction() {
