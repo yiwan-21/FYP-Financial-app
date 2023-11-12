@@ -48,15 +48,75 @@ class _GoalDetailState extends State<GoalDetail> {
           content: 'Are you sure you want to delete this goal?',
           cancelText: 'Cancel',
           confirmText: 'Delete',
-          confirmAction: _deleteGoal,
+          confirmAction: _didSpentDialog,
         );
       },
     );
   }
 
-  void _deleteGoal() async {
+  void _didSpentDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertConfirmAction(
+          title: 'Did you spent the money?',
+          content: 'Did you spent the money saved for this goal?',
+          confirmText: 'Yes',
+          confirmAction: () => _deleteGoal(true),
+          cancelText: 'No',
+          cancelAction: () => _deleteGoal(false),
+        );
+      }
+    );
+  }
+
+  void _deleteGoal(bool didSpent) async {
+    final double saved = Provider.of<GoalProvider>(context, listen: false).getSaved;
+    // savings goal expense (debit)
+    // cash account income (credit)
+    if (didSpent) {
+      final TrackerTransaction expenseTransaction = TrackerTransaction(
+        id: '',
+        title: 'Completed Goal: $_title',
+        amount: saved,
+        date: DateTime.now(),
+        isExpense: true,
+        category: 'Savings Goal',
+        notes: 'Auto Generated: Debit to Savings Goal: $_title',
+      );
+      await TransactionService.addTransaction(expenseTransaction).then((_) async {
+        await Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
+      });
+
+    } else {
+      final TrackerTransaction expenseTransaction = TrackerTransaction(
+        id: '',
+        title: 'Cancelled Goal: $_title',
+        amount: saved,
+        date: DateTime.now(),
+        isExpense: true,
+        category: 'Savings Goal',
+        notes: 'Auto Generated: Debit to Savings Goal: $_title',
+      );
+      await TransactionService.addTransaction(expenseTransaction);
+      // return the remaining amount to cash account
+      final TrackerTransaction incomeTransaction = TrackerTransaction(
+        id: '',
+        title: 'Cancelled Goal: $_title',
+        amount: saved,
+        date: DateTime.now(),
+        isExpense: false,
+        category: 'Savings Goal',
+        notes: 'Auto Generated: Credit to Cash Account',
+      );
+      await TransactionService.addTransaction(incomeTransaction).then((_) async {
+        await Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
+      });
+    }
+    
     await GoalService.deleteGoal(_id).then((_) {
-      // quit dialog box
+      // quit dialog boxes
+      Navigator.pop(context);
       Navigator.pop(context);
       // quit goal progress page
       // to inform the goal has been deleted
@@ -237,28 +297,29 @@ class _GoalProgressState extends State<GoalProgress> {
   }
 
   Future<void> _addTransactionRecords(double value) async {
+    // cash account expense (debit)
+    // savings goal income (credit)
     final TrackerTransaction expenseTransaction = TrackerTransaction(
       id: '',
-      title: 'Goal: $_title - Debit record',
+      title: 'Added to Goal: $_title',
       amount: value,
       date: DateTime.now(),
       isExpense: true,
       category: 'Savings Goal',
-      notes: 'Auto Generated: Debit to Current Account',
+      notes: 'Auto Generated: Debit to Cash Account',
     );
+    await TransactionService.addTransaction(expenseTransaction);
     final TrackerTransaction incomeTransaction = TrackerTransaction(
       id: '',
-      title: 'Goal: $_title - Credit record',
+      title: 'Added to Goal: $_title',
       amount: value,
       date: DateTime.now(),
       isExpense: false,
       category: 'Savings Goal',
-      notes: 'Auto Generated: Credit to Savings Goal $_title',
+      notes: 'Auto Generated: Credit to Savings Goal: $_title',
     );
-    await TransactionService.addTransaction(expenseTransaction);
     await TransactionService.addTransaction(incomeTransaction).then((_) async {
-      await Provider.of<TotalTransactionProvider>(context, listen: false)
-          .updateTransactions();
+      await Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
     });
   }
 
