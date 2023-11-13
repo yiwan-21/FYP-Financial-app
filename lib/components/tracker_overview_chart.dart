@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+
 import '../services/transaction_service.dart';
 
 class TrackerOverviewData {
-  TrackerOverviewData(this.month, this.expense, this.income);
+  TrackerOverviewData(this.month, this.expense, this.income, this.savingsGoal);
 
   final String month;
   double expense;
   double income;
+  double savingsGoal;
 
   void addExpense(double expense) {
     this.expense += expense;
@@ -15,6 +17,10 @@ class TrackerOverviewData {
 
   void addIncome(double income) {
     this.income += income;
+  }
+
+  void addSavingsGoal(double savingsGoal) {
+    this.savingsGoal += savingsGoal;
   }
 }
 
@@ -26,7 +32,8 @@ class ExpenseIncomeGraph extends StatefulWidget {
 }
 
 class _ExpenseIncomeGraphState extends State<ExpenseIncomeGraph> {
-  final Future<List<TrackerOverviewData>> _lineData = TransactionService.getLineData();
+  final Future<List<TrackerOverviewData>> _lineData =
+      TransactionService.getLineData();
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +45,7 @@ class _ExpenseIncomeGraphState extends State<ExpenseIncomeGraph> {
             return SfCartesianChart(
               primaryXAxis: CategoryAxis(),
               // Chart title
-              title: ChartTitle(text: 'Monthly Expense and Income'),
+              title: ChartTitle(text: 'Monthly Expense, Income and Savings Goal'),
               // Enable legend
               legend: Legend(isVisible: true),
               // Enable tooltip
@@ -47,21 +54,24 @@ class _ExpenseIncomeGraphState extends State<ExpenseIncomeGraph> {
                 LineSeries<TrackerOverviewData, String>(
                     dataSource: snapshot.data!,
                     xValueMapper: (TrackerOverviewData record, _) => record.month,
-                    yValueMapper: (TrackerOverviewData record, _) =>
-                        record.expense,
+                    yValueMapper: (TrackerOverviewData record, _) => record.expense,
                     name: 'Expense',
                     // Enable data label
-                    dataLabelSettings:
-                        const DataLabelSettings(isVisible: true)),
+                    dataLabelSettings: const DataLabelSettings(isVisible: true)),
                 LineSeries<TrackerOverviewData, String>(
                     dataSource: snapshot.data!,
                     xValueMapper: (TrackerOverviewData record, _) => record.month,
-                    yValueMapper: (TrackerOverviewData record, _) =>
-                        record.income,
+                    yValueMapper: (TrackerOverviewData record, _) => record.income,
                     name: 'Income',
                     // Enable data label
-                    dataLabelSettings:
-                        const DataLabelSettings(isVisible: true)),
+                    dataLabelSettings: const DataLabelSettings(isVisible: true)),
+                LineSeries<TrackerOverviewData, String>(
+                    dataSource: snapshot.data!,
+                    xValueMapper: (TrackerOverviewData record, _) => record.month,
+                    yValueMapper: (TrackerOverviewData record, _) => record.savingsGoal,
+                    name: 'Savings Goal',
+                    // Enable data label
+                    dataLabelSettings: const DataLabelSettings(isVisible: true)),
               ],
             );
           } else {

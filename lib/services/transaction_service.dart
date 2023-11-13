@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:financial_app/components/daily_surplus_chart.dart';
-import 'package:financial_app/utils/date_utils.dart';
 
 import '../firebase_instance.dart';
+import '../utils/date_utils.dart';
 import '../constants/constant.dart';
 import '../components/history_card.dart';
 import '../components/tracker_transaction.dart';
 import '../components/tracker_overview_chart.dart';
 import '../components/auto_dis_chart.dart';
+import '../components/daily_surplus_chart.dart';
 import '../services/budget_service.dart';
 
 class TransactionService {
@@ -109,7 +109,7 @@ class TransactionService {
     // fill lineData with TrackerOverviewData objects
     final month = DateTime.now().month;
     for (int i = month - (monthCount - 1) - 1; i < month; i++) {
-      lineData.add(TrackerOverviewData(Constant.monthLabels[i], 0, 0));
+      lineData.add(TrackerOverviewData(Constant.monthLabels[i], 0, 0, 0));
     }
     int monthIndex = 0;
 
@@ -117,21 +117,25 @@ class TransactionService {
       return lineData;
     }
     
-    List<String> categories = Constant.analyticsCategories;
     await transactionCollection
         .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-        .where('category', whereIn: categories)
         .orderBy('date', descending: true)
         .get()
         .then((value) => {
       for (var transaction in value.docs) {
-        monthIndex = DateTime.parse(transaction['date'].toDate().toString()).month - 
-            (DateTime.now().month - (monthCount - 1)),
+        monthIndex = DateTime.parse(transaction['date'].toDate().toString()).month - (DateTime.now().month - (monthCount - 1)),
         if (monthIndex >= 0) {
-          if (transaction['isExpense']) {
-            lineData[monthIndex].addExpense(transaction['amount'].toDouble())
-          } else {
-            lineData[monthIndex].addIncome(transaction['amount'].toDouble())
+          if(transaction['category'] == "Savings Goal")
+          {
+              lineData[monthIndex].addSavingsGoal(transaction['amount'].toDouble())
+          }
+          else
+          {
+            if (transaction['isExpense']) {
+              lineData[monthIndex].addExpense(transaction['amount'].toDouble())
+            } else {
+              lineData[monthIndex].addIncome(transaction['amount'].toDouble())
+            }
           }
         }
       }
