@@ -35,7 +35,7 @@ class Analytics extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Expanded(child: ExpenseIncomeGraph()),
+              const Expanded(child: TrackerOverviewGraph()),
               Expanded(
                 child: Column(
                   children: [
@@ -59,7 +59,7 @@ class Analytics extends StatelessWidget {
     Widget portraitLayout() {
       return Column(
         children: [
-          const ExpenseIncomeGraph(),
+          const TrackerOverviewGraph(),
           const SizedBox(height: verticalSpacing),
           const AutoDisChart(),
           buildCard(),

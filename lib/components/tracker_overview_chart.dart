@@ -24,14 +24,14 @@ class TrackerOverviewData {
   }
 }
 
-class ExpenseIncomeGraph extends StatefulWidget {
-  const ExpenseIncomeGraph({super.key});
+class TrackerOverviewGraph extends StatefulWidget {
+  const TrackerOverviewGraph({super.key});
 
   @override
-  State<ExpenseIncomeGraph> createState() => _ExpenseIncomeGraphState();
+  State<TrackerOverviewGraph> createState() => _TrackerOverviewGraphState();
 }
 
-class _ExpenseIncomeGraphState extends State<ExpenseIncomeGraph> {
+class _TrackerOverviewGraphState extends State<TrackerOverviewGraph> {
   final Future<List<TrackerOverviewData>> _lineData =
       TransactionService.getLineData();
 
