@@ -22,9 +22,10 @@ class DebtCard extends StatefulWidget {
   final double interests;
   final List<Map<String, dynamic>> history;
   final int remainingDuration; // in months
+  final bool paid;
 
   const DebtCard(this.id, this.title, this.duration, this.amount,
-      this.interests, this.history, this.remainingDuration,
+      this.interests, this.history, this.remainingDuration, this.paid,
       {super.key});
 
   DebtCard.fromDocument(QueryDocumentSnapshot doc, {super.key})
@@ -34,8 +35,8 @@ class DebtCard extends StatefulWidget {
         amount = doc['amount'].toDouble(),
         interests = doc['interest'].toDouble(),
         history = List<Map<String, dynamic>>.from(doc['history']),
-        remainingDuration = doc['duration'] -
-            getDifferenceInMonths(doc['created_at'].toDate(), DateTime.now());
+        remainingDuration = doc['duration'] - getDifferenceInMonths(doc['created_at'].toDate(), DateTime.now()),
+        paid = doc['paid'];
 
   double get plan {
     return interests == 0
@@ -208,8 +209,7 @@ class _DebtCardState extends State<DebtCard> {
               children: [
                 const Icon(Icons.timer_outlined, size: 20),
                 const SizedBox(width: 3),
-                Text(
-                    'Remaining Duration: $_remainYear years $_remainMonth months'),
+                Text('Remaining Duration: $_remainYear years $_remainMonth months'),
               ],
             ),
             Row(
@@ -219,8 +219,8 @@ class _DebtCardState extends State<DebtCard> {
                 const SizedBox(width: 3),
                 Text('Interests: ${widget.interests}%'),
                 const Spacer(),
-                if (widget.history.isEmpty ||
-                    widget.history.last['balance'] >= 0)
+                if ((widget.history.isEmpty ||
+                    widget.history.last['balance'] >= 0) && widget.paid == false)
                   IconButton(
                     iconSize: 20,
                     splashRadius: 10,

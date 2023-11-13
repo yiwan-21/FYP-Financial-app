@@ -24,6 +24,7 @@ class DebtService {
       'interest': interests,
       'history': [],
       'created_at': DateTime.now(),
+      'paid': false,
     });
   }
 
@@ -81,6 +82,7 @@ class DebtService {
 
       await debtsCollection.doc(id).update({
         'history': history,
+        'paid': true,
       });
     }
   }
