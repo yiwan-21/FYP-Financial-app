@@ -116,7 +116,7 @@ static Future<void> resetDebt() async {
           final DateTime now = DateTime.now();
           for (var debt in snapshot.docs) {
             final List<Map<String, dynamic>> history = List<Map<String, dynamic>>.from(debt['history']);
-            final DateTime date = history.last['date'].toDate();
+            final DateTime date = history.last['date']?.toDate();
             
             if (date.month != now.month) {
               await debt.reference.update({

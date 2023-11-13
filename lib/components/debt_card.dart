@@ -35,7 +35,8 @@ class DebtCard extends StatefulWidget {
         amount = doc['amount'].toDouble(),
         interests = doc['interest'].toDouble(),
         history = List<Map<String, dynamic>>.from(doc['history']),
-        remainingDuration = doc['duration'] - getDifferenceInMonths(doc['created_at'].toDate(), DateTime.now()),
+        remainingDuration = doc['duration'] -
+            getDifferenceInMonths(doc['created_at'].toDate(), DateTime.now()),
         paid = doc['paid'];
 
   double get plan {
@@ -209,7 +210,8 @@ class _DebtCardState extends State<DebtCard> {
               children: [
                 const Icon(Icons.timer_outlined, size: 20),
                 const SizedBox(width: 3),
-                Text('Remaining Duration: $_remainYear years $_remainMonth months'),
+                Text(
+                    'Remaining Duration: $_remainYear years $_remainMonth months'),
               ],
             ),
             Row(
@@ -219,14 +221,14 @@ class _DebtCardState extends State<DebtCard> {
                 const SizedBox(width: 3),
                 Text('Interests: ${widget.interests}%'),
                 const Spacer(),
-                if ((widget.history.isEmpty ||
-                    widget.history.last['balance'] >= 0) && widget.paid == false)
+                if ((widget.history.isEmpty || widget.history.last['balance'] >= 0))
                   IconButton(
                     iconSize: 20,
                     splashRadius: 10,
-                    onPressed: _payDebtDialog,
-                    icon: const Icon(Icons.payment_sharp),
+                    onPressed: widget.paid? null: _payDebtDialog,
+                    icon: widget.paid? const Icon(Icons.check_circle_outlined) : const Icon(Icons.payment_sharp),
                     color: Colors.brown,
+                    disabledColor: Colors.green,
                     alignment: Alignment.center,
                   ),
               ],
