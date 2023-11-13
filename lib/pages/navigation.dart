@@ -18,6 +18,7 @@ import '../providers/user_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../services/budget_service.dart';
 import '../services/transaction_service.dart';
+import '../services/debt_service.dart';
 
 class Navigation extends StatefulWidget {
   static final GlobalKey<ConvexAppBarState> appBarKey =
@@ -66,6 +67,8 @@ class _NavigationState extends State<Navigation> {
     TransactionService.resetTransactions();
     // check budgeting reset on app launch
     BudgetService.resetBudget();
+    // check debt reset on app launch
+    DebtService.resetDebt();
   }
 
   @override
