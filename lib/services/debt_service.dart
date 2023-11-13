@@ -23,7 +23,8 @@ class DebtService {
       'amount': amount,
       'interest': interests,
       'history': [],
-      'created_date': DateTime.now(),
+      'created_at': DateTime.now(),
+      'paid': false,
     });
   }
 
@@ -81,27 +82,50 @@ class DebtService {
 
       await debtsCollection.doc(id).update({
         'history': history,
+        'paid': true,
       });
     }
   }
 
-static Future<List<MonitorDebtData>> getBarData() async {
-  final List<MonitorDebtData> barData = [];
+  static Future<List<MonitorDebtData>> getBarData() async {
+    final List<MonitorDebtData> barData = [];
 
-  final QuerySnapshot querySnapshot = await debtsCollection
-      .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-      .get();
+    final QuerySnapshot querySnapshot = await debtsCollection
+        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+        .get();
 
-  for (var debt in querySnapshot.docs) {
-    double balance = debt['history']?.isNotEmpty == true
-        ? debt['history'].last['balance']?.toDouble() ?? 0
-        : debt['amount'].toDouble();
+    for (var debt in querySnapshot.docs) {
+      double balance = debt['history']?.isNotEmpty == true
+          ? debt['history'].last['balance']?.toDouble() ?? 0
+          : debt['amount'].toDouble();
 
-    double paid = debt['amount'].toDouble() - balance;
+      double paid = debt['amount'].toDouble() - balance;
 
-    barData.add(MonitorDebtData(paid, balance, debt['title']));
+      barData.add(MonitorDebtData(paid, balance, debt['title']));
+    }
+
+    return barData;
   }
 
-  return barData;
+static Future<void> resetDebt() async {
+  await debtsCollection
+      .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+      .get()
+      .then((snapshot) async {
+        if (snapshot.docs.isNotEmpty) {
+          final DateTime now = DateTime.now();
+          for (var debt in snapshot.docs) {
+            final List<Map<String, dynamic>> history = List<Map<String, dynamic>>.from(debt['history']);
+            final DateTime date = history.last['date']?.toDate();
+            
+            if (date.month != now.month) {
+              await debt.reference.update({
+                'paid': false,
+              });
+            }
+          }
+        }
+      });
 }
+
 }
