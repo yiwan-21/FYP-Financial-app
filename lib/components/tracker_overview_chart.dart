@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../services/transaction_service.dart';
 
-class IncomeExpenseData {
-  IncomeExpenseData(this.month, this.expense, this.income);
+class TrackerOverviewData {
+  TrackerOverviewData(this.month, this.expense, this.income);
 
   final String month;
   double expense;
@@ -26,7 +26,7 @@ class ExpenseIncomeGraph extends StatefulWidget {
 }
 
 class _ExpenseIncomeGraphState extends State<ExpenseIncomeGraph> {
-  final Future<List<IncomeExpenseData>> _lineData = TransactionService.getLineData();
+  final Future<List<TrackerOverviewData>> _lineData = TransactionService.getLineData();
 
   @override
   Widget build(BuildContext context) {
@@ -43,20 +43,20 @@ class _ExpenseIncomeGraphState extends State<ExpenseIncomeGraph> {
               legend: Legend(isVisible: true),
               // Enable tooltip
               tooltipBehavior: TooltipBehavior(enable: true),
-              series: <ChartSeries<IncomeExpenseData, String>>[
-                LineSeries<IncomeExpenseData, String>(
+              series: <ChartSeries<TrackerOverviewData, String>>[
+                LineSeries<TrackerOverviewData, String>(
                     dataSource: snapshot.data!,
-                    xValueMapper: (IncomeExpenseData record, _) => record.month,
-                    yValueMapper: (IncomeExpenseData record, _) =>
+                    xValueMapper: (TrackerOverviewData record, _) => record.month,
+                    yValueMapper: (TrackerOverviewData record, _) =>
                         record.expense,
                     name: 'Expense',
                     // Enable data label
                     dataLabelSettings:
                         const DataLabelSettings(isVisible: true)),
-                LineSeries<IncomeExpenseData, String>(
+                LineSeries<TrackerOverviewData, String>(
                     dataSource: snapshot.data!,
-                    xValueMapper: (IncomeExpenseData record, _) => record.month,
-                    yValueMapper: (IncomeExpenseData record, _) =>
+                    xValueMapper: (TrackerOverviewData record, _) => record.month,
+                    yValueMapper: (TrackerOverviewData record, _) =>
                         record.income,
                     name: 'Income',
                     // Enable data label

@@ -6,7 +6,7 @@ import '../firebase_instance.dart';
 import '../constants/constant.dart';
 import '../components/history_card.dart';
 import '../components/tracker_transaction.dart';
-import '../components/expense_income_graph.dart';
+import '../components/tracker_overview_chart.dart';
 import '../components/auto_dis_chart.dart';
 import '../services/budget_service.dart';
 
@@ -103,13 +103,13 @@ class TransactionService {
     return data;
   }
 
-  static Future<List<IncomeExpenseData>> getLineData() async {
+  static Future<List<TrackerOverviewData>> getLineData() async {
     const int monthCount = 5;
-    final List<IncomeExpenseData> lineData = [];
-    // fill lineData with IncomeExpenseData objects
+    final List<TrackerOverviewData> lineData = [];
+    // fill lineData with TrackerOverviewData objects
     final month = DateTime.now().month;
     for (int i = month - (monthCount - 1) - 1; i < month; i++) {
-      lineData.add(IncomeExpenseData(Constant.monthLabels[i], 0, 0));
+      lineData.add(TrackerOverviewData(Constant.monthLabels[i], 0, 0));
     }
     int monthIndex = 0;
 

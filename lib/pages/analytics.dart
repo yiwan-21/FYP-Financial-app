@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../constants/constant.dart';
-import '../components/expense_income_graph.dart';
+import '../components/tracker_overview_chart.dart';
 import '../components/auto_dis_chart.dart';
 import '../components/monitor_debt_chart.dart';
 import '../components/monitor_goal_chart.dart';
