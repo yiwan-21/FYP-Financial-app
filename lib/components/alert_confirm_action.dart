@@ -6,8 +6,9 @@ class AlertConfirmAction extends StatefulWidget {
   final String? cancelText;
   final String confirmText;
   final void Function() confirmAction;
+  final void Function()? cancelAction;
 
-  const AlertConfirmAction({required this.title, required this.content, this.cancelText, required this.confirmText, required this.confirmAction, super.key});
+  const AlertConfirmAction({required this.title, required this.content, this.cancelText, required this.confirmText, required this.confirmAction, this.cancelAction, super.key});
 
   @override
   State<AlertConfirmAction> createState() => _AlertConfirmActionState();
@@ -23,7 +24,11 @@ class _AlertConfirmActionState extends State<AlertConfirmAction> {
         widget.cancelText == null ? Container() :
         TextButton(
           onPressed: () {
-            Navigator.pop(context);
+            if (widget.cancelAction != null) {
+              widget.cancelAction!();
+            } else {
+              Navigator.of(context).pop();
+            }
           },
           child: Text(widget.cancelText!),
         ),

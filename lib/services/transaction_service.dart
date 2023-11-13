@@ -86,6 +86,7 @@ class TransactionService {
     await transactionCollection
         .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
         .where('isExpense', isEqualTo: true)
+        .where('category', whereIn: Constant.expenseCategories)
         .orderBy('date', descending: false)
         .get()
         .then((value) {
@@ -115,33 +116,26 @@ class TransactionService {
     if (FirebaseInstance.auth.currentUser == null) {
       return lineData;
     }
-
+    
+    List<String> categories = Constant.analyticsCategories;
     await transactionCollection
         .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+        .where('category', whereIn: categories)
         .orderBy('date', descending: true)
         .get()
         .then((value) => {
-              for (var transaction in value.docs)
-                {
-                  monthIndex =
-                      DateTime.parse(transaction['date'].toDate().toString())
-                              .month -
-                          (DateTime.now().month - (monthCount - 1)),
-                  if (monthIndex >= 0)
-                    {
-                      if (transaction['isExpense'])
-                        {
-                          lineData[monthIndex]
-                              .addExpense(transaction['amount'].toDouble())
-                        }
-                      else
-                        {
-                          lineData[monthIndex]
-                              .addIncome(transaction['amount'].toDouble())
-                        }
-                    }
-                }
-            });
+      for (var transaction in value.docs) {
+        monthIndex = DateTime.parse(transaction['date'].toDate().toString()).month - 
+            (DateTime.now().month - (monthCount - 1)),
+        if (monthIndex >= 0) {
+          if (transaction['isExpense']) {
+            lineData[monthIndex].addExpense(transaction['amount'].toDouble())
+          } else {
+            lineData[monthIndex].addIncome(transaction['amount'].toDouble())
+          }
+        }
+      }
+    });
     return lineData;
   }
 
@@ -160,32 +154,28 @@ class TransactionService {
       barData.add(AutoDisData(Constant.monthLabels[i], 0, 0));
     }
     int monthIndex = 0;
+
+    List<String> categories = Constant.analyticsCategories;
     await transactionCollection
         .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+        .where('category', whereIn: categories)
         .orderBy('date', descending: true)
         .get()
         .then((value) => {
-              for (var transaction in value.docs)
-                {
-                  monthIndex =
-                      DateTime.parse(transaction['date'].toDate().toString())
-                              .month -
-                          (DateTime.now().month - (monthCount - 1)),
-                  if (monthIndex >= 0 && transaction['isExpense'])
-                    {
-                      if (autonomous.contains(transaction['category']))
-                        {
-                          barData[monthIndex]
-                              .addAutonomous(transaction['amount'].toDouble())
-                        }
-                      else
-                        {
-                          barData[monthIndex].addDiscretionary(
-                              transaction['amount'].toDouble())
-                        }
-                    }
-                }
-            });
+      for (var transaction in value.docs) {
+        monthIndex = DateTime.parse(transaction['date'].toDate().toString()).month -
+            (DateTime.now().month - (monthCount - 1)),
+        if (monthIndex >= 0 && transaction['isExpense']) {
+          if (autonomous.contains(transaction['category'])) {
+            barData[monthIndex]
+                .addAutonomous(transaction['amount'].toDouble())
+          } else {
+            barData[monthIndex].addDiscretionary(
+                transaction['amount'].toDouble())
+          }
+        }
+      }
+    });
     return barData;
   }
 

@@ -22,7 +22,6 @@ class Constant {
     'Transportation',
     'Rental',
     'Bill',
-    'Savings Goal',
     'Education',
     'Personal Items',
     'Other Expenses'
@@ -36,9 +35,20 @@ class Constant {
     'Other Income'
   ];
 
-  static const List<String> categories = [
+  // excluded from analytics features
+  static const List<String> excludedCategories = [
+    'Savings Goal',
+  ];
+
+  static const List<String> analyticsCategories = [
     ...expenseCategories,
     ...incomeCategories,
+  ];
+
+  static const List<String> allCategories = [
+    ...expenseCategories,
+    ...incomeCategories,
+    ...excludedCategories,
   ];
   static const String noFilter = 'All Categories';
 
