@@ -23,7 +23,7 @@ class DebtService {
       'amount': amount,
       'interest': interests,
       'history': [],
-      'created_date': DateTime.now(),
+      'created_at': DateTime.now(),
     });
   }
 

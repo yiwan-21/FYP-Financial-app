@@ -35,7 +35,7 @@ class DebtCard extends StatefulWidget {
         interests = doc['interest'].toDouble(),
         history = List<Map<String, dynamic>>.from(doc['history']),
         remainingDuration = doc['duration'] -
-            getDifferenceInMonths(doc['created_date'].toDate(), DateTime.now());
+            getDifferenceInMonths(doc['created_at'].toDate(), DateTime.now());
 
   double get plan {
     return interests == 0
