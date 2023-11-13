@@ -4,6 +4,17 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../constants/constant.dart';
 
+class BudgetChartData {
+  double amount;
+  final DateTime date;
+
+  BudgetChartData(this.amount, this.date);
+
+  void addAmount(double amount) {
+    this.amount += amount;
+  }
+}
+
 class BudgetChart extends StatefulWidget {
   final List<BudgetChartData> budgetData;
 
@@ -51,16 +62,5 @@ class _BudgetGraphState extends State<BudgetChart> {
         ),
       ),
     );
-  }
-}
-
-class BudgetChartData {
-  double amount;
-  final DateTime date;
-
-  BudgetChartData(this.amount, this.date);
-
-  void addAmount(double amount) {
-    this.amount += amount;
   }
 }

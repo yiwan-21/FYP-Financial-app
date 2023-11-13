@@ -51,6 +51,7 @@ class _GoalFormState extends State<GoalForm> {
         saved: 0,
         targetDate: _date,
         pinned: widget.pinned,
+        createdAt: DateTime.now(),
       );
       await GoalService.addGoal(newGoal).then((value) {
         _id = value.id;
