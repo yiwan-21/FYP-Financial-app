@@ -41,22 +41,22 @@ class _SavingsGoalState extends State<SavingsGoal> {
           child: ListView(
             physics: const BouncingScrollPhysics(),
             children: [
-              if (!Constant.isMobile(context))
-                Container(
-                  alignment: Alignment.bottomRight,
-                  margin: const EdgeInsets.only(top: 12, right: 8),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      fixedSize: const Size(150, 40),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0),
+              Constant.isMobile(context)
+                ? const SizedBox(height: 20)
+                : Container(
+                    alignment: Alignment.bottomRight,
+                    margin: const EdgeInsets.only(top: 12, bottom: 12, right: 8),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: const Size(150, 40),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4.0),
+                        ),
                       ),
+                      onPressed: _navigateToAddGoal,
+                      child: const Text('Add Savings Goal'),
                     ),
-                    onPressed: _navigateToAddGoal,
-                    child: const Text('Add Savings Goal'),
                   ),
-                ),
-              const SizedBox(height: 12),
               StreamBuilder<QuerySnapshot>(
                 stream: Provider.of<TotalGoalProvider>(context, listen: false)
                     .getGoalsStream,

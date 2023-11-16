@@ -161,21 +161,23 @@ class _BudgetingState extends State<Budgeting> {
                   const SizedBox(width: 8),
                 ],
               ),
-              if (!Constant.isMobile(context))
-                Container(
-                  alignment: Alignment.bottomRight,
-                  margin: const EdgeInsets.only(top: 10, bottom: 10, right: 8),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      fixedSize: const Size(100, 40),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.0),
+              Constant.isMobile(context)
+                  ? Container(margin: const EdgeInsets.only(top: 10, bottom: 10))
+                  : Container(
+                      alignment: Alignment.bottomRight,
+                      margin:
+                          const EdgeInsets.only(top: 10, bottom: 10, right: 8),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: const Size(100, 40),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                        ),
+                        onPressed: setBudget,
+                        child: const Text('Set Budget'),
                       ),
                     ),
-                    onPressed: setBudget,
-                    child: const Text('Set Budget'),
-                  ),
-                ),
               FutureBuilder(
                 future: _streamFuture,
                 builder: (context, snapshot) {

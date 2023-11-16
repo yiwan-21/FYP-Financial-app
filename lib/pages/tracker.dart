@@ -106,25 +106,24 @@ class _TrackerState extends State<Tracker> {
                   ),
                 ],
               ),
-              if (Constant.isMobile(context))
-                FloatingActionButton.small(
-                  elevation: 2,
-                  onPressed: _addTransaction,
-                  child: const Icon(
-                    Icons.add,
-                  ),
-                ),
-              if (!Constant.isMobile(context))
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    fixedSize: const Size(150, 40),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4.0),
+              Constant.isMobile(context)
+                  ? FloatingActionButton.small(
+                      elevation: 2,
+                      onPressed: _addTransaction,
+                      child: const Icon(
+                        Icons.add,
+                      ),
+                    )
+                  : ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: const Size(150, 40),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4.0),
+                        ),
+                      ),
+                      onPressed: _addTransaction,
+                      child: const Text('Add Transaction'),
                     ),
-                  ),
-                  onPressed: _addTransaction,
-                  child: const Text('Add Transaction'),
-                ),
             ],
           ),
         ),
