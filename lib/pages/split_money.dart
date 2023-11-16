@@ -43,8 +43,7 @@ class _SplitMoneyState extends State<SplitMoney> {
           child: Flex(
             direction: _topDownAlign ? Axis.vertical : Axis.horizontal,
             verticalDirection: VerticalDirection.up,
-            mainAxisAlignment:
-                _topDownAlign ? MainAxisAlignment.end : MainAxisAlignment.start,
+            mainAxisAlignment: _topDownAlign ? MainAxisAlignment.end : MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Flexible(

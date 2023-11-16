@@ -54,92 +54,110 @@ class _DebtState extends State<Debt> {
           constraints: const BoxConstraints(
             maxWidth: 768,
           ),
-          child: StreamBuilder<QuerySnapshot>(
-              stream: _stream,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                }
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(
-                    child: Text("No Debt Yet"),
-                  );
-                }
-
-                List<DebtCard> debts = [];
-                for (var doc in snapshot.data!.docs) {
-                  debts.add(DebtCard.fromDocument(doc));
-                }
-
-                return ListView(
-                  children: [
-                    const SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                        ),
-                        onPressed: _calSurplus,
-                        child: const Text(
-                          'Calculate Savings',
-                          style: TextStyle(
-                            color: Colors.pink,
-                            fontSize: 18,
-                          ),
+          child: ListView(
+            children: [
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4.0),
+                    ),
+                  ),
+                  onPressed: _calSurplus,
+                  child: const Text(
+                    'Calculate Savings',
+                    style: TextStyle(
+                      color: Colors.pink,
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+              ),
+              _surplus != 0
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      const Tooltip(
+                        message:
+                            'Balance from the total income deduct the total expenses from tracker in this month',
+                        triggerMode: TooltipTriggerMode.tap,
+                        showDuration: Duration(seconds: 5),
+                        child: Icon(Icons.info_outline_rounded, size: 20),
+                      ),
+                      const SizedBox(width: 2),
+                      Text(
+                        _surplus > 0
+                            ? 'Surplus: ${_surplus.toStringAsFixed(2)}'
+                            : 'Deficit: ${(_surplus * -1).toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 16,
                         ),
                       ),
-                    ),
-                    if (_surplus != 0)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Tooltip(
-                            message:
-                                'Balance from the total income deduct the total expenses from tracker in this month',
-                            triggerMode: TooltipTriggerMode.tap,
-                            showDuration: Duration(seconds: 5),
-                            child: Icon(Icons.info_outline_rounded, size: 20),
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            _surplus > 0
-                                ? 'Surplus: ${_surplus.toStringAsFixed(2)}'
-                                : 'Deficit: ${(_surplus * -1).toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                        ],
+                      const SizedBox(width: 8),
+                    ],
+                  )
+                : Container(),
+              const SizedBox(height: 20),
+              Constant.isMobile(context)
+                ? Container()
+                : Container(
+                    alignment: Alignment.bottomRight,
+                    margin: const EdgeInsets.only(right: 8, bottom: 8),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: const Size(100, 40),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4.0),
+                        ),
                       ),
-                    if (_surplus != 0) const SizedBox(height: 20),
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.only(bottom: 50),
-                      itemCount: debts.length,
-                      itemBuilder: (context, index) {
-                        return debts[index];
-                      },
-                      separatorBuilder: (context, index) {
-                        return const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 40),
-                          child: Divider(height: 20),
-                        );
-                      },
+                      onPressed: _addDebt,
+                      child: const Text('Add Debt'),
                     ),
-                  ],
-                );
-              }),
+                  ),
+              StreamBuilder<QuerySnapshot>(
+                stream: _stream,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                      child: Text("No Debt Yet"),
+                    );
+                  }
+
+                  List<DebtCard> debts = [];
+                  for (var doc in snapshot.data!.docs) {
+                    debts.add(DebtCard.fromDocument(doc));
+                  }
+
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.only(bottom: 50),
+                    itemCount: debts.length,
+                    itemBuilder: (context, index) {
+                      return debts[index];
+                    },
+                    separatorBuilder: (context, index) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 40),
+                        child: Divider(height: 20),
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButtonLocation: Constant.isMobile(context)
@@ -155,23 +173,7 @@ class _DebtState extends State<Debt> {
                 color: Colors.black,
               ),
             )
-          : Stack(
-              children: [
-                Positioned(
-                  left: (MediaQuery.of(context).size.width - 768) / 2,
-                  bottom: 5,
-                  child: FloatingActionButton(
-                    backgroundColor: ColorConstant.lightBlue,
-                    onPressed: _addDebt,
-                    child: const Icon(
-                      Icons.add,
-                      size: 27,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          : null,
     );
   }
 }

@@ -43,97 +43,123 @@ class _BillState extends State<Bill> {
           constraints: const BoxConstraints(
             maxWidth: 768,
           ),
-          child: StreamBuilder<QuerySnapshot>(
-              stream: _stream,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
+          child: ListView(
+            children: [
+              StreamBuilder<QuerySnapshot>(
+                stream: _stream, 
+                builder: (context, snapshot) {
+                  int totalBills = 0;
+                  int paidBills = 0;
+                  double paidPercentage = 0;
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+                  if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                    for (var doc in snapshot.data!.docs) {
+                      if (doc['paid']) {
+                        paidBills++;
+                      }
+                    }
+                    totalBills = snapshot.data!.docs.length;
+                    paidPercentage = paidBills / totalBills;
+                  }
+                  return ListView(
+                    shrinkWrap: true,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(top: _radius + 30, bottom: _radius + 20),
+                        child: CustomPaint(
+                          painter: CustomCircularProgress(
+                              value: paidPercentage,
+                              strokeWidth: _radius / 10,
+                              radius: _radius,
+                              startAngle: 3,
+                              sweepAngle: 360,
+                              heightMultiply: 0.5,
+                              widthMultiply: 2,
+                              colors: [
+                                Colors.deepPurpleAccent[100]!,
+                                Colors.deepPurpleAccent[700]!,
+                              ]),
+                          child: Text(
+                            'Paid ${(paidPercentage * 100).toInt()}%',
+                            style: const TextStyle(
+                              // fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      totalBills == 0
+                          ? Container()
+                          : Text(
+                              '$paidBills / $totalBills Bills Paid',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                      Constant.isMobile(context)
+                          ? const SizedBox(height: 20)
+                          : Align(
+                              alignment: Alignment.centerRight,
+                              child: Container(
+                                margin: const EdgeInsets.all(8.0),
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    fixedSize: const Size(100, 40),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4.0),
+                                    ),
+                                  ),
+                                  onPressed: _addBill,
+                                  child: const Text('Add Bill'),
+                                ),
+                              ),
+                            ),
+                    ],
                   );
-                }
-                if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                }
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(
-                    child: Text("No Bill Yet"),
-                  );
-                }
-
-                List<BillCard> bills = [];
-                int paidBills = 0;
-                for (var doc in snapshot.data!.docs) {
-                  if (doc['paid']) {
-                    paidBills++;
+                },
+              ),
+              const SizedBox(height: 10),
+              StreamBuilder<QuerySnapshot>(
+                stream: _stream,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                      child: Text("No Bill Yet"),
+                    );
                   }
 
-                  bills.add(BillCard.fromDocument(doc));
-                }
+                  List<BillCard> bills = [];
+                  for (var doc in snapshot.data!.docs) {
+                    bills.add(BillCard.fromDocument(doc));
+                  }
 
-                double paidPercentage = paidBills / bills.length;
-                if (bills.isEmpty) {
-                  paidPercentage = 0;
-                }
-
-                return ListView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.only(bottom: 50),
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(
-                          top: _radius + 30, bottom: _radius + 20),
-                      child: CustomPaint(
-                        painter: CustomCircularProgress(
-                            value: paidPercentage,
-                            strokeWidth: _radius / 10,
-                            radius: _radius,
-                            startAngle: 3,
-                            sweepAngle: 360,
-                            heightMultiply: 0.5,
-                            widthMultiply: 2,
-                            colors: [
-                              Colors.deepPurpleAccent[100]!,
-                              Colors.deepPurpleAccent[700]!,
-                            ]),
-                        child: Text(
-                          'Paid ${(paidPercentage * 100).toInt()}%',
-                          style: const TextStyle(
-                            // fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      '$paidBills / ${bills.length} Bills Paid',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    if (!Constant.isMobile(context)) // if not in mobile view
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Container(
-                          margin: const EdgeInsets.all(8.0),
-                          child: FloatingActionButton(
-                            backgroundColor: ColorConstant.lightBlue,
-                            onPressed: _addBill,
-                            child: const Icon(
-                              Icons.edit_note,
-                              size: 27,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    const SizedBox(height: 10),
-                    ...List.generate(bills.length, (index) => bills[index]),
-                  ],
-                );
-              }),
+                  return ListView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.only(bottom: 50),
+                    children: List.generate(bills.length, (index) => bills[index]),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButtonLocation: Constant.isMobile(context)

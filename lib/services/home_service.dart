@@ -31,7 +31,11 @@ class HomeService {
     List<String> defaultItems = HomeConstant.homeItems.take(2).toList();
     await homeCollection
         .doc(FirebaseInstance.auth.currentUser!.uid)
-        .set({'items': defaultItems});
+        .set({
+          'items': defaultItems, 
+          'groupID': '', 
+          'budgetCategory': '',
+        });
     return defaultItems;
   }
 
