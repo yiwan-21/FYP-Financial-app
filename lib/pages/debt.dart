@@ -121,7 +121,22 @@ class _DebtState extends State<Debt> {
                           const SizedBox(width: 8),
                         ],
                       ),
-                    if (_surplus != 0) const SizedBox(height: 20),
+                    const SizedBox(height: 20),
+                    if (!Constant.isMobile(context))
+                      Container(
+                        alignment: Alignment.bottomRight,
+                        margin: const EdgeInsets.only(right: 8, bottom: 8),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            fixedSize: const Size(100, 40),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
+                          ),
+                          onPressed: _addDebt,
+                          child: const Text('Add Debt'),
+                        ),
+                      ),
                     ListView.separated(
                       shrinkWrap: true,
                       physics: const BouncingScrollPhysics(),
@@ -155,23 +170,7 @@ class _DebtState extends State<Debt> {
                 color: Colors.black,
               ),
             )
-          : Stack(
-              children: [
-                Positioned(
-                  left: (MediaQuery.of(context).size.width - 768) / 2,
-                  bottom: 5,
-                  child: FloatingActionButton(
-                    backgroundColor: ColorConstant.lightBlue,
-                    onPressed: _addDebt,
-                    child: const Icon(
-                      Icons.add,
-                      size: 27,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          : null,
     );
   }
 }

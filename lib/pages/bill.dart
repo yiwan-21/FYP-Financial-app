@@ -118,14 +118,15 @@ class _BillState extends State<Bill> {
                         alignment: Alignment.centerRight,
                         child: Container(
                           margin: const EdgeInsets.all(8.0),
-                          child: FloatingActionButton(
-                            backgroundColor: ColorConstant.lightBlue,
-                            onPressed: _addBill,
-                            child: const Icon(
-                              Icons.edit_note,
-                              size: 27,
-                              color: Colors.black,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              fixedSize: const Size(100, 40),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4.0),
+                              ),
                             ),
+                            onPressed: _addBill,
+                            child: const Text('Add Bill'),
                           ),
                         ),
                       ),

@@ -18,14 +18,19 @@ class Tracker extends StatefulWidget {
 }
 
 class _TrackerState extends State<Tracker> {
-  final List<String> _categories = [Constant.noFilter, ...Constant.allCategories];
+  final List<String> _categories = [
+    Constant.noFilter,
+    ...Constant.allCategories
+  ];
   String _selectedItem = Constant.noFilter;
 
   void _addTransaction() {
     if (Constant.isMobile(context) && !kIsWeb) {
-      Navigator.pushNamed(context, RouteName.manageTransaction, arguments: {'isEditing': false}).then((value) {
+      Navigator.pushNamed(context, RouteName.manageTransaction,
+          arguments: {'isEditing': false}).then((value) {
         if (value != null && value is TrackerTransaction) {
-          Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
+          Provider.of<TotalTransactionProvider>(context, listen: false)
+              .updateTransactions();
         }
       });
     } else {
@@ -35,7 +40,8 @@ class _TrackerState extends State<Tracker> {
           return const ManageTransaction(false);
         },
       ).then((_) {
-        Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
+        Provider.of<TotalTransactionProvider>(context, listen: false)
+            .updateTransactions();
       });
     }
   }
@@ -75,10 +81,13 @@ class _TrackerState extends State<Tracker> {
                     "Transactions (RM)",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 10,),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   DropdownButton<String>(
                     value: _selectedItem,
-                    icon: const Icon(Icons.filter_alt_outlined), // Icon to display
+                    icon: const Icon(
+                        Icons.filter_alt_outlined), // Icon to display
                     iconSize: 22,
                     elevation: 16,
                     hint: const Text('Filter'),
@@ -87,8 +96,8 @@ class _TrackerState extends State<Tracker> {
                         _selectedItem = newValue!;
                       });
                     },
-                    items:
-                        _categories.map<DropdownMenuItem<String>>((String value) {
+                    items: _categories
+                        .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Text(value),
@@ -97,18 +106,31 @@ class _TrackerState extends State<Tracker> {
                   ),
                 ],
               ),
-              FloatingActionButton.small(
-                elevation: 2,
-                onPressed: _addTransaction,
-                child: const Icon(
-                  Icons.add,
+              if (Constant.isMobile(context))
+                FloatingActionButton.small(
+                  elevation: 2,
+                  onPressed: _addTransaction,
+                  child: const Icon(
+                    Icons.add,
+                  ),
                 ),
-              ),
+              if (!Constant.isMobile(context))
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    fixedSize: const Size(150, 40),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4.0),
+                    ),
+                  ),
+                  onPressed: _addTransaction,
+                  child: const Text('Add Transaction'),
+                ),
             ],
           ),
         ),
         StreamBuilder<QuerySnapshot>(
-          stream: Provider.of<TotalTransactionProvider>(context, listen: false).getAllTransactionsStream,
+          stream: Provider.of<TotalTransactionProvider>(context, listen: false)
+              .getAllTransactionsStream,
           builder: ((context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());

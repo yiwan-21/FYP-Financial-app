@@ -41,6 +41,21 @@ class _SavingsGoalState extends State<SavingsGoal> {
           child: ListView(
             physics: const BouncingScrollPhysics(),
             children: [
+              if (!Constant.isMobile(context))
+                Container(
+                  alignment: Alignment.bottomRight,
+                  margin: const EdgeInsets.only(top: 12, right: 8),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: const Size(150, 40),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                    ),
+                    onPressed: _navigateToAddGoal,
+                    child: const Text('Add Savings Goal'),
+                  ),
+                ),
               const SizedBox(height: 12),
               StreamBuilder<QuerySnapshot>(
                 stream: Provider.of<TotalGoalProvider>(context, listen: false)
@@ -83,23 +98,7 @@ class _SavingsGoalState extends State<SavingsGoal> {
                 color: Colors.black,
               ),
             )
-          : Stack(
-              children: [
-                Positioned(
-                  right: (MediaQuery.of(context).size.width - 768) / 2,
-                  bottom: 5,
-                  child: FloatingActionButton(
-                    backgroundColor: ColorConstant.lightBlue,
-                    onPressed: _navigateToAddGoal,
-                    child: const Icon(
-                      Icons.add,
-                      size: 27,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+          : null,
     );
   }
 }
