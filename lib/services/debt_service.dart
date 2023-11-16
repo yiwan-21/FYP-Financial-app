@@ -107,17 +107,19 @@ class DebtService {
     return barData;
   }
 
-static Future<void> resetDebt() async {
-  await debtsCollection
-      .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-      .get()
-      .then((snapshot) async {
-        if (snapshot.docs.isNotEmpty) {
-          final DateTime now = DateTime.now();
-          for (var debt in snapshot.docs) {
-            final List<Map<String, dynamic>> history = List<Map<String, dynamic>>.from(debt['history']);
+  static Future<void> resetDebt() async {
+    await debtsCollection
+        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
+        .get()
+        .then((snapshot) async {
+      if (snapshot.docs.isNotEmpty) {
+        final DateTime now = DateTime.now();
+        for (var debt in snapshot.docs) {
+          final List<Map<String, dynamic>> history =
+              List<Map<String, dynamic>>.from(debt['history']);
+          if (history.isNotEmpty) {
             final DateTime date = history.last['date']?.toDate();
-            
+
             if (date.month != now.month) {
               await debt.reference.update({
                 'paid': false,
@@ -125,7 +127,7 @@ static Future<void> resetDebt() async {
             }
           }
         }
-      });
-}
-
+      }
+    });
+  }
 }
