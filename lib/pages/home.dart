@@ -3,12 +3,14 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import '../components/bill_card.dart';
 import '../components/budget_card.dart';
 import '../components/goal.dart';
 import '../components/split_expense_card.dart';
 import '../components/tracker_transaction.dart';
+import '../components/show_case_view.dart';
 
 import '../constants/constant.dart';
 import '../constants/home_constant.dart';
@@ -35,6 +37,15 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool get _isMobile => Constant.isMobile(context);
+
+  final GlobalKey _key = GlobalKey();
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback(
+        (_) => ShowCaseWidget.of(context).startShowCase([_key]));
+    super.initState();
+  }
 
   void _navigateToHomeSettings() {
     Navigator.pushNamed(context, RouteName.homeSettings);
@@ -86,7 +97,8 @@ class _HomeState extends State<Home> {
                                 backgroundImage: NetworkImage(image),
                               )
                             : CircleAvatar(
-                                radius: Constant.isMobile(context) ? 20.0 : 25.0,
+                                radius:
+                                    Constant.isMobile(context) ? 20.0 : 25.0,
                                 child: const Icon(
                                   Icons.account_circle,
                                   color: Colors.white,
@@ -117,26 +129,31 @@ class _HomeState extends State<Home> {
                         const Spacer(),
                         Row(
                           children: [
-                            GestureDetector(
-                              onTap: _navigateToHomeSettings,
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.settings,
-                                    size: 25,
-                                    color: Colors.black,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  if (!Constant.isMobile(context))
-                                    const Text(
-                                      'Home Settings',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
+                            ShowCaseView(
+                              globalKey: _key,
+                              title: "Set Your Home",
+                              description: "Customize your home display here",
+                              child: GestureDetector(
+                                onTap: _navigateToHomeSettings,
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.settings,
+                                      size: 25,
+                                      color: Colors.black,
                                     ),
-                                ],
+                                    const SizedBox(width: 8),
+                                    if (!Constant.isMobile(context))
+                                      const Text(
+                                        'Home Settings',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -376,7 +393,8 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
         Provider.of<NavigationProvider>(context, listen: false)
             .goToSplitMoney();
       } else {
-        Navigator.pushNamed(context, RouteName.splitMoneyGroup, arguments: {'id': widget.groupID});
+        Navigator.pushNamed(context, RouteName.splitMoneyGroup,
+            arguments: {'id': widget.groupID});
       }
     });
   }

@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import './firebase_instance.dart';
 import './pages/landing.dart';
@@ -64,7 +65,11 @@ void main() async {
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => HomeProvider()),
       ],
-      child: const MyApp(),
+      child: ShowCaseWidget(
+        builder: Builder(
+          builder: (context) => const MyApp(),
+        ),
+      ),
     ),
   );
 }
@@ -154,7 +159,8 @@ class MyApp extends StatelessWidget {
             if (isLoggedIn()) {
               // get argument from route
               final args = settings.arguments as Map<String, dynamic>;
-              return MaterialPageRoute(builder: (_) => SplitMoneyGroup(groupID: args['id']));
+              return MaterialPageRoute(
+                  builder: (_) => SplitMoneyGroup(groupID: args['id']));
             } else {
               return MaterialPageRoute(builder: (_) => const Landing());
             }
