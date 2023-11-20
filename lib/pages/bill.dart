@@ -44,13 +44,15 @@ class _BillState extends State<Bill> {
             maxWidth: 768,
           ),
           child: ListView(
+            physics: const BouncingScrollPhysics(),
             children: [
               StreamBuilder<QuerySnapshot>(
-                stream: _stream, 
+                stream: _stream,
                 builder: (context, snapshot) {
                   int totalBills = 0;
                   int paidBills = 0;
                   double paidPercentage = 0;
+                  
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
                       child: CircularProgressIndicator(),
@@ -70,6 +72,7 @@ class _BillState extends State<Bill> {
                   }
                   return ListView(
                     shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     children: [
                       Padding(
                         padding: EdgeInsets.only(top: _radius + 30, bottom: _radius + 20),
@@ -152,7 +155,8 @@ class _BillState extends State<Bill> {
                   }
 
                   return ListView(
-                    physics: const BouncingScrollPhysics(),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.only(bottom: 50),
                     children: List.generate(bills.length, (index) => bills[index]),
                   );
