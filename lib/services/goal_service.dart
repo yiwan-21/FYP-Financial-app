@@ -131,8 +131,8 @@ static Future<List<MonitorGoalData>> getlineData() async {
     final List<String> expiredGoals = [];
     // Before 3 days, on that day -expired. get Expired Goal notification(only sent once)
     final DateTime now = DateTime.now();
-    final DateTime futureThreshold = DateTime(now.year, now.month, now.day + 3);
-    final DateTime todayThreshold = DateTime(now.year, now.month, now.day);
+    final DateTime futureThreshold = getOnlyDate(DateTime(now.year, now.month, now.day + 3));
+    final DateTime todayThreshold = getOnlyDate(DateTime(now.year, now.month, now.day));
 
     await FirebaseInstance.firestore.collection('notifications')
         .where('receiverID', arrayContains: uid)
