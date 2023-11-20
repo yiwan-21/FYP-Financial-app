@@ -102,37 +102,31 @@ class _TrackerTransactionState extends State<TrackerTransaction> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Row(
-                    children: [
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 8),
-                        child: StyleConstant.getCategoryIcon(widget.category),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(
-                            width: 130, // Adjust the width as needed
-                            child: Text(
-                              widget.title,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    child: StyleConstant.getCategoryIcon(widget.category),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.title,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
-                          Text(
-                            widget.date.toString().substring(0, 10),
-                            style: const TextStyle(
-                              color: Colors.black54,
-                            ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          widget.date.toString().substring(0, 10),
+                          style: const TextStyle(
+                            color: Colors.black54,
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
                   Row(
                     children: [
@@ -142,24 +136,20 @@ class _TrackerTransactionState extends State<TrackerTransaction> {
                           vertical: 10,
                           horizontal: 10,
                         ),
-                        child: SizedBox(
-                          width: 95,
-                          child: Text(
-                            '${widget.isExpense ? "-" : "+"}${widget.amount.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.black,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.right,
+                        child: Text(
+                          '${widget.isExpense ? "-" : "+"}${widget.amount.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Colors.black,
                           ),
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.right,
                         ),
                       ),
                       Container(
                         margin: const EdgeInsets.only(right: 10),
-                        child: Icon(
-                            _expanded ? Icons.expand_less : Icons.expand_more),
+                        child: Icon(_expanded ? Icons.expand_less : Icons.expand_more),
                       )
                     ],
                   ),
