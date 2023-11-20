@@ -65,6 +65,15 @@ class GoalService {
   }
 
   static Future<void> deleteGoal(goalId) async {
+    await goalsCollection.doc(goalId)
+        .collection('history')
+        .get()
+        .then((snapshot) async {
+          for (var doc in snapshot.docs) {
+            await doc.reference.delete();
+          }
+        });
+
     return await goalsCollection.doc(goalId).delete();
   }
 
