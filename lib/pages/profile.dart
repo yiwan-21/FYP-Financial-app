@@ -16,8 +16,17 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  void signout() {
-    Auth.signout(context);
+  bool _loading = false;
+
+  Future<void> signout() async {
+    setState(() {
+      _loading = true;
+    });
+    await Auth.signout(context).then((_) {
+      setState(() {
+        _loading = false;
+      });
+    });
   }
 
   // Pick from gallery
@@ -184,8 +193,16 @@ class _ProfileState extends State<Profile> {
           Center(
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(minimumSize: const Size(180, 40)),
-              onPressed: signout,
-              child: const Text('Logout'),
+              onPressed: _loading ? null : () async => await signout(),
+              child: _loading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text('Sign Out'),
             ),
           ),
         ],
