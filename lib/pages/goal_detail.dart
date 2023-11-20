@@ -306,6 +306,7 @@ class _GoalProgressState extends State<GoalProgress> {
           checkboxLabel: _checkboxLabel,
           onSaveFunction: _onSubmit,
           disableCheckbox: true,
+          maxValue: _remaining,
         );
       },
     );
