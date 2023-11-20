@@ -74,18 +74,18 @@ class _GoalDetailState extends State<GoalDetail> {
     // cash account income (credit)
     if (saved > 0) {
       if (didSpent) {
-        final TrackerTransaction expenseTransaction = TrackerTransaction(
-          id: '',
-          title: 'Completed Goal: $_title',
-          amount: saved,
-          date: DateTime.now(),
-          isExpense: true,
-          category: 'Savings Goal',
-          notes: 'Auto Generated: Debit to Savings Goal: $_title',
-        );
-        await TransactionService.addTransaction(expenseTransaction).then((_) async {
-          await Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
-        });
+        // final TrackerTransaction expenseTransaction = TrackerTransaction(
+        //   id: '',
+        //   title: 'Completed Goal: $_title',
+        //   amount: saved,
+        //   date: DateTime.now(),
+        //   isExpense: true,
+        //   category: 'Savings Goal',
+        //   notes: 'Auto Generated: Debit to Savings Goal: $_title',
+        // );
+        // await TransactionService.addTransaction(expenseTransaction).then((_) async {
+        //   await Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
+        // });
 
       } else {
         final TrackerTransaction expenseTransaction = TrackerTransaction(
