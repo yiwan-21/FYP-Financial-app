@@ -110,25 +110,27 @@ class _GoalState extends State<Goal> {
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                 children: [
-                  Text(
-                    widget.title,
-                    textAlign: TextAlign.left,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      color: Colors.black,
+                  Flexible(
+                    child: Text(
+                      widget.title,
+                      textAlign: TextAlign.left,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
+                  
 
                   Row(
                     children: [
-                      if (widget.pinned) 
-                        const Padding(
-                          padding: EdgeInsets.only(right: 10),
-                          child: Icon(Icons.push_pin),
-                        ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: widget.pinned ? const Icon(Icons.push_pin) : null,
+                      ),
                       Text(
                         'RM ${widget.amount.toStringAsFixed(2)}',
                         style: const TextStyle(

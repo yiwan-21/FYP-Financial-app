@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,7 +10,6 @@ import '../components/tracker_transaction.dart';
 import '../components/growing_tree.dart';
 import '../components/alert_confirm_action.dart';
 import '../constants/constant.dart';
-import '../constants/style_constant.dart';
 import '../providers/goal_provider.dart';
 import '../providers/total_transaction_provider.dart';
 import '../services/goal_service.dart';
@@ -76,18 +74,18 @@ class _GoalDetailState extends State<GoalDetail> {
     // cash account income (credit)
     if (saved > 0) {
       if (didSpent) {
-        final TrackerTransaction expenseTransaction = TrackerTransaction(
-          id: '',
-          title: 'Completed Goal: $_title',
-          amount: saved,
-          date: DateTime.now(),
-          isExpense: true,
-          category: 'Savings Goal',
-          notes: 'Auto Generated: Debit to Savings Goal: $_title',
-        );
-        await TransactionService.addTransaction(expenseTransaction).then((_) async {
-          await Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
-        });
+        // final TrackerTransaction expenseTransaction = TrackerTransaction(
+        //   id: '',
+        //   title: 'Completed Goal: $_title',
+        //   amount: saved,
+        //   date: DateTime.now(),
+        //   isExpense: true,
+        //   category: 'Savings Goal',
+        //   notes: 'Auto Generated: Debit to Savings Goal: $_title',
+        // );
+        // await TransactionService.addTransaction(expenseTransaction).then((_) async {
+        //   await Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
+        // });
 
       } else {
         final TrackerTransaction expenseTransaction = TrackerTransaction(
@@ -298,6 +296,22 @@ class _GoalProgressState extends State<GoalProgress> {
     await _addTransactionRecords(value);
   }
 
+  void _addProgressDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertWithCheckbox(
+          title: _dialogTitle,
+          contentLabel: _contentLabel,
+          checkboxLabel: _checkboxLabel,
+          onSaveFunction: _onSubmit,
+          disableCheckbox: true,
+          maxValue: _remaining,
+        );
+      },
+    );
+  }
+
   Future<void> _addTransactionRecords(double value) async {
     // cash account expense (debit)
     // savings goal income (credit)
@@ -331,39 +345,39 @@ class _GoalProgressState extends State<GoalProgress> {
       shrinkWrap: true,
       children: [
         GrowingTree(progress: _progress),
-        Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.only(top: 20, bottom: 50),
-          child: ElevatedButton(
-            onPressed: _remaining == 0
-                ? null
-                : () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertWithCheckbox(
-                          title: _dialogTitle,
-                          contentLabel: _contentLabel,
-                          checkboxLabel: _checkboxLabel,
-                          onSaveFunction: _onSubmit,
-                          disableCheckbox: true,
-                        );
-                      },
-                    );
-                  },
-            style: ElevatedButton.styleFrom(
-                backgroundColor: ColorConstant.lightBlue,
-                shape: const CircleBorder(),
-                padding: kIsWeb
-                    ? const EdgeInsets.all(25)
-                    : const EdgeInsets.all(15)),
-            child: Image.asset(
-              'assets/images/wateringCan.png',
-              width: kIsWeb ? 40 : 32,
-              height: kIsWeb ? 40 : 32,
+        _remaining == 0 
+        ? Padding(
+            padding: const EdgeInsets.only(top: 20, bottom: 50),
+            child: Text(
+              'Congratulations! \nYou have completed this goal!',
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              textWidthBasis: TextWidthBasis.parent,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+                color: Colors.green,
+              ),
+            ),
+        )
+        : Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.only(top: 20, bottom: 50),
+            child: 
+            Container(
+              alignment: Alignment.center,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  fixedSize: const Size(150, 40),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4.0),
+                  ),
+                ),
+                onPressed: _addProgressDialog,
+                child: const Text('Add Goal Progress'),
+              ),
             ),
           ),
-        ),
         Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -383,7 +397,7 @@ class _GoalProgressState extends State<GoalProgress> {
                       )),
                 ],
               ),
-              _remaining == 0 ? Container() : const SizedBox(width: 40),
+              SizedBox(width: _remaining == 0 ? 0 : 40),
               _remaining == 0
                   ? Container()
                   : Column(
@@ -404,70 +418,71 @@ class _GoalProgressState extends State<GoalProgress> {
             ],
           ),
         ),
-        Container(
-          alignment: Alignment.bottomCenter,
-          padding: const EdgeInsets.only(bottom: 30, top: 50),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  const SizedBox(height: 30),
-                  const Text('Daily',
-                      style: TextStyle(
-                          fontSize: 12,
+        if (_remaining != 0)
+          Container(
+            alignment: Alignment.bottomCenter,
+            padding: const EdgeInsets.only(bottom: 30, top: 50),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    const SizedBox(height: 30),
+                    const Text('Daily',
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey)),
+                    Text('RM ${_daily.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey)),
-                  Text('RM ${_daily.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      )),
-                ],
-              ),
-              const SizedBox(width: 30),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  const Text('SAVINGS PLANS',
-                      style: TextStyle(
-                          fontSize: 16,
+                        )),
+                  ],
+                ),
+                const SizedBox(width: 30),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    const Text('SAVINGS PLANS',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey)),
+                    const SizedBox(height: 10),
+                    const Text('Weekly',
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey)),
+                    Text('RM ${_weekly.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey)),
-                  const SizedBox(height: 10),
-                  const Text('Weekly',
-                      style: TextStyle(
-                          fontSize: 12,
+                        )),
+                  ],
+                ),
+                const SizedBox(width: 30),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    const SizedBox(height: 30),
+                    const Text('Monthly',
+                        style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey)),
+                    Text('RM ${_monthly.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey)),
-                  Text('RM ${_weekly.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      )),
-                ],
-              ),
-              const SizedBox(width: 30),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  const SizedBox(height: 30),
-                  const Text('Monthly',
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey)),
-                  Text('RM ${_monthly.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      )),
-                ],
-              ),
-            ],
+                        )),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
       ],
     );
   }
