@@ -18,8 +18,7 @@ class Bill extends StatefulWidget {
 }
 
 class _BillState extends State<Bill> {
-  final Stream<QuerySnapshot> _stream1 = BillService.getBillStream();
-  final Stream<QuerySnapshot> _stream2 = BillService.getBillStream();
+  final Stream<QuerySnapshot> _stream = BillService.getBillStream();
   final double _radius = 90;
 
   void _addBill() {
@@ -44,35 +43,38 @@ class _BillState extends State<Bill> {
           constraints: const BoxConstraints(
             maxWidth: 768,
           ),
-          child: ListView(
-            cacheExtent: 1000,
-            physics: const BouncingScrollPhysics(),
-            children: [
-              StreamBuilder<QuerySnapshot>(
-                stream: _stream1,
-                builder: (context, snapshot) {
-                  int totalBills = 0;
-                  int paidBills = 0;
-                  double paidPercentage = 0;
+          child: StreamBuilder<QuerySnapshot>(
+            stream: _stream,
+            builder: (context, snapshot) {
+              int totalBills = 0;
+              int paidBills = 0;
+              double paidPercentage = 0;
+              List<BillCard> bills = [];
 
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              }
+              if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                for (var doc in snapshot.data!.docs) {
+                  if (doc['paid']) {
+                    paidBills++;
                   }
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
-                  if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                    for (var doc in snapshot.data!.docs) {
-                      if (doc['paid']) {
-                        paidBills++;
-                      }
-                    }
-                    totalBills = snapshot.data!.docs.length;
-                    paidPercentage = paidBills / totalBills;
-                  }
-                  return ListView(
+
+                  bills.add(BillCard.fromDocument(doc));
+                }
+                totalBills = snapshot.data!.docs.length;
+                paidPercentage = paidBills / totalBills;
+              }
+              return ListView(
+                cacheExtent: 1000,
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  ListView(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     children: [
@@ -130,41 +132,17 @@ class _BillState extends State<Bill> {
                               ),
                             ),
                     ],
-                  );
-                },
-              ),
-              const SizedBox(height: 10),
-              StreamBuilder<QuerySnapshot>(
-                stream: _stream2,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Center(
-                      child: Text("No Bill Yet"),
-                    );
-                  }
-
-                  List<BillCard> bills = [];
-                  for (var doc in snapshot.data!.docs) {
-                    bills.add(BillCard.fromDocument(doc));
-                  }
-
-                  return ListView(
+                  ),
+                  const SizedBox(height: 10),
+                  ListView(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.only(bottom: 50),
                     children: List.generate(bills.length, (index) => bills[index]),
-                  );
-                },
-              ),
-            ],
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
