@@ -18,7 +18,8 @@ class Bill extends StatefulWidget {
 }
 
 class _BillState extends State<Bill> {
-  final Stream<QuerySnapshot> _stream = BillService.getBillStream();
+  final Stream<QuerySnapshot> _stream1 = BillService.getBillStream();
+  final Stream<QuerySnapshot> _stream2 = BillService.getBillStream();
   final double _radius = 90;
 
   void _addBill() {
@@ -44,15 +45,16 @@ class _BillState extends State<Bill> {
             maxWidth: 768,
           ),
           child: ListView(
+            cacheExtent: 1000,
             physics: const BouncingScrollPhysics(),
             children: [
               StreamBuilder<QuerySnapshot>(
-                stream: _stream,
+                stream: _stream1,
                 builder: (context, snapshot) {
                   int totalBills = 0;
                   int paidBills = 0;
                   double paidPercentage = 0;
-                  
+
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
                       child: CircularProgressIndicator(),
@@ -133,7 +135,7 @@ class _BillState extends State<Bill> {
               ),
               const SizedBox(height: 10),
               StreamBuilder<QuerySnapshot>(
-                stream: _stream,
+                stream: _stream2,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
