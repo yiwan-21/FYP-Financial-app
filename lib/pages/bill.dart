@@ -43,33 +43,40 @@ class _BillState extends State<Bill> {
           constraints: const BoxConstraints(
             maxWidth: 768,
           ),
-          child: ListView(
-            children: [
-              StreamBuilder<QuerySnapshot>(
-                stream: _stream, 
-                builder: (context, snapshot) {
-                  int totalBills = 0;
-                  int paidBills = 0;
-                  double paidPercentage = 0;
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
+          child: StreamBuilder<QuerySnapshot>(
+            stream: _stream,
+            builder: (context, snapshot) {
+              int totalBills = 0;
+              int paidBills = 0;
+              double paidPercentage = 0;
+              List<BillCard> bills = [];
+
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              }
+              if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                for (var doc in snapshot.data!.docs) {
+                  if (doc['paid']) {
+                    paidBills++;
                   }
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
-                  if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                    for (var doc in snapshot.data!.docs) {
-                      if (doc['paid']) {
-                        paidBills++;
-                      }
-                    }
-                    totalBills = snapshot.data!.docs.length;
-                    paidPercentage = paidBills / totalBills;
-                  }
-                  return ListView(
+
+                  bills.add(BillCard.fromDocument(doc));
+                }
+                totalBills = snapshot.data!.docs.length;
+                paidPercentage = paidBills / totalBills;
+              }
+              return ListView(
+                cacheExtent: 1000,
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  ListView(
                     shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     children: [
                       Padding(
                         padding: EdgeInsets.only(top: _radius + 30, bottom: _radius + 20),
@@ -125,40 +132,17 @@ class _BillState extends State<Bill> {
                               ),
                             ),
                     ],
-                  );
-                },
-              ),
-              const SizedBox(height: 10),
-              StreamBuilder<QuerySnapshot>(
-                stream: _stream,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Center(
-                      child: Text("No Bill Yet"),
-                    );
-                  }
-
-                  List<BillCard> bills = [];
-                  for (var doc in snapshot.data!.docs) {
-                    bills.add(BillCard.fromDocument(doc));
-                  }
-
-                  return ListView(
-                    physics: const BouncingScrollPhysics(),
+                  ),
+                  const SizedBox(height: 10),
+                  ListView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.only(bottom: 50),
                     children: List.generate(bills.length, (index) => bills[index]),
-                  );
-                },
-              ),
-            ],
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
