@@ -109,7 +109,7 @@ class _TrackerState extends State<Tracker> {
                 ],
               ),
               Showcase(
-                key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[1],
+                key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[2],
                 title: "Transaction",
                 description: "Add your transaction here",
                 child: Constant.isMobile(context)
@@ -155,7 +155,7 @@ class _TrackerState extends State<Tracker> {
                 .map((doc) => TrackerTransaction.fromDocument(doc))
                 .toList();
             return Showcase(
-              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[2],
+              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[3],
               title: "View Card",
               description: "Tap here to view the card details",
               child: Wrap(

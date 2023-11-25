@@ -1,6 +1,7 @@
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import '../pages/home.dart';
 import '../pages/tracker.dart';
@@ -14,6 +15,7 @@ import '../pages/debt.dart';
 import '../pages/profile.dart';
 import '../constants/constant.dart';
 import '../constants/style_constant.dart';
+import '../providers/show_case_provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../services/budget_service.dart';
@@ -31,7 +33,7 @@ class Navigation extends StatefulWidget {
 
 class _NavigationState extends State<Navigation> {
   Map<String, Widget> _pages = {};
-  List<FloatButton> _options = [];
+  List<dynamic> _options = [];
 
   void _onItemTapped(int index) {
     NavigationProvider navigationProvider = Provider.of<NavigationProvider>(context, listen: false);
@@ -57,9 +59,24 @@ class _NavigationState extends State<Navigation> {
       "Financial Analytics": const Analytics(),
     };
     _options = [
-      const FloatButton(title: 'Debt', icon: Icons.money),
-      const FloatButton(title: 'Bill', icon: Icons.water_drop),
-      const FloatButton(title: 'Budgeting', icon: Icons.account_balance_wallet),
+      Showcase(
+        key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[15],
+        title: "Go to Debt page",
+        description: "Click here to go to Debt page", 
+        child: const FloatButton(title: 'Debt', icon: Icons.money),
+      ),
+      Showcase(
+        key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[12],
+        title: "Go to Bill page",
+        description: "Click here to go to Bill page",
+        child: const FloatButton(title: 'Bill', icon: Icons.water_drop),
+      ),
+      Showcase(
+        key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[9],
+        title: "Go to Budgeting page",
+        description: "Click here to go to Budgeting page",
+        child: const FloatButton(title: 'Budgeting', icon: Icons.account_balance_wallet),
+      ),
       const FloatButton(title: 'Analytics', icon: Icons.align_vertical_bottom_outlined),
     ];
     
@@ -127,6 +144,7 @@ class _NavigationState extends State<Navigation> {
               TabItem(icon: Icons.attach_money, title: 'Tracker'),
               TabItem(icon: Icons.more_horiz, title: 'More'),
             ],
+            chipBuilder: _ChipBuilder(),
             initialActiveIndex: navigationProvider.navIndex,
             onTap: _onItemTapped,
             curve: Curves.easeInOut,
@@ -195,4 +213,54 @@ class FloatButton extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ChipBuilder extends ChipBuilder {
+ @override
+ Widget build(BuildContext context, Widget child, int index, bool active) {
+   return Stack(
+     alignment: Alignment.center,
+     children: <Widget>[
+        child,
+        Container(),
+        Showcase(
+          key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[1],
+          title: "Home",
+          description: "Tab here to navigate to home",
+          child: Container(),
+        ),
+        Showcase(
+          key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[4],
+          title: "Tracker",
+          description: "Click here to go to Tracker page",
+          child: Container(),
+        ),
+        Showcase(
+          key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[6],
+          title: "Goal",
+          description: "Click here to go to Goal page",
+          child: Container(),
+        ),
+        Showcase(
+          key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[8],
+          title: "Split Money",
+          description: "Click here to go to Split Money page",
+          child: Container(),
+        ),
+        Showcase(
+          key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[11],
+          title: "More",
+          description: "Click here to show more options",
+          child: Container(),
+        ),
+        Showcase(
+          key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[14],
+          title: "More",
+          description: "Click here to show more options",
+          child: Container(),
+        ),
+     ],
+   );
+   ;
+ }
 }

@@ -124,7 +124,7 @@ class _BillState extends State<Bill> {
                               child: Container(
                                 margin: const EdgeInsets.all(8.0),
                                 child: Showcase(
-                                  key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[6],
+                                  key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[13],
                                   title: "Bill",
                                   description: "Add your Bill here",
                                   child: ElevatedButton(
@@ -162,7 +162,7 @@ class _BillState extends State<Bill> {
           : null,
       floatingActionButton: Constant.isMobile(context)
           ? Showcase(
-              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[6],
+              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[13],
               title: "Bill",
               description: "Add your Bill here",
               child: FloatingActionButton(

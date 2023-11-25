@@ -110,7 +110,7 @@ class _DebtState extends State<Debt> {
                     alignment: Alignment.bottomRight,
                     margin: const EdgeInsets.only(right: 8, bottom: 8),
                     child: Showcase(
-                      key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[7],
+                      key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[16],
                       title: 'Add Debt',
                       description: 'Click here to add new debt',
                       child: ElevatedButton(
@@ -173,7 +173,7 @@ class _DebtState extends State<Debt> {
           : null,
       floatingActionButton: Constant.isMobile(context)
           ? Showcase(
-              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[7],
+              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[16],
               title: 'Add Debt',
               description: 'Click here to add new debt',
               child: FloatingActionButton(

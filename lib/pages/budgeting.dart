@@ -172,7 +172,7 @@ class _BudgetingState extends State<Budgeting> {
                       margin:
                           const EdgeInsets.only(top: 10, bottom: 10, right: 8),
                       child: Showcase(
-                        key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[5],
+                        key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[10],
                         title: "Budget",
                         description: "Set Your Budget here",
                         child: ElevatedButton(
@@ -248,7 +248,7 @@ class _BudgetingState extends State<Budgeting> {
           : null,
       floatingActionButton: Constant.isMobile(context)
           ? Showcase(
-              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[5],
+              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[10],
               title: "Budget",
               description: "Set Your Budget here",
               child: FloatingActionButton(

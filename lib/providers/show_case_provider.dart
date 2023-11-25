@@ -5,31 +5,43 @@ import './navigation_provider.dart';
 
 class ShowcaseProvider with ChangeNotifier {
   bool _isFirstTime = true;
+  
   final List<GlobalKey> _showcaseKeys = [
     GlobalKey(), // 0: home
-    GlobalKey(), // 1: tracker
+    GlobalKey(), // 1: nav-tracker
     GlobalKey(), // 2: tracker
-    GlobalKey(), // 3: savings goal
-    GlobalKey(), // 4: split money
-    GlobalKey(), // 5: budgeting
-    GlobalKey(), // 6: bill
-    GlobalKey(), // 7: debt
-    // Add more keys as needed for each showcase widget
+    GlobalKey(), // 3: tracker
+    GlobalKey(), // 4: nav-savings goal
+    GlobalKey(), // 5: savings goal
+    GlobalKey(), // 6: nav-split money
+    GlobalKey(), // 7: split money
+    GlobalKey(), // 8: nav-more
+    GlobalKey(), // 9: nav-budgeting
+    GlobalKey(), // 10: budgeting
+    GlobalKey(), // 11: nav-more
+    GlobalKey(), // 12: nav-bill
+    GlobalKey(), // 13: bill
+    GlobalKey(), // 14: nav-more
+    GlobalKey(), // 15: nav-debt
+    GlobalKey(), // 16: debt
   ];
 
   final Map<int, Function> _showcaseCallbacks = {
-    // 0: end of Home tour
-    0: (BuildContext context) => Provider.of<NavigationProvider>(context, listen: false).goToTracker(),
-    // 2: end of Tracker tour
-    2: (BuildContext context) => Provider.of<NavigationProvider>(context, listen: false).goToGoal(),
-    // 3: end of Savings Goal tour
-    3: (BuildContext context) => Provider.of<NavigationProvider>(context, listen: false).goToSplitMoney(),
-    // 4: end of Split Money tour
-    4: (BuildContext context) => Provider.of<NavigationProvider>(context, listen: false).goToBudgeting(),
-    // 5: end of Budgeting tour
-    5: (BuildContext context) => Provider.of<NavigationProvider>(context, listen: false).goToBill(),
-    // 6: end of Bill tour
-    6: (BuildContext context) => Provider.of<NavigationProvider>(context, listen: false).goToDebt(),
+    // 1: navigate to Tracker tour
+    1: (BuildContext context) => Provider.of<NavigationProvider>(context, listen: false).goToTracker(),
+    // 4: navigate to of Savings Goal tour
+    4: (BuildContext context) => Provider.of<NavigationProvider>(context, listen: false).goToGoal(),
+    // 6: navigate to of Split Money tour
+    6: (BuildContext context) => Provider.of<NavigationProvider>(context, listen: false).goToSplitMoney(),
+    // 8 & 9: navigate to of Budgeting tour
+    8: (BuildContext context) => Provider.of<NavigationProvider>(context, listen: false).toggleMoreTab(),
+    9: (BuildContext context) => Provider.of<NavigationProvider>(context, listen: false).goToBudgeting(),
+    // 11 & 12: navigate to of Bill tour
+    11: (BuildContext context) => Provider.of<NavigationProvider>(context, listen: false).toggleMoreTab(),
+    12: (BuildContext context) => Provider.of<NavigationProvider>(context, listen: false).goToBill(),
+    // 14 & 15: navigate to of Debt tour
+    14: (BuildContext context) => Provider.of<NavigationProvider>(context, listen: false).toggleMoreTab(),
+    15: (BuildContext context) => Provider.of<NavigationProvider>(context, listen: false).goToDebt(),
         
     // Add more callbacks as needed for each showcase widget
   };

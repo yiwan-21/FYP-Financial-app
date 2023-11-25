@@ -49,7 +49,7 @@ class _SavingsGoalState extends State<SavingsGoal> {
                       alignment: Alignment.bottomRight,
                       margin: const EdgeInsets.only(top: 12, bottom: 12, right: 8),
                       child: Showcase(
-                        key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[3],
+                        key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[5],
                         title: "Savings Goal",
                         description: "Add your goal here",
                         child: ElevatedButton(
@@ -97,7 +97,7 @@ class _SavingsGoalState extends State<SavingsGoal> {
       ),
       floatingActionButton: Constant.isMobile(context)
           ? Showcase(
-              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[3],
+              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[5],
               title: "Savings Goal",
               description: "Add your goal here",
               child: FloatingActionButton(

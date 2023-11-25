@@ -57,7 +57,7 @@ class _SplitMoneyState extends State<SplitMoney> {
                         alignment: Alignment.topLeft,
                         margin: const EdgeInsets.all(10),
                         child: Showcase(
-                          key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[4],
+                          key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[7],
                           title: "Split Money",
                           description: "Add your group for money splitting",
                           child: ElevatedButton(
@@ -124,7 +124,7 @@ class _SplitMoneyState extends State<SplitMoney> {
       ),
       floatingActionButton: _topDownAlign
           ? Showcase(
-              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[4],
+              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[7],
               title: "Split Money",
               description: "Add your group for money splitting",
               child: FloatingActionButton(
