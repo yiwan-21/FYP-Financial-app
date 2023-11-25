@@ -1,12 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import '../pages/manage_debt.dart';
 import '../constants/constant.dart';
 import '../constants/route_name.dart';
 import '../constants/style_constant.dart';
 import '../components/debt_card.dart';
+import '../providers/show_case_provider.dart';
 import '../services/debt_service.dart';
 import '../services/transaction_service.dart';
 
@@ -106,15 +109,20 @@ class _DebtState extends State<Debt> {
                 : Container(
                     alignment: Alignment.bottomRight,
                     margin: const EdgeInsets.only(right: 8, bottom: 8),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        fixedSize: const Size(100, 40),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4.0),
+                    child: Showcase(
+                      key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[7],
+                      title: 'Add Debt',
+                      description: 'Click here to add new debt',
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: const Size(100, 40),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
                         ),
+                        onPressed: _addDebt,
+                        child: const Text('Add Debt'),
                       ),
-                      onPressed: _addDebt,
-                      child: const Text('Add Debt'),
                     ),
                   ),
               StreamBuilder<QuerySnapshot>(
@@ -164,13 +172,18 @@ class _DebtState extends State<Debt> {
           ? FloatingActionButtonLocation.startFloat
           : null,
       floatingActionButton: Constant.isMobile(context)
-          ? FloatingActionButton(
-              backgroundColor: ColorConstant.lightBlue,
-              onPressed: _addDebt,
-              child: const Icon(
-                Icons.add,
-                size: 27,
-                color: Colors.black,
+          ? Showcase(
+              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[7],
+              title: 'Add Debt',
+              description: 'Click here to add new debt',
+              child: FloatingActionButton(
+                backgroundColor: ColorConstant.lightBlue,
+                onPressed: _addDebt,
+                child: const Icon(
+                  Icons.add,
+                  size: 27,
+                  color: Colors.black,
+                ),
               ),
             )
           : null,

@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import '../constants/constant.dart';
 import '../constants/style_constant.dart';
@@ -8,6 +10,7 @@ import '../constants/route_name.dart';
 import '../components/bill_card.dart';
 import '../components/custom_circular_progress.dart';
 import '../pages/manage_bill.dart';
+import '../providers/show_case_provider.dart';
 import '../services/bill_service.dart';
 
 class Bill extends StatefulWidget {
@@ -79,7 +82,8 @@ class _BillState extends State<Bill> {
                     physics: const NeverScrollableScrollPhysics(),
                     children: [
                       Padding(
-                        padding: EdgeInsets.only(top: _radius + 30, bottom: _radius + 20),
+                        padding: EdgeInsets.only(
+                            top: _radius + 30, bottom: _radius + 20),
                         child: CustomPaint(
                           painter: CustomCircularProgress(
                               value: paidPercentage,
@@ -119,15 +123,21 @@ class _BillState extends State<Bill> {
                               alignment: Alignment.centerRight,
                               child: Container(
                                 margin: const EdgeInsets.all(8.0),
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    fixedSize: const Size(100, 40),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(4.0),
+                                child: Showcase(
+                                  key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[6],
+                                  title: "Bill",
+                                  description: "Add your Bill here",
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      fixedSize: const Size(100, 40),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(4.0),
+                                      ),
                                     ),
+                                    onPressed: _addBill,
+                                    child: const Text('Add Bill'),
                                   ),
-                                  onPressed: _addBill,
-                                  child: const Text('Add Bill'),
                                 ),
                               ),
                             ),
@@ -138,7 +148,8 @@ class _BillState extends State<Bill> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.only(bottom: 50),
-                    children: List.generate(bills.length, (index) => bills[index]),
+                    children:
+                        List.generate(bills.length, (index) => bills[index]),
                   ),
                 ],
               );
@@ -150,13 +161,18 @@ class _BillState extends State<Bill> {
           ? FloatingActionButtonLocation.startFloat
           : null,
       floatingActionButton: Constant.isMobile(context)
-          ? FloatingActionButton(
-              backgroundColor: ColorConstant.lightBlue,
-              onPressed: _addBill,
-              child: const Icon(
-                Icons.edit_note,
-                size: 27,
-                color: Colors.black,
+          ? Showcase(
+              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[6],
+              title: "Bill",
+              description: "Add your Bill here",
+              child: FloatingActionButton(
+                backgroundColor: ColorConstant.lightBlue,
+                onPressed: _addBill,
+                child: const Icon(
+                  Icons.edit_note,
+                  size: 27,
+                  color: Colors.black,
+                ),
               ),
             )
           : null,

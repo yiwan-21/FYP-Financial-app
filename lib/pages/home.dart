@@ -10,7 +10,6 @@ import '../components/budget_card.dart';
 import '../components/goal.dart';
 import '../components/split_expense_card.dart';
 import '../components/tracker_transaction.dart';
-import '../components/show_case_view.dart';
 
 import '../constants/constant.dart';
 import '../constants/home_constant.dart';
@@ -22,6 +21,7 @@ import '../providers/navigation_provider.dart';
 import '../providers/split_money_provider.dart';
 import '../providers/total_goal_provider.dart';
 import '../providers/user_provider.dart';
+import '../providers/show_case_provider.dart';
 import '../services/bill_service.dart';
 import '../services/budget_service.dart';
 import '../services/split_money_service.dart';
@@ -38,13 +38,14 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   bool get _isMobile => Constant.isMobile(context);
 
-  final GlobalKey _key = GlobalKey();
-
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback(
-        (_) => ShowCaseWidget.of(context).startShowCase([_key]));
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (Provider.of<ShowcaseProvider>(context, listen: false).isFirstTime) {
+        ShowCaseWidget.of(context).startShowCase(Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys);
+      }
+    });
   }
 
   void _navigateToHomeSettings() {
@@ -129,8 +130,8 @@ class _HomeState extends State<Home> {
                         const Spacer(),
                         Row(
                           children: [
-                            ShowCaseView(
-                              globalKey: _key,
+                            Showcase(
+                              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[0],
                               title: "Set Your Home",
                               description: "Customize your home display here",
                               child: GestureDetector(

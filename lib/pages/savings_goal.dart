@@ -2,12 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import '../pages/add_goal.dart';
 import '../components/goal.dart';
 import '../constants/constant.dart';
 import '../constants/route_name.dart';
 import '../constants/style_constant.dart';
+import '../providers/show_case_provider.dart';
 import '../providers/total_goal_provider.dart';
 
 class SavingsGoal extends StatefulWidget {
@@ -42,21 +44,26 @@ class _SavingsGoalState extends State<SavingsGoal> {
             physics: const BouncingScrollPhysics(),
             children: [
               Constant.isMobile(context)
-                ? const SizedBox(height: 20)
-                : Container(
-                    alignment: Alignment.bottomRight,
-                    margin: const EdgeInsets.only(top: 12, bottom: 12, right: 8),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        fixedSize: const Size(150, 40),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4.0),
+                  ? const SizedBox(height: 20)
+                  : Container(
+                      alignment: Alignment.bottomRight,
+                      margin: const EdgeInsets.only(top: 12, bottom: 12, right: 8),
+                      child: Showcase(
+                        key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[3],
+                        title: "Savings Goal",
+                        description: "Add your goal here",
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            fixedSize: const Size(150, 40),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
+                          ),
+                          onPressed: _navigateToAddGoal,
+                          child: const Text('Add Savings Goal'),
                         ),
                       ),
-                      onPressed: _navigateToAddGoal,
-                      child: const Text('Add Savings Goal'),
                     ),
-                  ),
               StreamBuilder<QuerySnapshot>(
                 stream: Provider.of<TotalGoalProvider>(context, listen: false)
                     .getGoalsStream,
@@ -89,13 +96,18 @@ class _SavingsGoalState extends State<SavingsGoal> {
         ),
       ),
       floatingActionButton: Constant.isMobile(context)
-          ? FloatingActionButton(
-              backgroundColor: ColorConstant.lightBlue,
-              onPressed: _navigateToAddGoal,
-              child: const Icon(
-                Icons.add,
-                size: 27,
-                color: Colors.black,
+          ? Showcase(
+              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[3],
+              title: "Savings Goal",
+              description: "Add your goal here",
+              child: FloatingActionButton(
+                backgroundColor: ColorConstant.lightBlue,
+                onPressed: _navigateToAddGoal,
+                child: const Icon(
+                  Icons.add,
+                  size: 27,
+                  color: Colors.black,
+                ),
               ),
             )
           : null,

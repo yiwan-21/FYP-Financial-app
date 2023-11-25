@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import '../pages/manage_transaction.dart';
 import '../constants/constant.dart';
@@ -9,6 +10,7 @@ import '../constants/route_name.dart';
 import '../components/category_chart.dart';
 import '../components/tracker_transaction.dart';
 import '../providers/total_transaction_provider.dart';
+import '../providers/show_case_provider.dart';
 
 class Tracker extends StatefulWidget {
   const Tracker({super.key});
@@ -106,24 +108,29 @@ class _TrackerState extends State<Tracker> {
                   ),
                 ],
               ),
-              Constant.isMobile(context)
-                  ? FloatingActionButton.small(
-                      elevation: 2,
-                      onPressed: _addTransaction,
-                      child: const Icon(
-                        Icons.add,
-                      ),
-                    )
-                  : ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        fixedSize: const Size(150, 40),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4.0),
+              Showcase(
+                key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[1],
+                title: "Transaction",
+                description: "Add your transaction here",
+                child: Constant.isMobile(context)
+                    ? FloatingActionButton.small(
+                        elevation: 2,
+                        onPressed: _addTransaction,
+                        child: const Icon(
+                          Icons.add,
                         ),
+                      )
+                    : ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: const Size(150, 40),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                        ),
+                        onPressed: _addTransaction,
+                        child: const Text('Add Transaction'),
                       ),
-                      onPressed: _addTransaction,
-                      child: const Text('Add Transaction'),
-                    ),
+              ),
             ],
           ),
         ),
@@ -147,27 +154,32 @@ class _TrackerState extends State<Tracker> {
                     doc['category'] == _selectedItem)
                 .map((doc) => TrackerTransaction.fromDocument(doc))
                 .toList();
-            return Wrap(
-              children: List.generate(
-                transactions.length,
-                (index) {
-                  if (Constant.isDesktop(context) &&
-                      MediaQuery.of(context).size.width > 1200) {
-                    return SizedBox(
-                      width: MediaQuery.of(context).size.width / 3,
-                      child: transactions[index],
-                    );
-                  } else if (Constant.isTablet(context) ||
-                      MediaQuery.of(context).size.width >
-                          Constant.tabletMaxWidth) {
-                    return SizedBox(
-                      width: MediaQuery.of(context).size.width / 2,
-                      child: transactions[index],
-                    );
-                  } else {
-                    return transactions[index];
-                  }
-                },
+            return Showcase(
+              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[2],
+              title: "View Card",
+              description: "Tap here to view the card details",
+              child: Wrap(
+                children: List.generate(
+                  transactions.length,
+                  (index) {
+                    if (Constant.isDesktop(context) &&
+                        MediaQuery.of(context).size.width > 1200) {
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width / 3,
+                        child: transactions[index],
+                      );
+                    } else if (Constant.isTablet(context) ||
+                        MediaQuery.of(context).size.width >
+                            Constant.tabletMaxWidth) {
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width / 2,
+                        child: transactions[index],
+                      );
+                    } else {
+                      return transactions[index];
+                    }
+                  },
+                ),
               ),
             );
           }),

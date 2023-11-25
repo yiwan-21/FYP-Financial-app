@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import '../constants/constant.dart';
 import '../constants/style_constant.dart';
 import '../components/budget_card.dart';
 import '../pages/set_budget.dart';
+import '../providers/show_case_provider.dart';
 import '../services/budget_service.dart';
 
 class Budgeting extends StatefulWidget {
@@ -162,20 +165,26 @@ class _BudgetingState extends State<Budgeting> {
                 ],
               ),
               Constant.isMobile(context)
-                  ? Container(margin: const EdgeInsets.only(top: 10, bottom: 10))
+                  ? Container(
+                      margin: const EdgeInsets.only(top: 10, bottom: 10))
                   : Container(
                       alignment: Alignment.bottomRight,
                       margin:
                           const EdgeInsets.only(top: 10, bottom: 10, right: 8),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          fixedSize: const Size(100, 40),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4.0),
+                      child: Showcase(
+                        key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[5],
+                        title: "Budget",
+                        description: "Set Your Budget here",
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            fixedSize: const Size(100, 40),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
                           ),
+                          onPressed: setBudget,
+                          child: const Text('Set Budget'),
                         ),
-                        onPressed: setBudget,
-                        child: const Text('Set Budget'),
                       ),
                     ),
               FutureBuilder(
@@ -238,13 +247,18 @@ class _BudgetingState extends State<Budgeting> {
           ? FloatingActionButtonLocation.startFloat
           : null,
       floatingActionButton: Constant.isMobile(context)
-          ? FloatingActionButton(
-              backgroundColor: ColorConstant.lightBlue,
-              onPressed: setBudget,
-              child: const Icon(
-                Icons.note_add_outlined,
-                size: 27,
-                color: Colors.black,
+          ? Showcase(
+              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[5],
+              title: "Budget",
+              description: "Set Your Budget here",
+              child: FloatingActionButton(
+                backgroundColor: ColorConstant.lightBlue,
+                onPressed: setBudget,
+                child: const Icon(
+                  Icons.note_add_outlined,
+                  size: 27,
+                  color: Colors.black,
+                ),
               ),
             )
           : null,

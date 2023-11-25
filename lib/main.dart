@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:financial_app/providers/show_case_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ import './pages/home_settings.dart';
 import './pages/manage_transaction.dart';
 import './pages/edit_profile.dart';
 import './pages/add_goal.dart';
-import 'pages/goal_detail.dart';
+import './pages/goal_detail.dart';
 import './pages/split_money_group.dart';
 import './pages/split_money_expense.dart';
 import './pages/add_group_expense.dart';
@@ -64,12 +65,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => SplitMoneyProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => HomeProvider()),
+        ChangeNotifierProvider(create: (_) => ShowcaseProvider()),
       ],
-      child: ShowCaseWidget(
-        builder: Builder(
-          builder: (context) => const MyApp(),
-        ),
-      ),
+      child: const MyApp(),
     ),
   );
 }
@@ -84,163 +82,177 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: navigatorKey,
-      title: 'Financial App',
-      debugShowCheckedModeBanner: false,
-      scrollBehavior: MyCustomScrollBehavior(),
-      theme: ThemeData(
-        primarySwatch: lightRed,
-      ),
-      // home: const Navigation(),
-      onGenerateRoute: (settings) {
-        switch (settings.name) {
-          case RouteName.titlePage:
-            if (isLoggedIn()) {
-              return MaterialPageRoute(builder: (_) => const Navigation());
-            } else {
-              return MaterialPageRoute(builder: (_) => const Landing());
-            }
-          case RouteName.login:
-            if (isLoggedIn()) {
-              return MaterialPageRoute(builder: (_) => const Navigation());
-            } else {
-              return MaterialPageRoute(builder: (_) => const Login());
-            }
-          case RouteName.register:
-            if (isLoggedIn()) {
-              return MaterialPageRoute(builder: (_) => const Navigation());
-            } else {
-              return MaterialPageRoute(builder: (_) => const Register());
-            }
-          case RouteName.home:
-            if (isLoggedIn()) {
-              return MaterialPageRoute(builder: (_) => const Navigation());
-            } else {
-              return MaterialPageRoute(builder: (_) => const Landing());
-            }
-          case RouteName.homeSettings:
-            if (isLoggedIn()) {
-              return MaterialPageRoute(builder: (_) => const HomeSettings());
-            } else {
-              return MaterialPageRoute(builder: (_) => const Landing());
-            }
-          case RouteName.editProfile:
-            if (isLoggedIn()) {
-              return MaterialPageRoute(builder: (_) => const EditProfileForm());
-            } else {
-              return MaterialPageRoute(builder: (_) => const Landing());
-            }
-          case RouteName.manageTransaction:
-            if (isLoggedIn()) {
-              // get argument from route
-              final args = settings.arguments as Map<String, dynamic>;
-              return MaterialPageRoute(
-                builder: (_) => ManageTransaction(
-                  args['isEditing'],
-                ),
-              );
-            } else {
-              return MaterialPageRoute(builder: (_) => const Landing());
-            }
-          case RouteName.addGoal:
-            if (isLoggedIn()) {
-              return MaterialPageRoute(builder: (_) => const AddGoal());
-            } else {
-              return MaterialPageRoute(builder: (_) => const Landing());
-            }
-          case RouteName.goalProgress:
-            if (isLoggedIn()) {
-              return MaterialPageRoute(builder: (_) => const GoalDetail());
-            } else {
-              return MaterialPageRoute(builder: (_) => const Landing());
-            }
-          case RouteName.splitMoneyGroup:
-            if (isLoggedIn()) {
-              // get argument from route
-              final args = settings.arguments as Map<String, dynamic>;
-              return MaterialPageRoute(
-                  builder: (_) => SplitMoneyGroup(groupID: args['id']));
-            } else {
-              return MaterialPageRoute(builder: (_) => const Landing());
-            }
-          case RouteName.groupSettings:
-            if (isLoggedIn()) {
-              return MaterialPageRoute(builder: (_) => const GroupSettings());
-            } else {
-              return MaterialPageRoute(builder: (_) => const Landing());
-            }
-          case RouteName.splitMoneyExpense:
-            if (isLoggedIn()) {
-              // get argument from route
-              final args = settings.arguments as Map<String, dynamic>;
-              return MaterialPageRoute(
-                  builder: (_) => SplitMoneyExpense(
-                      expenseID: args['id'], tabIndex: args['tabIndex']));
-            } else {
-              return MaterialPageRoute(builder: (_) => const Landing());
-            }
-          case RouteName.addGroupExpense:
-            if (isLoggedIn()) {
-              return MaterialPageRoute(builder: (_) => const AddGroupExpense());
-            } else {
-              return MaterialPageRoute(builder: (_) => const Landing());
-            }
-          case RouteName.budgetDetail:
-            if (isLoggedIn()) {
-              // get argument from route
-              final args = settings.arguments as Map<String, dynamic>;
-              return MaterialPageRoute(
-                builder: (_) => BudgetDetail(category: args['category']),
-              );
-            } else {
-              return MaterialPageRoute(builder: (_) => const Landing());
-            }
-          case RouteName.manageBill:
-            if (isLoggedIn()) {
-              // get argument from route
-              final args = settings.arguments as Map<String, dynamic>;
-              return MaterialPageRoute(
-                builder: (_) => ManageBill(
-                  args['isEditing'],
-                  id: args['id'],
-                  title: args['title'],
-                  amount: args['amount'],
-                  date: args['date'],
-                  fixed: args['fixed'],
-                ),
-              );
-            } else {
-              return MaterialPageRoute(builder: (_) => const Landing());
-            }
-          case RouteName.manageDebt:
-            if (isLoggedIn()) {
-              // get argument from route
-              final args = settings.arguments as Map<String, dynamic>;
-              return MaterialPageRoute(
-                builder: (_) => ManageDebt(
-                  args['isEditing'],
-                  id: args['id'],
-                  title: args['title'],
-                  amount: args['amount'],
-                  interest: args['interest'],
-                  year: args['year'],
-                  month: args['month'],
-                ),
-              );
-            } else {
-              return MaterialPageRoute(builder: (_) => const Landing());
-            }
-          default:
-            return MaterialPageRoute(
-              builder: (context) => Scaffold(
-                body: Center(
-                  child: Text('No route defined for ${settings.name}'),
-                ),
-              ),
-            );
+    return ShowCaseWidget(
+      onComplete: (index, key) {
+        Function? callback = Provider.of<ShowcaseProvider>(context, listen: false).showcaseCallbacks[index];
+        if (callback != null) {
+          callback(context);
         }
       },
+      onFinish: () {
+        Provider.of<ShowcaseProvider>(context, listen: false).endTour(context);
+      },
+      builder: Builder(
+        builder: (context) {
+          return MaterialApp(
+            navigatorKey: navigatorKey,
+            title: 'Financial App',
+            debugShowCheckedModeBanner: false,
+            scrollBehavior: MyCustomScrollBehavior(),
+            theme: ThemeData(
+              primarySwatch: lightRed,
+            ),
+            onGenerateRoute: (settings) {
+              switch (settings.name) {
+                case RouteName.titlePage:
+                  if (isLoggedIn()) {
+                    return MaterialPageRoute(builder: (_) => const Navigation());
+                  } else {
+                    return MaterialPageRoute(builder: (_) => const Landing());
+                  }
+                case RouteName.login:
+                  if (isLoggedIn()) {
+                    return MaterialPageRoute(builder: (_) => const Navigation());
+                  } else {
+                    return MaterialPageRoute(builder: (_) => const Login());
+                  }
+                case RouteName.register:
+                  if (isLoggedIn()) {
+                    return MaterialPageRoute(builder: (_) => const Navigation());
+                  } else {
+                    return MaterialPageRoute(builder: (_) => const Register());
+                  }
+                case RouteName.home:
+                  if (isLoggedIn()) {
+                    return MaterialPageRoute(builder: (_) => const Navigation());
+                  } else {
+                    return MaterialPageRoute(builder: (_) => const Landing());
+                  }
+                case RouteName.homeSettings:
+                  if (isLoggedIn()) {
+                    return MaterialPageRoute(builder: (_) => const HomeSettings());
+                  } else {
+                    return MaterialPageRoute(builder: (_) => const Landing());
+                  }
+                case RouteName.editProfile:
+                  if (isLoggedIn()) {
+                    return MaterialPageRoute(builder: (_) => const EditProfileForm());
+                  } else {
+                    return MaterialPageRoute(builder: (_) => const Landing());
+                  }
+                case RouteName.manageTransaction:
+                  if (isLoggedIn()) {
+                    // get argument from route
+                    final args = settings.arguments as Map<String, dynamic>;
+                    return MaterialPageRoute(
+                      builder: (_) => ManageTransaction(
+                        args['isEditing'],
+                      ),
+                    );
+                  } else {
+                    return MaterialPageRoute(builder: (_) => const Landing());
+                  }
+                case RouteName.addGoal:
+                  if (isLoggedIn()) {
+                    return MaterialPageRoute(builder: (_) => const AddGoal());
+                  } else {
+                    return MaterialPageRoute(builder: (_) => const Landing());
+                  }
+                case RouteName.goalProgress:
+                  if (isLoggedIn()) {
+                    return MaterialPageRoute(builder: (_) => const GoalDetail());
+                  } else {
+                    return MaterialPageRoute(builder: (_) => const Landing());
+                  }
+                case RouteName.splitMoneyGroup:
+                  if (isLoggedIn()) {
+                    // get argument from route
+                    final args = settings.arguments as Map<String, dynamic>;
+                    return MaterialPageRoute(
+                        builder: (_) => SplitMoneyGroup(groupID: args['id']));
+                  } else {
+                    return MaterialPageRoute(builder: (_) => const Landing());
+                  }
+                case RouteName.groupSettings:
+                  if (isLoggedIn()) {
+                    return MaterialPageRoute(builder: (_) => const GroupSettings());
+                  } else {
+                    return MaterialPageRoute(builder: (_) => const Landing());
+                  }
+                case RouteName.splitMoneyExpense:
+                  if (isLoggedIn()) {
+                    // get argument from route
+                    final args = settings.arguments as Map<String, dynamic>;
+                    return MaterialPageRoute(
+                        builder: (_) => SplitMoneyExpense(
+                            expenseID: args['id'], tabIndex: args['tabIndex']));
+                  } else {
+                    return MaterialPageRoute(builder: (_) => const Landing());
+                  }
+                case RouteName.addGroupExpense:
+                  if (isLoggedIn()) {
+                    return MaterialPageRoute(builder: (_) => const AddGroupExpense());
+                  } else {
+                    return MaterialPageRoute(builder: (_) => const Landing());
+                  }
+                case RouteName.budgetDetail:
+                  if (isLoggedIn()) {
+                    // get argument from route
+                    final args = settings.arguments as Map<String, dynamic>;
+                    return MaterialPageRoute(
+                      builder: (_) => BudgetDetail(category: args['category']),
+                    );
+                  } else {
+                    return MaterialPageRoute(builder: (_) => const Landing());
+                  }
+                case RouteName.manageBill:
+                  if (isLoggedIn()) {
+                    // get argument from route
+                    final args = settings.arguments as Map<String, dynamic>;
+                    return MaterialPageRoute(
+                      builder: (_) => ManageBill(
+                        args['isEditing'],
+                        id: args['id'],
+                        title: args['title'],
+                        amount: args['amount'],
+                        date: args['date'],
+                        fixed: args['fixed'],
+                      ),
+                    );
+                  } else {
+                    return MaterialPageRoute(builder: (_) => const Landing());
+                  }
+                case RouteName.manageDebt:
+                  if (isLoggedIn()) {
+                    // get argument from route
+                    final args = settings.arguments as Map<String, dynamic>;
+                    return MaterialPageRoute(
+                      builder: (_) => ManageDebt(
+                        args['isEditing'],
+                        id: args['id'],
+                        title: args['title'],
+                        amount: args['amount'],
+                        interest: args['interest'],
+                        year: args['year'],
+                        month: args['month'],
+                      ),
+                    );
+                  } else {
+                    return MaterialPageRoute(builder: (_) => const Landing());
+                  }
+                default:
+                  return MaterialPageRoute(
+                    builder: (context) => Scaffold(
+                      body: Center(
+                        child: Text('No route defined for ${settings.name}'),
+                      ),
+                    ),
+                  );
+              }
+            },
+          );
+        },
+      ),
     );
   }
 }
