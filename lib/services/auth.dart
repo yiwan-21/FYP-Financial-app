@@ -23,7 +23,7 @@ class Auth {
             password: password,
           )
           .then((_) {
-            logFcmToken();
+            // await logFcmToken();
             Provider.of<UserProvider>(context, listen: false).init();
             Provider.of<TotalTransactionProvider>(context, listen: false).init();
             Provider.of<TotalGoalProvider>(context, listen: false).init();
@@ -85,7 +85,7 @@ class Auth {
   }
 
   static Future<void> signout(BuildContext context) async {
-    await removeFcmToken();
+    // await removeFcmToken();
     await BudgetService.resetDocumentID();
     await FirebaseInstance.auth.signOut().then((_) {
       Provider.of<NavigationProvider>(context, listen: false).reset();
@@ -114,10 +114,11 @@ class Auth {
   static Future<void> logFcmToken() async {
     try {
       // get device fcm token
-      await FirebaseInstance.messaging.requestPermission();
       String? fcmToken;
+      await FirebaseInstance.messaging.requestPermission();
       if (kIsWeb) {
-        fcmToken = await FirebaseInstance.messaging.getToken(vapidKey: "BHlmM1MpyxeVW5_m40XsPiHhytcP9HBaQvkQv1B2f8kLDSezt4eKCkSZFsyDqgDCz3WU8P_G_7Vw3yv58dYNgkM");
+        String vapidKey = "BHlmM1MpyxeVW5_m40XsPiHhytcP9HBaQvkQv1B2f8kLDSezt4eKCkSZFsyDqgDCz3WU8P_G_7Vw3yv58dYNgkM";
+        fcmToken = await FirebaseInstance.messaging.getToken(vapidKey: vapidKey);
       } else {
         fcmToken = await FirebaseInstance.messaging.getToken();
       }
