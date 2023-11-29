@@ -89,6 +89,9 @@ class MyApp extends StatelessWidget {
           callback(context);
         }
       },
+      onStart: (index, key) {
+        Provider.of<ShowcaseProvider>(context, listen: false).startTour();
+      },
       onFinish: () {
         Provider.of<ShowcaseProvider>(context, listen: false).endTour(context);
       },

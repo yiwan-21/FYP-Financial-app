@@ -41,9 +41,10 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (Provider.of<ShowcaseProvider>(context, listen: false).isFirstTime) {
-        ShowCaseWidget.of(context).startShowCase(Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys);
+      if (showcaseProvider.isFirstTime) {
+        ShowCaseWidget.of(context).startShowCase(showcaseProvider.showcaseKeys);
       }
     });
   }

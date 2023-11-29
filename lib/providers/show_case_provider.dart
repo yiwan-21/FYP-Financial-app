@@ -5,6 +5,7 @@ import './navigation_provider.dart';
 
 class ShowcaseProvider with ChangeNotifier {
   bool _isFirstTime = true;
+  bool _isRunning = false;
   
   final List<GlobalKey> _showcaseKeys = [
     GlobalKey(), // 0: home
@@ -47,12 +48,19 @@ class ShowcaseProvider with ChangeNotifier {
   };
 
   bool get isFirstTime => _isFirstTime;
+  bool get isRunning => _isRunning;
   List<GlobalKey> get showcaseKeys => _showcaseKeys;
   Map<int, Function> get showcaseCallbacks => _showcaseCallbacks;
+
+  void startTour() {
+    _isRunning = true;
+    notifyListeners();
+  }
 
   void endTour(BuildContext context) {
     Provider.of<NavigationProvider>(context, listen: false).goToHome();
     _isFirstTime = false;
+    _isRunning = false;
     notifyListeners();
   }
 }

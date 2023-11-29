@@ -88,8 +88,35 @@ class _NavigationState extends State<Navigation> {
     DebtService.resetDebt();
   }
 
+  Widget _showMoreMenu(NavigationProvider navigationProvider) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        color: lightRed,
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(
+          _options.length,
+          (index) {
+            return GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                int newIndex = index + 4;
+                navigationProvider.setIndex(4, newIndex);
+              },
+              child: _options[index],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
     return Consumer<NavigationProvider>(
       builder: (context, navigationProvider, _) {
         return Scaffold(
@@ -130,8 +157,18 @@ class _NavigationState extends State<Navigation> {
             ],
           ),
           endDrawer: const Profile(),
-          body: Center(
-            child: _pages.values.elementAt(navigationProvider.pageIndex),
+          body: Stack(
+            children: [
+              Center(
+                child: _pages.values.elementAt(navigationProvider.pageIndex),
+              ),
+              if (showcaseProvider.isRunning && navigationProvider.isMoreTabActive)
+                Positioned(
+                  right: Constant.isMobile(context)? MediaQuery.of(context).size.width*0.02 : MediaQuery.of(context).size.width*0.05,
+                  bottom: 28,
+                  child: _showMoreMenu(navigationProvider)
+                ),
+            ],
           ),
           bottomNavigationBar: ConvexAppBar(
             key: Navigation.appBarKey,
@@ -149,31 +186,11 @@ class _NavigationState extends State<Navigation> {
             onTap: _onItemTapped,
             curve: Curves.easeInOut,
           ),
-          floatingActionButton: navigationProvider.isMoreTabActive
-              ? Container(
-                  margin: EdgeInsets.only(bottom: 10.0, right: Constant.isMobile(context)? 0 : MediaQuery.of(context).size.width*0.05 ),
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    color: lightRed,
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: List.generate(
-                      _options.length,
-                      (index) {
-                        return GestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          onTap: () {
-                            int newIndex = index + 4;
-                            navigationProvider.setIndex(4, newIndex);
-                          },
-                          child: _options[index],
-                        );
-                      },
-                    ),
-                  ),
-                )
+          floatingActionButton: !showcaseProvider.isRunning && navigationProvider.isMoreTabActive
+              ? Padding(
+                  padding: EdgeInsets.only(bottom: 10.0, right: Constant.isMobile(context)? 0 : MediaQuery.of(context).size.width*0.05 ),
+                  child: _showMoreMenu(navigationProvider)
+              )
               : null,
         );
       },
@@ -192,11 +209,10 @@ class FloatButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const SizedBox(height: 10),
           Icon(
             icon,
             color: color ?? Colors.white,
@@ -208,7 +224,6 @@ class FloatButton extends StatelessWidget {
               color: Colors.white,
             ),
           ),
-          const SizedBox(height: 10),
         ],
       ),
     );
@@ -216,51 +231,61 @@ class FloatButton extends StatelessWidget {
 }
 
 class _ChipBuilder extends ChipBuilder {
- @override
- Widget build(BuildContext context, Widget child, int index, bool active) {
-   return Stack(
-     alignment: Alignment.center,
-     children: <Widget>[
+  @override
+  Widget build(BuildContext context, Widget child, int index, bool active) {
+    return Stack(
+      alignment: Alignment.center,
+      children: <Widget>[
         child,
-        Container(),
-        Showcase(
-          key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[1],
-          title: "Home",
-          description: "Tab here to navigate to home",
-          child: Container(),
-        ),
-        Showcase(
-          key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[4],
-          title: "Tracker",
-          description: "Click here to go to Tracker page",
-          child: Container(),
-        ),
-        Showcase(
-          key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[6],
-          title: "Goal",
-          description: "Click here to go to Goal page",
-          child: Container(),
-        ),
-        Showcase(
-          key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[8],
-          title: "Split Money",
-          description: "Click here to go to Split Money page",
-          child: Container(),
-        ),
-        Showcase(
-          key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[11],
-          title: "More",
-          description: "Click here to show more options",
-          child: Container(),
-        ),
-        Showcase(
-          key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[14],
-          title: "More",
-          description: "Click here to show more options",
-          child: Container(),
-        ),
-     ],
-   );
-   ;
- }
+        // Showcase Tracker navigation icon
+        if (index == 3)
+          Showcase(
+            key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[1],
+            title: "Tracker",
+            description: "Tab here to navigate to Tracker page",
+            child: Container(),
+          ),
+
+        // Showcase Goal navigation icon
+        if (index == 1)
+          Showcase(
+            key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[4],
+            title: "Goal",
+            description: "Click here to go to Goal page",
+            child: Container(),
+          ),
+
+        // Showcase Group navigation icon
+        if (index == 0)
+          Showcase(
+            key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[6],
+            title: "Split Money",
+            description: "Click here to go to Split Money page",
+            child: Container(),
+          ),
+          
+        // Showcase More navigation icon
+        if (index == 4) ...[
+          Showcase(
+            key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[8],
+            title: "More",
+            description: "Click here to show more options",
+            child: Container(),
+          ),
+          Showcase(
+            key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[11],
+            title: "More",
+            description: "Click here to show more options",
+            child: Container(),
+          ),
+          Showcase(
+            key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[14],
+            title: "More",
+            description: "Click here to show more options",
+            child: Container(),
+          ),
+        ]
+      ],
+    );
+  }
 }
