@@ -33,11 +33,12 @@ class _CategoryChartState extends State<CategoryChart> {
           tooltipBehavior: TooltipBehavior(enable: true),
           series: <PieSeries<CategoryData, String>>[
             PieSeries(
-              radius: Constant.isMobile(context)? '70%' : '80%',
+              radius: Constant.isMobile(context) ? '70%' : '80%',
               dataSource: getSections(totalTransactionProvider.getPieChartData),
               xValueMapper: (CategoryData record, _) => record.title,
               yValueMapper: (CategoryData record, _) => record.value,
               pointColorMapper: (CategoryData record, _) => record.color,
+              enableTooltip: true,
             )
           ],
         );
@@ -51,7 +52,7 @@ class _CategoryChartState extends State<CategoryChart> {
     for (int i = 0; i < objData.length; i++) {
       sections.add(
         CategoryData(
-          '${(values[i] / values.reduce((double a, double b) => a + b) * 100).toStringAsFixed(1)}%',
+          '${objData.keys.toList()[i]} ${(values[i] / values.reduce((double a, double b) => a + b) * 100).toStringAsFixed(1)}%',
           values[i],
           getColor(i),
         ),
