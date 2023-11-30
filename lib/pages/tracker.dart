@@ -25,6 +25,22 @@ class _TrackerState extends State<Tracker> {
     ...Constant.allCategories
   ];
   String _selectedItem = Constant.noFilter;
+  final List<GlobalKey> _keys = [
+    GlobalKey(),
+    GlobalKey(),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    if (showcaseProvider.isFirstTime) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _keys.add(showcaseProvider.navGoalKey);
+        ShowCaseWidget.of(context).startShowCase(_keys);
+      });
+    }
+  }
 
   void _addTransaction() {
     if (Constant.isMobile(context) && !kIsWeb) {
@@ -109,7 +125,7 @@ class _TrackerState extends State<Tracker> {
                 ],
               ),
               Showcase(
-                key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[2],
+                key: _keys[0],
                 title: "Transaction",
                 description: "Add your transaction here",
                 child: Constant.isMobile(context)
@@ -155,7 +171,7 @@ class _TrackerState extends State<Tracker> {
                 .map((doc) => TrackerTransaction.fromDocument(doc))
                 .toList();
             return Showcase(
-              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[3],
+              key: _keys[1],
               title: "View Card",
               description: "Tap here to view the card details",
               child: Wrap(

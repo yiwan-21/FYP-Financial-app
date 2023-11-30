@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -27,6 +28,16 @@ class _BudgetingState extends State<Budgeting> {
 
   List<BudgetCard> budget = [];
 
+
+  bool get _isMobile => Constant.isMobile(context);
+  final List<GlobalKey> _webKeys = [
+    GlobalKey(),
+  ];
+  final List<GlobalKey> _mobileKeys = [
+    GlobalKey(),
+  ];
+  bool _showcasingWebView = false;
+  
   @override
   void initState() {
     super.initState();
@@ -38,6 +49,42 @@ class _BudgetingState extends State<Budgeting> {
       });
       _textController.text = _selectedDate.toString().substring(0, 10);
     });
+    
+    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    if (showcaseProvider.isFirstTime) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _mobileKeys.add(showcaseProvider.navMoreKey);
+        _mobileKeys.add(showcaseProvider.navBillKey);
+        _webKeys.add(showcaseProvider.navMoreKey);
+        _webKeys.add(showcaseProvider.navBillKey);
+        if (_isMobile) {
+          ShowCaseWidget.of(context).startShowCase(_mobileKeys);
+          _showcasingWebView = false;
+        } else {
+          ShowCaseWidget.of(context).startShowCase(_webKeys);
+          _showcasingWebView = true;
+        }
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    if (kIsWeb && showcaseProvider.isRunning) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        if (_showcasingWebView && _isMobile) {
+          // If the showcase is running on web and the user switches to mobile view
+          ShowCaseWidget.of(context).startShowCase(_mobileKeys);
+          _showcasingWebView = false;
+        } else if (!_showcasingWebView && !_isMobile) {
+          // If the showcase is running on mobile and the user switches to web view
+          ShowCaseWidget.of(context).startShowCase(_webKeys);
+          _showcasingWebView = true;
+        }
+      });
+    }
   }
 
   @override
@@ -164,7 +211,7 @@ class _BudgetingState extends State<Budgeting> {
                   const SizedBox(width: 8),
                 ],
               ),
-              Constant.isMobile(context)
+              _isMobile
                   ? Container(
                       margin: const EdgeInsets.only(top: 10, bottom: 10))
                   : Container(
@@ -172,7 +219,7 @@ class _BudgetingState extends State<Budgeting> {
                       margin:
                           const EdgeInsets.only(top: 10, bottom: 10, right: 8),
                       child: Showcase(
-                        key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[10],
+                        key: _webKeys[0],
                         title: "Budget",
                         description: "Set Your Budget here",
                         child: ElevatedButton(
@@ -243,12 +290,12 @@ class _BudgetingState extends State<Budgeting> {
           ),
         ),
       ),
-      floatingActionButtonLocation: Constant.isMobile(context)
+      floatingActionButtonLocation: _isMobile
           ? FloatingActionButtonLocation.startFloat
           : null,
-      floatingActionButton: Constant.isMobile(context)
+      floatingActionButton: _isMobile
           ? Showcase(
-              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[10],
+              key: _mobileKeys[0],
               title: "Budget",
               description: "Set Your Budget here",
               child: FloatingActionButton(

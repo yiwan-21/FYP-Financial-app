@@ -24,8 +24,57 @@ class _BillState extends State<Bill> {
   final Stream<QuerySnapshot> _stream = BillService.getBillStream();
   final double _radius = 90;
 
+  bool get _isMobile => Constant.isMobile(context);
+  final List<GlobalKey> _webKeys = [
+    GlobalKey(),
+  ];
+  final List<GlobalKey> _mobileKeys = [
+    GlobalKey(),
+  ];
+  bool _showcasingWebView = false;
+
+  @override
+  void initState() {
+    super.initState();
+    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    if (showcaseProvider.isFirstTime) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _mobileKeys.add(showcaseProvider.navMoreKey);
+        _mobileKeys.add(showcaseProvider.navDebtKey);
+        _webKeys.add(showcaseProvider.navMoreKey);
+        _webKeys.add(showcaseProvider.navDebtKey);
+        if (_isMobile) {
+          ShowCaseWidget.of(context).startShowCase(_mobileKeys);
+          _showcasingWebView = false;
+        } else {
+          ShowCaseWidget.of(context).startShowCase(_webKeys);
+          _showcasingWebView = true;
+        }
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    if (kIsWeb && showcaseProvider.isRunning) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        if (_showcasingWebView && _isMobile) {
+          // If the showcase is running on web and the user switches to mobile view
+          ShowCaseWidget.of(context).startShowCase(_mobileKeys);
+          _showcasingWebView = false;
+        } else if (!_showcasingWebView && !_isMobile) {
+          // If the showcase is running on mobile and the user switches to web view
+          ShowCaseWidget.of(context).startShowCase(_webKeys);
+          _showcasingWebView = true;
+        }
+      });
+    }
+  }
+  
   void _addBill() {
-    if (Constant.isMobile(context) && !kIsWeb) {
+    if (_isMobile && !kIsWeb) {
       Navigator.pushNamed(context, RouteName.manageBill,
           arguments: {'isEditing': false});
     } else {
@@ -117,14 +166,14 @@ class _BillState extends State<Bill> {
                               ),
                               textAlign: TextAlign.center,
                             ),
-                      Constant.isMobile(context)
+                      _isMobile
                           ? const SizedBox(height: 20)
                           : Align(
                               alignment: Alignment.centerRight,
                               child: Container(
                                 margin: const EdgeInsets.all(8.0),
                                 child: Showcase(
-                                  key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[13],
+                                  key: _webKeys[0],
                                   title: "Bill",
                                   description: "Add your Bill here",
                                   child: ElevatedButton(
@@ -157,12 +206,12 @@ class _BillState extends State<Bill> {
           ),
         ),
       ),
-      floatingActionButtonLocation: Constant.isMobile(context)
+      floatingActionButtonLocation: _isMobile
           ? FloatingActionButtonLocation.startFloat
           : null,
-      floatingActionButton: Constant.isMobile(context)
+      floatingActionButton: _isMobile
           ? Showcase(
-              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[13],
+              key: _mobileKeys[0],
               title: "Bill",
               description: "Add your Bill here",
               child: FloatingActionButton(

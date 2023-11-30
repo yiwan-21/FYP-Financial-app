@@ -84,16 +84,31 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ShowCaseWidget(
       onComplete: (index, key) {
-        Function? callback = Provider.of<ShowcaseProvider>(context, listen: false).showcaseCallbacks[index];
-        if (callback != null) {
-          callback(context);
+        ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+        NavigationProvider navigationProvider = Provider.of<NavigationProvider>(context, listen: false);
+        if (key == showcaseProvider.navTrackerKey) {
+          navigationProvider.goToTracker();
+        } else if (key == showcaseProvider.navGoalKey) {
+          navigationProvider.goToGoal();
+        } else if (key == showcaseProvider.navGroupKey) {
+          navigationProvider.goToSplitMoney();
+        } else if (key == showcaseProvider.navMoreKey) {
+          navigationProvider.toggleMoreTab();
+        } else if (key == showcaseProvider.navBudgetingKey) {
+          navigationProvider.goToBudgeting();
+        } else if (key == showcaseProvider.navBillKey) {
+          navigationProvider.goToBill();
+        } else if (key == showcaseProvider.navDebtKey) {
+          navigationProvider.goToDebt();
+        } else if (key == showcaseProvider.endTourKey) {
+          showcaseProvider.endAllTour(context);
         }
       },
       onStart: (index, key) {
         Provider.of<ShowcaseProvider>(context, listen: false).startTour();
       },
       onFinish: () {
-        Provider.of<ShowcaseProvider>(context, listen: false).endTour(context);
+        Provider.of<ShowcaseProvider>(context, listen: false).endTour();
       },
       builder: Builder(
         builder: (context) {

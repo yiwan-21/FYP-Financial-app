@@ -60,19 +60,19 @@ class _NavigationState extends State<Navigation> {
     };
     _options = [
       Showcase(
-        key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[15],
+        key: Provider.of<ShowcaseProvider>(context, listen: false).navDebtKey,
         title: "Go to Debt page",
         description: "Click here to go to Debt page", 
         child: const FloatButton(title: 'Debt', icon: Icons.money),
       ),
       Showcase(
-        key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[12],
+        key: Provider.of<ShowcaseProvider>(context, listen: false).navBillKey,
         title: "Go to Bill page",
         description: "Click here to go to Bill page",
         child: const FloatButton(title: 'Bill', icon: Icons.water_drop),
       ),
       Showcase(
-        key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[9],
+        key: Provider.of<ShowcaseProvider>(context, listen: false).navBudgetingKey,
         title: "Go to Budgeting page",
         description: "Click here to go to Budgeting page",
         child: const FloatButton(title: 'Budgeting', icon: Icons.account_balance_wallet),
@@ -237,54 +237,49 @@ class _ChipBuilder extends ChipBuilder {
       alignment: Alignment.center,
       children: <Widget>[
         child,
-        // Showcase Tracker navigation icon
-        if (index == 3)
-          Showcase(
-            key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[1],
-            title: "Tracker",
-            description: "Tab here to navigate to Tracker page",
-            child: Container(),
-          ),
-
-        // Showcase Goal navigation icon
-        if (index == 1)
-          Showcase(
-            key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[4],
-            title: "Goal",
-            description: "Click here to go to Goal page",
-            child: Container(),
-          ),
-
         // Showcase Group navigation icon
         if (index == 0)
           Showcase(
-            key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[6],
+            key: Provider.of<ShowcaseProvider>(context, listen: false).navGroupKey,
             title: "Split Money",
             description: "Click here to go to Split Money page",
             child: Container(),
           ),
           
+        // Showcase Goal navigation icon
+        if (index == 1)
+          Showcase(
+            key: Provider.of<ShowcaseProvider>(context, listen: false).navGoalKey,
+            title: "Goal",
+            description: "Click here to go to Goal page",
+            child: Container(),
+          ),
+        
+        // Showcase Home navigation icon
+        if (index == 2)
+          Showcase(key: Provider.of<ShowcaseProvider>(context, listen: false).endTourKey, 
+          description: "Click here to end the tour",
+          // description: "You can start using this app!", 
+          child: Container(),
+        ),
+
+        // Showcase Tracker navigation icon
+        if (index == 3)
+          Showcase(
+            key: Provider.of<ShowcaseProvider>(context, listen: false).navTrackerKey,
+            title: "Tracker",
+            description: "Tab here to navigate to Tracker page",
+            child: Container(),
+          ),
+
         // Showcase More navigation icon
-        if (index == 4) ...[
+        if (index == 4)
           Showcase(
-            key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[8],
+            key: Provider.of<ShowcaseProvider>(context, listen: false).navMoreKey,
             title: "More",
             description: "Click here to show more options",
             child: Container(),
           ),
-          Showcase(
-            key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[11],
-            title: "More",
-            description: "Click here to show more options",
-            child: Container(),
-          ),
-          Showcase(
-            key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[14],
-            title: "More",
-            description: "Click here to show more options",
-            child: Container(),
-          ),
-        ]
       ],
     );
   }

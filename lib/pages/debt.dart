@@ -23,9 +23,56 @@ class Debt extends StatefulWidget {
 class _DebtState extends State<Debt> {
   final Stream<QuerySnapshot> _stream = DebtService.getDebtStream();
   double _surplus = 0;
+  
+  bool get _isMobile => Constant.isMobile(context);
+  final List<GlobalKey> _webKeys = [
+    GlobalKey(),
+  ];
+  final List<GlobalKey> _mobileKeys = [
+    GlobalKey(),
+  ];
+  bool _showcasingWebView = false;
 
+  @override
+  void initState() {
+    super.initState();
+    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    if (showcaseProvider.isFirstTime) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _mobileKeys.add(showcaseProvider.endTourKey);
+        _webKeys.add(showcaseProvider.endTourKey);
+        if (_isMobile) {
+          ShowCaseWidget.of(context).startShowCase(_mobileKeys);
+          _showcasingWebView = false;
+        } else {
+          ShowCaseWidget.of(context).startShowCase(_webKeys);
+          _showcasingWebView = true;
+        }
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    if (kIsWeb && showcaseProvider.isRunning) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        if (_showcasingWebView && _isMobile) {
+          // If the showcase is running on web and the user switches to mobile view
+          ShowCaseWidget.of(context).startShowCase(_mobileKeys);
+          _showcasingWebView = false;
+        } else if (!_showcasingWebView && !_isMobile) {
+          // If the showcase is running on mobile and the user switches to web view
+          ShowCaseWidget.of(context).startShowCase(_webKeys);
+          _showcasingWebView = true;
+        }
+      });
+    }
+  }
+  
   void _addDebt() {
-    if (Constant.isMobile(context) && !kIsWeb) {
+    if (_isMobile && !kIsWeb) {
       Navigator.pushNamed(context, RouteName.manageDebt,
           arguments: {'isEditing': false});
     } else {
@@ -104,13 +151,13 @@ class _DebtState extends State<Debt> {
                   )
                 : Container(),
               const SizedBox(height: 20),
-              Constant.isMobile(context)
+              _isMobile
                 ? Container()
                 : Container(
                     alignment: Alignment.bottomRight,
                     margin: const EdgeInsets.only(right: 8, bottom: 8),
                     child: Showcase(
-                      key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[16],
+                      key: _webKeys[0],
                       title: 'Add Debt',
                       description: 'Click here to add new debt',
                       child: ElevatedButton(
@@ -168,12 +215,12 @@ class _DebtState extends State<Debt> {
           ),
         ),
       ),
-      floatingActionButtonLocation: Constant.isMobile(context)
+      floatingActionButtonLocation: _isMobile
           ? FloatingActionButtonLocation.startFloat
           : null,
-      floatingActionButton: Constant.isMobile(context)
+      floatingActionButton: _isMobile
           ? Showcase(
-              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[16],
+              key: _mobileKeys[0],
               title: 'Add Debt',
               description: 'Click here to add new debt',
               child: FloatingActionButton(

@@ -19,8 +19,55 @@ class SavingsGoal extends StatefulWidget {
 }
 
 class _SavingsGoalState extends State<SavingsGoal> {
+  bool get _isMobile => Constant.isMobile(context);
+  final List<GlobalKey> _webKeys = [
+    GlobalKey(),
+  ];
+  final List<GlobalKey> _mobileKeys = [
+    GlobalKey(),
+  ];
+  bool _showcasingWebView = false;
+
+  @override
+  void initState() {
+    super.initState();
+    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    if (showcaseProvider.isFirstTime) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _mobileKeys.add(showcaseProvider.navGroupKey);
+        _webKeys.add(showcaseProvider.navGroupKey);
+        if (_isMobile) {
+          ShowCaseWidget.of(context).startShowCase(_mobileKeys);
+          _showcasingWebView = false;
+        } else {
+          ShowCaseWidget.of(context).startShowCase(_webKeys);
+          _showcasingWebView = true;
+        }
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    if (kIsWeb && showcaseProvider.isRunning) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        if (_showcasingWebView && _isMobile) {
+          // If the showcase is running on web and the user switches to mobile view
+          ShowCaseWidget.of(context).startShowCase(_mobileKeys);
+          _showcasingWebView = false;
+        } else if (!_showcasingWebView && !_isMobile) {
+          // If the showcase is running on mobile and the user switches to web view
+          ShowCaseWidget.of(context).startShowCase(_webKeys);
+          _showcasingWebView = true;
+        }
+      });
+    }
+  }
+
   _navigateToAddGoal() {
-    if (Constant.isMobile(context) && !kIsWeb) {
+    if (_isMobile && !kIsWeb) {
       Navigator.pushNamed(context, RouteName.addGoal);
     } else {
       showDialog(
@@ -43,13 +90,13 @@ class _SavingsGoalState extends State<SavingsGoal> {
           child: ListView(
             physics: const BouncingScrollPhysics(),
             children: [
-              Constant.isMobile(context)
+              _isMobile
                   ? const SizedBox(height: 20)
                   : Container(
                       alignment: Alignment.bottomRight,
                       margin: const EdgeInsets.only(top: 12, bottom: 12, right: 8),
                       child: Showcase(
-                        key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[5],
+                        key: _webKeys[0],
                         title: "Savings Goal",
                         description: "Add your goal here",
                         child: ElevatedButton(
@@ -95,9 +142,9 @@ class _SavingsGoalState extends State<SavingsGoal> {
           ),
         ),
       ),
-      floatingActionButton: Constant.isMobile(context)
+      floatingActionButton: _isMobile
           ? Showcase(
-              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[5],
+              key: _mobileKeys[0],
               title: "Savings Goal",
               description: "Add your goal here",
               child: FloatingActionButton(

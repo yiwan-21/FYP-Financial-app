@@ -37,16 +37,20 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool get _isMobile => Constant.isMobile(context);
+  final List<GlobalKey> _keys = [
+    GlobalKey(),
+  ];
 
   @override
   void initState() {
     super.initState();
     ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (showcaseProvider.isFirstTime) {
-        ShowCaseWidget.of(context).startShowCase(showcaseProvider.showcaseKeys);
-      }
-    });
+    if (showcaseProvider.isFirstTime) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _keys.add(showcaseProvider.navTrackerKey);
+        ShowCaseWidget.of(context).startShowCase(_keys);
+      });
+    }
   }
 
   void _navigateToHomeSettings() {
@@ -95,12 +99,12 @@ class _HomeState extends State<Home> {
                         image.isNotEmpty
                             ? CircleAvatar(
                                 radius:
-                                    Constant.isMobile(context) ? 20.0 : 25.0,
+                                    _isMobile ? 20.0 : 25.0,
                                 backgroundImage: NetworkImage(image),
                               )
                             : CircleAvatar(
                                 radius:
-                                    Constant.isMobile(context) ? 20.0 : 25.0,
+                                    _isMobile ? 20.0 : 25.0,
                                 child: const Icon(
                                   Icons.account_circle,
                                   color: Colors.white,
@@ -132,7 +136,7 @@ class _HomeState extends State<Home> {
                         Row(
                           children: [
                             Showcase(
-                              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[0],
+                              key: _keys[0],
                               title: "Set Your Home",
                               description: "Customize your home display here",
                               child: GestureDetector(
@@ -145,7 +149,7 @@ class _HomeState extends State<Home> {
                                       color: Colors.black,
                                     ),
                                     const SizedBox(width: 8),
-                                    if (!Constant.isMobile(context))
+                                    if (!_isMobile)
                                       const Text(
                                         'Home Settings',
                                         style: TextStyle(

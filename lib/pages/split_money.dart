@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -22,8 +23,56 @@ class SplitMoney extends StatefulWidget {
 
 class _SplitMoneyState extends State<SplitMoney> {
   final Stream<QuerySnapshot> _stream = SplitMoneyService.getGroupStream();
+  final List<GlobalKey> _webKeys = [
+    GlobalKey(),
+  ];
+  final List<GlobalKey> _mobileKeys = [
+    GlobalKey(),
+  ];
+  bool _showcasingWebView = false;
 
+  @override
+  void initState() {
+    super.initState();
+    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    if (showcaseProvider.isFirstTime) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _mobileKeys.add(showcaseProvider.navMoreKey);
+        _mobileKeys.add(showcaseProvider.navBudgetingKey);
+        _webKeys.add(showcaseProvider.navMoreKey);
+        _webKeys.add(showcaseProvider.navBudgetingKey);
+        if (_topDownAlign) {
+          ShowCaseWidget.of(context).startShowCase(_mobileKeys);
+          _showcasingWebView = false;
+        } else {
+          ShowCaseWidget.of(context).startShowCase(_webKeys);
+          _showcasingWebView = true;
+        }
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    if (kIsWeb && showcaseProvider.isRunning) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        if (_showcasingWebView && _topDownAlign) {
+          // If the showcase is running on web and the user switches to mobile view
+          ShowCaseWidget.of(context).startShowCase(_mobileKeys);
+          _showcasingWebView = false;
+        } else if (!_showcasingWebView && !_topDownAlign) {
+          // If the showcase is running on mobile and the user switches to web view
+          ShowCaseWidget.of(context).startShowCase(_webKeys);
+          _showcasingWebView = true;
+        }
+      });
+    }
+  }
+  
   bool get _topDownAlign {
+    // true: mobile, false: web
     return Constant.isMobile(context) || Constant.isTablet(context);
   }
 
@@ -53,11 +102,12 @@ class _SplitMoneyState extends State<SplitMoney> {
                 child: Column(
                   children: [
                     if (!_topDownAlign)
+                      // webview
                       Container(
                         alignment: Alignment.topLeft,
                         margin: const EdgeInsets.all(10),
                         child: Showcase(
-                          key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[7],
+                          key: _webKeys[0],
                           title: "Split Money",
                           description: "Add your group for money splitting",
                           child: ElevatedButton(
@@ -123,8 +173,9 @@ class _SplitMoneyState extends State<SplitMoney> {
         ),
       ),
       floatingActionButton: _topDownAlign
+          // mobileview
           ? Showcase(
-              key: Provider.of<ShowcaseProvider>(context, listen: false).showcaseKeys[7],
+              key: _mobileKeys[0],
               title: "Split Money",
               description: "Add your group for money splitting",
               child: FloatingActionButton(
