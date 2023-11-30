@@ -258,7 +258,7 @@ class _ChipBuilder extends ChipBuilder {
         // Showcase Home navigation icon
         if (index == 2)
           Showcase(key: Provider.of<ShowcaseProvider>(context, listen: false).endTourKey, 
-          description: "Click here to end the tour",
+          description: "Click to end the tour",
           // description: "You can start using this app!", 
           child: Container(),
         ),
@@ -268,7 +268,7 @@ class _ChipBuilder extends ChipBuilder {
           Showcase(
             key: Provider.of<ShowcaseProvider>(context, listen: false).navTrackerKey,
             title: "Tracker",
-            description: "Tab here to navigate to Tracker page",
+            description: "Click here to navigate to Tracker page",
             child: Container(),
           ),
 

@@ -57,11 +57,13 @@ class _DebtState extends State<Debt> {
     super.didChangeDependencies();
     ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
     if (kIsWeb && showcaseProvider.isRunning) {
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (_showcasingWebView && _isMobile) {
           // If the showcase is running on web and the user switches to mobile view
-          ShowCaseWidget.of(context).startShowCase(_mobileKeys);
-          _showcasingWebView = false;
+          await Future.delayed(const Duration(milliseconds: 300)).then((_) {
+            ShowCaseWidget.of(context).startShowCase(_mobileKeys);
+            _showcasingWebView = false;
+          });
         } else if (!_showcasingWebView && !_isMobile) {
           // If the showcase is running on mobile and the user switches to web view
           ShowCaseWidget.of(context).startShowCase(_webKeys);
