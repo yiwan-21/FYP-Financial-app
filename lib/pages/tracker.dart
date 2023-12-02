@@ -35,17 +35,20 @@ class _TrackerState extends State<Tracker> {
     super.initState();
     ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
     if (showcaseProvider.isFirstTime) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         _keys.add(showcaseProvider.navGoalKey);
-        ShowCaseWidget.of(context).startShowCase(_keys);
+
+        await Future.delayed(const Duration(milliseconds: 200)).then((_) {
+          ShowCaseWidget.of(context).startShowCase(_keys);
+        });
+
       });
     }
   }
 
   void _addTransaction() {
     if (Constant.isMobile(context) && !kIsWeb) {
-      Navigator.pushNamed(context, RouteName.manageTransaction,
-          arguments: {'isEditing': false}).then((value) {
+      Navigator.pushNamed(context, RouteName.manageTransaction, arguments: {'isEditing': false}).then((value) {
         if (value != null && value is TrackerTransaction) {
           Provider.of<TotalTransactionProvider>(context, listen: false)
               .updateTransactions();
