@@ -26,22 +26,27 @@ class _CategoryChartState extends State<CategoryChart> {
   Widget build(BuildContext context) {
     return Consumer<TotalTransactionProvider>(
       builder: (context, totalTransactionProvider, _) {
-        return SfCircularChart(
-          // Enable legend
-          legend: Legend(isVisible: true),
-          // Enable tooltip
-          tooltipBehavior: TooltipBehavior(enable: true),
-          series: <PieSeries<CategoryData, String>>[
-            PieSeries(
-              radius: Constant.isMobile(context) ? '70%' : '80%',
-              dataSource: getSections(totalTransactionProvider.getPieChartData),
-              xValueMapper: (CategoryData record, _) => record.title,
-              yValueMapper: (CategoryData record, _) => record.value,
-              pointColorMapper: (CategoryData record, _) => record.color,
-              enableTooltip: true,
-            )
-          ],
-        );
+        if (totalTransactionProvider.getPieChartData.isNotEmpty) {
+          return SfCircularChart(
+            // Enable legend
+            legend: Legend(isVisible: true),
+            // Enable tooltip
+            tooltipBehavior: TooltipBehavior(enable: true),
+            series: <PieSeries<CategoryData, String>>[
+              PieSeries(
+                radius: Constant.isMobile(context) ? '70%' : '80%',
+                dataSource:
+                    getSections(totalTransactionProvider.getPieChartData),
+                xValueMapper: (CategoryData record, _) => record.title,
+                yValueMapper: (CategoryData record, _) => record.value,
+                pointColorMapper: (CategoryData record, _) => record.color,
+                enableTooltip: true,
+              )
+            ],
+          );
+        } else {
+           return Container();
+        }
       },
     );
   }
