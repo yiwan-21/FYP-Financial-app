@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 
+import '../constants/tour_example.dart';
 import '../pages/add_goal.dart';
 import '../components/goal.dart';
 import '../constants/constant.dart';
@@ -29,6 +30,7 @@ class _SavingsGoalState extends State<SavingsGoal> {
     GlobalKey(),
   ];
   bool _showcasingWebView = false;
+  bool _runningShowcase = false;
 
   @override
   void initState() {
@@ -45,6 +47,7 @@ class _SavingsGoalState extends State<SavingsGoal> {
           ShowCaseWidget.of(context).startShowCase(_webKeys);
           _showcasingWebView = true;
         }
+        _runningShowcase = true;
       });
     }
   }
@@ -127,8 +130,10 @@ class _SavingsGoalState extends State<SavingsGoal> {
                   if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Center(child: Text("No goal yet"));
+                  if (!_runningShowcase) {
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return const Center(child: Text("No goal yet"));
+                    }
                   }
 
                   List<Goal> goals = snapshot.data!.docs
@@ -139,11 +144,16 @@ class _SavingsGoalState extends State<SavingsGoal> {
                     key: _isMobile? _mobileKeys[1] : _webKeys[1],
                     title: "Data Created",
                     description: "Tap here to view goal details and add the progress",
-                    tooltipPosition: TooltipPosition.top,
                     child: Wrap(
-                      children: List.generate(goals.length, (index) {
-                        return goals[index];
-                      }),
+                      children: List.generate(
+                        (_runningShowcase && goals.isEmpty) ? 1 : goals.length, 
+                        (index) {
+                          if (_runningShowcase && goals.isEmpty) {
+                            return TourExample.goal;
+                          }
+                          return goals[index];
+                        },
+                      ),
                     ),
                   );
                 },

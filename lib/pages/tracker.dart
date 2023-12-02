@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 
+import '../constants/tour_example.dart';
 import '../pages/manage_transaction.dart';
 import '../constants/constant.dart';
 import '../constants/route_name.dart';
@@ -29,6 +30,7 @@ class _TrackerState extends State<Tracker> {
     GlobalKey(),
     GlobalKey(),
   ];
+  bool _runningShowcase = false;
 
   @override
   void initState() {
@@ -40,8 +42,10 @@ class _TrackerState extends State<Tracker> {
 
         await Future.delayed(const Duration(milliseconds: 200)).then((_) {
           ShowCaseWidget.of(context).startShowCase(_keys);
+          setState(() {
+            _runningShowcase = true;
+          });
         });
-
       });
     }
   }
@@ -163,8 +167,10 @@ class _TrackerState extends State<Tracker> {
             if (snapshot.hasError) {
               return Text('Something went wrong: ${snapshot.error}');
             }
-            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return const Center(child: Text("No transaction yet"));
+            if (!_runningShowcase) {
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return const Center(child: Text("No transaction yet"));
+              }
             }
 
             List<TrackerTransaction> transactions = snapshot.data!.docs
@@ -179,23 +185,21 @@ class _TrackerState extends State<Tracker> {
               description: "Tap here to view details, double tap to edit",
               child: Wrap(
                 children: List.generate(
-                  transactions.length,
+                  (_runningShowcase && transactions.isEmpty) ? 2 : transactions.length,
                   (index) {
-                    if (Constant.isDesktop(context) &&
-                        MediaQuery.of(context).size.width > 1200) {
+                    List<TrackerTransaction> examples = [TourExample.expenseTransaction, TourExample.incomeTransaction];
+                    if (Constant.isDesktop(context) && MediaQuery.of(context).size.width > 1200) {
                       return SizedBox(
                         width: MediaQuery.of(context).size.width / 3,
-                        child: transactions[index],
+                        child: (_runningShowcase && transactions.isEmpty) ? examples[index] : transactions[index],
                       );
-                    } else if (Constant.isTablet(context) ||
-                        MediaQuery.of(context).size.width >
-                            Constant.tabletMaxWidth) {
+                    } else if (Constant.isTablet(context) || MediaQuery.of(context).size.width > Constant.tabletMaxWidth) {
                       return SizedBox(
                         width: MediaQuery.of(context).size.width / 2,
-                        child: transactions[index],
+                        child: (_runningShowcase && transactions.isEmpty) ? examples[index] : transactions[index],
                       );
                     } else {
-                      return transactions[index];
+                      return (_runningShowcase && transactions.isEmpty) ? examples[index] : transactions[index];
                     }
                   },
                 ),

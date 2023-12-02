@@ -9,6 +9,7 @@ import '../constants/style_constant.dart';
 import '../constants/route_name.dart';
 import '../components/bill_card.dart';
 import '../components/custom_circular_progress.dart';
+import '../constants/tour_example.dart';
 import '../pages/manage_bill.dart';
 import '../providers/show_case_provider.dart';
 import '../services/bill_service.dart';
@@ -34,6 +35,7 @@ class _BillState extends State<Bill> {
     GlobalKey(),
   ];
   bool _showcasingWebView = false;
+  bool _runningShowcase = false;
 
   @override
   void initState() {
@@ -52,6 +54,7 @@ class _BillState extends State<Bill> {
           ShowCaseWidget.of(context).startShowCase(_webKeys);
           _showcasingWebView = true;
         }
+        _runningShowcase = true;
       });
     }
   }
@@ -201,11 +204,20 @@ class _BillState extends State<Bill> {
                     key: _isMobile? _mobileKeys[1] : _webKeys[1],
                     title: "Data Created",
                     description: "View your bill detail and history here",
+                    tooltipPosition: TooltipPosition.top,
                     child: ListView(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       padding: const EdgeInsets.only(bottom: 50),
-                      children: List.generate(bills.length, (index) => bills[index]),
+                      children: List.generate(
+                        (_runningShowcase && bills.isEmpty) ? 1 : bills.length, 
+                        (index) {
+                          if (_runningShowcase && bills.isEmpty) {
+                            return TourExample.bill;
+                          }
+                          return bills[index];
+                        },
+                      ),
                     ),
                   ),
                 ],

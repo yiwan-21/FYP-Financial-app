@@ -7,6 +7,7 @@ import 'package:showcaseview/showcaseview.dart';
 import '../constants/constant.dart';
 import '../constants/style_constant.dart';
 import '../components/budget_card.dart';
+import '../constants/tour_example.dart';
 import '../pages/set_budget.dart';
 import '../providers/show_case_provider.dart';
 import '../services/budget_service.dart';
@@ -19,8 +20,8 @@ class Budgeting extends StatefulWidget {
 }
 
 class _BudgetingState extends State<Budgeting> {
-  final Future<Stream<QuerySnapshot>> _streamFuture =
-      BudgetService.getBudgetingStream();
+  bool get _isMobile => Constant.isMobile(context);
+  final Future<Stream<QuerySnapshot>> _streamFuture = BudgetService.getBudgetingStream();
   final TextEditingController _textController = TextEditingController();
   DateTime _startingDate = DateTime.now();
   DateTime _resetDate = DateTime.now();
@@ -28,8 +29,6 @@ class _BudgetingState extends State<Budgeting> {
 
   List<BudgetCard> budget = [];
 
-
-  bool get _isMobile => Constant.isMobile(context);
   final List<GlobalKey> _webKeys = [
     GlobalKey(),
     GlobalKey(),
@@ -41,6 +40,7 @@ class _BudgetingState extends State<Budgeting> {
     GlobalKey(),
   ];
   bool _showcasingWebView = false;
+  bool _runningShowcase = false;
   
   @override
   void initState() {
@@ -68,6 +68,7 @@ class _BudgetingState extends State<Budgeting> {
           ShowCaseWidget.of(context).startShowCase(_webKeys);
           _showcasingWebView = true;
         }
+        _runningShowcase = true;
       });
     }
   }
@@ -272,10 +273,12 @@ class _BudgetingState extends State<Budgeting> {
                       if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
                       }
-                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                        return const Center(
-                          child: Text("No budgeting yet"),
-                        );
+                      if (!_runningShowcase) {
+                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                          return const Center(
+                            child: Text("No budgeting yet"),
+                          );
+                        }
                       }
                       List<BudgetCard> budgets = [];
                       for (var doc in snapshot.data!.docs) {
@@ -293,8 +296,13 @@ class _BudgetingState extends State<Budgeting> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           children: List.generate(
-                            budgets.length,
-                            (index) => budgets[index],
+                            (_runningShowcase && budgets.isEmpty) ? 1 : budgets.length,
+                            (index) {
+                              if (_runningShowcase && budgets.isEmpty) {
+                                return TourExample.budget;
+                              }
+                              return budgets[index];
+                            },
                           ),
                         ),
                       );

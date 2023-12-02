@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 
+import '../constants/tour_example.dart';
 import '../pages/manage_debt.dart';
 import '../constants/constant.dart';
 import '../constants/route_name.dart';
@@ -36,6 +37,7 @@ class _DebtState extends State<Debt> {
     GlobalKey(),
   ];
   bool _showcasingWebView = false;
+  bool _runningShowcase = false;
 
   @override
   void initState() {
@@ -52,6 +54,7 @@ class _DebtState extends State<Debt> {
           ShowCaseWidget.of(context).startShowCase(_webKeys);
           _showcasingWebView = true;
         }
+        _runningShowcase = true;
       });
     }
   }
@@ -193,10 +196,12 @@ class _DebtState extends State<Debt> {
                   if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   }
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Center(
-                      child: Text("No Debt Yet"),
-                    );
+                  if (!_runningShowcase) {
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return const Center(
+                        child: Text("No Debt Yet"),
+                      );
+                    }
                   }
 
                   List<DebtCard> debts = [];
@@ -208,12 +213,16 @@ class _DebtState extends State<Debt> {
                     key: _isMobile? _mobileKeys[2] : _webKeys[2],
                     title: "Data Created",
                     description: "View your debt detail and debt payment history here",
+                    tooltipPosition: TooltipPosition.top,
                     child: ListView.separated(
                       shrinkWrap: true,
                       physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.only(bottom: 50),
-                      itemCount: debts.length,
+                      itemCount: (_runningShowcase && debts.isEmpty) ? 1 : debts.length,
                       itemBuilder: (context, index) {
+                        if (_runningShowcase && debts.isEmpty) {
+                          return TourExample.debt;
+                        }
                         return debts[index];
                       },
                       separatorBuilder: (context, index) {

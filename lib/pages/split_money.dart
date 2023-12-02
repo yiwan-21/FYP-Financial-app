@@ -9,6 +9,7 @@ import '../constants/constant.dart';
 import '../constants/style_constant.dart';
 import '../components/manage_group.dart';
 import '../components/split_group_card.dart';
+import '../constants/tour_example.dart';
 import '../firebase_instance.dart';
 import '../providers/show_case_provider.dart';
 import '../services/split_money_service.dart';
@@ -32,6 +33,7 @@ class _SplitMoneyState extends State<SplitMoney> {
     GlobalKey(),
   ];
   bool _showcasingWebView = false;
+  bool _runningShowcase = false;
 
   @override
   void initState() {
@@ -50,6 +52,7 @@ class _SplitMoneyState extends State<SplitMoney> {
           ShowCaseWidget.of(context).startShowCase(_webKeys);
           _showcasingWebView = true;
         }
+        _runningShowcase = true;
       });
     }
   }
@@ -140,16 +143,16 @@ class _SplitMoneyState extends State<SplitMoney> {
                             return Text(
                                 'Something went wrong: ${snapshot.error}');
                           }
-                          if (!snapshot.hasData ||
-                              snapshot.data!.docs.isEmpty) {
-                            return const Center(
-                              child: Text('No group yet'),
-                            );
+                          if (!_runningShowcase) {
+                            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                              return const Center(
+                                child: Text('No group yet'),
+                              );
+                            }
                           }
 
                           List<SplitGroupCard> groupCards = snapshot.data!.docs
-                              .map((doc) => SplitGroupCard(doc.id,
-                                  groupName: doc['name']))
+                              .map((doc) => SplitGroupCard(doc.id, groupName: doc['name']))
                               .toList();
                           return Showcase(
                             key: _topDownAlign? _mobileKeys[1] : _webKeys[1],
@@ -159,8 +162,11 @@ class _SplitMoneyState extends State<SplitMoney> {
                               shrinkWrap: true,
                               physics: const BouncingScrollPhysics(),
                               children: List.generate(
-                                groupCards.length,
+                                (_runningShowcase && groupCards.isEmpty) ? 1 : groupCards.length,
                                 (index) {
+                                  if (_runningShowcase && groupCards.isEmpty) {
+                                    return TourExample.group;
+                                  }
                                   return groupCards[index];
                                 },
                               ),
