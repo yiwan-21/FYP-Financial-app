@@ -31,25 +31,33 @@ class _ProfileState extends State<Profile> {
 
   // Pick from gallery
   void galleryImage() async {
-    var pickedImage = await pickFromGallery();
-    if (pickedImage != null) {
-      await UserService.setProfileImage(pickedImage).then((String url) {
-        final userProvider = Provider.of<UserProvider>(context, listen: false);
-        userProvider.updateProfileImage(url);
-        Navigator.pop(context);
-      });
+    try{
+      var pickedImage = await pickFromGallery();
+      if (pickedImage != null) {
+        await UserService.setProfileImage(pickedImage).then((String url) {
+          final userProvider = Provider.of<UserProvider>(context, listen: false);
+          userProvider.updateProfileImage(url);
+          Navigator.pop(context);
+        });
+      }
+    } catch (e) {
+      debugPrint("Error in galleryImage: $e");
     }
   }
 
   // Pick from camera
   void cameraImage() async {
-    var pickedImage = await pickFromCamera();
-    if (pickedImage != null) {
-      await UserService.setProfileImage(pickedImage).then((String url) {
-        final userProvider = Provider.of<UserProvider>(context, listen: false);
-        userProvider.updateProfileImage(url);
-          Navigator.pop(context);
-      });
+    try{
+      var pickedImage = await pickFromCamera();
+      if (pickedImage != null) {
+        await UserService.setProfileImage(pickedImage).then((String url) {
+          final userProvider = Provider.of<UserProvider>(context, listen: false);
+          userProvider.updateProfileImage(url);
+            Navigator.pop(context);
+        });
+      }
+    } catch (e) {
+      debugPrint("Error in cameraImage: $e");
     }
   }
 
