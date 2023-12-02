@@ -24,8 +24,14 @@ class BillCard extends StatefulWidget {
   final List<Map<String, dynamic>> history;
 
   const BillCard(
-      this.id, this.title, this.amount, this.paid, this.dueDate, this.fixed, this.history,
-      {super.key});
+    {required this.id, 
+    required this.title, 
+    required this.amount, 
+    required this.paid, 
+    required this.dueDate, 
+    required this.fixed, 
+    required this.history,
+    super.key});
 
   BillCard.fromDocument(QueryDocumentSnapshot doc, {super.key})
       : id = doc.id,
