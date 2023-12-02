@@ -32,8 +32,12 @@ class _BudgetingState extends State<Budgeting> {
   bool get _isMobile => Constant.isMobile(context);
   final List<GlobalKey> _webKeys = [
     GlobalKey(),
+    GlobalKey(),
+    GlobalKey(),
   ];
   final List<GlobalKey> _mobileKeys = [
+    GlobalKey(),
+    GlobalKey(),
     GlobalKey(),
   ];
   bool _showcasingWebView = false;
@@ -200,13 +204,18 @@ class _BudgetingState extends State<Budgeting> {
                     ),
                   ),
                   const Spacer(),
-                  TextButton(
-                    onPressed: setResetDate,
-                    child: const Text(
-                      'Change',
-                      style: TextStyle(
-                        color: Colors.pink,
-                        fontSize: 16,
+                  Showcase(
+                    key: _isMobile? _mobileKeys[0] : _webKeys[0],
+                    title: "Reset Next Starting Date(Resetting Date)",
+                    description: "Reset your upcoming starting date here",
+                    child: TextButton(
+                      onPressed: setResetDate,
+                      child: const Text(
+                        'Change',
+                        style: TextStyle(
+                          color: Colors.pink,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ),
@@ -221,7 +230,7 @@ class _BudgetingState extends State<Budgeting> {
                       margin:
                           const EdgeInsets.only(top: 10, bottom: 10, right: 8),
                       child: Showcase(
-                        key: _webKeys[0],
+                        key: _webKeys[1],
                         title: "Budget",
                         description: "Set Your Budget here",
                         child: ElevatedButton(
@@ -276,12 +285,17 @@ class _BudgetingState extends State<Budgeting> {
                           doc['used'].toDouble(),
                         ));
                       }
-                      return ListView(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: List.generate(
-                          budgets.length,
-                          (index) => budgets[index],
+                      return Showcase(
+                        key: _isMobile? _mobileKeys[2] : _webKeys[2],
+                        title: "Data Created",
+                        description: "Tap here to view budget details",
+                        child: ListView(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          children: List.generate(
+                            budgets.length,
+                            (index) => budgets[index],
+                          ),
                         ),
                       );
                     },
@@ -297,7 +311,7 @@ class _BudgetingState extends State<Budgeting> {
           : null,
       floatingActionButton: _isMobile
           ? Showcase(
-              key: _mobileKeys[0],
+              key: _mobileKeys[1],
               title: "Budget",
               description: "Set Your Budget here",
               child: FloatingActionButton(

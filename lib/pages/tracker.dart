@@ -175,8 +175,8 @@ class _TrackerState extends State<Tracker> {
                 .toList();
             return Showcase(
               key: _keys[1],
-              title: "View Card",
-              description: "Tap here to view the card details",
+              title: "Data Created",
+              description: "Tap here to view details, double tap to edit",
               child: Wrap(
                 children: List.generate(
                   transactions.length,

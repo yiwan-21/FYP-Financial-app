@@ -22,8 +22,10 @@ class _SavingsGoalState extends State<SavingsGoal> {
   bool get _isMobile => Constant.isMobile(context);
   final List<GlobalKey> _webKeys = [
     GlobalKey(),
+    GlobalKey(),
   ];
   final List<GlobalKey> _mobileKeys = [
+    GlobalKey(),
     GlobalKey(),
   ];
   bool _showcasingWebView = false;
@@ -133,10 +135,16 @@ class _SavingsGoalState extends State<SavingsGoal> {
                       .map((doc) => Goal.fromDocument(doc))
                       .toList();
 
-                  return Wrap(
-                    children: List.generate(goals.length, (index) {
-                      return goals[index];
-                    }),
+                  return Showcase(
+                    key: _isMobile? _mobileKeys[1] : _webKeys[1],
+                    title: "Data Created",
+                    description: "Tap here to view goal details and add the progress",
+                    tooltipPosition: TooltipPosition.top,
+                    child: Wrap(
+                      children: List.generate(goals.length, (index) {
+                        return goals[index];
+                      }),
+                    ),
                   );
                 },
               ),

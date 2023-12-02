@@ -27,8 +27,10 @@ class _BillState extends State<Bill> {
   bool get _isMobile => Constant.isMobile(context);
   final List<GlobalKey> _webKeys = [
     GlobalKey(),
+    GlobalKey(),
   ];
   final List<GlobalKey> _mobileKeys = [
+    GlobalKey(),
     GlobalKey(),
   ];
   bool _showcasingWebView = false;
@@ -195,12 +197,16 @@ class _BillState extends State<Bill> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  ListView(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.only(bottom: 50),
-                    children:
-                        List.generate(bills.length, (index) => bills[index]),
+                  Showcase(
+                    key: _isMobile? _mobileKeys[1] : _webKeys[1],
+                    title: "Data Created",
+                    description: "View your bill detail and history here",
+                    child: ListView(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.only(bottom: 50),
+                      children: List.generate(bills.length, (index) => bills[index]),
+                    ),
                   ),
                 ],
               );

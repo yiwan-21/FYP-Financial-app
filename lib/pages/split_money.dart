@@ -24,9 +24,11 @@ class SplitMoney extends StatefulWidget {
 class _SplitMoneyState extends State<SplitMoney> {
   final Stream<QuerySnapshot> _stream = SplitMoneyService.getGroupStream();
   final List<GlobalKey> _webKeys = [
+    GlobalKey(),   
     GlobalKey(),
   ];
   final List<GlobalKey> _mobileKeys = [
+    GlobalKey(),
     GlobalKey(),
   ];
   bool _showcasingWebView = false;
@@ -149,14 +151,19 @@ class _SplitMoneyState extends State<SplitMoney> {
                               .map((doc) => SplitGroupCard(doc.id,
                                   groupName: doc['name']))
                               .toList();
-                          return ListView(
-                            shrinkWrap: true,
-                            physics: const BouncingScrollPhysics(),
-                            children: List.generate(
-                              groupCards.length,
-                              (index) {
-                                return groupCards[index];
-                              },
+                          return Showcase(
+                            key: _topDownAlign? _mobileKeys[1] : _webKeys[1],
+                            title: "Data Created",
+                            description: "Tap here to view group details and add group expense",
+                            child: ListView(
+                              shrinkWrap: true,
+                              physics: const BouncingScrollPhysics(),
+                              children: List.generate(
+                                groupCards.length,
+                                (index) {
+                                  return groupCards[index];
+                                },
+                              ),
                             ),
                           );
                         },

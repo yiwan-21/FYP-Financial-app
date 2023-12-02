@@ -27,8 +27,12 @@ class _DebtState extends State<Debt> {
   bool get _isMobile => Constant.isMobile(context);
   final List<GlobalKey> _webKeys = [
     GlobalKey(),
+    GlobalKey(),
+    GlobalKey(),
   ];
   final List<GlobalKey> _mobileKeys = [
+    GlobalKey(),
+    GlobalKey(),
     GlobalKey(),
   ];
   bool _showcasingWebView = false;
@@ -111,19 +115,24 @@ class _DebtState extends State<Debt> {
               const SizedBox(height: 10),
               Align(
                 alignment: Alignment.centerRight,
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4.0),
+                child: Showcase(
+                  key: _isMobile? _mobileKeys[0] : _webKeys[0],
+                  title: "Debt",
+                  description: "Calculate Surplus or Deficit for current month",
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
                     ),
-                  ),
-                  onPressed: _calSurplus,
-                  child: const Text(
-                    'Calculate Savings',
-                    style: TextStyle(
-                      color: Colors.pink,
-                      fontSize: 18,
+                    onPressed: _calSurplus,
+                    child: const Text(
+                      'Calculate Savings',
+                      style: TextStyle(
+                        color: Colors.pink,
+                        fontSize: 18,
+                      ),
                     ),
                   ),
                 ),
@@ -133,8 +142,7 @@ class _DebtState extends State<Debt> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       const Tooltip(
-                        message:
-                            'Balance from the total income deduct the total expenses from tracker in this month',
+                        message: 'Balance from the total income deduct the total expenses from tracker in this month',
                         triggerMode: TooltipTriggerMode.tap,
                         showDuration: Duration(seconds: 5),
                         child: Icon(Icons.info_outline_rounded, size: 20),
@@ -159,7 +167,7 @@ class _DebtState extends State<Debt> {
                     alignment: Alignment.bottomRight,
                     margin: const EdgeInsets.only(right: 8, bottom: 8),
                     child: Showcase(
-                      key: _webKeys[0],
+                      key: _webKeys[1],
                       title: 'Add Debt',
                       description: 'Click here to add new debt',
                       child: ElevatedButton(
@@ -196,20 +204,25 @@ class _DebtState extends State<Debt> {
                     debts.add(DebtCard.fromDocument(doc));
                   }
 
-                  return ListView.separated(
-                    shrinkWrap: true,
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.only(bottom: 50),
-                    itemCount: debts.length,
-                    itemBuilder: (context, index) {
-                      return debts[index];
-                    },
-                    separatorBuilder: (context, index) {
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 40),
-                        child: Divider(height: 20),
-                      );
-                    },
+                  return Showcase(
+                    key: _isMobile? _mobileKeys[2] : _webKeys[2],
+                    title: "Data Created",
+                    description: "View your debt detail and debt payment history here",
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.only(bottom: 50),
+                      itemCount: debts.length,
+                      itemBuilder: (context, index) {
+                        return debts[index];
+                      },
+                      separatorBuilder: (context, index) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 40),
+                          child: Divider(height: 20),
+                        );
+                      },
+                    ),
                   );
                 },
               ),
@@ -222,7 +235,7 @@ class _DebtState extends State<Debt> {
           : null,
       floatingActionButton: _isMobile
           ? Showcase(
-              key: _mobileKeys[0],
+              key: _mobileKeys[1],
               title: 'Add Debt',
               description: 'Click here to add new debt',
               child: FloatingActionButton(
