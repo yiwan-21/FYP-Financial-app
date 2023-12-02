@@ -144,6 +144,7 @@ class _SavingsGoalState extends State<SavingsGoal> {
                     key: _isMobile? _mobileKeys[1] : _webKeys[1],
                     title: "Data Created",
                     description: "Tap here to view goal details and add the progress",
+                    tooltipPosition: TooltipPosition.top,
                     child: Wrap(
                       children: List.generate(
                         (_runningShowcase && goals.isEmpty) ? 1 : goals.length, 
