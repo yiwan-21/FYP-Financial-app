@@ -49,6 +49,7 @@ class ShowcaseProvider with ChangeNotifier {
   void endAllTour(BuildContext context) {
     Provider.of<NavigationProvider>(context, listen: false).goToHome();
     _isFirstTime = false;
+    _isRunning = false;
     SharedPreferences.getInstance().then((prefs) {
       prefs.setBool(_firstTimeKey, false);
     });
