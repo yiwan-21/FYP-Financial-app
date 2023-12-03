@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 import '../components/bill_card.dart';
@@ -46,9 +47,16 @@ class _HomeState extends State<Home> {
     super.initState();
     ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
     if (showcaseProvider.isFirstTime) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _keys.add(showcaseProvider.navTrackerKey);
-        ShowCaseWidget.of(context).startShowCase(_keys);
+      SharedPreferences.getInstance().then((SharedPreferences prefs) {
+        bool firstTime = prefs.getBool(showcaseProvider.firstTimeKey) ?? true;
+        if (firstTime) {
+          WidgetsBinding.instance.addPostFrameCallback((_)  {
+            _keys.add(showcaseProvider.navTrackerKey);
+            ShowCaseWidget.of(context).startShowCase(_keys);
+          });
+        } else {
+          showcaseProvider.setFirstTime(firstTime);
+        }
       });
     }
   }
