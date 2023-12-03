@@ -167,9 +167,9 @@ class _SplitMoneyState extends State<SplitMoney> {
                               shrinkWrap: true,
                               physics: const BouncingScrollPhysics(),
                               children: List.generate(
-                                (_runningShowcase && groupCards.isEmpty) ? 1 : groupCards.length,
+                                _runningShowcase ? 1 : groupCards.length,
                                 (index) {
-                                  if (_runningShowcase && groupCards.isEmpty) {
+                                  if (_runningShowcase) {
                                     return TourExample.group;
                                   }
                                   return groupCards[index];

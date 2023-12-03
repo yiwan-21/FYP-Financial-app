@@ -224,9 +224,9 @@ class _DebtState extends State<Debt> {
                       shrinkWrap: true,
                       physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.only(bottom: 50),
-                      itemCount: (_runningShowcase && debts.isEmpty) ? 1 : debts.length,
+                      itemCount: _runningShowcase ? 1 : debts.length,
                       itemBuilder: (context, index) {
-                        if (_runningShowcase && debts.isEmpty) {
+                        if (_runningShowcase) {
                           return TourExample.debt;
                         }
                         return debts[index];

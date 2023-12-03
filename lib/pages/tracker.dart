@@ -32,6 +32,7 @@ class _TrackerState extends State<Tracker> {
     GlobalKey(),
   ];
   bool _runningShowcase = false;
+  bool _avoidDataFetch = true;
 
   @override
   void initState() {
@@ -48,6 +49,8 @@ class _TrackerState extends State<Tracker> {
           });
         });
       });
+    } else {
+      _avoidDataFetch = false;
     }
   }
 
@@ -175,13 +178,15 @@ class _TrackerState extends State<Tracker> {
                 return const Center(child: Text("No transaction yet"));
               }
             }
-
-            List<TrackerTransaction> transactions = snapshot.data!.docs
-                .where((doc) =>
-                    _selectedItem == Constant.noFilter ||
-                    doc['category'] == _selectedItem)
-                .map((doc) => TrackerTransaction.fromDocument(doc))
-                .toList();
+            List<TrackerTransaction> transactions = [];
+            if (!_avoidDataFetch) {
+              transactions = snapshot.data!.docs
+                  .where((doc) =>
+                      _selectedItem == Constant.noFilter ||
+                      doc['category'] == _selectedItem)
+                  .map((doc) => TrackerTransaction.fromDocument(doc))
+                  .toList();
+            }
             return ShowcaseFrame(
               showcaseKey: _keys[1],
               title: "Data Created",
@@ -190,21 +195,21 @@ class _TrackerState extends State<Tracker> {
               height: 100,
               child: Wrap(
                 children: List.generate(
-                  (_runningShowcase && transactions.isEmpty) ? 2 : transactions.length,
+                  _runningShowcase ? 2 : transactions.length,
                   (index) {
                     List<TrackerTransaction> examples = [TourExample.expenseTransaction, TourExample.incomeTransaction];
                     if (Constant.isDesktop(context) && MediaQuery.of(context).size.width > 1200) {
                       return SizedBox(
                         width: MediaQuery.of(context).size.width / 3,
-                        child: (_runningShowcase && transactions.isEmpty) ? examples[index] : transactions[index],
+                        child: _runningShowcase ? examples[index] : transactions[index],
                       );
                     } else if (Constant.isTablet(context) || MediaQuery.of(context).size.width > Constant.tabletMaxWidth) {
                       return SizedBox(
                         width: MediaQuery.of(context).size.width / 2,
-                        child: (_runningShowcase && transactions.isEmpty) ? examples[index] : transactions[index],
+                        child: _runningShowcase ? examples[index] : transactions[index],
                       );
                     } else {
-                      return (_runningShowcase && transactions.isEmpty) ? examples[index] : transactions[index];
+                      return _runningShowcase ? examples[index] : transactions[index];
                     }
                   },
                 ),

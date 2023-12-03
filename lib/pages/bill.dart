@@ -215,9 +215,9 @@ class _BillState extends State<Bill> {
                       physics: const NeverScrollableScrollPhysics(),
                       padding: const EdgeInsets.only(bottom: 50),
                       children: List.generate(
-                        (_runningShowcase && bills.isEmpty) ? 1 : bills.length, 
+                        _runningShowcase ? 1 : bills.length, 
                         (index) {
-                          if (_runningShowcase && bills.isEmpty) {
+                          if (_runningShowcase) {
                             return TourExample.bill;
                           }
                           return bills[index];

@@ -149,12 +149,11 @@ class _SavingsGoalState extends State<SavingsGoal> {
                     description: "Tap here to view goal details and add the progress",
                     width: 300,
                     height: 100,
-                    tooltipPosition: TooltipPosition.top,
                     child: Wrap(
                       children: List.generate(
-                        (_runningShowcase && goals.isEmpty) ? 1 : goals.length, 
+                        _runningShowcase ? 1 : goals.length, 
                         (index) {
-                          if (_runningShowcase && goals.isEmpty) {
+                          if (_runningShowcase) {
                             return TourExample.goal;
                           }
                           return goals[index];

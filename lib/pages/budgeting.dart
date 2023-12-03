@@ -303,9 +303,9 @@ class _BudgetingState extends State<Budgeting> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           children: List.generate(
-                            (_runningShowcase && budgets.isEmpty) ? 1 : budgets.length,
+                            _runningShowcase ? 1 : budgets.length,
                             (index) {
-                              if (_runningShowcase && budgets.isEmpty) {
+                              if (_runningShowcase) {
                                 return TourExample.budget;
                               }
                               return budgets[index];
