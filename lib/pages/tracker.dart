@@ -10,6 +10,7 @@ import '../constants/constant.dart';
 import '../constants/route_name.dart';
 import '../components/category_chart.dart';
 import '../components/tracker_transaction.dart';
+import '../components/showcase_frame.dart';
 import '../providers/total_transaction_provider.dart';
 import '../providers/show_case_provider.dart';
 
@@ -131,10 +132,12 @@ class _TrackerState extends State<Tracker> {
                   ),
                 ],
               ),
-              Showcase(
-                key: _keys[0],
+              ShowcaseFrame(
+                showcaseKey: _keys[0],
                 title: "Transaction",
                 description: "Add your transaction here",
+                width: 250,
+                height: 100,
                 child: Constant.isMobile(context)
                     ? FloatingActionButton.small(
                         elevation: 2,
@@ -179,10 +182,12 @@ class _TrackerState extends State<Tracker> {
                     doc['category'] == _selectedItem)
                 .map((doc) => TrackerTransaction.fromDocument(doc))
                 .toList();
-            return Showcase(
-              key: _keys[1],
+            return ShowcaseFrame(
+              showcaseKey: _keys[1],
               title: "Data Created",
               description: "Tap here to view details, double tap to edit",
+              width: 300,
+              height: 100,
               child: Wrap(
                 children: List.generate(
                   (_runningShowcase && transactions.isEmpty) ? 2 : transactions.length,

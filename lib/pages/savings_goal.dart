@@ -6,10 +6,11 @@ import 'package:showcaseview/showcaseview.dart';
 
 import '../constants/tour_example.dart';
 import '../pages/add_goal.dart';
-import '../components/goal.dart';
 import '../constants/constant.dart';
 import '../constants/route_name.dart';
 import '../constants/style_constant.dart';
+import '../components/goal.dart';
+import '../components/showcase_frame.dart';
 import '../providers/show_case_provider.dart';
 import '../providers/total_goal_provider.dart';
 
@@ -102,10 +103,12 @@ class _SavingsGoalState extends State<SavingsGoal> {
                   : Container(
                       alignment: Alignment.bottomRight,
                       margin: const EdgeInsets.only(top: 12, bottom: 12, right: 8),
-                      child: Showcase(
-                        key: _webKeys[0],
+                      child: ShowcaseFrame(
+                        showcaseKey: _webKeys[0],
                         title: "Savings Goal",
                         description: "Add your goal here",
+                        width: 250,
+                        height: 100,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             fixedSize: const Size(150, 40),
@@ -140,10 +143,12 @@ class _SavingsGoalState extends State<SavingsGoal> {
                       .map((doc) => Goal.fromDocument(doc))
                       .toList();
 
-                  return Showcase(
-                    key: _isMobile? _mobileKeys[1] : _webKeys[1],
+                  return ShowcaseFrame(
+                    showcaseKey: _isMobile? _mobileKeys[1] : _webKeys[1],
                     title: "Data Created",
                     description: "Tap here to view goal details and add the progress",
+                    width: 300,
+                    height: 100,
                     tooltipPosition: TooltipPosition.top,
                     child: Wrap(
                       children: List.generate(
@@ -164,10 +169,12 @@ class _SavingsGoalState extends State<SavingsGoal> {
         ),
       ),
       floatingActionButton: _isMobile
-          ? Showcase(
-              key: _mobileKeys[0],
+          ? ShowcaseFrame(
+              showcaseKey: _mobileKeys[0],
               title: "Savings Goal",
               description: "Add your goal here",
+              width: 200,
+              height: 100,
               child: FloatingActionButton(
                 backgroundColor: ColorConstant.lightBlue,
                 onPressed: _navigateToAddGoal,

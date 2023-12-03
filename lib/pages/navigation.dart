@@ -15,6 +15,7 @@ import '../pages/debt.dart';
 import '../pages/profile.dart';
 import '../constants/constant.dart';
 import '../constants/style_constant.dart';
+import '../components/showcase_frame.dart';
 import '../providers/show_case_provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/navigation_provider.dart';
@@ -59,25 +60,55 @@ class _NavigationState extends State<Navigation> {
       "Financial Analytics": const Analytics(),
     };
     _options = [
+      // using Showcase for it's scaleAnimationDuration attribute
       Showcase(
         key: Provider.of<ShowcaseProvider>(context, listen: false).navDebtKey,
         title: "Go to Debt page",
-        description: "Click here to go to Debt page", 
+        titleTextStyle: const TextStyle(
+          fontSize: 18,
+        ),
+        titlePadding: const EdgeInsets.only(top: 10, bottom: 8),
+        description: "Click here to go to Debt page",
+        descTextStyle: const TextStyle(
+          fontSize: 14,
+        ),
+        descriptionPadding: const EdgeInsets.only(bottom: 10),
         scaleAnimationDuration: const Duration(milliseconds: 10),
+        showArrow: false,
         child: const FloatButton(title: 'Debt', icon: Icons.money),
       ),
+      // using Showcase for it's scaleAnimationDuration attribute
       Showcase(
         key: Provider.of<ShowcaseProvider>(context, listen: false).navBillKey,
         title: "Go to Bill page",
+        titleTextStyle: const TextStyle(
+          fontSize: 18,
+        ),
+        titlePadding: const EdgeInsets.only(top: 10, bottom: 8),
         description: "Click here to go to Bill page",
+        descTextStyle: const TextStyle(
+          fontSize: 14,
+        ),
+        descriptionPadding: const EdgeInsets.only(bottom: 10),
         scaleAnimationDuration: const Duration(milliseconds: 10),
+        showArrow: false,
         child: const FloatButton(title: 'Bill', icon: Icons.water_drop),
       ),
+      // using Showcase for it's scaleAnimationDuration attribute
       Showcase(
         key: Provider.of<ShowcaseProvider>(context, listen: false).navBudgetingKey,
         title: "Go to Budgeting page",
+        titleTextStyle: const TextStyle(
+          fontSize: 18,
+        ),
+        titlePadding: const EdgeInsets.only(top: 10, bottom: 8),
         description: "Click here to go to Budgeting page",
+        descTextStyle: const TextStyle(
+          fontSize: 14,
+        ),
+        descriptionPadding: const EdgeInsets.only(bottom: 10),
         scaleAnimationDuration: const Duration(milliseconds: 10),
+        showArrow: false,
         child: const FloatButton(title: 'Budgeting', icon: Icons.account_balance_wallet),
       ),
       const FloatButton(title: 'Analytics', icon: Icons.align_vertical_bottom_outlined),
@@ -242,45 +273,61 @@ class _ChipBuilder extends ChipBuilder {
         child,
         // Showcase Group navigation icon
         if (index == 0)
-          Showcase(
-            key: Provider.of<ShowcaseProvider>(context, listen: false).navGroupKey,
+          ShowcaseFrame(
+            showcaseKey: Provider.of<ShowcaseProvider>(context, listen: false).navGroupKey,
             title: "Split Money",
             description: "Click here to go to Split Money page",
+            width: 300,
+            height: 100,
+            showSkipTour: false,
             child: Container(),
           ),
           
         // Showcase Goal navigation icon
         if (index == 1)
-          Showcase(
-            key: Provider.of<ShowcaseProvider>(context, listen: false).navGoalKey,
+          ShowcaseFrame(
+            showcaseKey: Provider.of<ShowcaseProvider>(context, listen: false).navGoalKey,
             title: "Goal",
             description: "Click here to go to Goal page",
+            width: 250,
+            height: 100,
+            showSkipTour: false,
             child: Container(),
           ),
         
         // Showcase Home navigation icon
         if (index == 2)
-          Showcase(key: Provider.of<ShowcaseProvider>(context, listen: false).endTourKey, 
-          description: "Click to end the tour",
-          // description: "You can start using this app!", 
-          child: Container(),
+          ShowcaseFrame(
+            showcaseKey: Provider.of<ShowcaseProvider>(context, listen: false).endTourKey, 
+            title: "Click to end the tour",
+            description: "You can start using this app!", 
+            width: 250,
+            height: 100,
+            showSkipTour: false,
+            child: Container(),
         ),
 
         // Showcase Tracker navigation icon
         if (index == 3)
-          Showcase(
-            key: Provider.of<ShowcaseProvider>(context, listen: false).navTrackerKey,
+          ShowcaseFrame(
+            showcaseKey: Provider.of<ShowcaseProvider>(context, listen: false).navTrackerKey,
             title: "Tracker",
             description: "Click here to navigate to Tracker page",
+            width: 300,
+            height: 100,
+            showSkipTour: false,
             child: Container(),
           ),
 
         // Showcase More navigation icon
         if (index == 4)
-          Showcase(
-            key: Provider.of<ShowcaseProvider>(context, listen: false).navMoreKey,
+          ShowcaseFrame(
+            showcaseKey: Provider.of<ShowcaseProvider>(context, listen: false).navMoreKey,
             title: "More",
             description: "Click here to show more options",
+            width: 250,
+            height: 100,
+            showSkipTour: false,
             child: Container(),
           ),
       ],

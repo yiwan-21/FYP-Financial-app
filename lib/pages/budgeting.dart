@@ -5,9 +5,10 @@ import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 import '../constants/constant.dart';
+import '../constants/tour_example.dart';
 import '../constants/style_constant.dart';
 import '../components/budget_card.dart';
-import '../constants/tour_example.dart';
+import '../components/showcase_frame.dart';
 import '../pages/set_budget.dart';
 import '../providers/show_case_provider.dart';
 import '../services/budget_service.dart';
@@ -205,10 +206,12 @@ class _BudgetingState extends State<Budgeting> {
                     ),
                   ),
                   const Spacer(),
-                  Showcase(
-                    key: _isMobile? _mobileKeys[0] : _webKeys[0],
+                  ShowcaseFrame(
+                    showcaseKey: _isMobile? _mobileKeys[0] : _webKeys[0],
                     title: "Reset Next Starting Date(Resetting Date)",
                     description: "Reset your upcoming starting date here",
+                    width: 400,
+                    height: 100,
                     child: TextButton(
                       onPressed: setResetDate,
                       child: const Text(
@@ -230,10 +233,12 @@ class _BudgetingState extends State<Budgeting> {
                       alignment: Alignment.bottomRight,
                       margin:
                           const EdgeInsets.only(top: 10, bottom: 10, right: 8),
-                      child: Showcase(
-                        key: _webKeys[1],
+                      child: ShowcaseFrame(
+                        showcaseKey: _webKeys[1],
                         title: "Budget",
                         description: "Set Your Budget here",
+                        width: 250,
+                        height: 100,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             fixedSize: const Size(100, 40),
@@ -288,10 +293,12 @@ class _BudgetingState extends State<Budgeting> {
                           doc['used'].toDouble(),
                         ));
                       }
-                      return Showcase(
-                        key: _isMobile? _mobileKeys[2] : _webKeys[2],
+                      return ShowcaseFrame(
+                        showcaseKey: _isMobile? _mobileKeys[2] : _webKeys[2],
                         title: "Data Created",
                         description: "Tap here to view budget details",
+                        width: 250,
+                        height: 100,
                         child: ListView(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -318,10 +325,12 @@ class _BudgetingState extends State<Budgeting> {
           ? FloatingActionButtonLocation.startFloat
           : null,
       floatingActionButton: _isMobile
-          ? Showcase(
-              key: _mobileKeys[1],
+          ? ShowcaseFrame(
+              showcaseKey: _mobileKeys[1],
               title: "Budget",
               description: "Set Your Budget here",
+              width: 250,
+              height: 100,
               child: FloatingActionButton(
                 backgroundColor: ColorConstant.lightBlue,
                 onPressed: setBudget,

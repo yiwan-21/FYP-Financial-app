@@ -10,6 +10,7 @@ import '../constants/constant.dart';
 import '../constants/route_name.dart';
 import '../constants/style_constant.dart';
 import '../components/debt_card.dart';
+import '../components/showcase_frame.dart';
 import '../providers/show_case_provider.dart';
 import '../services/debt_service.dart';
 import '../services/transaction_service.dart';
@@ -118,10 +119,12 @@ class _DebtState extends State<Debt> {
               const SizedBox(height: 10),
               Align(
                 alignment: Alignment.centerRight,
-                child: Showcase(
-                  key: _isMobile? _mobileKeys[0] : _webKeys[0],
+                child: ShowcaseFrame(
+                  showcaseKey: _isMobile? _mobileKeys[0] : _webKeys[0],
                   title: "Debt",
                   description: "Calculate Surplus or Deficit for current month",
+                  width: 350,
+                  height: 100,
                   child: TextButton(
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -169,10 +172,12 @@ class _DebtState extends State<Debt> {
                 : Container(
                     alignment: Alignment.bottomRight,
                     margin: const EdgeInsets.only(right: 8, bottom: 8),
-                    child: Showcase(
-                      key: _webKeys[1],
+                    child: ShowcaseFrame(
+                      showcaseKey: _webKeys[1],
                       title: 'Add Debt',
                       description: 'Click here to add new debt',
+                      width: 200,
+                      height: 100,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           fixedSize: const Size(100, 40),
@@ -209,11 +214,12 @@ class _DebtState extends State<Debt> {
                     debts.add(DebtCard.fromDocument(doc));
                   }
 
-                  return Showcase(
-                    key: _isMobile? _mobileKeys[2] : _webKeys[2],
+                  return ShowcaseFrame(
+                    showcaseKey: _isMobile? _mobileKeys[2] : _webKeys[2],
                     title: "Data Created",
                     description: "View your debt detail and debt payment history here",
-                    tooltipPosition: TooltipPosition.top,
+                    width: 350,
+                    height: 100,
                     child: ListView.separated(
                       shrinkWrap: true,
                       physics: const BouncingScrollPhysics(),
@@ -243,10 +249,12 @@ class _DebtState extends State<Debt> {
           ? FloatingActionButtonLocation.startFloat
           : null,
       floatingActionButton: _isMobile
-          ? Showcase(
-              key: _mobileKeys[1],
+          ? ShowcaseFrame(
+              showcaseKey: _mobileKeys[1],
               title: 'Add Debt',
               description: 'Click here to add new debt',
+              width: 200,
+              height: 100,
               child: FloatingActionButton(
                 backgroundColor: ColorConstant.lightBlue,
                 onPressed: _addDebt,

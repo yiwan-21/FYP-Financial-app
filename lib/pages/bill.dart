@@ -7,9 +7,10 @@ import 'package:showcaseview/showcaseview.dart';
 import '../constants/constant.dart';
 import '../constants/style_constant.dart';
 import '../constants/route_name.dart';
-import '../components/bill_card.dart';
-import '../components/custom_circular_progress.dart';
 import '../constants/tour_example.dart';
+import '../components/bill_card.dart';
+import '../components/showcase_frame.dart';
+import '../components/custom_circular_progress.dart';
 import '../pages/manage_bill.dart';
 import '../providers/show_case_provider.dart';
 import '../services/bill_service.dart';
@@ -179,10 +180,12 @@ class _BillState extends State<Bill> {
                               alignment: Alignment.centerRight,
                               child: Container(
                                 margin: const EdgeInsets.all(8.0),
-                                child: Showcase(
-                                  key: _webKeys[0],
+                                child: ShowcaseFrame(
+                                  showcaseKey: _webKeys[0],
                                   title: "Bill",
                                   description: "Add your Bill here",
+                                  width: 250,
+                                  height: 100,
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                       fixedSize: const Size(100, 40),
@@ -200,10 +203,12 @@ class _BillState extends State<Bill> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  Showcase(
-                    key: _isMobile? _mobileKeys[1] : _webKeys[1],
+                  ShowcaseFrame(
+                    showcaseKey: _isMobile? _mobileKeys[1] : _webKeys[1],
                     title: "Data Created",
                     description: "View your bill detail and history here",
+                    width: 300,
+                    height: 100,
                     tooltipPosition: TooltipPosition.top,
                     child: ListView(
                       shrinkWrap: true,
@@ -230,10 +235,12 @@ class _BillState extends State<Bill> {
           ? FloatingActionButtonLocation.startFloat
           : null,
       floatingActionButton: _isMobile
-          ? Showcase(
-              key: _mobileKeys[0],
+          ? ShowcaseFrame(
+              showcaseKey: _mobileKeys[0],
               title: "Bill",
               description: "Add your Bill here",
+              width: 200,
+              height: 100,
               child: FloatingActionButton(
                 backgroundColor: ColorConstant.lightBlue,
                 onPressed: _addBill,

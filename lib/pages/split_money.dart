@@ -7,9 +7,10 @@ import 'package:showcaseview/showcaseview.dart';
 import '../components/split_group_request.dart';
 import '../constants/constant.dart';
 import '../constants/style_constant.dart';
+import '../constants/tour_example.dart';
 import '../components/manage_group.dart';
 import '../components/split_group_card.dart';
-import '../constants/tour_example.dart';
+import '../components/showcase_frame.dart';
 import '../firebase_instance.dart';
 import '../providers/show_case_provider.dart';
 import '../services/split_money_service.dart';
@@ -113,10 +114,12 @@ class _SplitMoneyState extends State<SplitMoney> {
                       Container(
                         alignment: Alignment.topLeft,
                         margin: const EdgeInsets.all(10),
-                        child: Showcase(
-                          key: _webKeys[0],
+                        child: ShowcaseFrame(
+                          showcaseKey: _webKeys[0],
                           title: "Split Money",
                           description: "Add your group for money splitting",
+                          width: 300,
+                          height: 100,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               fixedSize: const Size(100, 40),
@@ -154,10 +157,12 @@ class _SplitMoneyState extends State<SplitMoney> {
                           List<SplitGroupCard> groupCards = snapshot.data!.docs
                               .map((doc) => SplitGroupCard(doc.id, groupName: doc['name']))
                               .toList();
-                          return Showcase(
-                            key: _topDownAlign? _mobileKeys[1] : _webKeys[1],
+                          return ShowcaseFrame(
+                            showcaseKey: _topDownAlign? _mobileKeys[1] : _webKeys[1],
                             title: "Data Created",
                             description: "Tap here to view group details and add group expense",
+                            width: 400,
+                            height: 100,
                             child: ListView(
                               shrinkWrap: true,
                               physics: const BouncingScrollPhysics(),
@@ -189,10 +194,12 @@ class _SplitMoneyState extends State<SplitMoney> {
       ),
       floatingActionButton: _topDownAlign
           // mobileview
-          ? Showcase(
-              key: _mobileKeys[0],
+          ? ShowcaseFrame(
+              showcaseKey: _mobileKeys[0],
               title: "Split Money",
               description: "Add your group for money splitting",
+              width: 300,
+              height: 100,
               child: FloatingActionButton(
                 backgroundColor: ColorConstant.lightBlue,
                 onPressed: addGroup,

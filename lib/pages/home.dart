@@ -9,9 +9,9 @@ import 'package:showcaseview/showcaseview.dart';
 import '../components/bill_card.dart';
 import '../components/budget_card.dart';
 import '../components/goal.dart';
+import '../components/showcase_frame.dart';
 import '../components/split_expense_card.dart';
 import '../components/tracker_transaction.dart';
-
 import '../constants/constant.dart';
 import '../constants/home_constant.dart';
 import '../constants/route_name.dart';
@@ -45,12 +45,13 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    ShowcaseProvider showcaseProvider =
+        Provider.of<ShowcaseProvider>(context, listen: false);
     if (showcaseProvider.isFirstTime) {
       SharedPreferences.getInstance().then((SharedPreferences prefs) {
         bool firstTime = prefs.getBool(showcaseProvider.firstTimeKey) ?? true;
         if (firstTime) {
-          WidgetsBinding.instance.addPostFrameCallback((_)  {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
             _keys.add(showcaseProvider.navTrackerKey);
             ShowCaseWidget.of(context).startShowCase(_keys);
           });
@@ -106,13 +107,11 @@ class _HomeState extends State<Home> {
                       children: [
                         image.isNotEmpty
                             ? CircleAvatar(
-                                radius:
-                                    _isMobile ? 20.0 : 25.0,
+                                radius: _isMobile ? 20.0 : 25.0,
                                 backgroundImage: NetworkImage(image),
                               )
                             : CircleAvatar(
-                                radius:
-                                    _isMobile ? 20.0 : 25.0,
+                                radius: _isMobile ? 20.0 : 25.0,
                                 child: const Icon(
                                   Icons.account_circle,
                                   color: Colors.white,
@@ -143,10 +142,12 @@ class _HomeState extends State<Home> {
                         const Spacer(),
                         Row(
                           children: [
-                            Showcase(
-                              key: _keys[0],
+                            ShowcaseFrame(
+                              showcaseKey: _keys[0],
                               title: "Set Your Home",
-                              description: "Customize your home display here",
+                              description: "Customize your home display here.",
+                              width: 250,
+                              height: 100,
                               child: GestureDetector(
                                 onTap: _navigateToHomeSettings,
                                 child: Row(
