@@ -1,13 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import '../constants/constant.dart';
 import '../constants/style_constant.dart';
 import '../constants/route_name.dart';
+import '../constants/tour_example.dart';
 import '../components/bill_card.dart';
+import '../components/showcase_frame.dart';
 import '../components/custom_circular_progress.dart';
 import '../pages/manage_bill.dart';
+import '../providers/show_case_provider.dart';
 import '../services/bill_service.dart';
 
 class Bill extends StatefulWidget {
@@ -21,8 +26,63 @@ class _BillState extends State<Bill> {
   final Stream<QuerySnapshot> _stream = BillService.getBillStream();
   final double _radius = 90;
 
+  bool get _isMobile => Constant.isMobile(context);
+  final List<GlobalKey> _webKeys = [
+    GlobalKey(),
+    GlobalKey(),
+  ];
+  final List<GlobalKey> _mobileKeys = [
+    GlobalKey(),
+    GlobalKey(),
+  ];
+  bool _showcasingWebView = false;
+  bool _runningShowcase = false;
+
+  @override
+  void initState() {
+    super.initState();
+    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    if (showcaseProvider.isFirstTime) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _mobileKeys.add(showcaseProvider.navMoreKey);
+        _mobileKeys.add(showcaseProvider.navDebtKey);
+        _webKeys.add(showcaseProvider.navMoreKey);
+        _webKeys.add(showcaseProvider.navDebtKey);
+        if (_isMobile) {
+          ShowCaseWidget.of(context).startShowCase(_mobileKeys);
+          _showcasingWebView = false;
+        } else {
+          ShowCaseWidget.of(context).startShowCase(_webKeys);
+          _showcasingWebView = true;
+        }
+        _runningShowcase = true;
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    if (kIsWeb && showcaseProvider.isRunning) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (_showcasingWebView && _isMobile) {
+          // If the showcase is running on web and the user switches to mobile view
+          await Future.delayed(const Duration(milliseconds: 300)).then((_) {
+            ShowCaseWidget.of(context).startShowCase(_mobileKeys);
+            _showcasingWebView = false;
+          });
+        } else if (!_showcasingWebView && !_isMobile) {
+          // If the showcase is running on mobile and the user switches to web view
+          ShowCaseWidget.of(context).startShowCase(_webKeys);
+          _showcasingWebView = true;
+        }
+      });
+    }
+  }
+  
   void _addBill() {
-    if (Constant.isMobile(context) && !kIsWeb) {
+    if (_isMobile && !kIsWeb) {
       Navigator.pushNamed(context, RouteName.manageBill,
           arguments: {'isEditing': false});
     } else {
@@ -79,7 +139,8 @@ class _BillState extends State<Bill> {
                     physics: const NeverScrollableScrollPhysics(),
                     children: [
                       Padding(
-                        padding: EdgeInsets.only(top: _radius + 30, bottom: _radius + 20),
+                        padding: EdgeInsets.only(
+                            top: _radius + 30, bottom: _radius + 20),
                         child: CustomPaint(
                           painter: CustomCircularProgress(
                               value: paidPercentage,
@@ -113,32 +174,56 @@ class _BillState extends State<Bill> {
                               ),
                               textAlign: TextAlign.center,
                             ),
-                      Constant.isMobile(context)
+                      _isMobile
                           ? const SizedBox(height: 20)
                           : Align(
                               alignment: Alignment.centerRight,
                               child: Container(
                                 margin: const EdgeInsets.all(8.0),
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    fixedSize: const Size(100, 40),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(4.0),
+                                child: ShowcaseFrame(
+                                  showcaseKey: _webKeys[0],
+                                  title: "Bill",
+                                  description: "Add your Bill here",
+                                  width: 250,
+                                  height: 100,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      fixedSize: const Size(100, 40),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(4.0),
+                                      ),
                                     ),
+                                    onPressed: _addBill,
+                                    child: const Text('Add Bill'),
                                   ),
-                                  onPressed: _addBill,
-                                  child: const Text('Add Bill'),
                                 ),
                               ),
                             ),
                     ],
                   ),
                   const SizedBox(height: 10),
-                  ListView(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.only(bottom: 50),
-                    children: List.generate(bills.length, (index) => bills[index]),
+                  ShowcaseFrame(
+                    showcaseKey: _isMobile? _mobileKeys[1] : _webKeys[1],
+                    title: "Data Created",
+                    description: "View your bill detail and history here",
+                    width: 300,
+                    height: 100,
+                    tooltipPosition: TooltipPosition.top,
+                    child: ListView(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.only(bottom: 50),
+                      children: List.generate(
+                        _runningShowcase ? 1 : bills.length, 
+                        (index) {
+                          if (_runningShowcase) {
+                            return TourExample.bill;
+                          }
+                          return bills[index];
+                        },
+                      ),
+                    ),
                   ),
                 ],
               );
@@ -146,17 +231,24 @@ class _BillState extends State<Bill> {
           ),
         ),
       ),
-      floatingActionButtonLocation: Constant.isMobile(context)
+      floatingActionButtonLocation: _isMobile
           ? FloatingActionButtonLocation.startFloat
           : null,
-      floatingActionButton: Constant.isMobile(context)
-          ? FloatingActionButton(
-              backgroundColor: ColorConstant.lightBlue,
-              onPressed: _addBill,
-              child: const Icon(
-                Icons.edit_note,
-                size: 27,
-                color: Colors.black,
+      floatingActionButton: _isMobile
+          ? ShowcaseFrame(
+              showcaseKey: _mobileKeys[0],
+              title: "Bill",
+              description: "Add your Bill here",
+              width: 200,
+              height: 100,
+              child: FloatingActionButton(
+                backgroundColor: ColorConstant.lightBlue,
+                onPressed: _addBill,
+                child: const Icon(
+                  Icons.edit_note,
+                  size: 27,
+                  color: Colors.black,
+                ),
               ),
             )
           : null,

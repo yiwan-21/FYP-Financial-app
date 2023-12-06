@@ -19,6 +19,11 @@ class NavigationProvider extends ChangeNotifier {
 
   void toggleMoreTab() {
     _isMoreTabActive = !_isMoreTabActive;
+    if (_isMoreTabActive) {
+      Navigation.appBarKey.currentState!.animateTo(4);
+    } else {
+      Navigation.appBarKey.currentState!.animateTo(_navIndex);
+    }
     notifyListeners();
   }
 

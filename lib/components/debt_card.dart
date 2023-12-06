@@ -24,9 +24,16 @@ class DebtCard extends StatefulWidget {
   final int remainingDuration; // in months
   final bool paid;
 
-  const DebtCard(this.id, this.title, this.duration, this.amount,
-      this.interests, this.history, this.remainingDuration, this.paid,
-      {super.key});
+  const DebtCard(
+    {required this.id, 
+    required this.title, 
+    required this.duration, 
+    required this.amount,
+    required this.interests, 
+    required this.history, 
+    required this.remainingDuration, 
+    required this.paid,
+    super.key});
 
   DebtCard.fromDocument(QueryDocumentSnapshot doc, {super.key})
       : id = doc.id,

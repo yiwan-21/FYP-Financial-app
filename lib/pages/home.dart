@@ -3,13 +3,15 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import '../components/bill_card.dart';
 import '../components/budget_card.dart';
 import '../components/goal.dart';
+import '../components/showcase_frame.dart';
 import '../components/split_expense_card.dart';
 import '../components/tracker_transaction.dart';
-
 import '../constants/constant.dart';
 import '../constants/home_constant.dart';
 import '../constants/route_name.dart';
@@ -20,6 +22,7 @@ import '../providers/navigation_provider.dart';
 import '../providers/split_money_provider.dart';
 import '../providers/total_goal_provider.dart';
 import '../providers/user_provider.dart';
+import '../providers/show_case_provider.dart';
 import '../services/bill_service.dart';
 import '../services/budget_service.dart';
 import '../services/split_money_service.dart';
@@ -35,6 +38,34 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool get _isMobile => Constant.isMobile(context);
+  final List<GlobalKey> _keys = [
+    GlobalKey(),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _showTour();
+  }
+
+  void _showTour() {
+    final showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    if (showcaseProvider.isFirstTime) {
+      SharedPreferences.getInstance().then((SharedPreferences prefs) {
+        bool firstTime = prefs.getBool(showcaseProvider.firstTimeKey) ?? true;
+        if (firstTime) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!_keys.contains(showcaseProvider.navTrackerKey)) {
+              _keys.add(showcaseProvider.navTrackerKey);
+            }
+            ShowCaseWidget.of(context).startShowCase(_keys);
+          });
+        } else {
+          showcaseProvider.setFirstTime(firstTime);
+        }
+      });
+    }
+  }
 
   void _navigateToHomeSettings() {
     Navigator.pushNamed(context, RouteName.homeSettings);
@@ -81,12 +112,12 @@ class _HomeState extends State<Home> {
                       children: [
                         image.isNotEmpty
                             ? CircleAvatar(
-                                radius:
-                                    Constant.isMobile(context) ? 20.0 : 25.0,
+                                radius: _isMobile ? 20.0 : 25.0,
+                                backgroundColor: Colors.transparent,
                                 backgroundImage: NetworkImage(image),
                               )
                             : CircleAvatar(
-                                radius: Constant.isMobile(context) ? 20.0 : 25.0,
+                                radius: _isMobile ? 20.0 : 25.0,
                                 child: const Icon(
                                   Icons.account_circle,
                                   color: Colors.white,
@@ -117,26 +148,33 @@ class _HomeState extends State<Home> {
                         const Spacer(),
                         Row(
                           children: [
-                            GestureDetector(
-                              onTap: _navigateToHomeSettings,
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.settings,
-                                    size: 25,
-                                    color: Colors.black,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  if (!Constant.isMobile(context))
-                                    const Text(
-                                      'Home Settings',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
+                            ShowcaseFrame(
+                              showcaseKey: _keys[0],
+                              title: "Set Your Home",
+                              description: "Customize your home display here.",
+                              width: 250,
+                              height: 100,
+                              child: GestureDetector(
+                                onTap: _navigateToHomeSettings,
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.settings,
+                                      size: 25,
+                                      color: Colors.black,
                                     ),
-                                ],
+                                    const SizedBox(width: 8),
+                                    if (!_isMobile)
+                                      const Text(
+                                        'Home Settings',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -146,7 +184,14 @@ class _HomeState extends State<Home> {
                   ),
                 );
               }),
-              const SizedBox(height: 20.0),
+              Consumer<ShowcaseProvider>(
+                builder: (context, showcaseProvider, _) {
+                  if (showcaseProvider.isFirstTime && !showcaseProvider.isRunning) {
+                    _showTour();
+                  }
+                  return const SizedBox(height: 20.0);
+                }
+              ),
               Center(
                 child:
                     Consumer<HomeProvider>(builder: (context, homeProvider, _) {
@@ -376,7 +421,8 @@ class _RecentGroupExpenseState extends State<RecentGroupExpense> {
         Provider.of<NavigationProvider>(context, listen: false)
             .goToSplitMoney();
       } else {
-        Navigator.pushNamed(context, RouteName.splitMoneyGroup, arguments: {'id': widget.groupID});
+        Navigator.pushNamed(context, RouteName.splitMoneyGroup,
+            arguments: {'id': widget.groupID});
       }
     });
   }

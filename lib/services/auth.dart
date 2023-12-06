@@ -15,6 +15,14 @@ import '../providers/total_transaction_provider.dart';
 import '../providers/user_provider.dart';
 
 class Auth {
+  static void _navigateToHome(BuildContext context) {
+    Provider.of<UserProvider>(context, listen: false).init();
+    Provider.of<TotalTransactionProvider>(context, listen: false).init();
+    Provider.of<TotalGoalProvider>(context, listen: false).init();
+    Provider.of<HomeProvider>(context, listen: false).init();
+    Navigator.pushNamedAndRemoveUntil(context, RouteName.home, (route) => false);
+  }
+
   static Future<void> login(email, password, BuildContext context) async {
     try {
       await FirebaseInstance.auth
@@ -22,14 +30,7 @@ class Auth {
             email: email,
             password: password,
           )
-          .then((_) {
-            // await logFcmToken();
-            Provider.of<UserProvider>(context, listen: false).init();
-            Provider.of<TotalTransactionProvider>(context, listen: false).init();
-            Provider.of<TotalGoalProvider>(context, listen: false).init();
-            Provider.of<HomeProvider>(context, listen: false).init();
-            Navigator.pushNamedAndRemoveUntil(context, RouteName.home, (route) => false);
-          });
+          .then((_) => _navigateToHome(context));
     } on FirebaseAuthException catch (e) {
       String msg = e.message!;
       if (e.code == AuthExceptionMessage.userNotFound.getCode) {
@@ -64,12 +65,10 @@ class Auth {
                     title: 'Email Verification',
                     content: 'A verification email has been sent to your email address',
                     confirmText: 'OK',
-                    confirmAction: () {
-                      Navigator.pushNamedAndRemoveUntil(context, RouteName.home, (route) => false);
-                    },
+                    confirmAction: () => _navigateToHome(context),
                   );
                 },
-              );
+              ).then((_) => _navigateToHome(context));
             });
           });
     } on FirebaseAuthException catch (e) {

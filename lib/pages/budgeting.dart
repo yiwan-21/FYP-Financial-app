@@ -1,10 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import '../constants/constant.dart';
+import '../constants/tour_example.dart';
 import '../constants/style_constant.dart';
 import '../components/budget_card.dart';
+import '../components/showcase_frame.dart';
 import '../pages/set_budget.dart';
+import '../providers/show_case_provider.dart';
 import '../services/budget_service.dart';
 
 class Budgeting extends StatefulWidget {
@@ -15,8 +21,8 @@ class Budgeting extends StatefulWidget {
 }
 
 class _BudgetingState extends State<Budgeting> {
-  final Future<Stream<QuerySnapshot>> _streamFuture =
-      BudgetService.getBudgetingStream();
+  bool get _isMobile => Constant.isMobile(context);
+  final Future<Stream<QuerySnapshot>> _streamFuture = BudgetService.getBudgetingStream();
   final TextEditingController _textController = TextEditingController();
   DateTime _startingDate = DateTime.now();
   DateTime _resetDate = DateTime.now();
@@ -24,6 +30,19 @@ class _BudgetingState extends State<Budgeting> {
 
   List<BudgetCard> budget = [];
 
+  final List<GlobalKey> _webKeys = [
+    GlobalKey(),
+    GlobalKey(),
+    GlobalKey(),
+  ];
+  final List<GlobalKey> _mobileKeys = [
+    GlobalKey(),
+    GlobalKey(),
+    GlobalKey(),
+  ];
+  bool _showcasingWebView = false;
+  bool _runningShowcase = false;
+  
   @override
   void initState() {
     super.initState();
@@ -35,6 +54,45 @@ class _BudgetingState extends State<Budgeting> {
       });
       _textController.text = _selectedDate.toString().substring(0, 10);
     });
+    
+    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    if (showcaseProvider.isFirstTime) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _mobileKeys.add(showcaseProvider.navMoreKey);
+        _mobileKeys.add(showcaseProvider.navBillKey);
+        _webKeys.add(showcaseProvider.navMoreKey);
+        _webKeys.add(showcaseProvider.navBillKey);
+        if (_isMobile) {
+          ShowCaseWidget.of(context).startShowCase(_mobileKeys);
+          _showcasingWebView = false;
+        } else {
+          ShowCaseWidget.of(context).startShowCase(_webKeys);
+          _showcasingWebView = true;
+        }
+        _runningShowcase = true;
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    if (kIsWeb && showcaseProvider.isRunning) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (_showcasingWebView && _isMobile) {
+          // If the showcase is running on web and the user switches to mobile view
+          await Future.delayed(const Duration(milliseconds: 300)).then((_) {
+            ShowCaseWidget.of(context).startShowCase(_mobileKeys);
+            _showcasingWebView = false;
+          });
+        } else if (!_showcasingWebView && !_isMobile) {
+          // If the showcase is running on mobile and the user switches to web view
+          ShowCaseWidget.of(context).startShowCase(_webKeys);
+          _showcasingWebView = true;
+        }
+      });
+    }
   }
 
   @override
@@ -148,34 +206,49 @@ class _BudgetingState extends State<Budgeting> {
                     ),
                   ),
                   const Spacer(),
-                  TextButton(
-                    onPressed: setResetDate,
-                    child: const Text(
-                      'Change',
-                      style: TextStyle(
-                        color: Colors.pink,
-                        fontSize: 16,
+                  ShowcaseFrame(
+                    showcaseKey: _isMobile? _mobileKeys[0] : _webKeys[0],
+                    title: "Reset Next Starting Date(Resetting Date)",
+                    description: "Reset your upcoming starting date here",
+                    width: 400,
+                    height: 100,
+                    child: TextButton(
+                      onPressed: setResetDate,
+                      child: const Text(
+                        'Change',
+                        style: TextStyle(
+                          color: Colors.pink,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
                 ],
               ),
-              Constant.isMobile(context)
-                  ? Container(margin: const EdgeInsets.only(top: 10, bottom: 10))
+              _isMobile
+                  ? Container(
+                      margin: const EdgeInsets.only(top: 10, bottom: 10))
                   : Container(
                       alignment: Alignment.bottomRight,
                       margin:
                           const EdgeInsets.only(top: 10, bottom: 10, right: 8),
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          fixedSize: const Size(100, 40),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4.0),
+                      child: ShowcaseFrame(
+                        showcaseKey: _webKeys[1],
+                        title: "Budget",
+                        description: "Set Your Budget here",
+                        width: 250,
+                        height: 100,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            fixedSize: const Size(100, 40),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
                           ),
+                          onPressed: setBudget,
+                          child: const Text('Set Budget'),
                         ),
-                        onPressed: setBudget,
-                        child: const Text('Set Budget'),
                       ),
                     ),
               FutureBuilder(
@@ -205,10 +278,12 @@ class _BudgetingState extends State<Budgeting> {
                       if (snapshot.hasError) {
                         return Text('Error: ${snapshot.error}');
                       }
-                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                        return const Center(
-                          child: Text("No budgeting yet"),
-                        );
+                      if (!_runningShowcase) {
+                        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                          return const Center(
+                            child: Text("No budgeting yet"),
+                          );
+                        }
                       }
                       List<BudgetCard> budgets = [];
                       for (var doc in snapshot.data!.docs) {
@@ -218,12 +293,24 @@ class _BudgetingState extends State<Budgeting> {
                           doc['used'].toDouble(),
                         ));
                       }
-                      return ListView(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: List.generate(
-                          budgets.length,
-                          (index) => budgets[index],
+                      return ShowcaseFrame(
+                        showcaseKey: _isMobile? _mobileKeys[2] : _webKeys[2],
+                        title: "Data Created",
+                        description: "Tap here to view budget details",
+                        width: 250,
+                        height: 100,
+                        child: ListView(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          children: List.generate(
+                            _runningShowcase ? 1 : budgets.length,
+                            (index) {
+                              if (_runningShowcase) {
+                                return TourExample.budget;
+                              }
+                              return budgets[index];
+                            },
+                          ),
                         ),
                       );
                     },
@@ -234,17 +321,24 @@ class _BudgetingState extends State<Budgeting> {
           ),
         ),
       ),
-      floatingActionButtonLocation: Constant.isMobile(context)
+      floatingActionButtonLocation: _isMobile
           ? FloatingActionButtonLocation.startFloat
           : null,
-      floatingActionButton: Constant.isMobile(context)
-          ? FloatingActionButton(
-              backgroundColor: ColorConstant.lightBlue,
-              onPressed: setBudget,
-              child: const Icon(
-                Icons.note_add_outlined,
-                size: 27,
-                color: Colors.black,
+      floatingActionButton: _isMobile
+          ? ShowcaseFrame(
+              showcaseKey: _mobileKeys[1],
+              title: "Budget",
+              description: "Set Your Budget here",
+              width: 250,
+              height: 100,
+              child: FloatingActionButton(
+                backgroundColor: ColorConstant.lightBlue,
+                onPressed: setBudget,
+                child: const Icon(
+                  Icons.note_add_outlined,
+                  size: 27,
+                  color: Colors.black,
+                ),
               ),
             )
           : null,
