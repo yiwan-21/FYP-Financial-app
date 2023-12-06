@@ -45,14 +45,19 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    ShowcaseProvider showcaseProvider =
-        Provider.of<ShowcaseProvider>(context, listen: false);
+    _showTour();
+  }
+
+  void _showTour() {
+    final showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
     if (showcaseProvider.isFirstTime) {
       SharedPreferences.getInstance().then((SharedPreferences prefs) {
         bool firstTime = prefs.getBool(showcaseProvider.firstTimeKey) ?? true;
         if (firstTime) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            _keys.add(showcaseProvider.navTrackerKey);
+            if (!_keys.contains(showcaseProvider.navTrackerKey)) {
+              _keys.add(showcaseProvider.navTrackerKey);
+            }
             ShowCaseWidget.of(context).startShowCase(_keys);
           });
         } else {
@@ -179,7 +184,14 @@ class _HomeState extends State<Home> {
                   ),
                 );
               }),
-              const SizedBox(height: 20.0),
+              Consumer<ShowcaseProvider>(
+                builder: (context, showcaseProvider, _) {
+                  if (showcaseProvider.isFirstTime && !showcaseProvider.isRunning) {
+                    _showTour();
+                  }
+                  return const SizedBox(height: 20.0);
+                }
+              ),
               Center(
                 child:
                     Consumer<HomeProvider>(builder: (context, homeProvider, _) {

@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import '../services/user_service.dart';
 import '../utils/gallery_utils.dart';
 import '../constants/route_name.dart';
+import '../providers/show_case_provider.dart';
+import '../providers/navigation_provider.dart';
 import '../providers/user_provider.dart';
 import '../services/auth.dart';
 
@@ -31,11 +33,12 @@ class _ProfileState extends State<Profile> {
 
   // Pick from gallery
   void galleryImage() async {
-    try{
+    try {
       var pickedImage = await pickFromGallery();
       if (pickedImage != null) {
         await UserService.setProfileImage(pickedImage).then((String url) {
-          final userProvider = Provider.of<UserProvider>(context, listen: false);
+          final userProvider =
+              Provider.of<UserProvider>(context, listen: false);
           userProvider.updateProfileImage(url);
           Navigator.pop(context);
         });
@@ -47,18 +50,25 @@ class _ProfileState extends State<Profile> {
 
   // Pick from camera
   void cameraImage() async {
-    try{
+    try {
       var pickedImage = await pickFromCamera();
       if (pickedImage != null) {
         await UserService.setProfileImage(pickedImage).then((String url) {
-          final userProvider = Provider.of<UserProvider>(context, listen: false);
+          final userProvider =
+          Provider.of<UserProvider>(context, listen: false);
           userProvider.updateProfileImage(url);
-            Navigator.pop(context);
+          Navigator.pop(context);
         });
       }
     } catch (e) {
       debugPrint("Error in cameraImage: $e");
     }
+  }
+
+  void showAppTour() {
+    Provider.of<ShowcaseProvider>(context, listen: false).showAppTour();
+    Navigator.pop(context);
+    Provider.of<NavigationProvider>(context, listen: false).goToHome();
   }
 
   @override
@@ -199,6 +209,14 @@ class _ProfileState extends State<Profile> {
             },
           ),
           const SizedBox(height: 100),
+          Center(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(minimumSize: const Size(180, 40)),
+              onPressed: showAppTour,
+              child: const Text('Show App Tour'),
+            ),
+          ),
+          const SizedBox(height: 20),
           Center(
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(minimumSize: const Size(180, 40)),

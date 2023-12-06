@@ -55,4 +55,12 @@ class ShowcaseProvider with ChangeNotifier {
     });
     notifyListeners();
   }
+
+  void showAppTour() {
+    _isFirstTime = true;
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setBool(_firstTimeKey, true);
+    });
+    notifyListeners();
+  }
 }
