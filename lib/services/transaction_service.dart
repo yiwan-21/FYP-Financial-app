@@ -18,7 +18,7 @@ class TransactionService {
     if (FirebaseInstance.auth.currentUser != null) {
       return transactionCollection
           .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-          .orderBy('date', descending: true)
+          .orderBy('date', descending: false)
           .snapshots();
     } else {
       return const Stream.empty();

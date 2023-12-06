@@ -11,7 +11,6 @@ import '../components/growing_tree.dart';
 import '../components/alert_confirm_action.dart';
 import '../constants/constant.dart';
 import '../providers/goal_provider.dart';
-import '../providers/total_transaction_provider.dart';
 import '../services/goal_service.dart';
 import '../services/transaction_service.dart';
 
@@ -108,9 +107,7 @@ class _GoalDetailState extends State<GoalDetail> {
           category: 'Savings Goal',
           notes: 'Auto Generated: Credit to Cash Account',
         );
-        await TransactionService.addTransaction(incomeTransaction).then((_) async {
-          await Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
-        });
+        await TransactionService.addTransaction(incomeTransaction);
       }
     }
     
@@ -334,9 +331,7 @@ class _GoalProgressState extends State<GoalProgress> {
       category: 'Savings Goal',
       notes: 'Auto Generated: Credit to Savings Goal: $_title',
     );
-    await TransactionService.addTransaction(incomeTransaction).then((_) async {
-      await Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
-    });
+    await TransactionService.addTransaction(incomeTransaction);
   }
 
   @override

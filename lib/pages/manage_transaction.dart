@@ -7,7 +7,6 @@ import '../constants/constant.dart';
 import '../constants/style_constant.dart';
 import '../forms/transaction_form.dart';
 import '../components/alert_confirm_action.dart';
-import '../providers/total_transaction_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../services/transaction_service.dart';
 
@@ -66,8 +65,6 @@ class _ManageTransactionState extends State<ManageTransaction> {
 
   void _deleteTransaction() async {
     await TransactionService.deleteTransaction(_id, _isExpense).then((_) {
-      Provider.of<TotalTransactionProvider>(context, listen: false)
-          .updateTransactions();
       // quit dialog box
       Navigator.pop(context);
       // quit edit transaction page

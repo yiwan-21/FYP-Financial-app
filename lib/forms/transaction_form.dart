@@ -6,7 +6,6 @@ import '../constants/constant.dart';
 import '../constants/message_constant.dart';
 import '../components/custom_switch.dart';
 import '../components/tracker_transaction.dart';
-import '../providers/total_transaction_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../services/transaction_service.dart';
 
@@ -99,11 +98,7 @@ class _TransactionFormState extends State<TransactionForm> {
       TrackerTransaction previousTransaction =
           Provider.of<TransactionProvider>(context, listen: false)
               .getTransaction;
-      await TransactionService.updateTransaction(
-              editedTransaction, previousTransaction)
-          .then((_) {
-        Provider.of<TotalTransactionProvider>(context, listen: false)
-            .updateTransactions();
+      await TransactionService.updateTransaction(editedTransaction, previousTransaction).then((_) {
         Navigator.pop(context);
       });
     }

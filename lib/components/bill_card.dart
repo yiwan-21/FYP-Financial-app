@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:financial_app/services/bill_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../constants/constant.dart';
 import '../constants/route_name.dart';
@@ -10,7 +9,6 @@ import '../constants/style_constant.dart';
 import '../components/alert_with_checkbox.dart';
 import '../components/tracker_transaction.dart';
 import '../pages/manage_bill.dart';
-import '../providers/total_transaction_provider.dart';
 import '../services/transaction_service.dart';
 import '../utils/date_utils.dart';
 
@@ -111,10 +109,7 @@ class _BillCardState extends State<BillCard> {
       notes:
           'Auto Generated: Paid RM ${value.toStringAsFixed(2)} for ${widget.title}',
     );
-    await TransactionService.addTransaction(newTransaction).then((_) {
-      Provider.of<TotalTransactionProvider>(context, listen: false)
-          .updateTransactions();
-    });
+    await TransactionService.addTransaction(newTransaction);
   }
 
   @override

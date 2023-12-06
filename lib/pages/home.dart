@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:financial_app/providers/total_transaction_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,7 +27,6 @@ import '../providers/show_case_provider.dart';
 import '../services/bill_service.dart';
 import '../services/budget_service.dart';
 import '../services/split_money_service.dart';
-import '../services/transaction_service.dart';
 import '../utils/date_utils.dart';
 
 class Home extends StatefulWidget {
@@ -232,16 +232,6 @@ class RecentTransactions extends StatefulWidget {
 }
 
 class _RecentTransactionsState extends State<RecentTransactions> {
-  Stream<QuerySnapshot> _stream = const Stream.empty();
-
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      _stream = TransactionService.getHomeTransactionStream();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -276,25 +266,13 @@ class _RecentTransactionsState extends State<RecentTransactions> {
             ),
           ],
         ),
-        StreamBuilder<QuerySnapshot>(
-          stream: _stream,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            if (snapshot.hasError) {
-              return Text('Something went wrong: ${snapshot.error}');
-            }
-            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+        Consumer<TotalTransactionProvider>(
+          builder: (context, totalTransactionProvider, _) {
+            if (totalTransactionProvider.getTransactions.isEmpty) {
               return const Center(child: Text("No transaction yet"));
             }
+            List<TrackerTransaction> transactions = totalTransactionProvider.getTransactions.sublist(0, 3);
 
-            List<TrackerTransaction> transactions = snapshot.data!.docs
-                .take(3)
-                .map((doc) => TrackerTransaction.fromDocument(doc))
-                .toList();
             return ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
