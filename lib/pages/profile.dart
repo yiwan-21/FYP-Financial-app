@@ -85,6 +85,7 @@ class _ProfileState extends State<Profile> {
                 if (image.isNotEmpty) {
                   return CircleAvatar(
                     radius: 70.0,
+                    backgroundColor: Colors.transparent,
                     backgroundImage: NetworkImage(image),
                   );
                 } else {

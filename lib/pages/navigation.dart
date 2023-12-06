@@ -172,6 +172,7 @@ class _NavigationState extends State<Navigation> {
                       if (image.isNotEmpty) {
                         return CircleAvatar(
                           radius: Constant.isMobile(context)? 12.0 : 20.0,
+                          backgroundColor: Colors.transparent,
                           backgroundImage: NetworkImage(image),
                         );
                       } else {

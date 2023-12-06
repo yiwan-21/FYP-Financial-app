@@ -108,6 +108,7 @@ class _HomeState extends State<Home> {
                         image.isNotEmpty
                             ? CircleAvatar(
                                 radius: _isMobile ? 20.0 : 25.0,
+                                backgroundColor: Colors.transparent,
                                 backgroundImage: NetworkImage(image),
                               )
                             : CircleAvatar(
