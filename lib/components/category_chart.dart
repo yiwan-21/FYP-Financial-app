@@ -52,7 +52,7 @@ class _CategoryChartState extends State<CategoryChart> {
     for (int i = 0; i < objData.length; i++) {
       sections.add(
         CategoryData(
-          '${objData.keys.toList()[i]} ${(values[i] / values.reduce((double a, double b) => a + b) * 100).toStringAsFixed(1)}%',
+          '${objData.keys.toList()[i]}\n${(values[i] / values.reduce((double a, double b) => a + b) * 100).toStringAsFixed(1)}%',
           values[i],
           getColor(i),
         ),
