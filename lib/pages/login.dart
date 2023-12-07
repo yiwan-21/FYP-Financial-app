@@ -178,7 +178,7 @@ class _LoginState extends State<Login> {
                         ),
                         const SizedBox(height: 32.0),
                         TextButton(
-                          onPressed: resetPasswordDialog,
+                          onPressed: _loading ? null : resetPasswordDialog,
                           style: ButtonStyle(
                             overlayColor: MaterialStateColor.resolveWith(
                                 (states) => const Color.fromARGB(255, 231, 227, 225)),
