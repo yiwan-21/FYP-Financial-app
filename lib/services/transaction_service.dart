@@ -313,7 +313,7 @@ static Future<List<DailySurplusData>> getSplineData() async {
         }
 
         await transactionCollection.add({
-          'amount': surplus,
+          'amount': surplus.abs(),
           'category': surplus < 0 ? 'Other Expenses' : 'Savings',
           'date': lastFive.subtract(const Duration(days: 1)),
           'isExpense': surplus < 0,
