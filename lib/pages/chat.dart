@@ -9,7 +9,9 @@ import '../providers/notification_provider.dart';
 import '../services/chat_service.dart';
 
 class Chat extends StatefulWidget {
-  const Chat({super.key});
+  final bool isSettled;
+
+  const Chat({required this.isSettled, super.key});
 
   @override
   State<Chat> createState() => _ChatState();
@@ -199,16 +201,19 @@ class _ChatState extends State<Chat> {
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: Constant.isMobile(context) ? 0 : 5),
-                decoration:  BoxDecoration(
-                  color: Colors.white,
+                padding: EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: Constant.isMobile(context) ? 0 : 5),
+                decoration: BoxDecoration(
+                  color: widget.isSettled ? Colors.grey[300] : Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey[400] ?? Colors.grey,
-                      offset: const Offset(0, -2),
-                      blurRadius: 4,
-                      blurStyle: BlurStyle.outer
-                    ),
+                        color: widget.isSettled
+                            ? Colors.transparent
+                            : Colors.grey[400] ?? Colors.grey,
+                        offset: const Offset(0, -2),
+                        blurRadius: 4,
+                        blurStyle: BlurStyle.outer),
                   ],
                 ),
                 child: Row(
@@ -221,6 +226,7 @@ class _ChatState extends State<Chat> {
                           hintStyle: TextStyle(fontSize: 16),
                           border: InputBorder.none,
                         ),
+                        readOnly: widget.isSettled,
                         onChanged: (value) {
                           setState(() {
                             _sendMessage = value;
@@ -230,14 +236,16 @@ class _ChatState extends State<Chat> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: _send,
+                      onTap: widget.isSettled ? null : _send,
                       child: Container(
                         height: 40,
                         width: 40,
-                        decoration: const BoxDecoration(
-                          color: ColorConstant.lightBlue,
+                        decoration: BoxDecoration(
+                          color: widget.isSettled
+                              ? Colors.grey[300]
+                              : ColorConstant.lightBlue,
                           shape: BoxShape.circle,
-                          boxShadow: [
+                          boxShadow: const [
                             BoxShadow(
                               color: Colors.black26,
                               offset: Offset(2, 2),
