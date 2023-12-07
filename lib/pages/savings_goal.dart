@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -121,27 +120,14 @@ class _SavingsGoalState extends State<SavingsGoal> {
                         ),
                       ),
                     ),
-              StreamBuilder<QuerySnapshot>(
-                stream: Provider.of<TotalGoalProvider>(context, listen: false)
-                    .getGoalsStream,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
+              Consumer<TotalGoalProvider>(
+                builder: (context, totalGoalProvider, _) {
+                  List<Goal> goals = totalGoalProvider.getGoals;
                   if (!_runningShowcase) {
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    if (goals.isEmpty) {
                       return const Center(child: Text("No goal yet"));
                     }
                   }
-
-                  List<Goal> goals = snapshot.data!.docs
-                      .map((doc) => Goal.fromDocument(doc))
-                      .toList();
 
                   return ShowcaseFrame(
                     showcaseKey: _isMobile? _mobileKeys[1] : _webKeys[1],

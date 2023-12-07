@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 import '../components/goal.dart';
 import '../constants/message_constant.dart';
 import '../firebase_instance.dart';
-import '../providers/total_goal_provider.dart';
 import '../services/goal_service.dart';
 
 class GoalForm extends StatefulWidget {
@@ -60,8 +58,7 @@ class _GoalFormState extends State<GoalForm> {
         await GoalService.setPinned(_id, widget.pinned);
       }
       if (context.mounted) {
-        Provider.of<TotalGoalProvider>(context, listen: false).updatePinnedGoal();
-        Navigator.pop(context, newGoal);
+        Navigator.pop(context);
       }
     }
   }

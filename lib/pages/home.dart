@@ -332,20 +332,13 @@ class _RecentGoalState extends State<RecentGoal> {
         ),
         Consumer<TotalGoalProvider>(
           builder: (context, totalGoalProvider, _) {
-            List<Goal> goal = totalGoalProvider.getPinnedGoal;
-            if (goal.isEmpty) {
+            Goal? pinnedGoal = totalGoalProvider.getPinnedGoal;
+            if (pinnedGoal == null && totalGoalProvider.getGoals.isEmpty) {
               return const Center(
                 child: Text("No goal yet"),
               );
             }
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: goal.length,
-              itemBuilder: (context, index) {
-                return goal[index];
-              },
-            );
+            return pinnedGoal ?? totalGoalProvider.getGoals.first;
           },
         ),
       ],

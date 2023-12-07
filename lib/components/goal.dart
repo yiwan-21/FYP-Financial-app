@@ -4,8 +4,6 @@ import 'package:provider/provider.dart';
 
 import '../constants/route_name.dart';
 import '../providers/goal_provider.dart';
-import '../providers/total_goal_provider.dart';
-import '../services/goal_service.dart';
 import '../utils/date_utils.dart';
 
 class Goal extends StatefulWidget {
@@ -30,6 +28,16 @@ class Goal extends StatefulWidget {
     super.key});
 
   Goal.fromDocument(QueryDocumentSnapshot doc, {super.key})
+      : goalID = doc.id,
+        userID = doc['userID'],
+        title = doc['title'],
+        amount = doc['amount'].toDouble(),
+        saved = doc['saved'].toDouble(),
+        targetDate = doc['targetDate'].toDate(),
+        pinned = doc['pinned'],
+        createdAt = doc['created_at'].toDate();
+  
+  Goal.fromSnapshot(DocumentSnapshot doc, {super.key})
       : goalID = doc.id,
         userID = doc['userID'],
         title = doc['title'],
@@ -70,29 +78,7 @@ class _GoalState extends State<Goal> {
       widget.targetDate,
       widget.pinned,
     );
-    Navigator.pushNamed(context, RouteName.goalProgress).then((value) async {
-      if (mounted) {
-        final String id = goalProvider.getId;
-        bool pinned = goalProvider.getPinned;
-        TotalGoalProvider totalGoalProvider = Provider.of<TotalGoalProvider>(context, listen: false);
-        if (value == 'delete') {
-          if (pinned) {
-            totalGoalProvider.updatePinnedGoal();
-          }
-          return;
-        }
-
-        if (pinned) {
-          await GoalService.setPinned(id, true).then((_) {
-            totalGoalProvider.updatePinnedGoal();
-          });
-        } else {
-          await GoalService.updateSinglePinned(id, false).then((_) {
-            totalGoalProvider.updatePinnedGoal();
-          });
-        }
-      }
-    });
+    Navigator.pushNamed(context, RouteName.goalProgress);
   }
 
   @override
