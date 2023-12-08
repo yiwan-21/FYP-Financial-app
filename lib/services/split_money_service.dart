@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:financial_app/components/split_expense_card.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import '../constants/message_constant.dart';
 import '../constants/notification_type.dart';
@@ -251,9 +251,8 @@ class SplitMoneyService {
   }
 
   static Future<String> setGroupImage(pickedImageFile, String groupID) async {
-    final storageRef = FirebaseInstance.storage
-        .ref('group/$groupID');
-    TaskSnapshot task = await storageRef.putFile(pickedImageFile);
+    final storageRef = FirebaseInstance.storage.ref('group/$groupID');
+    TaskSnapshot task = kIsWeb ? await storageRef.putData(pickedImageFile) : await storageRef.putFile(pickedImageFile);
     return await task.ref.getDownloadURL();
   }
 
