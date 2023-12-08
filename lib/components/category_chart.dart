@@ -58,8 +58,8 @@ class _CategoryChartState extends State<CategoryChart> {
       sections.add(
         CategoryData(
           '${objData.keys.toList()[i]}\n${(values[i] / values.reduce((double a, double b) => a + b) * 100).toStringAsFixed(1)}%',
-          values[i],
-          getColor(i),
+          double.parse(values[i].toStringAsFixed(2)),
+          getColor(i)
         ),
       );
     }
