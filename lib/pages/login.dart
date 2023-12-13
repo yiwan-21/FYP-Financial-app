@@ -36,6 +36,47 @@ class _LoginState extends State<Login> {
     });
   }
 
+  void resetPasswordDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Reset Password'),
+          content: SizedBox(
+            width: Constant.isMobile(context) ? null : 500,
+            child: Form(
+              key: _resetformKey,
+              child: TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.email),
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _emailReset = value.trim();
+                  });
+                },
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return ValidatorMessage.emptyEmail;
+                  }
+                  return null;
+                },
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: resetPassword,
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void resetPassword() async {
     if (_resetformKey.currentState!.validate()) {
       try {
@@ -137,46 +178,7 @@ class _LoginState extends State<Login> {
                         ),
                         const SizedBox(height: 32.0),
                         TextButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: const Text('Reset Password'),
-                                  content: SizedBox(
-                                    width: Constant.isMobile(context) ? null : 500,
-                                    child: Form(
-                                      key: _resetformKey,
-                                      child: TextFormField(
-                                        decoration: const InputDecoration(
-                                          labelText: 'Email',
-                                          prefixIcon: Icon(Icons.email),
-                                          border: OutlineInputBorder(),
-                                        ),
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _emailReset = value.trim();
-                                          });
-                                        },
-                                        validator: (value) {
-                                          if (value == null || value.trim().isEmpty) {
-                                            return ValidatorMessage.emptyEmail;
-                                          }
-                                          return null;
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: resetPassword,
-                                      child: const Text('Confirm'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
+                          onPressed: _loading ? null : resetPasswordDialog,
                           style: ButtonStyle(
                             overlayColor: MaterialStateColor.resolveWith(
                                 (states) => const Color.fromARGB(255, 231, 227, 225)),

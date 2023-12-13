@@ -44,6 +44,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense>
     createdAt: DateTime.now(),
   );
   late TabController _tabController;
+  bool _isSettle = false;
 
   @override
   void initState() {
@@ -75,12 +76,10 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense>
         }
 
         String userID = FirebaseInstance.auth.currentUser!.uid;
-        bool hasUnreadMessage = querySnapshot.docs.last['senderID'] != userID &&
-            !querySnapshot.docs.last['readStatus'].contains(userID);
+        bool hasUnreadMessage = querySnapshot.docs.last['senderID'] != userID && !querySnapshot.docs.last['readStatus'].contains(userID);
 
         if (hasUnreadMessage) {
-          Provider.of<NotificationProvider>(context, listen: false)
-              .setChatNotification(true);
+          Provider.of<NotificationProvider>(context, listen: false).setChatNotification(true);
         }
       } catch (e) {
         debugPrint('Error on getting chat messages: $e');
@@ -98,6 +97,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense>
     await SplitMoneyService.getExpenseByID(widget.expenseID).then((expense) {
       setState(() {
         _expense = expense;
+        _isSettle = expense.amount - expense.paidAmount == 0;
       });
     });
   }
@@ -175,7 +175,7 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense>
             // Widget for the first tab
             ExpenseRecords(expenseID: widget.expenseID, expense: _expense),
             // Widget for the second tab
-            const Chat(),
+            Chat(isSettled: _isSettle),
           ],
         ),
       );
@@ -207,13 +207,13 @@ class _SplitMoneyExpenseState extends State<SplitMoneyExpense>
                 flex: 2,
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 500),
-                  child: const Card(
+                  child:  Card(
                     elevation: 10,
-                    margin: EdgeInsets.only(top: 20, bottom: 40, left: 10),
-                    shape: RoundedRectangleBorder(
+                    margin: const EdgeInsets.only(top: 20, bottom: 40, left: 10),
+                    shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(0)),
                     ),
-                    child: Chat(),
+                    child: Chat(isSettled: _isSettle),
                   ),
                 ),
               ),
