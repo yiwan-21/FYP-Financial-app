@@ -5,6 +5,7 @@ import 'package:financial_app/components/daily_surplus_chart.dart';
 import 'package:financial_app/utils/date_utils.dart';
 import 'package:flutter/material.dart';
 
+import '../components/tracker_overview_chart.dart';
 import '../components/tracker_transaction.dart';
 import '../constants/constant.dart';
 import '../services/transaction_service.dart';
@@ -165,5 +166,31 @@ class TotalTransactionProvider extends ChangeNotifier {
     int index = _dailySurplusData.indexWhere((element) => element.date.isAtSameMomentAs(startDate));
 
     return _dailySurplusData.sublist(index, index + days + 1);
+  }
+
+  List<TrackerOverviewData> getTrackerOverviewData({int monthCount = 5}) {
+    List<TrackerOverviewData> lineData = [];
+    final month = DateTime.now().month;
+    for (int i = month - (monthCount - 1) - 1; i < month; i++) {
+      lineData.add(TrackerOverviewData(Constant.monthLabels[i], 0, 0, 0));
+    }
+    int monthIndex = 0;
+
+    for (TrackerTransaction transaction in _transactions) {
+      monthIndex = transaction.date.month - (month - (monthCount - 1));
+      if (monthIndex >= 0) {
+        if (Constant.analyticsCategories.contains(transaction.category)) {
+          if (transaction.isExpense) {
+            lineData[monthIndex].addExpense(transaction.amount);
+          } else {
+            lineData[monthIndex].addIncome(transaction.amount);
+          }
+        } else if (transaction.category == "Savings Goal") {
+          lineData[monthIndex].addSavingsGoal(transaction.amount);
+        }
+      }
+    }
+
+    return lineData;
   }
 }

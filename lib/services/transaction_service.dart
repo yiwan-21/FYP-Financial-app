@@ -4,7 +4,6 @@ import '../firebase_instance.dart';
 import '../constants/constant.dart';
 import '../components/history_card.dart';
 import '../components/tracker_transaction.dart';
-import '../components/tracker_overview_chart.dart';
 import '../components/auto_dis_chart.dart';
 import '../services/budget_service.dart';
 
@@ -99,46 +98,6 @@ class TransactionService {
       }
     });
     return data;
-  }
-
-  static Future<List<TrackerOverviewData>> getLineData() async {
-    const int monthCount = 5;
-    final List<TrackerOverviewData> lineData = [];
-    // fill lineData with TrackerOverviewData objects
-    final month = DateTime.now().month;
-    for (int i = month - (monthCount - 1) - 1; i < month; i++) {
-      lineData.add(TrackerOverviewData(Constant.monthLabels[i], 0, 0, 0));
-    }
-    int monthIndex = 0;
-
-    if (FirebaseInstance.auth.currentUser == null) {
-      return lineData;
-    }
-    
-    await transactionCollection
-        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-        .orderBy('date', descending: true)
-        .get()
-        .then((value) => {
-      for (var transaction in value.docs) {
-        monthIndex = DateTime.parse(transaction['date'].toDate().toString()).month - (DateTime.now().month - (monthCount - 1)),
-        if (monthIndex >= 0) {
-          if(transaction['category'] == "Savings Goal")
-          {
-              lineData[monthIndex].addSavingsGoal(transaction['amount'].toDouble())
-          }
-          else
-          {
-            if (transaction['isExpense']) {
-              lineData[monthIndex].addExpense(transaction['amount'].toDouble())
-            } else {
-              lineData[monthIndex].addIncome(transaction['amount'].toDouble())
-            }
-          }
-        }
-      }
-    });
-    return lineData;
   }
 
   static Future<List<AutoDisData>> getBarData() async {
