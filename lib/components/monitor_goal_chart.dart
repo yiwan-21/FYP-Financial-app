@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../services/goal_service.dart';
+import '../providers/total_goal_provider.dart';
 
 class MonitorGoalData {
   final String month;
@@ -38,58 +39,52 @@ class MonitorGoalChart extends StatefulWidget {
 }
 
 class _MonitorGoalChartState extends State<MonitorGoalChart> {
-  final Future<List<MonitorGoalData>> _lineData = GoalService.getlineData();
-
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _lineData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done &&
-              snapshot.data != null) {
-            return SfCartesianChart(
-              primaryXAxis: CategoryAxis(),
-              // Chart title
-              title: ChartTitle(text: 'Number of Goals in Different Status'),
-              // Enable legend
-              legend: Legend(isVisible: true),
-              // Enable tooltip
-              tooltipBehavior: TooltipBehavior(enable: true),
-              series: <ChartSeries<MonitorGoalData, String>>[
-                LineSeries(
-                  dataSource: snapshot.data!,
-                  xValueMapper: (MonitorGoalData record, _) => record.month,
-                  yValueMapper: (MonitorGoalData record, _) => record.completed,
-                  dataLabelSettings: const DataLabelSettings(isVisible: true),
-                  name: 'Completed',
-                ),
-                LineSeries(
-                  dataSource: snapshot.data!,
-                  xValueMapper: (MonitorGoalData record, _) => record.month,
-                  yValueMapper: (MonitorGoalData record, _) =>
-                      record.inProgress,
-                  dataLabelSettings: const DataLabelSettings(isVisible: true),
-                  name: 'In Progress',
-                ),
-                LineSeries(
-                  dataSource: snapshot.data!,
-                  xValueMapper: (MonitorGoalData record, _) => record.month,
-                  yValueMapper: (MonitorGoalData record, _) => record.toDo,
-                  dataLabelSettings: const DataLabelSettings(isVisible: true),
-                  name: 'To-Do',
-                ),
-                LineSeries(
-                  dataSource: snapshot.data!,
-                  xValueMapper: (MonitorGoalData record, _) => record.month,
-                  yValueMapper: (MonitorGoalData record, _) => record.expired,
-                  dataLabelSettings: const DataLabelSettings(isVisible: true),
-                  name: 'Expired',
-                ),
-              ],
-            );
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        });
+    return Consumer<TotalGoalProvider>(
+      builder: (context, totalGoalProvider, _) {
+        final List<MonitorGoalData> lineData = totalGoalProvider.getMonitorGoalData();
+        return SfCartesianChart(
+          primaryXAxis: CategoryAxis(),
+          // Chart title
+          title: ChartTitle(text: 'Number of Goals in Different Status'),
+          // Enable legend
+          legend: Legend(isVisible: true),
+          // Enable tooltip
+          tooltipBehavior: TooltipBehavior(enable: true),
+          series: <ChartSeries<MonitorGoalData, String>>[
+            LineSeries(
+              dataSource: lineData,
+              xValueMapper: (MonitorGoalData record, _) => record.month,
+              yValueMapper: (MonitorGoalData record, _) => record.completed,
+              dataLabelSettings: const DataLabelSettings(isVisible: true),
+              name: 'Completed',
+            ),
+            LineSeries(
+              dataSource: lineData,
+              xValueMapper: (MonitorGoalData record, _) => record.month,
+              yValueMapper: (MonitorGoalData record, _) =>
+                  record.inProgress,
+              dataLabelSettings: const DataLabelSettings(isVisible: true),
+              name: 'In Progress',
+            ),
+            LineSeries(
+              dataSource: lineData,
+              xValueMapper: (MonitorGoalData record, _) => record.month,
+              yValueMapper: (MonitorGoalData record, _) => record.toDo,
+              dataLabelSettings: const DataLabelSettings(isVisible: true),
+              name: 'To-Do',
+            ),
+            LineSeries(
+              dataSource: lineData,
+              xValueMapper: (MonitorGoalData record, _) => record.month,
+              yValueMapper: (MonitorGoalData record, _) => record.expired,
+              dataLabelSettings: const DataLabelSettings(isVisible: true),
+              name: 'Expired',
+            ),
+          ],
+        );
+      },
+    );
   }
 }
