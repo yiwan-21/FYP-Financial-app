@@ -5,6 +5,7 @@ import 'package:financial_app/components/daily_surplus_chart.dart';
 import 'package:financial_app/utils/date_utils.dart';
 import 'package:flutter/material.dart';
 
+import '../components/auto_dis_chart.dart';
 import '../components/tracker_overview_chart.dart';
 import '../components/tracker_transaction.dart';
 import '../constants/constant.dart';
@@ -192,5 +193,27 @@ class TotalTransactionProvider extends ChangeNotifier {
     }
 
     return lineData;
+  }
+
+  List<AutoDisData> getAutoDisData({int monthCount = 5}) {
+    final List<AutoDisData> barData = [];
+    // fill barData with AutoDisData objects
+    final month = DateTime.now().month;
+    for (int i = month - (monthCount - 1) - 1; i < month; i++) {
+      barData.add(AutoDisData(Constant.monthLabels[i], 0, 0));
+    }
+    int monthIndex = 0;
+
+    for (TrackerTransaction transaction in _transactions) {
+      monthIndex = transaction.date.month - (month - (monthCount - 1));
+      if (monthIndex >= 0 && transaction.isExpense) {
+        if (Constant.autonomousExpenses.contains(transaction.category)) {
+          barData[monthIndex].addAutonomous(transaction.amount);
+        } else {
+          barData[monthIndex].addDiscretionary(transaction.amount);
+        }
+      }
+    }
+    return barData;
   }
 }

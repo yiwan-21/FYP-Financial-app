@@ -4,7 +4,6 @@ import '../firebase_instance.dart';
 import '../constants/constant.dart';
 import '../components/history_card.dart';
 import '../components/tracker_transaction.dart';
-import '../components/auto_dis_chart.dart';
 import '../services/budget_service.dart';
 
 class TransactionService {
@@ -98,46 +97,6 @@ class TransactionService {
       }
     });
     return data;
-  }
-
-  static Future<List<AutoDisData>> getBarData() async {
-    const int monthCount = 5;
-    final List<String> autonomous = [
-      'Food',
-      'Transportation',
-      'Rental',
-      'Bill'
-    ];
-    final List<AutoDisData> barData = [];
-    // fill barData with AutoDisData objects
-    final month = DateTime.now().month;
-    for (int i = month - (monthCount - 1) - 1; i < month; i++) {
-      barData.add(AutoDisData(Constant.monthLabels[i], 0, 0));
-    }
-    int monthIndex = 0;
-
-    List<String> categories = Constant.analyticsCategories;
-    await transactionCollection
-        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-        .where('category', whereIn: categories)
-        .orderBy('date', descending: true)
-        .get()
-        .then((value) => {
-      for (var transaction in value.docs) {
-        monthIndex = DateTime.parse(transaction['date'].toDate().toString()).month -
-            (DateTime.now().month - (monthCount - 1)),
-        if (monthIndex >= 0 && transaction['isExpense']) {
-          if (autonomous.contains(transaction['category'])) {
-            barData[monthIndex]
-                .addAutonomous(transaction['amount'].toDouble())
-          } else {
-            barData[monthIndex].addDiscretionary(
-                transaction['amount'].toDouble())
-          }
-        }
-      }
-    });
-    return barData;
   }
 
   // Budgeting
