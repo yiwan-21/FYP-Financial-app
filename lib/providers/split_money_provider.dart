@@ -1,17 +1,24 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../components/split_expense_card.dart';
+import '../components/split_group_card.dart';
 import '../models/group_user.dart';
 import '../models/split_group.dart';
 import '../services/split_money_service.dart';
 
 class SplitMoneyProvider extends ChangeNotifier {
+  StreamSubscription? _listener;
+  final List<SplitGroupCard> _groups = [];
   SplitGroup _splitGroup = SplitGroup();
 
   SplitMoneyProvider() {
-    _splitGroup = SplitGroup();
+    init();
   }
 
+  List<SplitGroupCard> get groups => _groups;
   SplitGroup get splitGroup => _splitGroup;
   String? get id => splitGroup.id;
   String? get name => _splitGroup.name;
@@ -19,6 +26,39 @@ class SplitMoneyProvider extends ChangeNotifier {
   String? get ownerId => _splitGroup.owner;
   List<GroupUser>? get members => _splitGroup.members;
   List<SplitExpenseCard>? get expenses => _splitGroup.expenses;
+
+  void init() {
+    _listener = SplitMoneyService.getGroupStream().listen((event) {
+      event.metadata.isFromCache
+          ? print("Split Money Stream: Data from local cache")
+          : print("Split Money Stream: Data from server");
+      event.metadata.hasPendingWrites // pendingWrites ? "Local" : "Server";
+          ? print("Split Money Stream: There are pending writes")
+          : print("Split Money Stream: There are no pending writes");
+      print("Split Money Stream: Document changes: ${event.docChanges.length}");
+
+      for (var change in event.docChanges) {
+        int index = _groups.indexWhere((element) => element.groupID == change.doc.id);
+        if (change.type == DocumentChangeType.added) {
+          // add the group
+          _groups.add(SplitGroupCard.fromSnapshot(change.doc));
+        } else if (change.type == DocumentChangeType.modified) {
+          // update the group
+          _groups[index] = SplitGroupCard.fromSnapshot(change.doc);
+        } else if (change.type == DocumentChangeType.removed) {
+          // remove the group
+          _groups.removeAt(index);
+        }
+      }
+      notifyListeners();
+    });
+  }
+
+  void reset() {
+    _listener?.cancel();
+    _groups.clear();
+    _splitGroup = SplitGroup();
+  }
 
   Future<SplitGroup> setNewSplitGroup(String id) async {
     _splitGroup = await SplitMoneyService.getGroupByID(id);
@@ -60,11 +100,6 @@ class SplitMoneyProvider extends ChangeNotifier {
     await SplitMoneyService.deleteMember(member.id).then((_) {
       _splitGroup.members!.remove(member);
     });
-    notifyListeners();
-  }
-
-  void reset() {
-    _splitGroup = SplitGroup();
     notifyListeners();
   }
 }

@@ -13,6 +13,7 @@ import '../components/split_group_card.dart';
 import '../components/showcase_frame.dart';
 import '../firebase_instance.dart';
 import '../providers/show_case_provider.dart';
+import '../providers/split_money_provider.dart';
 import '../services/split_money_service.dart';
 import '../services/user_service.dart';
 
@@ -24,7 +25,6 @@ class SplitMoney extends StatefulWidget {
 }
 
 class _SplitMoneyState extends State<SplitMoney> {
-  final Stream<QuerySnapshot> _stream = SplitMoneyService.getGroupStream();
   final List<GlobalKey> _webKeys = [
     GlobalKey(),   
     GlobalKey(),
@@ -53,7 +53,9 @@ class _SplitMoneyState extends State<SplitMoney> {
           ShowCaseWidget.of(context).startShowCase(_webKeys);
           _showcasingWebView = true;
         }
-        _runningShowcase = true;
+        setState(() {
+          _runningShowcase = true;
+        });
       });
     }
   }
@@ -133,30 +135,16 @@ class _SplitMoneyState extends State<SplitMoney> {
                         ),
                       ),
                     Flexible(
-                      child: StreamBuilder<QuerySnapshot>(
-                        stream: _stream,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                          if (snapshot.hasError) {
-                            return Text(
-                                'Something went wrong: ${snapshot.error}');
-                          }
+                      child: Consumer<SplitMoneyProvider>(
+                        builder: (context, splitMoneyProvider, _) {
+                          List<SplitGroupCard> groupCards = splitMoneyProvider.groups;
                           if (!_runningShowcase) {
-                            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                            if (groupCards.isEmpty) {
                               return const Center(
                                 child: Text('No group yet'),
                               );
                             }
                           }
-
-                          List<SplitGroupCard> groupCards = snapshot.data!.docs
-                              .map((doc) => SplitGroupCard(doc.id, groupName: doc['name']))
-                              .toList();
                           return ShowcaseFrame(
                             showcaseKey: _topDownAlign? _mobileKeys[1] : _webKeys[1],
                             title: "Data Created",

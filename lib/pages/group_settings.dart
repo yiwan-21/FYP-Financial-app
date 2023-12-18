@@ -212,10 +212,10 @@ class _GroupSettingsState extends State<GroupSettings> {
                           backgroundImage: NetworkImage(splitMoneyProvider.image!),
                         );
                       } else {
-                        return const Icon(
-                          Icons.diversity_3,
-                          size: 60,
-                          color: Colors.black,
+                        return const CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Colors.transparent,
+                          backgroundImage: AssetImage('assets/images/group.png'),
                         );
                       }
                     },
