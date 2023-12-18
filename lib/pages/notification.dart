@@ -1,9 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../constants/constant.dart';
-import '../firebase_instance.dart';
+import '../models/notification_item.dart';
 import '../models/notifications.dart';
+import '../providers/notification_provider.dart';
 import '../services/bill_service.dart';
 import '../services/goal_service.dart';
 import '../services/notification_service.dart';
@@ -16,11 +17,6 @@ class NotificationMenu extends StatefulWidget {
 }
 
 class _NotificationMenuState extends State<NotificationMenu> {
-  final Stream<QuerySnapshot> _stream =
-      NotificationService.getNotificationStream();
-
-  int _unread = 0;
-
   @override
   void initState() {
     super.initState();
@@ -37,145 +33,113 @@ class _NotificationMenuState extends State<NotificationMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: _stream,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return IconButton(
-            iconSize: Constant.isMobile(context) ? 25 : 30,
-            icon: const Icon(Icons.notifications),
-            onPressed: () {
-              // Handle loading state
-            },
-          );
-        } else if (snapshot.hasError) {
-          return IconButton(
-            iconSize: Constant.isMobile(context) ? 25 : 30,
-            icon: const Icon(Icons.notifications),
-            onPressed: () {
-              // Handle error state
-            },
-          );
-        } else {
-          final List<QueryDocumentSnapshot> notifications =
-              snapshot.data == null ? [] : snapshot.data!.docs;
-          final String uid = FirebaseInstance.auth.currentUser!.uid;
-          _unread = 0;
-          for (final QueryDocumentSnapshot doc in notifications) {
-            final int index = List<String>.from(doc['receiverID']).indexOf(uid);
-            final bool read = List<bool>.from(doc['read'])[index];
-            if (!read) {
-              _unread++;
-            }
-          }
-          return PopupMenuButton<NotificationModel>(
-            position: PopupMenuPosition.under,
-            offset: const Offset(30, 0),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-            elevation: 5,
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.7,
-              maxWidth: 300,
-            ),
-            icon: Icon(
-              _unread > 0 ? Icons.notifications_active : Icons.notifications,
-              size: Constant.isMobile(context) ? 25 : 30,
-            ),
-            itemBuilder: (context) {
-              return [
-                PopupMenuItem<NotificationModel>(
-                  enabled: false,
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.only(left: 10),
-                    title: Text(
-                      notifications.isNotEmpty
-                          ? 'Notifications ${_unread > 0 ? '($_unread)' : ''}'
-                          : 'No notification yet.',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+    return Consumer<NotificationProvider>(
+      builder: (context, notificationProvider, _) {
+        final List<NotificationItem> notifications = notificationProvider.notifications;
+        final int unread = notificationProvider.unread;
+        return PopupMenuButton<NotificationModel>(
+          position: PopupMenuPosition.under,
+          offset: const Offset(30, 0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+          ),
+          elevation: 5,
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+            maxWidth: 300,
+          ),
+          icon: Icon(
+            unread > 0 ? Icons.notifications_active : Icons.notifications,
+            size: Constant.isMobile(context) ? 25 : 30,
+          ),
+          itemBuilder: (context) {
+            return [
+              PopupMenuItem<NotificationModel>(
+                enabled: false,
+                child: ListTile(
+                  contentPadding: const EdgeInsets.only(left: 10),
+                  title: Text(
+                    notifications.isNotEmpty
+                        ? 'Notifications ${unread > 0 ? '($unread)' : ''}'
+                        : 'No notification yet.',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
                     ),
-                    trailing: _unread > 0
-                        ? TextButton(
-                            onPressed: _markAllAsRead,
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.all(0),
-                              alignment: Alignment.centerRight,
-                            ),
-                            child: const Text(
-                              'Mark all as read',
-                              style: TextStyle(
-                                color: Colors.pink,
-                                fontSize: 12,
-                              ),
-                            ),
-                          )
-                        : null,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
+                  trailing: unread > 0
+                      ? TextButton(
+                          onPressed: _markAllAsRead,
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.all(0),
+                            alignment: Alignment.centerRight,
+                          ),
+                          child: const Text(
+                            'Mark all as read',
+                            style: TextStyle(
+                              color: Colors.pink,
+                              fontSize: 12,
+                            ),
+                          ),
+                        )
+                      : null,
                 ),
-                ...notifications.map((doc) {
-                  final String title = doc['title'];
-                  final String message = doc['message'];
-                  final DateTime date = doc['createdAt'].toDate();
-                  final int index =
-                      List<String>.from(doc['receiverID']).indexOf(uid);
-                  final bool read = List<bool>.from(doc['read'])[index];
-                  final String type = doc['type'];
-                  final String? functionID = doc['functionID'];
-                  final Function navigateTo =
-                      NotificationService.getNotificationFunction(
-                          type, functionID);
+              ),
+              ...notifications.map((notification) {
+                final String title = notification.title;
+                final String message = notification.message;
+                final DateTime date = notification.createdAt;
+                final bool read = notification.read;
+                final String type = notification.type;
+                final String? functionID = notification.functionID;
+                final Function navigateTo = NotificationService.getNotificationFunction(type, functionID);
 
-                  return PopupMenuItem<NotificationModel>(
-                    onTap: () {
-                      NotificationService.markAsRead(doc.id);
-                      navigateTo();
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 5),
-                      color: read ? Colors.white : Colors.grey[100],
-                      child: ListTile(
-                        isThreeLine: true,
-                        title: Text(title),
-                        titleTextStyle: TextStyle(
-                          color: Colors.black,
-                          fontWeight:
-                              read ? FontWeight.normal : FontWeight.bold,
-                        ),
-                        subtitle: Text(
-                          message,
-                          textAlign: TextAlign.justify,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        subtitleTextStyle: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        trailing: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                                '${Constant.monthLabels[date.month - 1]} ${date.day}'),
-                            const SizedBox(height: 5),
-                            Text(date.toString().substring(11, 16)),
-                          ],
-                        ),
-                        leadingAndTrailingTextStyle: TextStyle(
-                          color: Colors.grey[600],
-                        ),
+                return PopupMenuItem<NotificationModel>(
+                  onTap: () {
+                    NotificationService.markAsRead(notification.id);
+                    navigateTo();
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 5),
+                    color: read ? Colors.white : Colors.grey[100],
+                    child: ListTile(
+                      isThreeLine: true,
+                      title: Text(title),
+                      titleTextStyle: TextStyle(
+                        color: Colors.black,
+                        fontWeight:
+                            read ? FontWeight.normal : FontWeight.bold,
+                      ),
+                      subtitle: Text(
+                        message,
+                        textAlign: TextAlign.justify,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitleTextStyle: const TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                              '${Constant.monthLabels[date.month - 1]} ${date.day}'),
+                          const SizedBox(height: 5),
+                          Text(date.toString().substring(11, 16)),
+                        ],
+                      ),
+                      leadingAndTrailingTextStyle: TextStyle(
+                        color: Colors.grey[600],
                       ),
                     ),
-                  );
-                }).toList(),
-              ];
-            },
-          );
-        }
+                  ),
+                );
+              }).toList(),
+            ];
+          },
+        );
       },
     );
   }
