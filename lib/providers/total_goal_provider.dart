@@ -24,12 +24,12 @@ class TotalGoalProvider extends ChangeNotifier {
   void init() {
     _listener = GoalService.getAllGoalStream().listen((event) {
       event.metadata.isFromCache
-          ? print("Goal Stream: Data from local cache")
-          : print("Goal Stream: Data from server");
+          ? debugPrint("Goal Stream: Data from local cache")
+          : debugPrint("Goal Stream: Data from server");
       event.metadata.hasPendingWrites // pendingWrites ? "Local" : "Server";
-          ? print("Goal Stream: There are pending writes")
-          : print("Goal Stream: There are no pending writes");
-      print("Goal Stream: Document changes: ${event.docChanges.length}");
+          ? debugPrint("Goal Stream: There are pending writes")
+          : debugPrint("Goal Stream: There are no pending writes");
+      debugPrint("Goal Stream: Document changes: ${event.docChanges.length}");
 
       for (var change in event.docChanges) {
         if (change.type == DocumentChangeType.added) {

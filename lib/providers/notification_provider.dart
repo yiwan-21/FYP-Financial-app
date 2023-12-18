@@ -25,12 +25,12 @@ class NotificationProvider extends ChangeNotifier {
   void init() {
     _notificationSubscription = NotificationService.getNotificationStream().listen((event) {
       event.metadata.isFromCache
-          ? print("Notification Stream: Data from local cache")
-          : print("Notification Stream: Data from server");
+          ? debugPrint("Notification Stream: Data from local cache")
+          : debugPrint("Notification Stream: Data from server");
       event.metadata.hasPendingWrites // pendingWrites ? "Local" : "Server";
-          ? print("Notification Stream: There are pending writes")
-          : print("Notification Stream: There are no pending writes");
-      print("Notification Stream: Document changes: ${event.docChanges.length}");
+          ? debugPrint("Notification Stream: There are pending writes")
+          : debugPrint("Notification Stream: There are no pending writes");
+      debugPrint("Notification Stream: Document changes: ${event.docChanges.length}");
 
       for (var change in event.docChanges) {
         if (change.type == DocumentChangeType.added) {

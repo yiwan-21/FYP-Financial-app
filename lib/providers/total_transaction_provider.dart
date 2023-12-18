@@ -27,12 +27,12 @@ class TotalTransactionProvider extends ChangeNotifier {
   void init() {
     _listener = TransactionService.getAllTransactionStream().listen((event) {
       event.metadata.isFromCache
-          ? print("Tracker Stream: Data from local cache")
-          : print("Tracker Stream: Data from server");
+          ? debugPrint("Tracker Stream: Data from local cache")
+          : debugPrint("Tracker Stream: Data from server");
       event.metadata.hasPendingWrites // pendingWrites ? "Local" : "Server";
-          ? print("Tracker Stream: There are pending writes")
-          : print("Tracker Stream: There are no pending writes");
-      print("Tracker Stream: Document changes: ${event.docChanges.length}");
+          ? debugPrint("Tracker Stream: There are pending writes")
+          : debugPrint("Tracker Stream: There are no pending writes");
+      debugPrint("Tracker Stream: Document changes: ${event.docChanges.length}");
 
       for (var change in event.docChanges) {
         int index = _transactions.indexWhere((element) => element.id == change.doc.id);

@@ -30,12 +30,12 @@ class SplitMoneyProvider extends ChangeNotifier {
   void init() {
     _listener = SplitMoneyService.getGroupStream().listen((event) {
       event.metadata.isFromCache
-          ? print("Split Money Stream: Data from local cache")
-          : print("Split Money Stream: Data from server");
+          ? debugPrint("Split Money Stream: Data from local cache")
+          : debugPrint("Split Money Stream: Data from server");
       event.metadata.hasPendingWrites // pendingWrites ? "Local" : "Server";
-          ? print("Split Money Stream: There are pending writes")
-          : print("Split Money Stream: There are no pending writes");
-      print("Split Money Stream: Document changes: ${event.docChanges.length}");
+          ? debugPrint("Split Money Stream: There are pending writes")
+          : debugPrint("Split Money Stream: There are no pending writes");
+      debugPrint("Split Money Stream: Document changes: ${event.docChanges.length}");
 
       for (var change in event.docChanges) {
         int index = _groups.indexWhere((element) => element.groupID == change.doc.id);
