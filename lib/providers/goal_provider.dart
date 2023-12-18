@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../services/goal_service.dart';
+
 class GoalProvider extends ChangeNotifier {
   String id = '';
   String title = '';
@@ -36,6 +38,7 @@ class GoalProvider extends ChangeNotifier {
 
   Future<void> setPinned(bool pinned) async {
     this.pinned = pinned;
+    await GoalService.setPinned(id, pinned);
     notifyListeners();
   }
 }

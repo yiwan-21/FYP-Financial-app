@@ -33,7 +33,7 @@ class TotalGoalProvider extends ChangeNotifier {
 
       for (var change in event.docChanges) {
         if (change.type == DocumentChangeType.added) {
-          _goals.insert(0, Goal.fromSnapshot(change.doc));
+          _goals.add(Goal.fromSnapshot(change.doc));
         } else if (change.type == DocumentChangeType.modified) {
           int index = _goals.indexWhere((element) => element.goalID == change.doc.id);
           _goals[index] = Goal.fromSnapshot(change.doc);
@@ -52,6 +52,7 @@ class TotalGoalProvider extends ChangeNotifier {
           }
         }
       }
+      _sortGoals();
       notifyListeners();
     });
   }
@@ -61,6 +62,25 @@ class TotalGoalProvider extends ChangeNotifier {
     _pinnedGoal = null;
     _goals.clear();
     notifyListeners();
+  }
+
+  void _sortGoals() {
+    _goals.sort((a, b) {
+      // return -1: [a, b]
+      // return 1: [b, a]
+      // return 0: equal
+      bool aIsComplete = a.saved >= a.amount;
+      bool bIsComplete = b.saved >= b.amount;
+      if (a.pinned) {
+        return -1;
+      } else if (b.pinned) {
+        return 1;
+      } else if (aIsComplete == bIsComplete) {
+        return a.targetDate.isBefore(b.targetDate) ? -1 : 1;
+      } else {
+        return aIsComplete ? 1 : -1;
+      }
+    });
   }
 
   List<MonitorGoalData> getMonitorGoalData({int monthCount = 5}) {
