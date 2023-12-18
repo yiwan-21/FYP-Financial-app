@@ -30,14 +30,14 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
   );
   List<GroupUser> _members = [];
   final List<TextEditingController> _amountControllers = [];
-  bool _checkAmount = false;
+  bool _didChangeAmount = false;
+  double _remainingAmount = 0;
 
   @override
   void initState() {
     super.initState();
     setState(() {
-      _members =
-          Provider.of<SplitMoneyProvider>(context, listen: false).members!;
+      _members = Provider.of<SplitMoneyProvider>(context, listen: false).members!;
       _splitExpense.paidBy = _members[0];
     });
   }
@@ -61,31 +61,41 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
           record.amount = amount;
         }
       });
+    }else{
+      // reset to 0
+      for (var controller in _amountControllers) {
+        controller.text = 0.toStringAsFixed(2);
+      }
+      setState(() {
+        for (var record in _splitExpense.sharedRecords) {
+          record.amount = 0;
+        }
+        _remainingAmount = _splitExpense.amount;
+      });
     }
   }
 
-  void _addGroupExpense() {
-    // check the total amount and split amounts
-    double inputAmount = 0;
-    for (var record in _splitExpense.sharedRecords) {
-      inputAmount += record.amount;
-      if (record.id == _splitExpense.paidBy.id) {
-        record.paidAmount = record.amount;
-        _splitExpense.paidAmount = record.amount;
-      }
+  void _calRemainingAmount() {
+    if (_didChangeAmount) {
+      setState(() {
+        _remainingAmount = _splitExpense.amount;
+        for (var record in _splitExpense.sharedRecords) {
+          _remainingAmount -= record.amount;
+        }
+        _didChangeAmount = false;
+      });
     }
+  }
 
-    if (inputAmount != _splitExpense.amount) {
-      _checkAmount = true;
-      inputAmount = 0;
-    } else {
-      _checkAmount = false;
-    }
-
+  Future<void> _addGroupExpense() async {
+    _calRemainingAmount();
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+      for (var record in _splitExpense.sharedRecords) {
+        debugPrint("${record.name}: ${record.amount.toStringAsFixed(2)}");
+      }
 
-      SplitMoneyService.addExpense(_splitExpense).then((_) {
+      await SplitMoneyService.addExpense(_splitExpense).then((_) {
         Navigator.pop(context, _splitExpense);
       });
     }
@@ -151,7 +161,7 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
                     double.parse(value) <= 0) {
                   return ValidatorMessage.invalidAmount;
                 }
-                if (_checkAmount) {
+                if (_remainingAmount != 0) {
                   return ValidatorMessage.invalidTotalAmount;
                 }
                 return null;
@@ -279,6 +289,11 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
                 return null;
               },
             ),
+            if (_splitExpense.splitMethod != Constant.splitEqually)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text("Remaining Amount: ${_remainingAmount.toStringAsFixed(2)}"),
+              ),
             if (_splitExpense.sharedRecords.isNotEmpty)
               ListView.builder(
                 shrinkWrap: true,
@@ -343,15 +358,18 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
                           },
                           onChanged: (value) {
                             setState(() {
-                              _splitExpense.splitMethod =
-                                  Constant.splitUnequally;
+                              _splitExpense.splitMethod = Constant.splitUnequally;
             
                               _splitExpense.sharedRecords[index].amount =
                                   double.tryParse(value) == null
                                       ? 0
                                       : double.parse(value);
+                              _didChangeAmount = true;
                             });
                           },
+                          onTap: _calRemainingAmount,
+                          onTapOutside: (_) => _calRemainingAmount,
+                          onEditingComplete: _calRemainingAmount,
                         ),
                       ),
                     ),

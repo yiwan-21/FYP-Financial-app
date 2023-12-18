@@ -7,7 +7,6 @@ import '../constants/message_constant.dart';
 import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
 import '../components/split_group_card.dart';
-import '../constants/constant.dart';
 import '../models/group_user.dart';
 import '../models/split_group.dart';
 import '../models/split_expense.dart';
@@ -439,8 +438,7 @@ class SplitMoneyService {
 
   static Future<dynamic> addExpense(SplitExpense expense) async {
     // add new 'expense' document
-    DocumentReference newExpense =
-        await groupsCollection.doc(_groupID).collection('expenses').add({
+    DocumentReference newExpense = await groupsCollection.doc(_groupID).collection('expenses').add({
       'title': expense.title,
       'amount': expense.amount,
       'paidAmount': expense.paidAmount,
@@ -453,19 +451,13 @@ class SplitMoneyService {
     await newExpense.update({'id': newExpense.id});
 
     // add new 'records' documents
-    for (var record in expense.sharedRecords) {
-      double amount = 0;
-      switch (expense.splitMethod) {
-        case Constant.splitEqually:
-          amount = expense.amount / expense.sharedRecords.length;
-          break;
-        case Constant.splitUnequally:
-          break;
-        default:
+    for (SplitRecord record in expense.sharedRecords) {
+      if (record.id == expense.paidBy.id) {
+        record.paidAmount = record.amount;
       }
       newExpense.collection('records').doc(record.id).set({
         'name': record.name,
-        'amount': amount,
+        'amount': record.amount,
         'paid': record.paidAmount,
         'date': DateTime.now(),
       });
