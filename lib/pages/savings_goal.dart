@@ -47,7 +47,9 @@ class _SavingsGoalState extends State<SavingsGoal> {
           ShowCaseWidget.of(context).startShowCase(_webKeys);
           _showcasingWebView = true;
         }
-        _runningShowcase = true;
+        setState(() {
+          _runningShowcase = true;
+        });
       });
     }
   }
