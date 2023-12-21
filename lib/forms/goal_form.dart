@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 
 import '../components/goal.dart';
 import '../constants/message_constant.dart';
-import '../firebase_instance.dart';
 import '../services/goal_service.dart';
 
 class GoalForm extends StatefulWidget {
@@ -42,8 +41,7 @@ class _GoalFormState extends State<GoalForm> {
       // Submit form data to server or database
       _formKey.currentState!.save();
       final newGoal = Goal(
-        goalID: _id,
-        userID: FirebaseInstance.auth.currentUser!.uid,
+        id: _id,
         title: _title,
         amount: _amount,
         saved: 0,

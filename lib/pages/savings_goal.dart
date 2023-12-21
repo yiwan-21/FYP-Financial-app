@@ -10,8 +10,8 @@ import '../constants/route_name.dart';
 import '../constants/style_constant.dart';
 import '../components/goal.dart';
 import '../components/showcase_frame.dart';
+import '../providers/goal_provider.dart';
 import '../providers/show_case_provider.dart';
-import '../providers/total_goal_provider.dart';
 
 class SavingsGoal extends StatefulWidget {
   const SavingsGoal({super.key});
@@ -122,9 +122,9 @@ class _SavingsGoalState extends State<SavingsGoal> {
                         ),
                       ),
                     ),
-              Consumer<TotalGoalProvider>(
-                builder: (context, totalGoalProvider, _) {
-                  List<Goal> goals = totalGoalProvider.getGoals;
+              Consumer<GoalProvider>(
+                builder: (context, goalProvider, _) {
+                  List<Goal> goals = goalProvider.goals;
                   if (!_runningShowcase) {
                     if (goals.isEmpty) {
                       return const Center(child: Text("No goal yet"));

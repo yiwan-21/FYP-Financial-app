@@ -30,8 +30,7 @@ class TourExample {
   );
 
   static final Goal goal = Goal(
-    goalID: 'example',
-    userID: 'example',
+    id: 'example',
     title: 'Example Goal',
     amount: 3000,
     saved: 0,

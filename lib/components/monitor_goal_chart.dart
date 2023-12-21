@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../providers/total_goal_provider.dart';
+import '../providers/goal_provider.dart';
 
 class MonitorGoalData {
   final String month;
@@ -41,9 +41,9 @@ class MonitorGoalChart extends StatefulWidget {
 class _MonitorGoalChartState extends State<MonitorGoalChart> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<TotalGoalProvider>(
-      builder: (context, totalGoalProvider, _) {
-        final List<MonitorGoalData> lineData = totalGoalProvider.getMonitorGoalData();
+    return Consumer<GoalProvider>(
+      builder: (context, goalProvider, _) {
+        final List<MonitorGoalData> lineData = goalProvider.getMonitorGoalData();
         return SfCartesianChart(
           primaryXAxis: CategoryAxis(),
           // Chart title

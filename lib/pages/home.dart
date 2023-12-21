@@ -17,10 +17,10 @@ import '../constants/home_constant.dart';
 import '../constants/route_name.dart';
 import '../firebase_instance.dart';
 import '../models/split_group.dart';
+import '../providers/goal_provider.dart';
 import '../providers/home_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/split_money_provider.dart';
-import '../providers/total_goal_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/show_case_provider.dart';
@@ -330,15 +330,15 @@ class _RecentGoalState extends State<RecentGoal> {
             ),
           ],
         ),
-        Consumer<TotalGoalProvider>(
-          builder: (context, totalGoalProvider, _) {
-            Goal? pinnedGoal = totalGoalProvider.getPinnedGoal;
-            if (pinnedGoal == null && totalGoalProvider.getGoals.isEmpty) {
+        Consumer<GoalProvider>(
+          builder: (context, goalProvider, _) {
+            Goal? pinnedGoal = goalProvider.pinnedGoal;
+            if (pinnedGoal == null && goalProvider.goals.isEmpty) {
               return const Center(
                 child: Text("No goal yet"),
               );
             }
-            return pinnedGoal ?? totalGoalProvider.getGoals.first;
+            return pinnedGoal ?? goalProvider.goals.first;
           },
         ),
       ],

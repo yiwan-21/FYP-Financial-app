@@ -47,8 +47,8 @@ class GoalService {
         .snapshots();
   }
 
-  static Future<dynamic> addGoal(newGoal) async {
-    return goalsCollection.add(newGoal.toCollection());
+  static Future<dynamic> addGoal(Goal newGoal) async {
+    return goalsCollection.add(newGoal.toFirestoreDocument());
   }
 
   static Future<void> addHistory(goalId, amount) async {
