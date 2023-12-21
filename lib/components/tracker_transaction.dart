@@ -49,7 +49,7 @@ class TrackerTransaction extends StatefulWidget {
   @override
   State<TrackerTransaction> createState() => _TrackerTransactionState();
 
-  Map<String, dynamic> toCollection() {
+  Map<String, dynamic> toFirestoreDocument() {
     return {
       'title': title,
       'notes': notes,

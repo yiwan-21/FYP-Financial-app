@@ -35,7 +35,7 @@ class TransactionService {
 
   static Future<void> addTransaction(TrackerTransaction newTransaction) async {
     await transactionCollection.add({
-      ...newTransaction.toCollection(),
+      ...newTransaction.toFirestoreDocument(),
       'userID': FirebaseInstance.auth.currentUser!.uid
     });
 
@@ -50,7 +50,7 @@ class TransactionService {
       TrackerTransaction previousTransaction) async {
     await transactionCollection
         .doc(editedTransaction.id)
-        .update(editedTransaction.toCollection());
+        .update(editedTransaction.toFirestoreDocument());
 
     await BudgetService.updateOnTransactionChanged(
         previousTransaction, editedTransaction);
