@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:financial_app/providers/total_transaction_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +21,7 @@ import '../providers/home_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/split_money_provider.dart';
 import '../providers/total_goal_provider.dart';
+import '../providers/transaction_provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/show_case_provider.dart';
 import '../services/bill_service.dart';
@@ -266,12 +266,12 @@ class _RecentTransactionsState extends State<RecentTransactions> {
             ),
           ],
         ),
-        Consumer<TotalTransactionProvider>(
-          builder: (context, totalTransactionProvider, _) {
-            if (totalTransactionProvider.getTransactions.isEmpty) {
+        Consumer<TransactionProvider>(
+          builder: (context, transactionProvider, _) {
+            if (transactionProvider.getTransactions.isEmpty) {
               return const Center(child: Text("No transaction yet"));
             }
-            List<TrackerTransaction> transactions = totalTransactionProvider.getTransactions.sublist(0, 3);
+            List<TrackerTransaction> transactions = transactionProvider.getTransactions.sublist(0, 3);
 
             return ListView.builder(
               shrinkWrap: true,

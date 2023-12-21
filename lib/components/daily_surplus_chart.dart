@@ -1,9 +1,9 @@
-import 'package:financial_app/providers/total_transaction_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../constants/constant.dart';
+import '../providers/transaction_provider.dart';
 
 class DailySurplusData {
   final DateTime date;
@@ -29,7 +29,7 @@ class DailySurplusChart extends StatefulWidget {
 class _DailySurplusChartState extends State<DailySurplusChart> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<TotalTransactionProvider>(
+    return Consumer<TransactionProvider>(
         builder: (context, totalTransactionProvider, _) {
           List<DailySurplusData> dailySurplusData = totalTransactionProvider.getDailySurplusData(widget.startDate, widget.endDate);
           if (dailySurplusData.isNotEmpty) {

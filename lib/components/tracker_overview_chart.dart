@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../providers/total_transaction_provider.dart';
+import '../providers/transaction_provider.dart';
 
 class TrackerOverviewData {
   TrackerOverviewData(this.month, this.expense, this.income, this.savingsGoal);
@@ -35,9 +35,9 @@ class TrackerOverviewGraph extends StatefulWidget {
 class _TrackerOverviewGraphState extends State<TrackerOverviewGraph> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<TotalTransactionProvider>(
-      builder: (context, totalTransactionProvider, _) {
-        final List<TrackerOverviewData> lineData = totalTransactionProvider.getTrackerOverviewData();
+    return Consumer<TransactionProvider>(
+      builder: (context, transactionProvider, _) {
+        final List<TrackerOverviewData> lineData = transactionProvider.getTrackerOverviewData();
         return SfCartesianChart(
           primaryXAxis: CategoryAxis(),
           // Chart title

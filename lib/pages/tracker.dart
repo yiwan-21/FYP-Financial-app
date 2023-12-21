@@ -10,8 +10,8 @@ import '../constants/route_name.dart';
 import '../components/category_chart.dart';
 import '../components/tracker_transaction.dart';
 import '../components/showcase_frame.dart';
-import '../providers/total_transaction_provider.dart';
 import '../providers/show_case_provider.dart';
+import '../providers/transaction_provider.dart';
 
 class Tracker extends StatefulWidget {
   const Tracker({super.key});
@@ -151,9 +151,9 @@ class _TrackerState extends State<Tracker> {
             ],
           ),
         ),
-        Consumer<TotalTransactionProvider>(
-          builder: ((context, totalTransactionProvider, _) {
-            List<TrackerTransaction> transactions = totalTransactionProvider.getTransactions;
+        Consumer<TransactionProvider>(
+          builder: ((context, transactionProvider, _) {
+            List<TrackerTransaction> transactions = transactionProvider.getTransactions;
             if (!_runningShowcase) {
               if (transactions.isEmpty) {
                 return const Center(child: Text("No transaction yet"));

@@ -4,7 +4,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../constants/constant.dart';
 import '../constants/style_constant.dart';
-import '../providers/total_transaction_provider.dart';
+import '../providers/transaction_provider.dart';
 
 class CategoryData {
   String title;
@@ -24,7 +24,7 @@ class CategoryChart extends StatefulWidget {
 class _CategoryChartState extends State<CategoryChart> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<TotalTransactionProvider>(
+    return Consumer<TransactionProvider>(
       builder: (context, totalTransactionProvider, _) {
         if (totalTransactionProvider.getPieChartData.isNotEmpty) {
           return SfCircularChart(

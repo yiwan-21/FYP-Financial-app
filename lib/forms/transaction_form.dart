@@ -95,9 +95,7 @@ class _TransactionFormState extends State<TransactionForm> {
       );
 
       // update budgeting if category is changed
-      TrackerTransaction previousTransaction =
-          Provider.of<TransactionProvider>(context, listen: false)
-              .getTransaction;
+      TrackerTransaction previousTransaction = Provider.of<TransactionProvider>(context, listen: false).transaction;
       await TransactionService.updateTransaction(editedTransaction, previousTransaction).then((_) {
         Navigator.pop(context);
       });
@@ -254,11 +252,11 @@ class _TransactionFormState extends State<TransactionForm> {
                           ? Constant.expenseCategories
                           : Constant.incomeCategories;
                       _categoryList = [..._categoryList, ...Constant.excludedCategories];
-                      if (!_categoryList.contains(transactionProvider.getCategory) || 
-                          (!widget.isEditing && Constant.excludedCategories.contains(transactionProvider.getCategory))) {
+                      if (!_categoryList.contains(transactionProvider.transaction.category) || 
+                          (!widget.isEditing && Constant.excludedCategories.contains(transactionProvider.transaction.category))) {
                         _category = _categoryList[0];
                       } else {
-                        _category = transactionProvider.getCategory;
+                        _category = transactionProvider.transaction.category;
                       }
                     });
                   },

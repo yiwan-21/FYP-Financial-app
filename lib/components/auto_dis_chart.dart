@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import '../providers/total_transaction_provider.dart';
+import '../providers/transaction_provider.dart';
 
 class AutoDisData {
   AutoDisData(this.month, this.autonomous, this.discretionary);
@@ -28,7 +28,7 @@ class AutoDisChart extends StatefulWidget {
 class _AutoDisChartState extends State<AutoDisChart> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<TotalTransactionProvider>(
+    return Consumer<TransactionProvider>(
       builder: (context, totalTransactionProvider, _) {
         final List<AutoDisData> barData = totalTransactionProvider.getAutoDisData();
         return SfCartesianChart(

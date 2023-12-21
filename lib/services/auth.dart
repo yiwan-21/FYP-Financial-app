@@ -11,13 +11,13 @@ import '../constants/route_name.dart';
 import '../providers/home_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/total_goal_provider.dart';
-import '../providers/total_transaction_provider.dart';
+import '../providers/transaction_provider.dart';
 import '../providers/user_provider.dart';
 
 class Auth {
   static void _navigateToHome(BuildContext context) {
     Provider.of<UserProvider>(context, listen: false).init();
-    Provider.of<TotalTransactionProvider>(context, listen: false).init();
+    Provider.of<TransactionProvider>(context, listen: false).init();
     Provider.of<TotalGoalProvider>(context, listen: false).init();
     Provider.of<HomeProvider>(context, listen: false).init();
     Navigator.pushNamedAndRemoveUntil(context, RouteName.home, (route) => false);
@@ -89,7 +89,7 @@ class Auth {
     await FirebaseInstance.auth.signOut().then((_) {
       Provider.of<NavigationProvider>(context, listen: false).reset();
       Provider.of<UserProvider>(context, listen: false).signOut();
-      Provider.of<TotalTransactionProvider>(context, listen: false).reset();
+      Provider.of<TransactionProvider>(context, listen: false).reset();
       Provider.of<TotalGoalProvider>(context, listen: false).reset();
       Provider.of<HomeProvider>(context, listen: false).reset();
       Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
