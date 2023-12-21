@@ -39,7 +39,7 @@ class NotificationProvider extends ChangeNotifier {
           if (!notificationItem.read) {
             _unread++;
           }
-          _notifications.add(notificationItem);
+          _notifications.insert(0, notificationItem);
           
         } else if (change.type == DocumentChangeType.modified) {
           // update the notification item

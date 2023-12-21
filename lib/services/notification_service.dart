@@ -130,7 +130,7 @@ class NotificationService {
     final String uid = FirebaseInstance.auth.currentUser!.uid;
     return notificationCollection
         .where('receiverID', arrayContains: uid)
-        .orderBy('createdAt', descending: true)
+        .orderBy('createdAt', descending: false)
         .snapshots();
   }
 
