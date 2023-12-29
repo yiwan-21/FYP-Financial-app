@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,8 +10,8 @@ import '../constants/route_name.dart';
 import '../constants/style_constant.dart';
 import '../components/goal.dart';
 import '../components/showcase_frame.dart';
+import '../providers/goal_provider.dart';
 import '../providers/show_case_provider.dart';
-import '../providers/total_goal_provider.dart';
 
 class SavingsGoal extends StatefulWidget {
   const SavingsGoal({super.key});
@@ -48,7 +47,9 @@ class _SavingsGoalState extends State<SavingsGoal> {
           ShowCaseWidget.of(context).startShowCase(_webKeys);
           _showcasingWebView = true;
         }
-        _runningShowcase = true;
+        setState(() {
+          _runningShowcase = true;
+        });
       });
     }
   }
@@ -121,27 +122,14 @@ class _SavingsGoalState extends State<SavingsGoal> {
                         ),
                       ),
                     ),
-              StreamBuilder<QuerySnapshot>(
-                stream: Provider.of<TotalGoalProvider>(context, listen: false)
-                    .getGoalsStream,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
+              Consumer<GoalProvider>(
+                builder: (context, goalProvider, _) {
+                  List<Goal> goals = goalProvider.goals;
                   if (!_runningShowcase) {
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    if (goals.isEmpty) {
                       return const Center(child: Text("No goal yet"));
                     }
                   }
-
-                  List<Goal> goals = snapshot.data!.docs
-                      .map((doc) => Goal.fromDocument(doc))
-                      .toList();
 
                   return ShowcaseFrame(
                     showcaseKey: _isMobile? _mobileKeys[1] : _webKeys[1],

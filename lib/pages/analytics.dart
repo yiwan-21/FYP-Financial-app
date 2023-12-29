@@ -7,8 +7,16 @@ import '../components/monitor_debt_chart.dart';
 import '../components/monitor_goal_chart.dart';
 import '../components/daily_surplus_chart.dart';
 
-class Analytics extends StatelessWidget {
+class Analytics extends StatefulWidget {
   const Analytics({super.key});
+
+  @override
+  State<Analytics> createState() => _AnalyticsState();
+}
+
+class _AnalyticsState extends State<Analytics> {
+  DateTime _surplusStartDate = DateTime(2023, 12, 5);
+  DateTime _surplusEndDate = DateTime(2023, 12, 11);
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +87,7 @@ class Analytics extends StatelessWidget {
               const SizedBox(height: verticalSpacing),
               isMobile ? portraitLayout() : landscapeLayout(),
               const SizedBox(height: verticalSpacing),
-              const DailySurplusChart(),
+              DailySurplusChart(_surplusStartDate, _surplusEndDate,),
               const SizedBox(height: verticalSpacing),
             ],
           );

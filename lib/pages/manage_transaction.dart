@@ -1,3 +1,4 @@
+import 'package:financial_app/components/tracker_transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart';
@@ -7,7 +8,6 @@ import '../constants/constant.dart';
 import '../constants/style_constant.dart';
 import '../forms/transaction_form.dart';
 import '../components/alert_confirm_action.dart';
-import '../providers/total_transaction_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../services/transaction_service.dart';
 
@@ -33,16 +33,15 @@ class _ManageTransactionState extends State<ManageTransaction> {
   void initState() {
     super.initState();
     if (widget.isEditing) {
-      final TransactionProvider transactionProvider =
-          Provider.of<TransactionProvider>(context, listen: false);
-
-      _id = transactionProvider.getId;
-      _title = transactionProvider.getTitle;
-      _notes = transactionProvider.getNotes;
-      _amount = transactionProvider.getAmount;
-      _date = transactionProvider.getDate;
-      _isExpense = transactionProvider.getIsExpense;
-      _category = transactionProvider.getCategory;
+      final TransactionProvider transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
+      TrackerTransaction transaction = transactionProvider.transaction;
+      _id = transaction.id;
+      _title = transaction.title;
+      _notes = transaction.notes;
+      _amount = transaction.amount;
+      _date = transaction.date;
+      _isExpense = transaction.isExpense;
+      _category = transaction.category;
       _categoryList = _isExpense ? Constant.expenseCategories : Constant.incomeCategories;
       _categoryList = [..._categoryList, ...Constant.excludedCategories];
     }
@@ -66,8 +65,6 @@ class _ManageTransactionState extends State<ManageTransaction> {
 
   void _deleteTransaction() async {
     await TransactionService.deleteTransaction(_id, _isExpense).then((_) {
-      Provider.of<TotalTransactionProvider>(context, listen: false)
-          .updateTransactions();
       // quit dialog box
       Navigator.pop(context);
       // quit edit transaction page

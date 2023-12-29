@@ -45,6 +45,13 @@ class Constant {
     ...incomeCategories,
   ];
 
+  static const List<String> autonomousExpenses = [
+      'Food',
+      'Transportation',
+      'Rental',
+      'Bill'
+    ];
+
   static const List<String> allCategories = [
     ...expenseCategories,
     ...incomeCategories,

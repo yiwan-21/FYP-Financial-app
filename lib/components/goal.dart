@@ -3,14 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../constants/route_name.dart';
+import '../firebase_instance.dart';
 import '../providers/goal_provider.dart';
-import '../providers/total_goal_provider.dart';
 import '../services/goal_service.dart';
 import '../utils/date_utils.dart';
 
 class Goal extends StatefulWidget {
-  final String goalID;
-  final String userID;
+  final String id;
   final String title;
   final double amount;
   final double saved;
@@ -19,8 +18,7 @@ class Goal extends StatefulWidget {
   final DateTime createdAt;
 
   const Goal(
-    {required this.goalID, 
-    required this.userID, 
+    {required this.id, 
     required this.title, 
     required this.amount, 
     required this.saved,
@@ -30,8 +28,16 @@ class Goal extends StatefulWidget {
     super.key});
 
   Goal.fromDocument(QueryDocumentSnapshot doc, {super.key})
-      : goalID = doc.id,
-        userID = doc['userID'],
+      : id = doc.id,
+        title = doc['title'],
+        amount = doc['amount'].toDouble(),
+        saved = doc['saved'].toDouble(),
+        targetDate = doc['targetDate'].toDate(),
+        pinned = doc['pinned'],
+        createdAt = doc['created_at'].toDate();
+  
+  Goal.fromSnapshot(DocumentSnapshot doc, {super.key})
+      : id = doc.id,
         title = doc['title'],
         amount = doc['amount'].toDouble(),
         saved = doc['saved'].toDouble(),
@@ -42,9 +48,9 @@ class Goal extends StatefulWidget {
   @override
   State<Goal> createState() => _GoalState();
 
-  Map<String, dynamic> toCollection() {
+  Map<String, dynamic> toFirestoreDocument() {
     return {
-      'userID': userID,
+      'userID': FirebaseInstance.auth.currentUser!.uid,
       'title': title,
       'amount': amount,
       'saved': saved,
@@ -63,34 +69,17 @@ class _GoalState extends State<Goal> {
   void _navigateToDetail() {
     final GoalProvider goalProvider = Provider.of<GoalProvider>(context, listen: false);
     goalProvider.setGoal(
-      widget.goalID,
+      widget.id,
       widget.title,
       widget.amount,
       widget.saved,
       widget.targetDate,
       widget.pinned,
+      widget.createdAt
     );
-    Navigator.pushNamed(context, RouteName.goalProgress).then((value) async {
-      if (mounted) {
-        final String id = goalProvider.getId;
-        bool pinned = goalProvider.getPinned;
-        TotalGoalProvider totalGoalProvider = Provider.of<TotalGoalProvider>(context, listen: false);
-        if (value == 'delete') {
-          if (pinned) {
-            totalGoalProvider.updatePinnedGoal();
-          }
-          return;
-        }
-
-        if (pinned) {
-          await GoalService.setPinned(id, true).then((_) {
-            totalGoalProvider.updatePinnedGoal();
-          });
-        } else {
-          await GoalService.updateSinglePinned(id, false).then((_) {
-            totalGoalProvider.updatePinnedGoal();
-          });
-        }
+    Navigator.pushNamed(context, RouteName.goalProgress).then((_) async {
+      if (goalProvider.isPinned != widget.pinned) {
+       await GoalService.setPinned(widget.id, goalProvider.isPinned);
       }
     });
   }

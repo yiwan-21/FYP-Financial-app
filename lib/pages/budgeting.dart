@@ -69,7 +69,9 @@ class _BudgetingState extends State<Budgeting> {
           ShowCaseWidget.of(context).startShowCase(_webKeys);
           _showcasingWebView = true;
         }
-        _runningShowcase = true;
+        setState(() {
+          _runningShowcase = true;
+        });
       });
     }
   }

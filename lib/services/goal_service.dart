@@ -1,10 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../constants/constant.dart';
 import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
 import '../components/goal.dart';
-import '../components/monitor_goal_chart.dart';
 import '../utils/date_utils.dart';
 import '../services/notification_service.dart';
 
@@ -49,8 +47,8 @@ class GoalService {
         .snapshots();
   }
 
-  static Future<dynamic> addGoal(newGoal) async {
-    return goalsCollection.add(newGoal.toCollection());
+  static Future<dynamic> addGoal(Goal newGoal) async {
+    return goalsCollection.add(newGoal.toFirestoreDocument());
   }
 
   static Future<void> addHistory(goalId, amount) async {
@@ -95,39 +93,6 @@ class GoalService {
   static Future<void> updateSinglePinned(targetID, pinned) async {
     await goalsCollection.doc(targetID).update({'pinned': false});
   }
-
-static Future<List<MonitorGoalData>> getlineData() async {
-  const int monthCount = 5;
-  List<MonitorGoalData> lineData = [];
-
-  final month = DateTime.now().month;
-
-  final goalsQuery = await goalsCollection
-        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-        .get();
-
-    for (int i = month - (monthCount - 1) - 1; i < month; i++) {
-      lineData.add(MonitorGoalData(Constant.monthLabels[i], 0, 0, 0, 0));
-    }
-
-    for (var goal in goalsQuery.docs) {
-      final monthIndex = DateTime.parse(goal['created_at'].toDate().toString()).month - (DateTime.now().month - (monthCount - 1));
-
-      if (monthIndex >= 0) {
-        if (goal['saved'] >= goal['amount']) {
-          lineData[monthIndex].addComplete(1);
-        } else if (goal['targetDate'].toDate().isBefore(getOnlyDate(DateTime.now())) && goal['saved'] < goal['amount']) {
-          lineData[monthIndex].addExpired(1);
-        } else if (!goal['targetDate'].toDate().isBefore(getOnlyDate(DateTime.now())) && goal['saved'] == 0) {
-          lineData[monthIndex].addToDo(1);
-        } else {
-          lineData[monthIndex].addInProgress(1);
-        }
-      }
-    }
-  
-  return lineData;
-}
 
 
   // Send Notification

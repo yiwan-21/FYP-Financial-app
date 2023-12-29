@@ -55,7 +55,9 @@ class _BillState extends State<Bill> {
           ShowCaseWidget.of(context).startShowCase(_webKeys);
           _showcasingWebView = true;
         }
-        _runningShowcase = true;
+        setState(() {
+          _runningShowcase = true;
+        });
       });
     }
   }

@@ -37,10 +37,19 @@ class TrackerTransaction extends StatefulWidget {
         isExpense = doc['isExpense'],
         category = doc['category'];
 
+  TrackerTransaction.fromSnapshot(DocumentSnapshot doc, {super.key})
+      : id = doc.id,
+        title = doc['title'],
+        notes = doc['notes'],
+        amount = doc['amount'].toDouble(),
+        date = doc['date'].toDate(),
+        isExpense = doc['isExpense'],
+        category = doc['category'];
+
   @override
   State<TrackerTransaction> createState() => _TrackerTransactionState();
 
-  Map<String, dynamic> toCollection() {
+  Map<String, dynamic> toFirestoreDocument() {
     return {
       'title': title,
       'notes': notes,

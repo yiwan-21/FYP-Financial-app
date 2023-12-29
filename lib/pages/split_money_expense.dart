@@ -15,7 +15,6 @@ import '../models/split_record.dart';
 import '../pages/chat.dart';
 import '../providers/notification_provider.dart';
 import '../providers/split_money_provider.dart';
-import '../providers/total_transaction_provider.dart';
 import '../services/chat_service.dart';
 import '../services/notification_service.dart';
 import '../services/split_money_service.dart';
@@ -318,10 +317,7 @@ class _ExpenseRecordsState extends State<ExpenseRecords> {
       notes:
           'Auto Generated: Pay RM ${widget.expense.amount.toStringAsFixed(2)} to ${widget.expense.paidBy.name}',
     );
-    await TransactionService.addTransaction(newTransaction).then((_) {
-      Provider.of<TotalTransactionProvider>(context, listen: false)
-          .updateTransactions();
-    });
+    await TransactionService.addTransaction(newTransaction);
   }
 
   Future<void> _remind() async {

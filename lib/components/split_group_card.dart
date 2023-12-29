@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,6 +11,10 @@ class SplitGroupCard extends StatefulWidget {
   final String groupName;
 
   const SplitGroupCard(this.groupID, {required this.groupName, super.key});
+
+  SplitGroupCard.fromSnapshot(DocumentSnapshot doc, {super.key}) 
+    : groupID = doc.id,
+      groupName = doc['name'];
 
   @override
   State<SplitGroupCard> createState() => _SplitGroupCardState();
@@ -45,10 +50,10 @@ class _SplitGroupCardState extends State<SplitGroupCard> {
                     backgroundImage: NetworkImage(snapshot.data as String),
                   );
                 } else {
-                  return const Icon(
-                    Icons.diversity_3,
-                    size: 55,
-                    color: Colors.black,
+                  return const CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Colors.transparent,
+                    backgroundImage: AssetImage('assets/images/group.png'),
                   );
                 }
               },

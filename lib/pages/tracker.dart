@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,8 +10,8 @@ import '../constants/route_name.dart';
 import '../components/category_chart.dart';
 import '../components/tracker_transaction.dart';
 import '../components/showcase_frame.dart';
-import '../providers/total_transaction_provider.dart';
 import '../providers/show_case_provider.dart';
+import '../providers/transaction_provider.dart';
 
 class Tracker extends StatefulWidget {
   const Tracker({super.key});
@@ -32,7 +31,6 @@ class _TrackerState extends State<Tracker> {
     GlobalKey(),
   ];
   bool _runningShowcase = false;
-  bool _avoidDataFetch = true;
 
   @override
   void initState() {
@@ -49,29 +47,19 @@ class _TrackerState extends State<Tracker> {
           });
         });
       });
-    } else {
-      _avoidDataFetch = false;
     }
   }
 
   void _addTransaction() {
     if (Constant.isMobile(context) && !kIsWeb) {
-      Navigator.pushNamed(context, RouteName.manageTransaction, arguments: {'isEditing': false}).then((value) {
-        if (value != null && value is TrackerTransaction) {
-          Provider.of<TotalTransactionProvider>(context, listen: false)
-              .updateTransactions();
-        }
-      });
+      Navigator.pushNamed(context, RouteName.manageTransaction, arguments: {'isEditing': false});
     } else {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return const ManageTransaction(false);
         },
-      ).then((_) {
-        Provider.of<TotalTransactionProvider>(context, listen: false)
-            .updateTransactions();
-      });
+      );
     }
   }
 
@@ -163,29 +151,13 @@ class _TrackerState extends State<Tracker> {
             ],
           ),
         ),
-        StreamBuilder<QuerySnapshot>(
-          stream: Provider.of<TotalTransactionProvider>(context, listen: false)
-              .getAllTransactionsStream,
-          builder: ((context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return Text('Something went wrong: ${snapshot.error}');
-            }
+        Consumer<TransactionProvider>(
+          builder: ((context, transactionProvider, _) {
+            List<TrackerTransaction> transactions = transactionProvider.getTransactions;
             if (!_runningShowcase) {
-              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              if (transactions.isEmpty) {
                 return const Center(child: Text("No transaction yet"));
               }
-            }
-            List<TrackerTransaction> transactions = [];
-            if (!_avoidDataFetch) {
-              transactions = snapshot.data!.docs
-                  .where((doc) =>
-                      _selectedItem == Constant.noFilter ||
-                      doc['category'] == _selectedItem)
-                  .map((doc) => TrackerTransaction.fromDocument(doc))
-                  .toList();
             }
             return ShowcaseFrame(
               showcaseKey: _keys[1],

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../constants/constant.dart';
-import '../services/transaction_service.dart';
+import '../providers/transaction_provider.dart';
 
 class DailySurplusData {
   final DateTime date;
@@ -16,22 +17,22 @@ class DailySurplusData {
 }
 
 class DailySurplusChart extends StatefulWidget {
-  const DailySurplusChart({super.key});
+  final DateTime startDate;
+  final DateTime endDate;
+
+  const DailySurplusChart(this.startDate, this.endDate, {super.key});
 
   @override
   State<DailySurplusChart> createState() => _DailySurplusChartState();
 }
 
 class _DailySurplusChartState extends State<DailySurplusChart> {
-  final Future<List<DailySurplusData>> _splineData = TransactionService.getSplineData();
-
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: _splineData,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done &&
-              snapshot.data != null) {
+    return Consumer<TransactionProvider>(
+        builder: (context, totalTransactionProvider, _) {
+          List<DailySurplusData> dailySurplusData = totalTransactionProvider.getDailySurplusData(widget.startDate, widget.endDate);
+          if (dailySurplusData.isNotEmpty) {
             return SfCartesianChart(
               primaryXAxis: CategoryAxis(title: AxisTitle(text: 'Date')),
               // Chart title
@@ -53,7 +54,7 @@ class _DailySurplusChartState extends State<DailySurplusChart> {
               },
               series: <ChartSeries<DailySurplusData, String>>[
                 SplineSeries(
-                  dataSource: snapshot.data!,
+                  dataSource: dailySurplusData,
                   xValueMapper: (DailySurplusData record, _) => '${Constant.monthLabels[record.date.month - 1]} ${record.date.day}',
                   yValueMapper: (DailySurplusData record, _) => record.surplus,
                   dataLabelSettings: const DataLabelSettings(

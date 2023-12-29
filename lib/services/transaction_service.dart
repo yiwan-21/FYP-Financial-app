@@ -1,13 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../firebase_instance.dart';
-import '../utils/date_utils.dart';
 import '../constants/constant.dart';
 import '../components/history_card.dart';
 import '../components/tracker_transaction.dart';
-import '../components/tracker_overview_chart.dart';
-import '../components/auto_dis_chart.dart';
-import '../components/daily_surplus_chart.dart';
 import '../services/budget_service.dart';
 
 class TransactionService {
@@ -18,7 +14,7 @@ class TransactionService {
     if (FirebaseInstance.auth.currentUser != null) {
       return transactionCollection
           .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-          .orderBy('date', descending: true)
+          .orderBy('date', descending: false)
           .snapshots();
     } else {
       return const Stream.empty();
@@ -39,7 +35,7 @@ class TransactionService {
 
   static Future<void> addTransaction(TrackerTransaction newTransaction) async {
     await transactionCollection.add({
-      ...newTransaction.toCollection(),
+      ...newTransaction.toFirestoreDocument(),
       'userID': FirebaseInstance.auth.currentUser!.uid
     });
 
@@ -54,7 +50,7 @@ class TransactionService {
       TrackerTransaction previousTransaction) async {
     await transactionCollection
         .doc(editedTransaction.id)
-        .update(editedTransaction.toCollection());
+        .update(editedTransaction.toFirestoreDocument());
 
     await BudgetService.updateOnTransactionChanged(
         previousTransaction, editedTransaction);
@@ -102,122 +98,6 @@ class TransactionService {
     });
     return data;
   }
-
-  static Future<List<TrackerOverviewData>> getLineData() async {
-    const int monthCount = 5;
-    final List<TrackerOverviewData> lineData = [];
-    // fill lineData with TrackerOverviewData objects
-    final month = DateTime.now().month;
-    for (int i = month - (monthCount - 1) - 1; i < month; i++) {
-      lineData.add(TrackerOverviewData(Constant.monthLabels[i], 0, 0, 0));
-    }
-    int monthIndex = 0;
-
-    if (FirebaseInstance.auth.currentUser == null) {
-      return lineData;
-    }
-    
-    await transactionCollection
-        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-        .orderBy('date', descending: true)
-        .get()
-        .then((value) => {
-      for (var transaction in value.docs) {
-        monthIndex = DateTime.parse(transaction['date'].toDate().toString()).month - (DateTime.now().month - (monthCount - 1)),
-        if (monthIndex >= 0) {
-          if(transaction['category'] == "Savings Goal")
-          {
-              lineData[monthIndex].addSavingsGoal(transaction['amount'].toDouble())
-          }
-          else
-          {
-            if (transaction['isExpense']) {
-              lineData[monthIndex].addExpense(transaction['amount'].toDouble())
-            } else {
-              lineData[monthIndex].addIncome(transaction['amount'].toDouble())
-            }
-          }
-        }
-      }
-    });
-    return lineData;
-  }
-
-  static Future<List<AutoDisData>> getBarData() async {
-    const int monthCount = 5;
-    final List<String> autonomous = [
-      'Food',
-      'Transportation',
-      'Rental',
-      'Bill'
-    ];
-    final List<AutoDisData> barData = [];
-    // fill barData with AutoDisData objects
-    final month = DateTime.now().month;
-    for (int i = month - (monthCount - 1) - 1; i < month; i++) {
-      barData.add(AutoDisData(Constant.monthLabels[i], 0, 0));
-    }
-    int monthIndex = 0;
-
-    List<String> categories = Constant.analyticsCategories;
-    await transactionCollection
-        .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-        .where('category', whereIn: categories)
-        .orderBy('date', descending: true)
-        .get()
-        .then((value) => {
-      for (var transaction in value.docs) {
-        monthIndex = DateTime.parse(transaction['date'].toDate().toString()).month -
-            (DateTime.now().month - (monthCount - 1)),
-        if (monthIndex >= 0 && transaction['isExpense']) {
-          if (autonomous.contains(transaction['category'])) {
-            barData[monthIndex]
-                .addAutonomous(transaction['amount'].toDouble())
-          } else {
-            barData[monthIndex].addDiscretionary(
-                transaction['amount'].toDouble())
-          }
-        }
-      }
-    });
-    return barData;
-  }
-
-static Future<List<DailySurplusData>> getSplineData() async {
-  final List<DailySurplusData> splineData = [];
-
-  final DateTime displayDays = DateTime.now().subtract(const Duration(days: 6));
-  final DateTime startOfDay = DateTime(displayDays.year, displayDays.month, displayDays.day);
-
-  // fill SplineData with DailySurplusData objects
-  for (int i = 0; i < 7; i++) {
-    splineData.add(DailySurplusData(displayDays.add(Duration(days: i)), 0));
-  }
-
-  await transactionCollection
-      .where('userID', isEqualTo: FirebaseInstance.auth.currentUser!.uid)
-      .where('date', isGreaterThanOrEqualTo: startOfDay)
-      .get()
-      .then((snapshot) {
-    if (snapshot.docs.isNotEmpty) {
-      for (var transaction in snapshot.docs) {
-        final DateTime transactionDate = transaction['date'].toDate();
-        final double surplus = transaction['isExpense']
-            ? -transaction['amount'].toDouble()
-            : transaction['amount'].toDouble();
-
-        int existingIndex = splineData.indexWhere((data) => getOnlyDate(data.date).isAtSameMomentAs(getOnlyDate(transactionDate)));
-
-        if (existingIndex != -1) {
-          splineData[existingIndex].addSurplus(surplus);
-        }
-      }
-    }
-  });
-
-  return splineData;
-}
-
 
   // Budgeting
   static Future<double> getExpenseByCategory(

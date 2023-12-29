@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../components/alert_with_checkbox.dart';
+import '../components/goal.dart';
 import '../components/history_card.dart';
 import '../components/tracker_transaction.dart';
 import '../components/growing_tree.dart';
 import '../components/alert_confirm_action.dart';
 import '../constants/constant.dart';
 import '../providers/goal_provider.dart';
-import '../providers/total_transaction_provider.dart';
 import '../services/goal_service.dart';
 import '../services/transaction_service.dart';
 
@@ -30,11 +30,11 @@ class _GoalDetailState extends State<GoalDetail> {
   @override
   void initState() {
     super.initState();
-    final GoalProvider goalProvider =
-        Provider.of<GoalProvider>(context, listen: false);
-    _id = goalProvider.getId;
-    _title = goalProvider.getTitle;
-    _pinned = goalProvider.getPinned;
+    final GoalProvider goalProvider = Provider.of<GoalProvider>(context, listen: false);
+    final Goal goal = goalProvider.goal;
+    _id = goal.id;
+    _title = goal.title;
+    _pinned = goal.pinned;
   }
 
   void _deleteDialog() {
@@ -69,10 +69,10 @@ class _GoalDetailState extends State<GoalDetail> {
   }
 
   void _deleteGoal(bool didSpent) async {
-    final double saved = Provider.of<GoalProvider>(context, listen: false).getSaved;
+    final Goal goal = Provider.of<GoalProvider>(context, listen: false).goal;
     // savings goal expense (debit)
     // cash account income (credit)
-    if (saved > 0) {
+    if (goal.saved > 0) {
       if (didSpent) {
         // final TrackerTransaction expenseTransaction = TrackerTransaction(
         //   id: '',
@@ -91,7 +91,7 @@ class _GoalDetailState extends State<GoalDetail> {
         final TrackerTransaction expenseTransaction = TrackerTransaction(
           id: '',
           title: 'Cancelled Goal: $_title',
-          amount: saved,
+          amount: goal.saved,
           date: DateTime.now(),
           isExpense: true,
           category: 'Savings Goal',
@@ -102,15 +102,13 @@ class _GoalDetailState extends State<GoalDetail> {
         final TrackerTransaction incomeTransaction = TrackerTransaction(
           id: '',
           title: 'Cancelled Goal: $_title',
-          amount: saved,
+          amount: goal.saved,
           date: DateTime.now(),
           isExpense: false,
           category: 'Savings Goal',
           notes: 'Auto Generated: Credit to Cash Account',
         );
-        await TransactionService.addTransaction(incomeTransaction).then((_) async {
-          await Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
-        });
+        await TransactionService.addTransaction(incomeTransaction);
       }
     }
     
@@ -255,17 +253,17 @@ class _GoalProgressState extends State<GoalProgress> {
   @override
   void initState() {
     super.initState();
-    final GoalProvider goalProvider =
-        Provider.of<GoalProvider>(context, listen: false);
-    _id = goalProvider.getId;
-    _title = goalProvider.getTitle;
-    _totalAmount = goalProvider.getAmount;
-    _saved = goalProvider.getSaved;
-    _remaining = goalProvider.getRemaining;
+    final GoalProvider goalProvider = Provider.of<GoalProvider>(context, listen: false);
+    final Goal goal = goalProvider.goal;
+    _id = goal.id;
+    _title = goal.title;
+    _totalAmount = goal.amount;
+    _saved = goal.saved;
+    _remaining = goalProvider.goalRemaining;
 
     _progress = _saved / _totalAmount * 100;
 
-    _days = goalProvider.targetDate.difference(DateTime.now()).abs().inDays + 1;
+    _days = goal.targetDate.difference(DateTime.now()).abs().inDays + 1;
     _daily = _remaining / _days;
     _weekly = _remaining / (_days / 7).ceil();
     _monthly = _remaining / (_days / 30).ceil();
@@ -290,7 +288,6 @@ class _GoalProgressState extends State<GoalProgress> {
     });
 
     _updateProgress();
-    Provider.of<GoalProvider>(context, listen: false).setSaved(_saved);
     await GoalService.updateGoalSavedAmount(_id, _saved);
     await GoalService.addHistory(_id, value);
     await _addTransactionRecords(value);
@@ -334,9 +331,7 @@ class _GoalProgressState extends State<GoalProgress> {
       category: 'Savings Goal',
       notes: 'Auto Generated: Credit to Savings Goal: $_title',
     );
-    await TransactionService.addTransaction(incomeTransaction).then((_) async {
-      await Provider.of<TotalTransactionProvider>(context, listen: false).updateTransactions();
-    });
+    await TransactionService.addTransaction(incomeTransaction);
   }
 
   @override
@@ -502,9 +497,9 @@ class _GoalHistoryState extends State<GoalHistory> {
   @override
   void initState() {
     super.initState();
-    final GoalProvider goalProvider =
-        Provider.of<GoalProvider>(context, listen: false);
-    _stream = GoalService.getHistoryStream(goalProvider.id);
+    final GoalProvider goalProvider = Provider.of<GoalProvider>(context, listen: false);
+    final Goal goal = goalProvider.goal;
+    _stream = GoalService.getHistoryStream(goal.id);
   }
 
   @override

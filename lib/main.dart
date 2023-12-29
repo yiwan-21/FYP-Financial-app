@@ -28,8 +28,6 @@ import './constants/route_name.dart';
 import './constants/style_constant.dart';
 import './providers/goal_provider.dart';
 import './providers/navigation_provider.dart';
-import './providers/total_goal_provider.dart';
-import './providers/total_transaction_provider.dart';
 import './providers/user_provider.dart';
 import './providers/transaction_provider.dart';
 import './providers/split_money_provider.dart';
@@ -60,8 +58,6 @@ void main() async {
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
         ChangeNotifierProvider(create: (_) => GoalProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
-        ChangeNotifierProvider(create: (_) => TotalTransactionProvider()),
-        ChangeNotifierProvider(create: (_) => TotalGoalProvider()),
         ChangeNotifierProvider(create: (_) => SplitMoneyProvider()),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => HomeProvider()),

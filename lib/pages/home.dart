@@ -17,16 +17,16 @@ import '../constants/home_constant.dart';
 import '../constants/route_name.dart';
 import '../firebase_instance.dart';
 import '../models/split_group.dart';
+import '../providers/goal_provider.dart';
 import '../providers/home_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/split_money_provider.dart';
-import '../providers/total_goal_provider.dart';
+import '../providers/transaction_provider.dart';
 import '../providers/user_provider.dart';
 import '../providers/show_case_provider.dart';
 import '../services/bill_service.dart';
 import '../services/budget_service.dart';
 import '../services/split_money_service.dart';
-import '../services/transaction_service.dart';
 import '../utils/date_utils.dart';
 
 class Home extends StatefulWidget {
@@ -232,16 +232,6 @@ class RecentTransactions extends StatefulWidget {
 }
 
 class _RecentTransactionsState extends State<RecentTransactions> {
-  Stream<QuerySnapshot> _stream = const Stream.empty();
-
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      _stream = TransactionService.getHomeTransactionStream();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -276,25 +266,13 @@ class _RecentTransactionsState extends State<RecentTransactions> {
             ),
           ],
         ),
-        StreamBuilder<QuerySnapshot>(
-          stream: _stream,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-            if (snapshot.hasError) {
-              return Text('Something went wrong: ${snapshot.error}');
-            }
-            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+        Consumer<TransactionProvider>(
+          builder: (context, transactionProvider, _) {
+            if (transactionProvider.getTransactions.isEmpty) {
               return const Center(child: Text("No transaction yet"));
             }
+            List<TrackerTransaction> transactions = transactionProvider.getTransactions.sublist(0, 3);
 
-            List<TrackerTransaction> transactions = snapshot.data!.docs
-                .take(3)
-                .map((doc) => TrackerTransaction.fromDocument(doc))
-                .toList();
             return ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -352,22 +330,15 @@ class _RecentGoalState extends State<RecentGoal> {
             ),
           ],
         ),
-        Consumer<TotalGoalProvider>(
-          builder: (context, totalGoalProvider, _) {
-            List<Goal> goal = totalGoalProvider.getPinnedGoal;
-            if (goal.isEmpty) {
+        Consumer<GoalProvider>(
+          builder: (context, goalProvider, _) {
+            Goal? pinnedGoal = goalProvider.pinnedGoal;
+            if (pinnedGoal == null && goalProvider.goals.isEmpty) {
               return const Center(
                 child: Text("No goal yet"),
               );
             }
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: goal.length,
-              itemBuilder: (context, index) {
-                return goal[index];
-              },
-            );
+            return pinnedGoal ?? goalProvider.goals.first;
           },
         ),
       ],
