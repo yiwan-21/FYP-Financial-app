@@ -1,3 +1,4 @@
+import 'package:financial_app/providers/split_money_provider.dart';
 import 'package:financial_app/services/budget_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class Auth {
     Provider.of<UserProvider>(context, listen: false).init();
     Provider.of<TransactionProvider>(context, listen: false).init();
     Provider.of<GoalProvider>(context, listen: false).init();
+    Provider.of<SplitMoneyProvider>(context, listen: false).init();
     Provider.of<HomeProvider>(context, listen: false).init();
     Navigator.pushNamedAndRemoveUntil(context, RouteName.home, (route) => false);
   }
@@ -91,6 +93,7 @@ class Auth {
       Provider.of<UserProvider>(context, listen: false).signOut();
       Provider.of<TransactionProvider>(context, listen: false).reset();
       Provider.of<GoalProvider>(context, listen: false).reset();
+      Provider.of<SplitMoneyProvider>(context, listen: false).reset();
       Provider.of<HomeProvider>(context, listen: false).reset();
       Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
     });
