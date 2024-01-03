@@ -77,8 +77,8 @@ class _GoalState extends State<Goal> {
       widget.pinned,
       widget.createdAt
     );
-    Navigator.pushNamed(context, RouteName.goalProgress).then((_) async {
-      if (goalProvider.isPinned != widget.pinned) {
+    Navigator.pushNamed(context, RouteName.goalProgress).then((res) async {
+      if (res != "delete" && goalProvider.isPinned != widget.pinned) {
        await GoalService.setPinned(widget.id, goalProvider.isPinned);
       }
     });
