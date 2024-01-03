@@ -62,6 +62,9 @@ class GoalProvider extends ChangeNotifier {
   }
 
   void init() {
+    if (_listener != null) {
+      _listener?.cancel();
+    }
     _listener = GoalService.getAllGoalStream().listen((event) {
       event.metadata.isFromCache
           ? debugPrint("Goal Stream: Data from local cache")

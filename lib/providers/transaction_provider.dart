@@ -47,6 +47,9 @@ class TransactionProvider extends ChangeNotifier {
   }
 
   void init() {
+    if (_listener != null) {
+      _listener?.cancel();
+    }
     _listener = TransactionService.getAllTransactionStream().listen((event) {
       event.metadata.isFromCache
           ? debugPrint("Tracker Stream: Data from local cache")
