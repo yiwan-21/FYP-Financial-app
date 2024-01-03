@@ -109,14 +109,15 @@ class GoalProvider extends ChangeNotifier {
     List<MonitorGoalData> lineData = [];
 
     final month = DateTime.now().month;
+    final monthRange = [];
 
-    for (int i = month - (monthCount - 1) - 1; i < month; i++) {
-      lineData.add(MonitorGoalData(Constant.monthLabels[i], 0, 0, 0, 0));
+    for (int i = (month + 12) - (monthCount - 1) - 1; i < month + 12; i++) {
+      lineData.add(MonitorGoalData(Constant.monthLabels[(i % 12)], 0, 0, 0, 0));
+      monthRange.add((i % 12) + 1);
     }
 
     for (Goal goal in _goals) {
-      final monthIndex = goal.createdAt.month - (month - (monthCount - 1));
-
+      int monthIndex = monthRange.indexOf(goal.createdAt.month);
       if (monthIndex >= 0) {
         if (goal.saved >= goal.amount) {
           lineData[monthIndex].addComplete(1);
