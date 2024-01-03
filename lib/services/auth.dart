@@ -10,6 +10,7 @@ import '../constants/route_name.dart';
 import '../services/budget_service.dart';
 import '../providers/goal_provider.dart';
 import '../providers/home_provider.dart';
+import '../providers/notification_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/user_provider.dart';
@@ -22,6 +23,7 @@ class Auth {
     Provider.of<GoalProvider>(context, listen: false).init();
     Provider.of<SplitMoneyProvider>(context, listen: false).init();
     Provider.of<HomeProvider>(context, listen: false).init();
+    Provider.of<NotificationProvider>(context, listen: false).init();
     Navigator.pushNamedAndRemoveUntil(context, RouteName.home, (route) => false);
   }
 
@@ -95,6 +97,7 @@ class Auth {
       Provider.of<GoalProvider>(context, listen: false).reset();
       Provider.of<SplitMoneyProvider>(context, listen: false).reset();
       Provider.of<HomeProvider>(context, listen: false).reset();
+      Provider.of<NotificationProvider>(context, listen: false).reset();
       Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
     });
   }
