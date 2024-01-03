@@ -89,10 +89,23 @@ class TransactionProvider extends ChangeNotifier {
           double prevAmount = _transactions[index].amount;
           DateTime prevDate = getOnlyDate(_transactions[index].date);
           bool prevIsExpense = _transactions[index].isExpense;
+          String prevCategory = _transactions[index].category;
           //// update the transaction
           _transactions[index] = TrackerTransaction.fromSnapshot(change.doc);
           //// update the pie chart data
-          _pieChartData[category] = _pieChartData[category]! - prevAmount + amount;
+          if (Constant.expenseCategories.contains(prevCategory)) {
+            _pieChartData[prevCategory] = _pieChartData[prevCategory]! - prevAmount;
+            if (_pieChartData[prevCategory] == 0) {
+              _pieChartData.remove(prevCategory);
+            }
+          }
+          if (Constant.expenseCategories.contains(category)) {
+            if (_pieChartData.containsKey(category)) {
+              _pieChartData[category] = _pieChartData[category]! + amount;
+            } else {
+              _pieChartData[category] = amount;
+            }
+          }
           //// update the daily surplus data
           for (DailySurplusData data in _dailySurplusData) {
             // process the previous date
@@ -113,6 +126,9 @@ class TransactionProvider extends ChangeNotifier {
           //// update the pie chart data
           if (Constant.expenseCategories.contains(category)) {
             _pieChartData[category] = _pieChartData[category]! - amount;
+            if (_pieChartData[category] == 0) {
+              _pieChartData.remove(category);
+            }
           }
           //// update the daily surplus data
           for (DailySurplusData data in _dailySurplusData) {
