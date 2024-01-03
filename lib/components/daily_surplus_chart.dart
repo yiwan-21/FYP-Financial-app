@@ -121,14 +121,15 @@ class _DailySurplusChartState extends State<DailySurplusChart> {
             }
           },
         ),
-        const SizedBox(height: 10),
-        const Text(
-            'Choose either the start or end date for Daily Surplus or Deficit chart',
-            style: TextStyle(
-              color: Colors.blueAccent,
-              fontSize: 12,
-            )),
-        const SizedBox(height: 15),
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+          child: Text(
+              'Choose either the start or end date for Daily Surplus or Deficit chart',
+              style: TextStyle(
+                color: Colors.blueAccent,
+                fontSize: 12,
+              )),
+        ),
         Form(
             key: _formKey,
             child: Row(
