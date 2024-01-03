@@ -85,63 +85,71 @@ class _ManageGroupState extends State<ManageGroup> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 widget.isEditing && !setGroupImage
-                ? Consumer<SplitMoneyProvider>(
-                  builder: (context, splitMoneyProvider, _) {
-                    if (splitMoneyProvider.image != null) {
-                      return GestureDetector(
-                        onTap: _setGroupImage,
-                        child: CircleAvatar(
-                          radius: 60,
-                          backgroundColor: Colors.transparent,
-                          backgroundImage: NetworkImage(splitMoneyProvider.image!),
-                        ),
-                      );
-                    } else {
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Material(
-                          child: InkWell(
-                            onTap: _setGroupImage,
-                            child: const Icon(
-                              Icons.add_a_photo,
-                              size: 60,
+                    ? Consumer<SplitMoneyProvider>(
+                        builder: (context, splitMoneyProvider, _) {
+                          if (splitMoneyProvider.image != null) {
+                            return Column(
+                              children: [
+                                GestureDetector(
+                                  onTap: _setGroupImage,
+                                  child: CircleAvatar(
+                                    radius: 60,
+                                    backgroundColor: Colors.transparent,
+                                    backgroundImage:
+                                        NetworkImage(splitMoneyProvider.image!),
+                                  ),
+                                ),
+                                const SizedBox(height: 25),
+                                Text('Click the image to edit the Group Photo', style: TextStyle(fontSize: 12, color: Colors.grey[600]))
+                              ],
+                            );
+                          } else {
+                            return Container(
+                              margin: kIsWeb? const EdgeInsets.symmetric(horizontal: 30): const EdgeInsets.all(0),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Material(
+                                child: InkWell(
+                                  onTap: _setGroupImage,
+                                  child: const Icon(
+                                    Icons.add_a_photo,
+                                    size: 60,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      )
+                    : setGroupImage
+                        ? kIsWeb
+                            ? CircleAvatar(
+                                radius: 60,
+                                backgroundColor: Colors.transparent,
+                                backgroundImage: MemoryImage(pickedImage),
+                              )
+                            : CircleAvatar(
+                                radius: 60,
+                                backgroundColor: Colors.transparent,
+                                backgroundImage: FileImage(pickedImage),
+                              )
+                        : Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Material(
+                              child: InkWell(
+                                onTap: _setGroupImage,
+                                child: const Icon(
+                                  Icons.add_a_photo,
+                                  size: 60,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    }
-                  },
-                )
-                : setGroupImage
-                ? kIsWeb
-                  ? CircleAvatar(
-                      radius: 60,
-                      backgroundColor: Colors.transparent,
-                      backgroundImage: MemoryImage(pickedImage),
-                    )
-                  : CircleAvatar(
-                      radius: 60,
-                      backgroundColor: Colors.transparent,
-                      backgroundImage: FileImage(pickedImage),
-                    )
-                : Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Material(
-                      child: InkWell(
-                        onTap: _setGroupImage,
-                        child: const Icon(
-                          Icons.add_a_photo,
-                          size: 60,
-                        ),
-                      ),
-                    ),
-                  ),
                 const SizedBox(width: 20, height: 20),
                 Flexible(
                   child: TextFormField(
