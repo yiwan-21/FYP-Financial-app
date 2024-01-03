@@ -62,6 +62,9 @@ class GoalProvider extends ChangeNotifier {
   }
 
   void init() {
+    if (_listener != null) {
+      _listener?.cancel();
+    }
     _listener = GoalService.getAllGoalStream().listen((event) {
       event.metadata.isFromCache
           ? debugPrint("Goal Stream: Data from local cache")
@@ -77,19 +80,17 @@ class GoalProvider extends ChangeNotifier {
         } else if (change.type == DocumentChangeType.modified) {
           int index = _goals.indexWhere((element) => element.id == change.doc.id);
           _goals[index] = Goal.fromSnapshot(change.doc);
+          if (change.doc.id == _pinnedGoal?.id) {
+            _pinnedGoal = Goal.fromSnapshot(change.doc);
+          }
         } else if (change.type == DocumentChangeType.removed) {
           _goals.removeWhere((element) => element.id == change.doc.id);
-        }
-        if (change.doc['pinned']) {
-          _pinnedGoal = Goal.fromSnapshot(change.doc);
-        }
-      }
-      if (_pinnedGoal == null && _goals.isNotEmpty) {
-        for (Goal goal in _goals) {
-          if (goal.amount > goal.saved) {
-            _pinnedGoal = goal;
-            break;
+          if (change.doc.id == _pinnedGoal?.id) {
+            _pinnedGoal = null;
           }
+        }
+        if (change.doc['pinned'] && change.type != DocumentChangeType.removed) {
+          _pinnedGoal = Goal.fromSnapshot(change.doc);
         }
       }
       _sortGoals();
@@ -109,14 +110,15 @@ class GoalProvider extends ChangeNotifier {
     List<MonitorGoalData> lineData = [];
 
     final month = DateTime.now().month;
+    final monthRange = [];
 
-    for (int i = month - (monthCount - 1) - 1; i < month; i++) {
-      lineData.add(MonitorGoalData(Constant.monthLabels[i], 0, 0, 0, 0));
+    for (int i = (month + 12) - (monthCount - 1) - 1; i < month + 12; i++) {
+      lineData.add(MonitorGoalData(Constant.monthLabels[(i % 12)], 0, 0, 0, 0));
+      monthRange.add((i % 12) + 1);
     }
 
     for (Goal goal in _goals) {
-      final monthIndex = goal.createdAt.month - (month - (monthCount - 1));
-
+      int monthIndex = monthRange.indexOf(goal.createdAt.month);
       if (monthIndex >= 0) {
         if (goal.saved >= goal.amount) {
           lineData[monthIndex].addComplete(1);

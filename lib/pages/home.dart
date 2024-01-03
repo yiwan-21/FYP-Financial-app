@@ -271,7 +271,10 @@ class _RecentTransactionsState extends State<RecentTransactions> {
             if (transactionProvider.getTransactions.isEmpty) {
               return const Center(child: Text("No transaction yet"));
             }
-            List<TrackerTransaction> transactions = transactionProvider.getTransactions.sublist(0, 3);
+            
+            List<TrackerTransaction> transactions = transactionProvider.getTransactions;
+            int endIndex = transactions.length >= 3 ? 3: transactions.length;
+            transactions = transactions.sublist(0, endIndex);
 
             return ListView.builder(
               shrinkWrap: true,

@@ -23,6 +23,9 @@ class NotificationProvider extends ChangeNotifier {
   }
 
   void init() {
+    if (_notificationSubscription != null) {
+      _notificationSubscription?.cancel();
+    }
     _notificationSubscription = NotificationService.getNotificationStream().listen((event) {
       event.metadata.isFromCache
           ? debugPrint("Notification Stream: Data from local cache")

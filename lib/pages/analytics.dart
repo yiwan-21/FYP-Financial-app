@@ -15,9 +15,6 @@ class Analytics extends StatefulWidget {
 }
 
 class _AnalyticsState extends State<Analytics> {
-  DateTime _surplusStartDate = DateTime(2023, 12, 5);
-  DateTime _surplusEndDate = DateTime(2023, 12, 11);
-
   @override
   Widget build(BuildContext context) {
     bool isMobile = Constant.isMobile(context);
@@ -87,7 +84,7 @@ class _AnalyticsState extends State<Analytics> {
               const SizedBox(height: verticalSpacing),
               isMobile ? portraitLayout() : landscapeLayout(),
               const SizedBox(height: verticalSpacing),
-              DailySurplusChart(_surplusStartDate, _surplusEndDate,),
+              const DailySurplusChart(),
               const SizedBox(height: verticalSpacing),
             ],
           );

@@ -1,4 +1,3 @@
-import 'package:financial_app/services/budget_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,18 +7,23 @@ import '../constants/message_constant.dart';
 import '../firebase_instance.dart';
 import '../components/alert_confirm_action.dart';
 import '../constants/route_name.dart';
+import '../services/budget_service.dart';
 import '../providers/goal_provider.dart';
 import '../providers/home_provider.dart';
+import '../providers/notification_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/user_provider.dart';
+import '../providers/split_money_provider.dart';
 
 class Auth {
   static void _navigateToHome(BuildContext context) {
     Provider.of<UserProvider>(context, listen: false).init();
     Provider.of<TransactionProvider>(context, listen: false).init();
     Provider.of<GoalProvider>(context, listen: false).init();
+    Provider.of<SplitMoneyProvider>(context, listen: false).init();
     Provider.of<HomeProvider>(context, listen: false).init();
+    Provider.of<NotificationProvider>(context, listen: false).init();
     Navigator.pushNamedAndRemoveUntil(context, RouteName.home, (route) => false);
   }
 
@@ -91,7 +95,9 @@ class Auth {
       Provider.of<UserProvider>(context, listen: false).signOut();
       Provider.of<TransactionProvider>(context, listen: false).reset();
       Provider.of<GoalProvider>(context, listen: false).reset();
+      Provider.of<SplitMoneyProvider>(context, listen: false).reset();
       Provider.of<HomeProvider>(context, listen: false).reset();
+      Provider.of<NotificationProvider>(context, listen: false).reset();
       Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
     });
   }

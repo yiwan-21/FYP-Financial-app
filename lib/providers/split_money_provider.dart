@@ -28,6 +28,9 @@ class SplitMoneyProvider extends ChangeNotifier {
   List<SplitExpenseCard>? get expenses => _splitGroup.expenses;
 
   void init() {
+    if (_listener != null) {
+      _listener?.cancel();
+    }
     _listener = SplitMoneyService.getGroupStream().listen((event) {
       event.metadata.isFromCache
           ? debugPrint("Split Money Stream: Data from local cache")

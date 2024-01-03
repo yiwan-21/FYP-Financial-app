@@ -47,6 +47,9 @@ class TransactionProvider extends ChangeNotifier {
   }
 
   void init() {
+    if (_listener != null) {
+      _listener?.cancel();
+    }
     _listener = TransactionService.getAllTransactionStream().listen((event) {
       event.metadata.isFromCache
           ? debugPrint("Tracker Stream: Data from local cache")
@@ -86,10 +89,23 @@ class TransactionProvider extends ChangeNotifier {
           double prevAmount = _transactions[index].amount;
           DateTime prevDate = getOnlyDate(_transactions[index].date);
           bool prevIsExpense = _transactions[index].isExpense;
+          String prevCategory = _transactions[index].category;
           //// update the transaction
           _transactions[index] = TrackerTransaction.fromSnapshot(change.doc);
           //// update the pie chart data
-          _pieChartData[category] = _pieChartData[category]! - prevAmount + amount;
+          if (Constant.expenseCategories.contains(prevCategory)) {
+            _pieChartData[prevCategory] = _pieChartData[prevCategory]! - prevAmount;
+            if (_pieChartData[prevCategory] == 0) {
+              _pieChartData.remove(prevCategory);
+            }
+          }
+          if (Constant.expenseCategories.contains(category)) {
+            if (_pieChartData.containsKey(category)) {
+              _pieChartData[category] = _pieChartData[category]! + amount;
+            } else {
+              _pieChartData[category] = amount;
+            }
+          }
           //// update the daily surplus data
           for (DailySurplusData data in _dailySurplusData) {
             // process the previous date
@@ -110,6 +126,9 @@ class TransactionProvider extends ChangeNotifier {
           //// update the pie chart data
           if (Constant.expenseCategories.contains(category)) {
             _pieChartData[category] = _pieChartData[category]! - amount;
+            if (_pieChartData[category] == 0) {
+              _pieChartData.remove(category);
+            }
           }
           //// update the daily surplus data
           for (DailySurplusData data in _dailySurplusData) {
@@ -195,13 +214,14 @@ class TransactionProvider extends ChangeNotifier {
   List<TrackerOverviewData> getTrackerOverviewData({int monthCount = 5}) {
     List<TrackerOverviewData> lineData = [];
     final month = DateTime.now().month;
-    for (int i = month - (monthCount - 1) - 1; i < month; i++) {
-      lineData.add(TrackerOverviewData(Constant.monthLabels[i], 0, 0, 0));
+    final monthRange = [];
+    for (int i = (month + 12) - (monthCount - 1) - 1; i < month + 12; i++) {
+      lineData.add(TrackerOverviewData(Constant.monthLabels[(i % 12)], 0, 0, 0));
+      monthRange.add((i % 12) + 1);
     }
-    int monthIndex = 0;
 
     for (TrackerTransaction transaction in _transactions) {
-      monthIndex = transaction.date.month - (month - (monthCount - 1));
+      int monthIndex = monthRange.indexOf(transaction.date.month);
       if (monthIndex >= 0) {
         if (Constant.analyticsCategories.contains(transaction.category)) {
           if (transaction.isExpense) {
@@ -222,14 +242,16 @@ class TransactionProvider extends ChangeNotifier {
     final List<AutoDisData> barData = [];
     // fill barData with AutoDisData objects
     final month = DateTime.now().month;
-    for (int i = month - (monthCount - 1) - 1; i < month; i++) {
-      barData.add(AutoDisData(Constant.monthLabels[i], 0, 0));
+    final monthRange = [];
+    for (int i = (month + 12) - (monthCount - 1) - 1; i < month + 12; i++) {
+      barData.add(AutoDisData(Constant.monthLabels[(i % 12)], 0, 0));
+      monthRange.add((i % 12) + 1);
     }
-    int monthIndex = 0;
 
     for (TrackerTransaction transaction in _transactions) {
-      monthIndex = transaction.date.month - (month - (monthCount - 1));
-      if (monthIndex >= 0 && transaction.isExpense) {
+      int monthIndex = monthRange.indexOf(transaction.date.month);
+      if (monthIndex >= 0) {
+        int monthIndex = monthRange.indexOf(transaction.date.month);
         if (Constant.autonomousExpenses.contains(transaction.category)) {
           barData[monthIndex].addAutonomous(transaction.amount);
         } else {
