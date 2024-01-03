@@ -26,7 +26,8 @@ class DailySurplusChart extends StatefulWidget {
 
 class _DailySurplusChartState extends State<DailySurplusChart> {
   final _formKey = GlobalKey<FormState>();
-  DateTime _surplusStartDate = getOnlyDate(DateTime.now().subtract(const Duration(days: 7)));
+  DateTime _surplusStartDate =
+      getOnlyDate(DateTime.now().subtract(const Duration(days: 7)));
   DateTime _surplusEndDate = getOnlyDate(DateTime.now());
 
   Future<void> _selectStartDate(BuildContext context) async {
@@ -65,14 +66,14 @@ class _DailySurplusChartState extends State<DailySurplusChart> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Consumer<TransactionProvider>(
           builder: (context, totalTransactionProvider, _) {
-            List<DailySurplusData> dailySurplusData = totalTransactionProvider.getDailySurplusData(_surplusStartDate, _surplusEndDate);
+            List<DailySurplusData> dailySurplusData = totalTransactionProvider
+                .getDailySurplusData(_surplusStartDate, _surplusEndDate);
             if (dailySurplusData.isNotEmpty) {
               return SfCartesianChart(
                 primaryXAxis: CategoryAxis(title: AxisTitle(text: 'Date')),
@@ -83,26 +84,32 @@ class _DailySurplusChartState extends State<DailySurplusChart> {
                 // Enable tooltip
                 tooltipBehavior: TooltipBehavior(enable: true),
                 onTooltipRender: (TooltipArgs tooltipArgs) {
-                  if (tooltipArgs.dataPoints != null && tooltipArgs.dataPoints!.isNotEmpty) {
+                  if (tooltipArgs.dataPoints != null &&
+                      tooltipArgs.dataPoints!.isNotEmpty) {
                     int index = tooltipArgs.pointIndex!.toInt();
-                    CartesianChartPoint<dynamic> point = tooltipArgs.dataPoints![index];
+                    CartesianChartPoint<dynamic> point =
+                        tooltipArgs.dataPoints![index];
                     num surplus = point.y;
                     // Setting the tooltip header
                     tooltipArgs.header = surplus >= 0 ? 'Surplus' : 'Deficit';
                     // Setting the tooltip text
-                    tooltipArgs.text = '${point.x}: ${surplus.toStringAsFixed(2)}';
+                    tooltipArgs.text =
+                        '${point.x}: ${surplus.toStringAsFixed(2)}';
                   }
                 },
                 series: <ChartSeries<DailySurplusData, String>>[
                   SplineSeries(
                     dataSource: dailySurplusData,
-                    xValueMapper: (DailySurplusData record, _) => '${Constant.monthLabels[record.date.month - 1]} ${record.date.day}',
-                    yValueMapper: (DailySurplusData record, _) => record.surplus,
+                    xValueMapper: (DailySurplusData record, _) =>
+                        '${Constant.monthLabels[record.date.month - 1]} ${record.date.day}',
+                    yValueMapper: (DailySurplusData record, _) =>
+                        record.surplus,
                     dataLabelSettings: const DataLabelSettings(
                       isVisible: true,
                       labelAlignment: ChartDataLabelAlignment.top,
                     ),
-                    dataLabelMapper: (DailySurplusData record, _) => record.surplus.toStringAsFixed(2),
+                    dataLabelMapper: (DailySurplusData record, _) =>
+                        record.surplus.toStringAsFixed(2),
                     splineType: SplineType.cardinal,
                     markerSettings: const MarkerSettings(isVisible: true),
                     name: 'Daily Surplus or Deficit',
@@ -114,61 +121,71 @@ class _DailySurplusChartState extends State<DailySurplusChart> {
             }
           },
         ),
+        const SizedBox(height: 10),
+        const Text(
+            'Choose either the start or end date for Daily Surplus or Deficit chart',
+            style: TextStyle(
+              color: Colors.blueAccent,
+              fontSize: 12,
+            )),
+        const SizedBox(height: 15),
         Form(
-          key: _formKey,
-          child: Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  readOnly: true,
-                  onTap: () {
-                    _selectStartDate(context);
-                  },
-                  decoration: const InputDecoration(
-                    labelText: 'Start Date',
-                    labelStyle: TextStyle(color: Colors.black),
-                    suffixIcon: Icon(Icons.calendar_today),
-                    fillColor: Colors.white,
-                    filled: true,
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1.5),
+            key: _formKey,
+            child: Row(
+              children: [
+                const SizedBox(width: 15),
+                Expanded(
+                  child: TextFormField(
+                    readOnly: true,
+                    onTap: () {
+                      _selectStartDate(context);
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Start Date',
+                      labelStyle: TextStyle(color: Colors.black),
+                      suffixIcon: Icon(Icons.calendar_today),
+                      fillColor: Colors.white,
+                      filled: true,
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(width: 1.5),
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(width: 1),
+                      ),
                     ),
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1),
+                    controller: TextEditingController(
+                      text: _surplusStartDate.toString().substring(0, 10),
                     ),
-                  ),
-                  controller: TextEditingController(
-                    text: _surplusStartDate.toString().substring(0, 10),
                   ),
                 ),
-              ),
-              Expanded(
-                child: TextFormField(
-                  readOnly: true,
-                  onTap: () {
-                    _selectEndDate(context);
-                  },
-                  decoration: const InputDecoration(
-                    labelText: 'End Date',
-                    labelStyle: TextStyle(color: Colors.black),
-                    suffixIcon: Icon(Icons.calendar_today),
-                    fillColor: Colors.white,
-                    filled: true,
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1.5),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: TextFormField(
+                    readOnly: true,
+                    onTap: () {
+                      _selectEndDate(context);
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'End Date',
+                      labelStyle: TextStyle(color: Colors.black),
+                      suffixIcon: Icon(Icons.calendar_today),
+                      fillColor: Colors.white,
+                      filled: true,
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(width: 1.5),
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(width: 1),
+                      ),
                     ),
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(width: 1),
+                    controller: TextEditingController(
+                      text: _surplusEndDate.toString().substring(0, 10),
                     ),
-                  ),
-                  controller: TextEditingController(
-                    text: _surplusEndDate.toString().substring(0, 10),
                   ),
                 ),
-              ),
-            ],
-          )
-        )
+                const SizedBox(width: 15),
+              ],
+            ))
       ],
     );
   }
