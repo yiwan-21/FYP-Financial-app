@@ -1,5 +1,3 @@
-import 'package:financial_app/providers/split_money_provider.dart';
-import 'package:financial_app/services/budget_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,11 +7,13 @@ import '../constants/message_constant.dart';
 import '../firebase_instance.dart';
 import '../components/alert_confirm_action.dart';
 import '../constants/route_name.dart';
+import '../services/budget_service.dart';
 import '../providers/goal_provider.dart';
 import '../providers/home_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/user_provider.dart';
+import '../providers/split_money_provider.dart';
 
 class Auth {
   static void _navigateToHome(BuildContext context) {
