@@ -154,8 +154,14 @@ class _TrackerState extends State<Tracker> {
         Consumer<TransactionProvider>(
           builder: ((context, transactionProvider, _) {
             List<TrackerTransaction> transactions = transactionProvider.getTransactions;
+            List<TrackerTransaction> filteredTransactions = transactions;
+            if (_selectedItem != Constant.noFilter) {
+              filteredTransactions = transactions
+                  .where((element) => element.category == _selectedItem)
+                  .toList();
+            }
             if (!_runningShowcase) {
-              if (transactions.isEmpty) {
+              if (filteredTransactions.isEmpty) {
                 return const Center(child: Text("No transaction yet"));
               }
             }
@@ -167,21 +173,21 @@ class _TrackerState extends State<Tracker> {
               height: 100,
               child: Wrap(
                 children: List.generate(
-                  _runningShowcase ? 2 : transactions.length,
+                  _runningShowcase ? 2 : filteredTransactions.length,
                   (index) {
                     List<TrackerTransaction> examples = [TourExample.expenseTransaction, TourExample.incomeTransaction];
                     if (Constant.isDesktop(context) && MediaQuery.of(context).size.width > 1200) {
                       return SizedBox(
                         width: MediaQuery.of(context).size.width / 3,
-                        child: _runningShowcase ? examples[index] : transactions[index],
+                        child: _runningShowcase ? examples[index] : filteredTransactions[index],
                       );
                     } else if (Constant.isTablet(context) || MediaQuery.of(context).size.width > Constant.tabletMaxWidth) {
                       return SizedBox(
                         width: MediaQuery.of(context).size.width / 2,
-                        child: _runningShowcase ? examples[index] : transactions[index],
+                        child: _runningShowcase ? examples[index] : filteredTransactions[index],
                       );
                     } else {
-                      return _runningShowcase ? examples[index] : transactions[index];
+                      return _runningShowcase ? examples[index] : filteredTransactions[index];
                     }
                   },
                 ),
