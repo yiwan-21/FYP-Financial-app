@@ -220,7 +220,7 @@ class _DebtState extends State<Debt> {
                     showcaseKey: _isMobile? _mobileKeys[2] : _webKeys[2],
                     title: "Data Created",
                     description: "View your debt detail and debt payment history here",
-                    width: 350,
+                    width: _isMobile? 300 : 350,
                     height: 100,
                     child: ListView.separated(
                       shrinkWrap: true,

@@ -149,7 +149,7 @@ class _SplitMoneyState extends State<SplitMoney> {
                             showcaseKey: _topDownAlign? _mobileKeys[1] : _webKeys[1],
                             title: "Data Created",
                             description: "Tap here to view group details and add group expense",
-                            width: 400,
+                            width: _topDownAlign? 300: 400,
                             height: 100,
                             child: ListView(
                               shrinkWrap: true,
