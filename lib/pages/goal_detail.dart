@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -54,17 +52,17 @@ class _GoalDetailState extends State<GoalDetail> {
 
   void _didSpentDialog() {
     showDialog(
-      context: context,
-      builder: (context) {
-        return AlertConfirmAction(
-          title: 'Did you spent the money?',
-          content: 'Did you spent the money saved for this goal?',
-          confirmText: 'Yes',
-          confirmAction: () => _deleteGoal(true),
-          cancelText: 'No',
-          cancelAction: () => _deleteGoal(false),
-        );
-      }
+        context: context,
+        builder: (context) {
+          return AlertConfirmAction(
+            title: 'Did you spent the money?',
+            content: 'Did you spent the money saved for this goal?',
+            confirmText: 'Yes',
+            confirmAction: () => _deleteGoal(true),
+            cancelText: 'No',
+            cancelAction: () => _deleteGoal(false),
+          );
+        }
     );
   }
 
@@ -111,7 +109,7 @@ class _GoalDetailState extends State<GoalDetail> {
         await TransactionService.addTransaction(incomeTransaction);
       }
     }
-    
+
     await GoalService.deleteGoal(_id).then((_) {
       // quit dialog boxes
       Navigator.pop(context);
@@ -190,26 +188,26 @@ class _GoalDetailState extends State<GoalDetail> {
             const SizedBox(width: 15),
           ],
         ),
-        body: Center(
+        body: const Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Expanded(
+              Expanded(
                 flex: 3,
                 child: GoalProgress(),
               ),
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.only(
+                  padding: EdgeInsets.only(
                       top: 50.0, bottom: 50.0, right: 20.0),
                   child: Center(
                     child: Column(
                       children: [
-                        const Text('History', style: TextStyle(fontSize: 26)),
-                        const Divider(thickness: 1.5, height: 10),
+                        Text('History', style: TextStyle(fontSize: 26)),
+                        Divider(thickness: 1.5, height: 10),
                         SizedBox(height: 10),
-                        const Expanded(
+                        Expanded(
                           child: GoalHistory(),
                         ),
                       ],
@@ -288,7 +286,19 @@ class _GoalProgressState extends State<GoalProgress> {
     });
 
     _updateProgress();
-    await GoalService.updateGoalSavedAmount(_id, _saved);
+    await GoalService.updateGoalSavedAmount(_id, _saved).then((_) {
+      final GoalProvider goalProvider = Provider.of<GoalProvider>(context, listen: false);
+      Goal goal = goalProvider.goal;
+      goalProvider.setGoal(
+        _id,
+        _title,
+        _totalAmount,
+        _saved,
+        goal.targetDate,
+        goal.pinned,
+        goal.createdAt,
+      );
+    });
     await GoalService.addHistory(_id, value);
     await _addTransactionRecords(value);
   }
@@ -334,68 +344,125 @@ class _GoalProgressState extends State<GoalProgress> {
     await TransactionService.addTransaction(incomeTransaction);
   }
 
+  Widget _savingsPlan() {
+    return const Text('SAVINGS PLANS',
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey,
+        ));
+  }
+
+  Widget _dailyPlan() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        const Text('Daily',
+            style: TextStyle(
+                fontSize: 14, color: Colors.grey)),
+        Text('RM ${_daily.toStringAsFixed(2)}',
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            )),
+      ],
+    );
+  }
+
+  Widget _weeklyPlan() {
+    return Column(
+      children: [
+        const Text('Weekly',
+            style: TextStyle(
+                fontSize: 14,  color: Colors.grey)),
+        Text('RM ${_weekly.toStringAsFixed(2)}',
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            )),
+      ],
+    );
+  }
+
+  Widget _monthlyPlan() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        const Text('Monthly',
+            style: TextStyle(
+                fontSize: 14, color: Colors.grey)),
+        Text('RM ${_monthly.toStringAsFixed(2)}',
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            )),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
       shrinkWrap: true,
       children: [
         GrowingTree(progress: _progress),
-        _remaining == 0 
-        ? Padding(
-            padding: const EdgeInsets.only(top: 20, bottom: 50),
-            child: Text(
-              'Congratulations! \nYou have completed this goal!',
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              textWidthBasis: TextWidthBasis.parent,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-                color: Colors.green,
-              ),
-            ),
-        )
-        : Container(
-            alignment: Alignment.center,
-            padding: const EdgeInsets.only(top: 20, bottom: 50),
-            child: 
-            Container(
-              alignment: Alignment.center,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  fixedSize: const Size(160, 40),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4.0),
+        _remaining == 0
+            ? const Padding(
+                padding: EdgeInsets.only(top: 20, bottom: 50),
+                child: Text(
+                  'Congratulations! \nYou have completed this goal!',
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  textWidthBasis: TextWidthBasis.parent,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.green,
                   ),
                 ),
-                onPressed: _addProgressDialog,
-                child: const Text('Add Goal Progress'),
+              )
+            : Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.only(top: 20, bottom: 50),
+                child: 
+            Container(
+                  alignment: Alignment.center,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: const Size(160, 40),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                    ),
+                    onPressed: _addProgressDialog,
+                    child: const Text('Add Goal Progress'),
+                  ),
+                ),
               ),
-            ),
-          ),
-        Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('SAVED',
-                      style: TextStyle(
-                          fontSize: 16,
+        Column(
+          children: [
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 40,
+              runSpacing: 10,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('SAVED',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey)),
+                    Text('RM ${_saved.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey)),
-                  Text('RM ${_saved.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      )),
-                ],
-              ),
-              SizedBox(width: _remaining == 0 ? 0 : 40),
-              _remaining == 0
-                  ? Container()
-                  : Column(
+                        )),
+                  ],
+                ),
+                if (_remaining > 0)
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('REMAINING',
@@ -410,69 +477,25 @@ class _GoalProgressState extends State<GoalProgress> {
                             )),
                       ],
                     ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
         if (_remaining != 0)
           Container(
             alignment: Alignment.bottomCenter,
             padding: const EdgeInsets.only(bottom: 30, top: 50),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Column(
               children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                _savingsPlan(),
+                const SizedBox(height: 10),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 15,
                   children: [
-                    const SizedBox(height: 30),
-                    const Text('Daily',
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey)),
-                    Text('RM ${_daily.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        )),
-                  ],
-                ),
-                const SizedBox(width: 30),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    const Text('SAVINGS PLANS',
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey)),
-                    const SizedBox(height: 10),
-                    const Text('Weekly',
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey)),
-                    Text('RM ${_weekly.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        )),
-                  ],
-                ),
-                const SizedBox(width: 30),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    const SizedBox(height: 30),
-                    const Text('Monthly',
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey)),
-                    Text('RM ${_monthly.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        )),
+                    _dailyPlan(),
+                    _weeklyPlan(),
+                    _monthlyPlan(),
                   ],
                 ),
               ],
