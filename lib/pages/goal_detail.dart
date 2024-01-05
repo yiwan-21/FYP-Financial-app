@@ -439,29 +439,30 @@ class _GoalProgressState extends State<GoalProgress> {
                   ),
                 ),
               ),
-        Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('SAVED',
-                      style: TextStyle(
-                          fontSize: 16,
+        Column(
+          children: [
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 40,
+              runSpacing: 10,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('SAVED',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey)),
+                    Text('RM ${_saved.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey)),
-                  Text('RM ${_saved.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      )),
-                ],
-              ),
-              SizedBox(width: _remaining == 0 ? 0 : 40),
-              _remaining == 0
-                  ? Container()
-                  : Column(
+                        )),
+                  ],
+                ),
+                if (_remaining > 0)
+                    Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('REMAINING',
@@ -476,8 +477,9 @@ class _GoalProgressState extends State<GoalProgress> {
                             )),
                       ],
                     ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
         if (_remaining != 0)
           Container(
