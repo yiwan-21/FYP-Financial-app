@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -190,26 +188,26 @@ class _GoalDetailState extends State<GoalDetail> {
             const SizedBox(width: 15),
           ],
         ),
-        body: Center(
+        body: const Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Expanded(
+              Expanded(
                 flex: 3,
                 child: GoalProgress(),
               ),
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.only(
+                  padding: EdgeInsets.only(
                       top: 50.0, bottom: 50.0, right: 20.0),
                   child: Center(
                     child: Column(
                       children: [
-                        const Text('History', style: TextStyle(fontSize: 26)),
-                        const Divider(thickness: 1.5, height: 10),
+                        Text('History', style: TextStyle(fontSize: 26)),
+                        Divider(thickness: 1.5, height: 10),
                         SizedBox(height: 10),
-                        const Expanded(
+                        Expanded(
                           child: GoalHistory(),
                         ),
                       ],
@@ -249,8 +247,6 @@ class _GoalProgressState extends State<GoalProgress> {
   final String _dialogTitle = 'Add Saved Amount';
   final String _contentLabel = 'Amount';
   final String _checkboxLabel = 'Add an expense record';
-
-  bool get _isMobile => Constant.isMobile(context);
 
   @override
   void initState() {
@@ -399,14 +395,14 @@ class _GoalProgressState extends State<GoalProgress> {
       children: [
         GrowingTree(progress: _progress),
         _remaining == 0
-            ? Padding(
-                padding: const EdgeInsets.only(top: 20, bottom: 50),
+            ? const Padding(
+                padding: EdgeInsets.only(top: 20, bottom: 50),
                 child: Text(
                   'Congratulations! \nYou have completed this goal!',
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   textWidthBasis: TextWidthBasis.parent,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w500,
                     color: Colors.green,
@@ -478,27 +474,16 @@ class _GoalProgressState extends State<GoalProgress> {
             child: Column(
               children: [
                 _savingsPlan(),
-                const SizedBox(height: 20),
-                _isMobile
-                    ? Column(
-                        children: [
-                          _dailyPlan(),
-                          const SizedBox(height: 10),
-                          _weeklyPlan(),
-                          const SizedBox(height: 10),
-                          _monthlyPlan(),
-                        ],
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _dailyPlan(),
-                          const SizedBox(width: 10),
-                          _weeklyPlan(),
-                          const SizedBox(width: 10),
-                          _monthlyPlan(),
-                        ],
-                      ),
+                const SizedBox(height: 10),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 15,
+                  children: [
+                    _dailyPlan(),
+                    _weeklyPlan(),
+                    _monthlyPlan(),
+                  ],
+                ),
               ],
             ),
           ),
