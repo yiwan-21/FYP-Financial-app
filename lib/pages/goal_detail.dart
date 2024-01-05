@@ -363,7 +363,7 @@ class _GoalProgressState extends State<GoalProgress> {
               alignment: Alignment.center,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  fixedSize: const Size(150, 40),
+                  fixedSize: const Size(160, 40),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(4.0),
                   ),
