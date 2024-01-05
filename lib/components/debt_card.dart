@@ -23,15 +23,15 @@ class DebtCard extends StatefulWidget {
   final bool paid;
 
   const DebtCard(
-    {required this.id, 
-    required this.title, 
-    required this.duration, 
-    required this.amount,
-    required this.interests, 
-    required this.history, 
-    required this.remainingDuration, 
-    required this.paid,
-    super.key});
+      {required this.id,
+      required this.title,
+      required this.duration,
+      required this.amount,
+      required this.interests,
+      required this.history,
+      required this.remainingDuration,
+      required this.paid,
+      super.key});
 
   DebtCard.fromDocument(QueryDocumentSnapshot doc, {super.key})
       : id = doc.id,
@@ -66,6 +66,7 @@ class _DebtCardState extends State<DebtCard> {
   int _month = 0;
   int _remainYear = 0;
   int _remainMonth = 0;
+  bool get _isMobile => Constant.isMobile(context);
 
   void calculateDuration() {
     setState(() {
@@ -151,6 +152,7 @@ class _DebtCardState extends State<DebtCard> {
   @override
   Widget build(BuildContext context) {
     calculateDuration();
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       color: const Color.fromARGB(255, 255, 250, 234),
@@ -166,27 +168,31 @@ class _DebtCardState extends State<DebtCard> {
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    overflow: TextOverflow.visible,
                   ),
                 ),
                 const Spacer(),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      'Total: RM ${widget.amount.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 16,
+                if (!_isMobile)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Total: RM ${widget.amount.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          overflow: TextOverflow.visible,
+                        ),
                       ),
-                    ),
-                    Text(
-                      'Monthly plan: RM ${widget.plan.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.brown[200],
+                      Text(
+                        'Monthly plan: RM ${widget.plan.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.brown[200],
+                          overflow: TextOverflow.visible,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
                 IconButton(
                   iconSize: 20,
                   splashRadius: 10,
@@ -198,6 +204,29 @@ class _DebtCardState extends State<DebtCard> {
                 ),
               ],
             ),
+            if (_isMobile)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Column(
+                  children: [
+                    Text(
+                      'Total : RM ${widget.amount.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        overflow: TextOverflow.visible,
+                      ),
+                    ),
+                    Text(
+                      'Monthly plan : RM ${widget.plan.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.brown[200],
+                        overflow: TextOverflow.visible,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -223,12 +252,15 @@ class _DebtCardState extends State<DebtCard> {
                 const SizedBox(width: 3),
                 Text('Interests: ${widget.interests}%'),
                 const Spacer(),
-                if ((widget.history.isEmpty || widget.history.last['balance'] >= 0))
+                if ((widget.history.isEmpty ||
+                    widget.history.last['balance'] >= 0))
                   IconButton(
                     iconSize: 20,
                     splashRadius: 10,
-                    onPressed: widget.paid? null: _payDebtDialog,
-                    icon: widget.paid? const Icon(Icons.check_circle_outlined) : const Icon(Icons.payment_sharp),
+                    onPressed: widget.paid ? null : _payDebtDialog,
+                    icon: widget.paid
+                        ? const Icon(Icons.check_circle_outlined)
+                        : const Icon(Icons.payment_sharp),
                     color: Colors.brown,
                     disabledColor: Colors.green,
                     alignment: Alignment.center,

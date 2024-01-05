@@ -210,9 +210,9 @@ class _BudgetingState extends State<Budgeting> {
                   const Spacer(),
                   ShowcaseFrame(
                     showcaseKey: _isMobile? _mobileKeys[0] : _webKeys[0],
-                    title: "Reset Next Starting Date(Resetting Date)",
+                    title: _isMobile? "Reset Next Starting Date\n(Resetting Date)":"Reset Next Starting Date(Resetting Date)",
                     description: "Reset your upcoming starting date here",
-                    width: 400,
+                    width:  _isMobile? 300: 400,
                     height: 100,
                     child: TextButton(
                       onPressed: setResetDate,
