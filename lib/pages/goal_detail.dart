@@ -286,7 +286,19 @@ class _GoalProgressState extends State<GoalProgress> {
     });
 
     _updateProgress();
-    await GoalService.updateGoalSavedAmount(_id, _saved);
+    await GoalService.updateGoalSavedAmount(_id, _saved).then((_) {
+      final GoalProvider goalProvider = Provider.of<GoalProvider>(context, listen: false);
+      Goal goal = goalProvider.goal;
+      goalProvider.setGoal(
+        _id,
+        _title,
+        _totalAmount,
+        _saved,
+        goal.targetDate,
+        goal.pinned,
+        goal.createdAt,
+      );
+    });
     await GoalService.addHistory(_id, value);
     await _addTransactionRecords(value);
   }
