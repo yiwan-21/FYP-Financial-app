@@ -1,3 +1,4 @@
+import 'package:financial_app/components/custom_input_decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -84,18 +85,7 @@ class _DebtFormState extends State<DebtForm> {
           children: <Widget>[
             TextFormField(
               initialValue: _title,
-              decoration: const InputDecoration(
-                labelText: 'Debt Title',
-                labelStyle: TextStyle(color: Colors.black),
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
-              ),
+              decoration: customInputDecoration(labelText: 'Debt Title'),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return ValidatorMessage.emptyDebtTitle;
@@ -114,20 +104,7 @@ class _DebtFormState extends State<DebtForm> {
                 Expanded(
                   child: TextFormField(
                     initialValue: _year == 0 ? null : _year.toString(),
-                    decoration: const InputDecoration(
-                      labelText: 'Duration(Year)',
-                      labelStyle: TextStyle(
-                        color: Colors.black,
-                      ),
-                      fillColor: Colors.white,
-                      filled: true,
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1.5),
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1),
-                      ),
-                    ),
+                    decoration: customInputDecoration(labelText: 'Duration(Year)'),
                     keyboardType: const TextInputType.numberWithOptions(),
                     inputFormatters: <TextInputFormatter>[
                       FilteringTextInputFormatter.allow(RegExp(r'^\d+')),
@@ -155,20 +132,7 @@ class _DebtFormState extends State<DebtForm> {
                 Expanded(
                   child: TextFormField(
                     initialValue: _month == 0 ? null : _month.toString(),
-                    decoration: const InputDecoration(
-                      labelText: 'Duration(Month)',
-                      labelStyle: TextStyle(
-                        color: Colors.black,
-                      ),
-                      fillColor: Colors.white,
-                      filled: true,
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1.5),
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1),
-                      ),
-                    ),
+                    decoration: customInputDecoration(labelText: 'Duration(Month)'),
                     keyboardType: const TextInputType.numberWithOptions(),
                     inputFormatters: <TextInputFormatter>[
                       FilteringTextInputFormatter.allow(RegExp(r'^\d+')),
@@ -195,20 +159,7 @@ class _DebtFormState extends State<DebtForm> {
             const SizedBox(height: 24.0),
             TextFormField(
               initialValue: _amount == 0 ? null : _amount.toStringAsFixed(2),
-              decoration: const InputDecoration(
-                labelText: 'Amount',
-                labelStyle: TextStyle(
-                  color: Colors.black,
-                ),
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
-              ),
+              decoration: customInputDecoration(labelText: 'Amount'),
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: <TextInputFormatter>[
@@ -235,20 +186,7 @@ class _DebtFormState extends State<DebtForm> {
             TextFormField(
               initialValue:
                   _interest == 0 ? null : _interest.toStringAsFixed(2),
-              decoration: const InputDecoration(
-                labelText: 'Interest % (optional)',
-                labelStyle: TextStyle(
-                  color: Colors.black,
-                ),
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
-              ),
+              decoration: customInputDecoration(labelText: 'Interest % (optional)'),
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: <TextInputFormatter>[

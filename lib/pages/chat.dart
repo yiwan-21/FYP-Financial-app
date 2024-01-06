@@ -2,9 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../constants/constant.dart';
 import '../firebase_instance.dart';
+import '../constants/constant.dart';
 import '../constants/style_constant.dart';
+import '../components/custom_input_decoration.dart';
 import '../providers/notification_provider.dart';
 import '../services/chat_service.dart';
 
@@ -221,10 +222,11 @@ class _ChatState extends State<Chat> {
                     Expanded(
                       child: TextFormField(
                         controller: _controller,
-                        decoration: const InputDecoration(
+                        decoration: customInputDecoration(
                           hintText: "Send a message...",
-                          hintStyle: TextStyle(fontSize: 16),
+                          hintStyle: const TextStyle(fontSize: 16),
                           border: InputBorder.none,
+                          focusedBorder: InputBorder.none,
                         ),
                         readOnly: widget.isSettled,
                         onChanged: (value) {

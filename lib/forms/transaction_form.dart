@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
 import '../components/custom_switch.dart';
+import '../components/custom_input_decoration.dart';
 import '../components/tracker_transaction.dart';
 import '../providers/transaction_provider.dart';
 import '../services/transaction_service.dart';
@@ -127,18 +128,7 @@ class _TransactionFormState extends State<TransactionForm> {
           children: <Widget>[
             TextFormField(
               initialValue: _title,
-              decoration: const InputDecoration(
-                labelText: 'Title',
-                labelStyle: TextStyle(color: Colors.black),
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
-              ),
+              decoration: customInputDecoration(labelText: 'Title'),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return ValidatorMessage.emptyTransactionTitle;
@@ -154,18 +144,7 @@ class _TransactionFormState extends State<TransactionForm> {
             const SizedBox(height: 18.0),
             TextFormField(
               initialValue: _notes ?? "",
-              decoration: const InputDecoration(
-                labelText: 'Notes',
-                labelStyle: TextStyle(color: Colors.black),
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
-              ),
+              decoration: customInputDecoration(labelText: 'Notes'),
               validator: (value) {
                 return null;
               },
@@ -180,18 +159,9 @@ class _TransactionFormState extends State<TransactionForm> {
             TextFormField(
               readOnly: true,
               onTap: _selectDate,
-              decoration: const InputDecoration(
-                labelText: 'Date',
-                labelStyle: TextStyle(color: Colors.black),
-                suffixIcon: Icon(Icons.calendar_today),
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
+              decoration: customInputDecoration(
+                labelText: 'Date', 
+                suffixIcon: const Icon(Icons.calendar_today),
               ),
               controller: TextEditingController(
                 text: _date.toString().substring(0, 10),
@@ -203,18 +173,7 @@ class _TransactionFormState extends State<TransactionForm> {
                 Expanded(
                   child: TextFormField(
                     initialValue: _amount == 0 ? null : _amount.toStringAsFixed(2),
-                    decoration: const InputDecoration(
-                      labelText: 'Amount',
-                      labelStyle: TextStyle(color: Colors.black),
-                      fillColor: Colors.white,
-                      filled: true,
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1.5),
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1),
-                      ),
-                    ),
+                    decoration: customInputDecoration(labelText: 'Amount'),
                     keyboardType: const TextInputType.numberWithOptions(
                         decimal: true),
                     inputFormatters: <TextInputFormatter>[
@@ -278,18 +237,9 @@ class _TransactionFormState extends State<TransactionForm> {
                         child: Text(category),
                       ))
                   .toList(),
-              decoration: const InputDecoration(
-                labelText: 'Category',
-                labelStyle: TextStyle(color: Colors.black),
+              decoration: customInputDecoration(
+                labelText: 'Category', 
                 helperText: '* Savings Goal is different from Savings',
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
               ),
             ),
             const SizedBox(height: 20.0),

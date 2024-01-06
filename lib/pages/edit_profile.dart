@@ -1,3 +1,4 @@
+import 'package:financial_app/components/custom_input_decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../constants/constant.dart';
@@ -75,18 +76,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
                     const SizedBox(height: 18.0),
                     TextFormField(
                       initialValue: _name,
-                      decoration: const InputDecoration(
-                        labelText: 'Name',
-                        labelStyle: TextStyle(color: Colors.black),
-                        fillColor: Colors.white,
-                        filled: true,
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(width: 1.5),
-                        ),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(width: 1),
-                        ),
-                      ),
+                      decoration: customInputDecoration(labelText: 'Name'),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return ValidatorMessage.emptyName;
@@ -103,12 +93,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
                     TextFormField(
                       enabled: false,
                       initialValue: _email,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        labelStyle: TextStyle(color: Colors.black),
-                        fillColor: Color.fromARGB(255, 233, 230, 230),
-                        filled: true,
-                      ),
+                      decoration: customInputDecoration(labelText: 'Email'),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return ValidatorMessage.emptyEmail;

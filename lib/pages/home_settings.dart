@@ -1,3 +1,4 @@
+import 'package:financial_app/components/custom_input_decoration.dart';
 import 'package:financial_app/providers/home_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -163,18 +164,7 @@ class _HomeSettingsState extends State<HomeSettings> {
                                       ))
                                   .toList(),
                               padding: const EdgeInsets.all(8.0),
-                              decoration: const InputDecoration(
-                                labelText: 'Select Group to track expenses',
-                                labelStyle: TextStyle(color: Colors.black),
-                                fillColor: Colors.white,
-                                filled: true,
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(width: 1.5),
-                                ),
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(width: 1),
-                                ),
-                              ),
+                              decoration: customInputDecoration(labelText: 'Select Group to track expenses'),
                             );
                     }
                   ),
@@ -212,18 +202,7 @@ class _HomeSettingsState extends State<HomeSettings> {
                                       ))
                                   .toList(),
                               padding: const EdgeInsets.all(8.0),
-                              decoration: const InputDecoration(
-                                labelText: 'Select Budget Category',
-                                labelStyle: TextStyle(color: Colors.black),
-                                fillColor: Colors.white,
-                                filled: true,
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(width: 1.5),
-                                ),
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(width: 1),
-                                ),
-                              ),
+                              decoration: customInputDecoration(labelText: 'Select Budget Category'),
                             );
                     }
                   ),

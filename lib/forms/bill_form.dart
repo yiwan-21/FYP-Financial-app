@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../constants/message_constant.dart';
+import '../components/custom_input_decoration.dart';
 import '../services/bill_service.dart';
 
 class BillForm extends StatefulWidget {
@@ -90,18 +91,7 @@ class _BillFormState extends State<BillForm> {
           children: <Widget>[
             TextFormField(
               initialValue: _title,
-              decoration: const InputDecoration(
-                labelText: 'Bill Title',
-                labelStyle: TextStyle(color: Colors.black),
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
-              ),
+              decoration: customInputDecoration(labelText: 'Bill Title'),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return ValidatorMessage.emptyBillTitle;
@@ -120,19 +110,7 @@ class _BillFormState extends State<BillForm> {
               onTap: () {
                 _selectDate(context);
               },
-              decoration: const InputDecoration(
-                labelText: 'Payment Due Date on This Month',
-                labelStyle: TextStyle(color: Colors.black),
-                suffixIcon: Icon(Icons.calendar_today),
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
-              ),
+              decoration: customInputDecoration(labelText: 'Payment Due Date on This Month'),
               controller: TextEditingController(
                 text: _date.toString().substring(0, 10),
               ),
@@ -164,19 +142,10 @@ class _BillFormState extends State<BillForm> {
               enabled: _fixed,
               initialValue:
                   _amount == 0 ? null : _amount.toStringAsFixed(2),
-              decoration: InputDecoration(
-                labelText: 'Amount',
-                labelStyle: TextStyle(
-                  color: _fixed? Colors.black : Colors.black38 ,
-                ),
+              decoration: customInputDecoration(
+                labelText: 'Amount', 
+                labelStyle: TextStyle(color: _fixed? Colors.black : Colors.black38), 
                 fillColor: _fixed ? Colors.white : null,
-                filled: true,
-                focusedBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: const OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
               ),
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
