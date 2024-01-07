@@ -1,3 +1,4 @@
+import 'package:financial_app/components/custom_input_decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -70,18 +71,7 @@ class _GoalFormState extends State<GoalForm> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Goal Title',
-                labelStyle: TextStyle(color: Colors.black),
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
-              ),
+              decoration: customInputDecoration(labelText: 'Goal Title'),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return ValidatorMessage.emptyGoalTitle;
@@ -100,37 +90,14 @@ class _GoalFormState extends State<GoalForm> {
               onTap: () {
                 _selectDate(context);
               },
-              decoration: const InputDecoration(
-                labelText: 'Target Date',
-                labelStyle: TextStyle(color: Colors.black),
-                suffixIcon: Icon(Icons.calendar_today),
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
-              ),
+              decoration: customInputDecoration(labelText: 'Target Date'),
               controller: TextEditingController(
                 text: _date.toString().substring(0, 10),
               ),
             ),
             const SizedBox(height: 24.0),
             TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Total Amount to Save',
-                labelStyle: TextStyle(color: Colors.black),
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
-              ),
+              decoration: customInputDecoration(labelText: 'Total Amount to Save'),
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: <TextInputFormatter>[

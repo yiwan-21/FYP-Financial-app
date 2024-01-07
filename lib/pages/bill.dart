@@ -247,7 +247,7 @@ class _BillState extends State<Bill> {
                 backgroundColor: ColorConstant.lightBlue,
                 onPressed: _addBill,
                 child: const Icon(
-                  Icons.edit_note,
+                  Icons.add,
                   size: 27,
                   color: Colors.black,
                 ),

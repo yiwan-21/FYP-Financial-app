@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../constants/constant.dart';
+import '../components/custom_input_decoration.dart';
 import '../providers/transaction_provider.dart';
 
 class DailySurplusData {
@@ -141,19 +142,7 @@ class _DailySurplusChartState extends State<DailySurplusChart> {
                     onTap: () {
                       _selectStartDate(context);
                     },
-                    decoration: const InputDecoration(
-                      labelText: 'Start Date',
-                      labelStyle: TextStyle(color: Colors.black),
-                      suffixIcon: Icon(Icons.calendar_today),
-                      fillColor: Colors.white,
-                      filled: true,
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1.5),
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1),
-                      ),
-                    ),
+                    decoration: customInputDecoration(labelText: 'Start Date'), 
                     controller: TextEditingController(
                       text: _surplusStartDate.toString().substring(0, 10),
                     ),
@@ -166,19 +155,7 @@ class _DailySurplusChartState extends State<DailySurplusChart> {
                     onTap: () {
                       _selectEndDate(context);
                     },
-                    decoration: const InputDecoration(
-                      labelText: 'End Date',
-                      labelStyle: TextStyle(color: Colors.black),
-                      suffixIcon: Icon(Icons.calendar_today),
-                      fillColor: Colors.white,
-                      filled: true,
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1.5),
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(width: 1),
-                      ),
-                    ),
+                    decoration: customInputDecoration(labelText: 'End Date'),
                     controller: TextEditingController(
                       text: _surplusEndDate.toString().substring(0, 10),
                     ),

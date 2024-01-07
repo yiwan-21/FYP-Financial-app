@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
+import '../components/custom_input_decoration.dart';
 import '../models/group_user.dart';
 import '../models/split_expense.dart';
 import '../models/split_record.dart';
@@ -91,9 +92,10 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
     _calRemainingAmount();
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      for (var record in _splitExpense.sharedRecords) {
-        debugPrint("${record.name}: ${record.amount.toStringAsFixed(2)}");
-      }
+      SplitRecord payer = _splitExpense.sharedRecords
+        .firstWhere((record) => record.id == _splitExpense.paidBy.id);
+      payer.paidAmount = payer.amount;
+      _splitExpense.paidAmount = payer.paidAmount;
 
       await SplitMoneyService.addExpense(_splitExpense).then((_) {
         Navigator.pop(context, _splitExpense);
@@ -110,18 +112,7 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Title',
-                labelStyle: TextStyle(color: Colors.black),
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
-              ),
+              decoration: customInputDecoration(labelText: 'Title'),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return ValidatorMessage.emptyTransactionTitle;
@@ -136,18 +127,7 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
             ),
             const SizedBox(height: 18.0),
             TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Amount',
-                labelStyle: TextStyle(color: Colors.black),
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
-              ),
+              decoration: customInputDecoration(labelText: 'Amount'),
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: <TextInputFormatter>[
@@ -189,18 +169,7 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
                         child: Text(method),
                       ))
                   .toList(),
-              decoration: const InputDecoration(
-                labelText: 'Split Method',
-                labelStyle: TextStyle(color: Colors.black),
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
-              ),
+              decoration: customInputDecoration(labelText: 'Split Method'),
             ),
             const SizedBox(height: 18.0),
             DropdownButtonFormField<String>(
@@ -217,18 +186,7 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
                         child: Text(member.name),
                       ))
                   .toList(),
-              decoration: const InputDecoration(
-                labelText: 'Paid by',
-                labelStyle: TextStyle(color: Colors.black),
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
-              ),
+              decoration: customInputDecoration(labelText: 'Paid by'),
             ),
             const SizedBox(height: 18),
             DropdownButtonFormField<String>(
@@ -270,17 +228,9 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
                         ))
                     .toList()
               ],
-              decoration: const InputDecoration(
+              decoration: customInputDecoration(
                 labelText: 'Share by',
-                labelStyle: TextStyle(color: Colors.black),
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
+                helperText: 'Can select multiple members'
               ),
               validator: (value) {
                 if (_splitExpense.sharedRecords.isEmpty) {
@@ -324,21 +274,11 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
                         width: 120,
                         child: TextFormField(
                           controller: _amountControllers[index],
-                          decoration: const InputDecoration(
+                          decoration: customInputDecoration(
                             labelText: 'Amount',
-                            labelStyle: TextStyle(
-                              fontSize: 12,
-                              color: Colors.black,
-                            ),
                             isDense: true,
-                            contentPadding: EdgeInsets.all(12),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(width: 1.5),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(width: 1),
-                            ),
-                            floatingLabelStyle: TextStyle(fontSize: 0),
+                            contentPadding: const EdgeInsets.all(12),
+                            floatingLabelStyle: const TextStyle(fontSize: 0),
                           ),
                           keyboardType: const TextInputType.numberWithOptions(
                               decimal: true),

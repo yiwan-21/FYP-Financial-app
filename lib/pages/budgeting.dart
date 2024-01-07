@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:financial_app/components/custom_input_decoration.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -147,18 +148,9 @@ class _BudgetingState extends State<Budgeting> {
               _selectDate(context);
             },
             readOnly: true,
-            decoration: const InputDecoration(
+            decoration: customInputDecoration(
               labelText: 'Monthly Budget Resetting Date',
-              labelStyle: TextStyle(color: Colors.black),
-              suffixIcon: Icon(Icons.calendar_today),
-              fillColor: Colors.white,
-              filled: true,
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(width: 1.5),
-              ),
-              border: OutlineInputBorder(
-                borderSide: BorderSide(width: 1),
-              ),
+              suffixIcon: const Icon(Icons.calendar_today),
             ),
             controller: _textController,
           ),
@@ -337,7 +329,7 @@ class _BudgetingState extends State<Budgeting> {
                 backgroundColor: ColorConstant.lightBlue,
                 onPressed: setBudget,
                 child: const Icon(
-                  Icons.note_add_outlined,
+                  Icons.add,
                   size: 27,
                   color: Colors.black,
                 ),

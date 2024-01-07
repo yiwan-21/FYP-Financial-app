@@ -82,7 +82,7 @@ class _BillCardState extends State<BillCard> {
         context: context,
         builder: (BuildContext context) {
           return AlertWithCheckbox(
-            title: 'Add Amount',
+            title: 'Pay the bill',
             contentLabel: 'Amount',
             checkboxLabel: 'Add an expense record',
             defaultValue: widget.fixed ? widget.amount: null,

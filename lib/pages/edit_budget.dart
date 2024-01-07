@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../constants/message_constant.dart';
+import '../components/custom_input_decoration.dart';
 import '../services/budget_service.dart';
 
 class EditBudget extends StatefulWidget {
@@ -48,18 +49,7 @@ class _EditBudgetState extends State<EditBudget> {
       content: Form(
         key: _formKey,
         child: TextFormField(
-          decoration: const InputDecoration(
-            labelText: 'Amount',
-            labelStyle: TextStyle(color: Colors.black),
-            fillColor: Colors.white,
-            filled: true,
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(width: 1.5),
-            ),
-            border: OutlineInputBorder(
-              borderSide: BorderSide(width: 1),
-            ),
-          ),
+          decoration: customInputDecoration(labelText: 'Amount'),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: <TextInputFormatter>[
             FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),

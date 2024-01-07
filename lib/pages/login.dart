@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
 import '../services/auth.dart';
@@ -51,6 +52,7 @@ class _LoginState extends State<Login> {
                   labelText: 'Email',
                   prefixIcon: Icon(Icons.email),
                   border: OutlineInputBorder(),
+                  errorMaxLines: 3,
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -141,6 +143,7 @@ class _LoginState extends State<Login> {
                             labelText: 'Email',
                             prefixIcon: Icon(Icons.email),
                             border: OutlineInputBorder(),
+                            errorMaxLines: 3,
                           ),
                           onChanged: (value) {
                             setState(() {
@@ -162,6 +165,7 @@ class _LoginState extends State<Login> {
                             labelText: 'Password',
                             prefixIcon: Icon(Icons.lock),
                             border: OutlineInputBorder(),
+                            errorMaxLines: 3,
                           ),
                           onChanged: (value) {
                             setState(() {

@@ -452,9 +452,6 @@ class SplitMoneyService {
 
     // add new 'records' documents
     for (SplitRecord record in expense.sharedRecords) {
-      if (record.id == expense.paidBy.id) {
-        record.paidAmount = record.amount;
-      }
       newExpense.collection('records').doc(record.id).set({
         'name': record.name,
         'amount': record.amount,

@@ -6,6 +6,7 @@ import '../models/group_user.dart';
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
 import '../components/alert_confirm_action.dart';
+import '../components/custom_input_decoration.dart';
 import '../components/manage_group.dart';
 import '../providers/split_money_provider.dart';
 import '../services/split_money_service.dart';
@@ -272,11 +273,10 @@ class _GroupSettingsState extends State<GroupSettings> {
                       child: Column(
                         children: [
                           TextFormField(
-                            decoration: const InputDecoration(
+                            decoration: customInputDecoration(
                               labelText: 'Email',
-                              labelStyle: TextStyle(color: Colors.black),
-                              fillColor: Colors.white,
-                              filled: true,
+                              border: const UnderlineInputBorder(),
+                              focusedBorder: const UnderlineInputBorder(),
                             ),
                             onChanged: (value) {
                               setState(() {

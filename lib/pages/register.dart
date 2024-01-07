@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../constants/constant.dart';
 import '../constants/message_constant.dart';
 import '../services/auth.dart';
@@ -74,6 +75,7 @@ class _RegisterState extends State<Register> {
                             labelText: 'Username',
                             prefixIcon: Icon(Icons.person),
                             border: OutlineInputBorder(),
+                            errorMaxLines: 3,
                           ),
                           onChanged: (value) {
                             setState(() {
@@ -94,6 +96,7 @@ class _RegisterState extends State<Register> {
                             labelText: 'Email',
                             prefixIcon: Icon(Icons.email),
                             border: OutlineInputBorder(),
+                            errorMaxLines: 3,
                           ),
                           onChanged: (value) {
                             setState(() {
@@ -115,6 +118,7 @@ class _RegisterState extends State<Register> {
                             labelText: 'Password',
                             prefixIcon: Icon(Icons.lock),
                             border: OutlineInputBorder(),
+                            errorMaxLines: 3,
                           ),
                           onChanged: (value) {
                             setState(() {
@@ -139,6 +143,7 @@ class _RegisterState extends State<Register> {
                             labelText: 'Confirm Password',
                             prefixIcon: Icon(Icons.lock),
                             border: OutlineInputBorder(),
+                            errorMaxLines: 3,
                           ),
                           validator: (value) {
                             if (value != _password) {

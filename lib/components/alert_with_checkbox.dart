@@ -1,3 +1,4 @@
+import 'package:financial_app/components/custom_input_decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -91,18 +92,7 @@ class _AlertWithCheckboxState extends State<AlertWithCheckbox> {
           children: [
             TextFormField(
               controller: _controller,
-              decoration: InputDecoration(
-                labelText: widget.contentLabel,
-                labelStyle: const TextStyle(color: Colors.black),
-                fillColor: Colors.white,
-                filled: true,
-                focusedBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(width: 1.5),
-                ),
-                border: const OutlineInputBorder(
-                  borderSide: BorderSide(width: 1),
-                ),
-              ),
+              decoration: customInputDecoration(labelText: widget.contentLabel),
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: <TextInputFormatter>[
