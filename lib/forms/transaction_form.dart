@@ -144,7 +144,7 @@ class _TransactionFormState extends State<TransactionForm> {
             const SizedBox(height: 18.0),
             TextFormField(
               initialValue: _notes ?? "",
-              decoration: customInputDecoration(labelText: 'Notes'),
+              decoration: customInputDecoration(labelText: 'Notes (optional)'),
               validator: (value) {
                 return null;
               },
