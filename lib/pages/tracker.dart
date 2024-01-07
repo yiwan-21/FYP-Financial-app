@@ -93,18 +93,16 @@ class _TrackerState extends State<Tracker> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     "Transactions (RM)",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
                   DropdownButton<String>(
                     value: _selectedItem,
-                    icon: const Icon(
-                        Icons.filter_alt_outlined), // Icon to display
+                    icon: const Icon(Icons.filter_alt_outlined), // Icon to display
                     iconSize: 22,
                     elevation: 16,
                     hint: const Text('Filter'),
@@ -151,6 +149,21 @@ class _TrackerState extends State<Tracker> {
             ],
           ),
         ),
+        // helper text
+        const Padding(
+          padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
+          child: Text(
+            "Savings Goal is not shown in 'All Categories' filter, \nYou can view it by selecting 'Savings Goal' in the filter",
+            style: TextStyle(
+              fontSize: 12,
+              fontStyle: FontStyle.italic,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey,
+            ), 
+            maxLines: 5,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
         Consumer<TransactionProvider>(
           builder: ((context, transactionProvider, _) {
             List<TrackerTransaction> transactions = transactionProvider.getTransactions;
@@ -158,6 +171,11 @@ class _TrackerState extends State<Tracker> {
             if (_selectedItem != Constant.noFilter) {
               filteredTransactions = transactions
                   .where((element) => element.category == _selectedItem)
+                  .toList();
+            } else {
+              // hide savings goal by default as it is not involve cash changes
+              filteredTransactions = transactions
+                  .where((element) => element.category != "Savings Goal")
                   .toList();
             }
             if (!_runningShowcase) {
