@@ -92,9 +92,10 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
     _calRemainingAmount();
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      for (var record in _splitExpense.sharedRecords) {
-        debugPrint("${record.name}: ${record.amount.toStringAsFixed(2)}");
-      }
+      SplitRecord payer = _splitExpense.sharedRecords
+        .firstWhere((record) => record.id == _splitExpense.paidBy.id);
+      payer.paidAmount = payer.amount;
+      _splitExpense.paidAmount = payer.paidAmount;
 
       await SplitMoneyService.addExpense(_splitExpense).then((_) {
         Navigator.pop(context, _splitExpense);
