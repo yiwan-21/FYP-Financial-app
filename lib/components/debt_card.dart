@@ -111,7 +111,7 @@ class _DebtCardState extends State<DebtCard> {
         context: context,
         builder: (BuildContext context) {
           return AlertWithCheckbox(
-            title: 'Add Amount',
+            title: 'Pay the debt',
             contentLabel: 'Amount',
             checkboxLabel: 'Add an expense record',
             defaultChecked: true,

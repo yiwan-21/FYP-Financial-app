@@ -223,10 +223,11 @@ class _ChatState extends State<Chat> {
                       child: TextFormField(
                         controller: _controller,
                         decoration: customInputDecoration(
-                          hintText: "Send a message...",
+                          hintText: widget.isSettled ? "Expense Settled! Chat want to rest." : "Send a message...",
                           hintStyle: const TextStyle(fontSize: 16),
                           border: InputBorder.none,
                           focusedBorder: InputBorder.none,
+                          fillColor: widget.isSettled ? Colors.transparent : null,
                         ),
                         readOnly: widget.isSettled,
                         onChanged: (value) {

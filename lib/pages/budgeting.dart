@@ -329,7 +329,7 @@ class _BudgetingState extends State<Budgeting> {
                 backgroundColor: ColorConstant.lightBlue,
                 onPressed: setBudget,
                 child: const Icon(
-                  Icons.note_add_outlined,
+                  Icons.add,
                   size: 27,
                   color: Colors.black,
                 ),

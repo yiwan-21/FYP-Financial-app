@@ -110,6 +110,7 @@ class _GoalState extends State<Goal> {
                         fontSize: 20,
                         color: Colors.black,
                       ),
+                      maxLines: 3,
                     ),
                   ),
                   

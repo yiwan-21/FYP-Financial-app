@@ -244,10 +244,6 @@ class _GoalProgressState extends State<GoalProgress> {
   double _monthly = 0;
   int _days = 0;
 
-  final String _dialogTitle = 'Add Saved Amount';
-  final String _contentLabel = 'Amount';
-  final String _checkboxLabel = 'Add an expense record';
-
   @override
   void initState() {
     super.initState();
@@ -308,9 +304,9 @@ class _GoalProgressState extends State<GoalProgress> {
       context: context,
       builder: (BuildContext context) {
         return AlertWithCheckbox(
-          title: _dialogTitle,
-          contentLabel: _contentLabel,
-          checkboxLabel: _checkboxLabel,
+          title: 'Save Money to Goal',
+          contentLabel: 'Amount',
+          checkboxLabel: 'Add an expense record',
           onSaveFunction: _onSubmit,
           disableCheckbox: true,
           maxValue: _remaining,
