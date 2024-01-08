@@ -17,8 +17,12 @@ class EditBudget extends StatefulWidget {
 class _EditBudgetState extends State<EditBudget> {
   final _formKey = GlobalKey<FormState>();
   double _amount = 0;
+  bool _loading = false;
 
   Future<void> editBudget() async {
+    setState(() {
+      _loading = true;
+    });
     if (_formKey.currentState!.validate()) {
       // Submit form data to server or database
       _formKey.currentState!.save();
@@ -26,6 +30,9 @@ class _EditBudgetState extends State<EditBudget> {
         Navigator.pop(context);
       });
     }
+    setState(() {
+      _loading = false;
+    });
   }
 
   @override
@@ -78,7 +85,7 @@ class _EditBudgetState extends State<EditBudget> {
               borderRadius: BorderRadius.circular(4.0),
             ),
           ),
-          onPressed: editBudget,
+          onPressed: _loading ? null : editBudget,
           child: const Text('Save'),
         ),
       ],

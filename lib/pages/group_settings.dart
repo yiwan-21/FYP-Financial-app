@@ -25,6 +25,7 @@ class _GroupSettingsState extends State<GroupSettings> {
   bool _isAdding = false;
   bool _isRemoving = false;
   bool _isLeaving = false;
+  bool _loading = false;
 
   @override
   void initState() {
@@ -51,6 +52,9 @@ class _GroupSettingsState extends State<GroupSettings> {
   }
 
   void _addMember() async {
+    setState(() {
+      _loading = true;
+    });
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       _isAddingMember(false);
@@ -68,6 +72,9 @@ class _GroupSettingsState extends State<GroupSettings> {
         }
       });
     }
+    setState(() {
+      _loading = false;
+    });
   }
 
   void _isAddingMember(bool value) {
@@ -81,6 +88,9 @@ class _GroupSettingsState extends State<GroupSettings> {
   }
 
   Future<void> _removeMember(GroupUser member) async {
+    setState(() {
+      _loading = true;
+    });
     await SplitMoneyService.allSettleUp(member.id).then((isSettleUp) async {
       // close dialog
       Navigator.of(context).pop();
@@ -106,6 +116,9 @@ class _GroupSettingsState extends State<GroupSettings> {
             }
           });
     });
+    setState(() {
+      _loading = false;
+    });
   }
 
   void _removeMemberConfirmation(GroupUser member) {
@@ -119,7 +132,9 @@ class _GroupSettingsState extends State<GroupSettings> {
                 cancelText: 'Cancel',
                 confirmText: 'Leave',
                 confirmAction: () {
-                  _removeMember(member);
+                  if (!_loading) {
+                    _removeMember(member);
+                  }
                 },
               );
             },
@@ -133,7 +148,9 @@ class _GroupSettingsState extends State<GroupSettings> {
                 cancelText: 'Cancel',
                 confirmText: 'Remove',
                 confirmAction: () {
-                  _removeMember(member);
+                  if (!_loading) {
+                    _removeMember(member);
+                  }
                 },
               );
             },
@@ -141,6 +158,9 @@ class _GroupSettingsState extends State<GroupSettings> {
   }
 
   Future<void> _deleteGroup() async {
+    setState(() {
+      _loading = true;
+    });
     await SplitMoneyService.groupSettleUp().then((isSettleUp) async {
       if (!isSettleUp) {
         SnackBar snackBar = const SnackBar(
@@ -156,6 +176,9 @@ class _GroupSettingsState extends State<GroupSettings> {
         Navigator.of(context).pop();
       });
     });
+    setState(() {
+      _loading = false;
+    });
   }
 
   void _deleteGroupConfirmation() {
@@ -168,8 +191,10 @@ class _GroupSettingsState extends State<GroupSettings> {
           cancelText: 'Cancel',
           confirmText: 'Delete',
           confirmAction: () {
-            _deleteGroup();
-            Navigator.of(context).pop();
+            if (!_loading) {
+              _deleteGroup();
+              Navigator.of(context).pop();
+            }
           },
         );
       },
@@ -304,7 +329,7 @@ class _GroupSettingsState extends State<GroupSettings> {
                                 child: const Text('Cancel'),
                               ),
                               TextButton(
-                                onPressed: _addMember,
+                                onPressed: _loading ? null : _addMember,
                                 child: const Text('Add'),
                               )
                             ],

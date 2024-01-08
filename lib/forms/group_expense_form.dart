@@ -33,6 +33,7 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
   final List<TextEditingController> _amountControllers = [];
   bool _didChangeAmount = false;
   double _remainingAmount = 0;
+  bool _loading = false;
 
   @override
   void initState() {
@@ -89,6 +90,9 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
   }
 
   Future<void> _addGroupExpense() async {
+    setState(() {
+      _loading = true;
+    });
     _calRemainingAmount();
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -101,6 +105,9 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
         Navigator.pop(context, _splitExpense);
       });
     }
+    setState(() {
+      _loading = false;
+    });
   }
 
   @override
@@ -327,7 +334,7 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
-                  onPressed: _addGroupExpense,
+                  onPressed: _loading ? null : _addGroupExpense,
                   child: const Text('Save'),
                 ),
                 if (!Constant.isMobile(context)) const SizedBox(width: 10),

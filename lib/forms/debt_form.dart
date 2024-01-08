@@ -36,6 +36,7 @@ class _DebtFormState extends State<DebtForm> {
   double _interest = 0;
   int _year = 0;
   int _month = 0;
+  bool _loading = false;
 
   @override
   void initState() {
@@ -50,6 +51,9 @@ class _DebtFormState extends State<DebtForm> {
   }
 
   Future<void> _addDebt() async {
+    setState(() {
+      _loading = true;
+    });
     if (_formKey.currentState!.validate()) {
       // Submit form data to server or database
       _formKey.currentState!.save();
@@ -59,20 +63,27 @@ class _DebtFormState extends State<DebtForm> {
         Navigator.pop(context);
       });
     }
+    setState(() {
+      _loading = false;
+    });
   }
 
   Future<void> _editDebt() async {
+    setState(() {
+      _loading = true;
+    });
     if (_formKey.currentState!.validate()) {
       // Submit form data to server or database
       _formKey.currentState!.save();
 
       int duration = _year * 12 + _month;
-      await DebtService.editDebt(
-              widget.id!, _title, duration, _amount, _interest)
-          .then((_) {
+      await DebtService.editDebt(widget.id!, _title, duration, _amount, _interest).then((_) {
         Navigator.pop(context);
       });
     }
+    setState(() {
+      _loading = false;
+    });
   }
 
   @override
@@ -210,7 +221,7 @@ class _DebtFormState extends State<DebtForm> {
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
-                  onPressed: widget.isEditing ? _editDebt : _addDebt,
+                  onPressed: _loading ? null : widget.isEditing ? _editDebt : _addDebt,
                   child: const Text('Save'),
                 ),
                 const SizedBox(width: 12),

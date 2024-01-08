@@ -48,6 +48,7 @@ class _TransactionFormState extends State<TransactionForm> {
   DateTime _date = DateTime.now();
   List<String> _categoryList = [...Constant.expenseCategories, ...Constant.excludedCategories];
   String _category = Constant.expenseCategories[0];
+  bool _loading = false;
 
   @override
   void initState() {
@@ -63,6 +64,9 @@ class _TransactionFormState extends State<TransactionForm> {
   }
 
  Future<void> addTransaction() async {
+    setState(() {
+      _loading = true;
+    });
     if (_formKey.currentState!.validate()) {
       // Form is valid
       _formKey.currentState!.save();
@@ -79,9 +83,15 @@ class _TransactionFormState extends State<TransactionForm> {
         Navigator.pop(context, newTransaction);
       });
     }
+    setState(() {
+      _loading = false;
+    });
   }
 
   void updateTransaction() async {
+    setState(() {
+      _loading = true;
+    });
     if (_formKey.currentState!.validate()) {
       // Form is valid
       _formKey.currentState!.save();
@@ -101,6 +111,9 @@ class _TransactionFormState extends State<TransactionForm> {
         Navigator.pop(context);
       });
     }
+    setState(() {
+      _loading = false;
+    });
   }
 
   Future<void> _selectDate() async {
@@ -253,9 +266,11 @@ class _TransactionFormState extends State<TransactionForm> {
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
-                  onPressed: widget.isEditing
-                      ? updateTransaction
-                      : addTransaction,
+                  onPressed: _loading 
+                      ? null 
+                      : widget.isEditing
+                        ? updateTransaction
+                        : addTransaction,
                   child: widget.isEditing
                       ? const Text('Edit Transaction')
                       : const Text('Add Transaction'),

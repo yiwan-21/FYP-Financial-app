@@ -20,6 +20,7 @@ class _GoalFormState extends State<GoalForm> {
   String _title = '';
   double _amount = 0;
   DateTime _date = DateTime.now();
+  bool _loading = false;
 
   Future<void> _selectDate(BuildContext context) async {
     final firstDate = DateTime.now();
@@ -38,6 +39,9 @@ class _GoalFormState extends State<GoalForm> {
   }
 
   Future<void> addGoal() async {
+    setState(() {
+      _loading = true;
+    });
     if (_formKey.currentState!.validate()) {
       // Submit form data to server or database
       _formKey.currentState!.save();
@@ -60,6 +64,9 @@ class _GoalFormState extends State<GoalForm> {
         Navigator.pop(context);
       }
     }
+    setState(() {
+      _loading = false;
+    });
   }
   
   @override
@@ -132,7 +139,7 @@ class _GoalFormState extends State<GoalForm> {
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
-                  onPressed: addGoal,
+                  onPressed: _loading ? null : addGoal,
                   child: const Text('Save'),
                 ),
                 const SizedBox(width: 12),

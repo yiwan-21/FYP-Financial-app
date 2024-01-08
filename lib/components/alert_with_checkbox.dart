@@ -39,6 +39,7 @@ class _AlertWithCheckboxState extends State<AlertWithCheckbox> {
   final TextEditingController _controller = TextEditingController();
   bool _isChecked = true;
   double _value = 0;
+  bool _loading = false;
 
   @override
   void initState() {
@@ -140,13 +141,19 @@ class _AlertWithCheckboxState extends State<AlertWithCheckbox> {
           ),
           child: Text(widget.confirmButtonLabel ?? 'Save'),
           onPressed: () {
-            if (_formKey.currentState!.validate()) {
+            if (!_loading && _formKey.currentState!.validate()) {
+              setState(() {
+                _loading = true;
+              });
               // Submit form data to server or database
               _formKey.currentState!.save();
               widget.onSaveFunction(_value);
               if (!widget.disableCheckbox && widget.checkedFunction != null && _isChecked) {
                 widget.checkedFunction!(_value);
               }
+              setState(() {
+                _loading = false;
+              });
               Navigator.pop(context);
             }
           },
