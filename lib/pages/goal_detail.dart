@@ -24,6 +24,7 @@ class _GoalDetailState extends State<GoalDetail> {
   String _id = '';
   String _title = '';
   bool _pinned = false;
+  double _saved = 0;
 
   @override
   void initState() {
@@ -33,6 +34,7 @@ class _GoalDetailState extends State<GoalDetail> {
     _id = goal.id;
     _title = goal.title;
     _pinned = goal.pinned;
+    _saved = goal.saved;
   }
 
   void _deleteDialog() {
@@ -44,7 +46,7 @@ class _GoalDetailState extends State<GoalDetail> {
           content: 'Are you sure you want to delete this goal?',
           cancelText: 'Cancel',
           confirmText: 'Delete',
-          confirmAction: _didSpentDialog,
+          confirmAction: () => _saved == 0 ? _deleteGoal(false) : _didSpentDialog,
         );
       },
     );
@@ -112,7 +114,10 @@ class _GoalDetailState extends State<GoalDetail> {
 
     await GoalService.deleteGoal(_id).then((_) {
       // quit dialog boxes
-      Navigator.pop(context);
+      if (_saved != 0) {
+        // no didSpent dialog box to quit
+        Navigator.pop(context);
+      }
       Navigator.pop(context);
       // quit goal progress page
       // to inform the goal has been deleted
