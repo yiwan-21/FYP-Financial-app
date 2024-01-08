@@ -177,14 +177,14 @@ class _DebtCardState extends State<DebtCard> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        'Total: RM ${widget.amount.toStringAsFixed(2)}',
+                        'Monthly plan: RM ${widget.plan.toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontSize: 16,
                           overflow: TextOverflow.visible,
                         ),
                       ),
                       Text(
-                        'Monthly plan: RM ${widget.plan.toStringAsFixed(2)}',
+                        'Total: RM ${widget.amount.toStringAsFixed(2)}',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.brown[200],
@@ -210,14 +210,14 @@ class _DebtCardState extends State<DebtCard> {
                 child: Column(
                   children: [
                     Text(
-                      'Total : RM ${widget.amount.toStringAsFixed(2)}',
+                      'Monthly plan: RM ${widget.plan.toStringAsFixed(2)}',
                       style: const TextStyle(
                         fontSize: 16,
                         overflow: TextOverflow.visible,
                       ),
                     ),
                     Text(
-                      'Monthly plan : RM ${widget.plan.toStringAsFixed(2)}',
+                      'Total: RM ${widget.amount.toStringAsFixed(2)}',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.brown[200],
