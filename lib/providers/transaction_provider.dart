@@ -252,7 +252,7 @@ class TransactionProvider extends ChangeNotifier {
         int monthIndex = monthRange.indexOf(transaction.date.month);
         if (Constant.autonomousExpenses.contains(transaction.category)) {
           barData[monthIndex].addAutonomous(transaction.amount);
-        } else {
+        } else if (Constant.expenseCategories.contains(transaction.category)) {
           barData[monthIndex].addDiscretionary(transaction.amount);
         }
       }
