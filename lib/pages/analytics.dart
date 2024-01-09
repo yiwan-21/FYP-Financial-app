@@ -1,6 +1,7 @@
 import 'package:financial_app/components/monthly_surplus.dart';
 import 'package:flutter/material.dart';
 
+import '../components/monthly_category_chart.dart';
 import '../constants/constant.dart';
 import '../components/tracker_overview_chart.dart';
 import '../components/auto_dis_chart.dart';
@@ -39,10 +40,20 @@ class _AnalyticsState extends State<Analytics> {
     Widget landscapeLayout() {
       return Column(
         children: [
-          Row(
+          const Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Expanded(child: TrackerOverviewGraph()),
-              Expanded(
+              Expanded(child: TrackerOverviewGraph()),
+              Expanded(child: MonthlyCategoryChart()),
+              
+            ],
+          ),
+          const SizedBox(height: verticalSpacing),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Expanded(child: MonthlySurplusGraph()),
+               Expanded(
                 child: Column(
                   children: [
                     const AutoDisChart(),
@@ -52,15 +63,12 @@ class _AnalyticsState extends State<Analytics> {
               ),
             ],
           ),
+          const SizedBox(height: verticalSpacing),
           const Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: MonthlySurplusGraph()),
-            ],
-          ),
-          const Row(
-            children: [
+              Expanded(child: DailySurplusChart(),),
               Expanded(child: MonitorGoalChart()),
-              Expanded(child: MonitorDebtChart()),
             ],
           ),
         ],
@@ -70,16 +78,18 @@ class _AnalyticsState extends State<Analytics> {
     Widget portraitLayout() {
       return Column(
         children: [
-          const TrackerOverviewGraph(),
+          const MonthlyCategoryChart(),
           const SizedBox(height: verticalSpacing),
           const AutoDisChart(),
           buildCard(),
           const SizedBox(height: verticalSpacing),
           const MonthlySurplusGraph(),
           const SizedBox(height: verticalSpacing),
-          const MonitorGoalChart(),
+          const DailySurplusChart(),
           const SizedBox(height: verticalSpacing),
-          const MonitorDebtChart(),
+          const TrackerOverviewGraph(),
+          const SizedBox(height: verticalSpacing),
+          const MonitorGoalChart(),
         ],
       );
     }
@@ -92,7 +102,7 @@ class _AnalyticsState extends State<Analytics> {
               const SizedBox(height: verticalSpacing),
               isMobile ? portraitLayout() : landscapeLayout(),
               const SizedBox(height: verticalSpacing),
-              const DailySurplusChart(),
+              const MonitorDebtChart(),
               const SizedBox(height: verticalSpacing),
             ],
           );

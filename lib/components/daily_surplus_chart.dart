@@ -79,7 +79,7 @@ class _DailySurplusChartState extends State<DailySurplusChart> {
               return SfCartesianChart(
                 primaryXAxis: CategoryAxis(title: AxisTitle(text: 'Date')),
                 // Chart title
-                title: ChartTitle(text: 'Daily Surplus or Deficit'),
+                title: ChartTitle(text: 'Cumulative difference of total income and expense'),
                 // Enable legend
                 // legend: Legend(isVisible: true),
                 // Enable tooltip
@@ -94,8 +94,7 @@ class _DailySurplusChartState extends State<DailySurplusChart> {
                     // Setting the tooltip header
                     tooltipArgs.header = surplus >= 0 ? 'Surplus' : 'Deficit';
                     // Setting the tooltip text
-                    tooltipArgs.text =
-                        '${point.x}: ${surplus.toStringAsFixed(2)}';
+                    tooltipArgs.text = '${point.x}: ${surplus.toStringAsFixed(2)}';
                   }
                 },
                 series: <ChartSeries<DailySurplusData, String>>[
@@ -112,7 +111,6 @@ class _DailySurplusChartState extends State<DailySurplusChart> {
                     dataLabelMapper: (DailySurplusData record, _) =>
                         record.surplus.toStringAsFixed(2),
                     markerSettings: const MarkerSettings(isVisible: true),
-                    name: 'Daily Surplus or Deficit',
                   ),
                 ],
               );
@@ -124,7 +122,7 @@ class _DailySurplusChartState extends State<DailySurplusChart> {
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
           child: Text(
-              'Choose either the start or end date for Daily Surplus or Deficit chart',
+              'Choose the start date or the end date',
               style: TextStyle(
                 color: Colors.blueAccent,
                 fontSize: 12,
@@ -132,36 +130,48 @@ class _DailySurplusChartState extends State<DailySurplusChart> {
         ),
         Form(
             key: _formKey,
-            child: Row(
-              children: [
-                const SizedBox(width: 15),
-                Expanded(
-                  child: TextFormField(
-                    readOnly: true,
-                    onTap: () {
-                      _selectStartDate(context);
-                    },
-                    decoration: customInputDecoration(labelText: 'Start Date'), 
-                    controller: TextEditingController(
-                      text: _surplusStartDate.toString().substring(0, 10),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 500),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: TextFormField(
+                      readOnly: true,
+                      onTap: () {
+                        _selectStartDate(context);
+                      },
+                      decoration: customInputDecoration(
+                        labelText: 'Start Date',
+                        helperText: 'Start date: Auto set to 8 days before End date',
+                        helperMaxLines: 2,
+                      ), 
+                      controller: TextEditingController(
+                        text: _surplusStartDate.toString().substring(0, 10),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: TextFormField(
-                    readOnly: true,
-                    onTap: () {
-                      _selectEndDate(context);
-                    },
-                    decoration: customInputDecoration(labelText: 'End Date'),
-                    controller: TextEditingController(
-                      text: _surplusEndDate.toString().substring(0, 10),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: TextFormField(
+                      readOnly: true,
+                      onTap: () {
+                        _selectEndDate(context);
+                      },
+                      decoration: customInputDecoration(
+                        labelText: 'End Date',
+                        helperText: 'End date: Auto set to 8 days after Start date',
+                        helperMaxLines: 2,
+                      ),
+                      controller: TextEditingController(
+                        text: _surplusEndDate.toString().substring(0, 10),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 15),
-              ],
+                  const SizedBox(width: 15),
+                ],
+              ),
             ))
       ],
     );

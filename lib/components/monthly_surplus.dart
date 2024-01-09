@@ -22,7 +22,7 @@ class _MonthlySurplusGraphState extends State<MonthlySurplusGraph> {
         return SfCartesianChart(
           primaryXAxis: CategoryAxis(),
           // Chart title
-          title: ChartTitle(text: 'Monthly Surplus or Deficit'),
+          title: ChartTitle(text: 'Monthly Net Income'),
           // Enable tooltip
           tooltipBehavior: TooltipBehavior(enable: true),
           series: <ChartSeries<TrackerOverviewData, String>>[
@@ -30,9 +30,25 @@ class _MonthlySurplusGraphState extends State<MonthlySurplusGraph> {
                 dataSource: lineData,
                 xValueMapper: (TrackerOverviewData record, _) => record.month,
                 yValueMapper: (TrackerOverviewData record, _) => record.income - record.expense,
+                dataLabelMapper: (TrackerOverviewData record, _) => (record.income - record.expense).toStringAsFixed(2),
+                dataLabelSettings: const DataLabelSettings(isVisible: true),
+                markerSettings: const MarkerSettings(isVisible: true),
                 name: '',
             ),
           ],
+          onTooltipRender: (TooltipArgs tooltipArgs) {
+            if (tooltipArgs.dataPoints != null &&
+                tooltipArgs.dataPoints!.isNotEmpty) {
+              int index = tooltipArgs.pointIndex!.toInt();
+              CartesianChartPoint<dynamic> point =
+                  tooltipArgs.dataPoints![index];
+              num surplus = point.y;
+              // Setting the tooltip header
+              tooltipArgs.header = surplus >= 0 ? 'Income' : 'Loss';
+              // Setting the tooltip text
+              tooltipArgs.text = '${point.x}: ${surplus.toStringAsFixed(2)}';
+            }
+          },
         );
       },
     );
