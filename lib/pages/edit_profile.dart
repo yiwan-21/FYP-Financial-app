@@ -17,6 +17,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
   final _formKey = GlobalKey<FormState>();
   String _name = '';
   String _email = '';
+  bool _loading = false;
 
   @override
   void initState() {
@@ -28,15 +29,35 @@ class _EditProfileFormState extends State<EditProfileForm> {
   }
 
   void resetPassword() async {
+    setState(() {
+      _loading = true;
+    });
     await Auth.resetPassword(_email).then((_) {
       SnackBar snackBar = SnackBar(content: Text(SuccessMessage.resetPassword));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  void saveProfile() async {
+    setState(() {
+      _loading = true;
+    });
+    if (_formKey.currentState!.validate()) {
+      // Submit form data to server or database
+      _formKey.currentState!.save();
+      Provider.of<UserProvider>(context, listen: false).updateName(_name);
+      Navigator.pop(context);
+    }
+    setState(() {
+      _loading = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final UserProvider userProvider = Provider.of<UserProvider>(context);
     return Scaffold(
         appBar: AppBar(
           title: const Text('Edit Profile'),
@@ -116,7 +137,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
                           borderRadius: BorderRadius.circular(4.0),
                         ),
                       ),
-                      onPressed: resetPassword,
+                      onPressed: _loading ? null : resetPassword,
                       child: const Text('Reset Password'),
                     ),
                     const SizedBox(height: 60.0),
@@ -130,15 +151,8 @@ class _EditProfileFormState extends State<EditProfileForm> {
                               borderRadius: BorderRadius.circular(4.0),
                             ),
                           ),
+                          onPressed: _loading ? null : saveProfile,
                           child: const Text('Save'),
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              // Submit form data to server or database
-                              _formKey.currentState!.save();
-                              userProvider.updateName(_name);
-                              Navigator.pop(context);
-                            }
-                          },
                         ),
                         const SizedBox(width: 12),
                         ElevatedButton(

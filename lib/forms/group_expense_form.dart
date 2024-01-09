@@ -33,6 +33,7 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
   final List<TextEditingController> _amountControllers = [];
   bool _didChangeAmount = false;
   double _remainingAmount = 0;
+  bool _loading = false;
 
   @override
   void initState() {
@@ -53,42 +54,37 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
 
   void _calAmount() {
     if (_splitExpense.splitMethod == Constant.splitEqually) {
-      double amount = _splitExpense.amount / _splitExpense.sharedRecords.length;
-      for (var controller in _amountControllers) {
-        controller.text = amount.toStringAsFixed(2);
+      double amountPerPerson = _splitExpense.amount / (_splitExpense.sharedRecords.isNotEmpty ? _splitExpense.sharedRecords.length : 1);
+      for (int i = 0; i < _splitExpense.sharedRecords.length; i++) {
+        _splitExpense.sharedRecords[i].amount = amountPerPerson;
+        _amountControllers[i].text = amountPerPerson.toStringAsFixed(2);
       }
-      setState(() {
-        for (var record in _splitExpense.sharedRecords) {
-          record.amount = amount;
-        }
-      });
-    }else{
-      // reset to 0
-      for (var controller in _amountControllers) {
-        controller.text = 0.toStringAsFixed(2);
-      }
-      setState(() {
-        for (var record in _splitExpense.sharedRecords) {
-          record.amount = 0;
-        }
-        _remainingAmount = _splitExpense.amount;
-      });
+    } else {
+      _calRemainingAmount();
     }
   }
 
   void _calRemainingAmount() {
-    if (_didChangeAmount) {
-      setState(() {
-        _remainingAmount = _splitExpense.amount;
-        for (var record in _splitExpense.sharedRecords) {
-          _remainingAmount -= record.amount;
-        }
-        _didChangeAmount = false;
-      });
+    if(_didChangeAmount){
+    double totalSharedAmount = _splitExpense.sharedRecords.fold(0, (sum, record) => sum + record.amount);
+    totalSharedAmount = double.parse(totalSharedAmount.toStringAsFixed(2));
+
+    setState(() {
+      double difference = _splitExpense.amount - totalSharedAmount;
+      _remainingAmount = double.parse(difference.toStringAsFixed(2));
+
+      if (_remainingAmount.abs() <= 0.01) {
+        _remainingAmount = 0;
+      }
+    });
     }
   }
 
+
   Future<void> _addGroupExpense() async {
+    setState(() {
+      _loading = true;
+    });
     _calRemainingAmount();
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -101,6 +97,9 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
         Navigator.pop(context, _splitExpense);
       });
     }
+    setState(() {
+      _loading = false;
+    });
   }
 
   @override
@@ -327,7 +326,7 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
-                  onPressed: _addGroupExpense,
+                  onPressed: _loading ? null : _addGroupExpense,
                   child: const Text('Save'),
                 ),
                 if (!Constant.isMobile(context)) const SizedBox(width: 10),

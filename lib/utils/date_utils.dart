@@ -9,3 +9,14 @@ DateTime getNextMonth(DateTime date) {
   }
   return nextMonth;
 }
+
+// @return: 0 - 11
+List<int> getLatestNmonthIndex(int n) {
+  List<int> months = [];
+  int month = DateTime.now().month;
+  for (int i = 0; i < n; i++) {
+    months.add((month - i - 1 + 12) % 12);
+  }
+
+  return months;
+}

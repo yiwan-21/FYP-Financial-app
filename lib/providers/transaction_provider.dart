@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../components/auto_dis_chart.dart';
 import '../components/daily_surplus_chart.dart';
+import '../components/monthly_category_chart.dart';
 import '../components/tracker_overview_chart.dart';
 import '../components/tracker_transaction.dart';
 import '../constants/constant.dart';
@@ -229,8 +230,6 @@ class TransactionProvider extends ChangeNotifier {
           } else {
             lineData[monthIndex].addIncome(transaction.amount);
           }
-        } else if (transaction.category == "Savings Goal") {
-          lineData[monthIndex].addSavingsGoal(transaction.amount);
         }
       }
     }
@@ -254,11 +253,44 @@ class TransactionProvider extends ChangeNotifier {
         int monthIndex = monthRange.indexOf(transaction.date.month);
         if (Constant.autonomousExpenses.contains(transaction.category)) {
           barData[monthIndex].addAutonomous(transaction.amount);
-        } else {
+        } else if (Constant.expenseCategories.contains(transaction.category)) {
           barData[monthIndex].addDiscretionary(transaction.amount);
         }
       }
     }
     return barData;
+  }
+
+  List<MonthCategoryData> getMonthlyExpenseCategoryData({int monthCount = 5}) {
+    DateTime now = DateTime.now();
+    Map<String, List<double>> categoryMonthlyTotals = {};
+
+    for (int i = 0; i < monthCount; i++) {
+      DateTime monthStart = DateTime(now.year, now.month - i, 1);
+      DateTime monthEnd = DateTime(now.year, now.month - i + 1, 0);
+
+      var monthlyExpenses = _transactions.where((transaction) =>
+          transaction.date.isAfter(monthStart) &&
+          transaction.date.isBefore(monthEnd) &&
+          transaction.isExpense && Constant.expenseCategories.contains(transaction.category));
+
+      for (var transaction in monthlyExpenses) {
+        categoryMonthlyTotals.putIfAbsent(transaction.category, () => List.filled(monthCount, 0.0));
+        categoryMonthlyTotals[transaction.category]?[i] += transaction.amount;
+      }
+    }
+
+    List<MonthCategoryData> monthlyData = [];
+    categoryMonthlyTotals.forEach((category, monthlyTotals) {
+      for (int i = 0; i < monthCount; i++) {
+        monthlyData.add(MonthCategoryData(
+            Constant.monthLabels[(now.month - i - 1 + 12) % 12],
+            category,
+            monthlyTotals[i], 
+        ));
+      }
+    });
+
+    return monthlyData;
   }
 }

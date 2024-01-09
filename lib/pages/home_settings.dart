@@ -25,6 +25,7 @@ class _HomeSettingsState extends State<HomeSettings> {
   String _selectedGroup = '';
   final Future<List<String>> _budgetList = BudgetService.getBudgetCategories();
   String _selectedBudget = '';
+  bool _loading = false;
 
   @override
   void initState() {
@@ -46,6 +47,9 @@ class _HomeSettingsState extends State<HomeSettings> {
   }
 
   Future<void> _updateHomeItems() async {
+    setState(() {
+      _loading = true;
+    });
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
@@ -55,6 +59,9 @@ class _HomeSettingsState extends State<HomeSettings> {
         Navigator.pop(context);
       });
     }
+    setState(() {
+      _loading = false;
+    });
   }
 
   @override
@@ -217,7 +224,7 @@ class _HomeSettingsState extends State<HomeSettings> {
                           borderRadius: BorderRadius.circular(4.0),
                         ),
                       ),
-                      onPressed: _updateHomeItems,
+                      onPressed: _loading ? null : _updateHomeItems,
                       child: const Text('Save'),
                     ),
                   ),

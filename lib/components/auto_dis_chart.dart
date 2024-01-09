@@ -35,7 +35,7 @@ class _AutoDisChartState extends State<AutoDisChart> {
           primaryXAxis: CategoryAxis(),
           // Chart title
           title: ChartTitle(
-              text: 'Ratio of Autonomous to Discretionary Expenses'),
+              text: 'Total amount of Autonomous and Discretionary Expenses'),
           // Enable legend
           legend: Legend(isVisible: true),
           // Enable tooltip

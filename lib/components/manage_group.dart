@@ -21,6 +21,7 @@ class _ManageGroupState extends State<ManageGroup> {
   final _formKey = GlobalKey<FormState>();
   var pickedImage = null;
   bool setGroupImage = false;
+  bool _loading = false;
 
   String _groupName = '';
 
@@ -33,6 +34,9 @@ class _ManageGroupState extends State<ManageGroup> {
   }
 
   Future<void> _addGroup() async {
+    setState(() {
+      _loading = true;
+    });
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
@@ -45,9 +49,15 @@ class _ManageGroupState extends State<ManageGroup> {
         }
       });
     }
+    setState(() {
+      _loading = false;
+    });
   }
 
   Future<void> _editGroup() async {
+    setState(() {
+      _loading = true;
+    });
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       SplitMoneyProvider splitMoneyProvider = Provider.of<SplitMoneyProvider>(context, listen: false);
@@ -61,6 +71,9 @@ class _ManageGroupState extends State<ManageGroup> {
         Navigator.pop(context);
       }
     }
+    setState(() {
+      _loading = false;
+    });
   }
 
   void _setGroupImage() async {
@@ -182,7 +195,7 @@ class _ManageGroupState extends State<ManageGroup> {
               borderRadius: BorderRadius.circular(4.0),
             ),
           ),
-          onPressed: widget.isEditing ? _editGroup : _addGroup,
+          onPressed: _loading ? null : widget.isEditing ? _editGroup : _addGroup,
           child: const Text('Save'),
         ),
         if (!Constant.isMobile(context)) 

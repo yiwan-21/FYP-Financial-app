@@ -19,8 +19,12 @@ class _SetBudgetState extends State<SetBudget> {
   String _category = Constant.expenseCategories[0];
   double _amount = 0;
   bool _categoryExist = false;
+  bool _loading = false;
 
   Future<void> _setBudget() async {
+    setState(() {
+      _loading = true;
+    });
     // check other fields' validator
     if (_formKey.currentState!.validate()) {
       // check whether the category is exist in database
@@ -32,8 +36,10 @@ class _SetBudgetState extends State<SetBudget> {
               Navigator.pop(context);
         });
       }
-
     }
+    setState(() {
+      _loading = false;
+    });
   }
 
   @override
@@ -108,7 +114,7 @@ class _SetBudgetState extends State<SetBudget> {
               borderRadius: BorderRadius.circular(4.0),
             ),
           ),
-          onPressed: _setBudget,
+          onPressed: _loading ? null : _setBudget,
           child: const Text('Set'),
         ),
         if (!Constant.isMobile(context)) const SizedBox(width: 12),

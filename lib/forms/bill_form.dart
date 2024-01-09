@@ -33,6 +33,7 @@ class _BillFormState extends State<BillForm> {
   double _amount = 0;
   DateTime _date = DateTime.now();
   bool _fixed = false;
+  bool _loading = false;
 
   @override
   void initState() {
@@ -44,6 +45,9 @@ class _BillFormState extends State<BillForm> {
   }
 
   Future<void> _addBill() async {
+    setState(() {
+      _loading = true;
+    });
     if (_formKey.currentState!.validate()) {
       // Submit form data to server or database
       _formKey.currentState!.save();
@@ -52,9 +56,15 @@ class _BillFormState extends State<BillForm> {
         Navigator.pop(context);
       });
     }
+    setState(() {
+      _loading = false;
+    });
   }
 
   Future<void> _editBill() async {
+    setState(() {
+      _loading = true;
+    });
     if (_formKey.currentState!.validate()) {
       // Submit form data to server or database
       _formKey.currentState!.save();
@@ -63,6 +73,9 @@ class _BillFormState extends State<BillForm> {
         Navigator.pop(context);
       });
     }
+    setState(() {
+      _loading = false;
+    });
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -184,7 +197,7 @@ class _BillFormState extends State<BillForm> {
                       borderRadius: BorderRadius.circular(4.0),
                     ),
                   ),
-                  onPressed: widget.isEditing ? _editBill : _addBill,
+                  onPressed: _loading ? null : widget.isEditing ? _editBill : _addBill,
                   child: const Text('Save'),
                 ),
                 const SizedBox(width: 12),

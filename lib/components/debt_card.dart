@@ -177,14 +177,14 @@ class _DebtCardState extends State<DebtCard> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        'Total: RM ${widget.amount.toStringAsFixed(2)}',
+                        'Monthly plan: RM ${widget.plan.toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontSize: 16,
                           overflow: TextOverflow.visible,
                         ),
                       ),
                       Text(
-                        'Monthly plan: RM ${widget.plan.toStringAsFixed(2)}',
+                        'Total: RM ${widget.amount.toStringAsFixed(2)}',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.brown[200],
@@ -210,14 +210,14 @@ class _DebtCardState extends State<DebtCard> {
                 child: Column(
                   children: [
                     Text(
-                      'Total : RM ${widget.amount.toStringAsFixed(2)}',
+                      'Monthly plan: RM ${widget.plan.toStringAsFixed(2)}',
                       style: const TextStyle(
                         fontSize: 16,
                         overflow: TextOverflow.visible,
                       ),
                     ),
                     Text(
-                      'Monthly plan : RM ${widget.plan.toStringAsFixed(2)}',
+                      'Total: RM ${widget.amount.toStringAsFixed(2)}',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.brown[200],
@@ -245,31 +245,49 @@ class _DebtCardState extends State<DebtCard> {
                     'Remaining Duration: $_remainYear years $_remainMonth months'),
               ],
             ),
+            const SizedBox(height: 15),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(Icons.auto_graph_rounded, size: 20),
                 const SizedBox(width: 3),
                 Text('Interests: ${widget.interests}%'),
                 const Spacer(),
-                if ((widget.history.isEmpty ||
-                    widget.history.last['balance'] >= 0))
-                  IconButton(
-                    iconSize: 20,
-                    splashRadius: 10,
-                    onPressed: widget.paid ? null : _payDebtDialog,
-                    icon: widget.paid
-                        ? const Icon(Icons.check_circle_outlined)
-                        : const Icon(Icons.payment_sharp),
-                    color: Colors.brown,
-                    disabledColor: Colors.green,
-                    alignment: Alignment.center,
+                if ((widget.history.isEmpty || widget.history.last['balance'] >= 0))
+                  GestureDetector(
+                    onTap: widget.paid ? null : _payDebtDialog,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          width: 1,
+                          color: Colors.brown,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        children: [
+                          const Text(
+                            "Pay Debt",
+                            style: TextStyle(
+                              color: Colors.brown,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          widget.paid
+                            ? const Icon(Icons.check_circle_outlined, size: 20, color: Colors.green)
+                            : const Icon(Icons.payment_sharp, size: 20, color: Colors.brown),
+                        ],
+                      ),
+                    ),
                   ),
               ],
             ),
             if (widget.history.isNotEmpty)
-              const Divider(thickness: 1, height: 10),
-            if (widget.history.isNotEmpty) const SizedBox(height: 10),
+              const Divider(thickness: 1, height: 30),
             if (widget.history.isNotEmpty)
               Table(
                 columnWidths: const <int, TableColumnWidth>{
