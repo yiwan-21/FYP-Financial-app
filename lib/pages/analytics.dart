@@ -1,3 +1,4 @@
+import 'package:financial_app/components/monthly_surplus.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/constant.dart';
@@ -53,6 +54,11 @@ class _AnalyticsState extends State<Analytics> {
           ),
           const Row(
             children: [
+              Expanded(child: MonthlySurplusGraph()),
+            ],
+          ),
+          const Row(
+            children: [
               Expanded(child: MonitorGoalChart()),
               Expanded(child: MonitorDebtChart()),
             ],
@@ -68,6 +74,8 @@ class _AnalyticsState extends State<Analytics> {
           const SizedBox(height: verticalSpacing),
           const AutoDisChart(),
           buildCard(),
+          const SizedBox(height: verticalSpacing),
+          const MonthlySurplusGraph(),
           const SizedBox(height: verticalSpacing),
           const MonitorGoalChart(),
           const SizedBox(height: verticalSpacing),
