@@ -229,8 +229,6 @@ class TransactionProvider extends ChangeNotifier {
           } else {
             lineData[monthIndex].addIncome(transaction.amount);
           }
-        } else if (transaction.category == "Savings Goal") {
-          lineData[monthIndex].addSavingsGoal(transaction.amount);
         }
       }
     }

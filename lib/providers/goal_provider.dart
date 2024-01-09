@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:financial_app/components/history_card.dart';
+import 'package:financial_app/components/tracker_overview_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../components/goal.dart';
@@ -15,6 +17,7 @@ class GoalProvider extends ChangeNotifier {
   double _amount = 0;
   double _saved = 0;
   bool _pinned = false;
+  final Map<String, List<HistoryCard>> _historyCards = {};
 
   // List of goals
   Goal? _pinnedGoal;
@@ -76,7 +79,11 @@ class GoalProvider extends ChangeNotifier {
 
       for (var change in event.docChanges) {
         if (change.type == DocumentChangeType.added) {
-          _goals.add(Goal.fromSnapshot(change.doc));
+          Goal newGoal = Goal.fromSnapshot(change.doc);
+          _goals.add(newGoal);
+          GoalService.getHistoryCards(change.doc.id).then((List<HistoryCard> historyCards) {
+            _historyCards[newGoal.id] = historyCards;
+          });
         } else if (change.type == DocumentChangeType.modified) {
           int index = _goals.indexWhere((element) => element.id == change.doc.id);
           _goals[index] = Goal.fromSnapshot(change.doc);
@@ -103,7 +110,27 @@ class GoalProvider extends ChangeNotifier {
     _listener?.cancel();
     _pinnedGoal = null;
     _goals.clear();
+    _historyCards.clear();
     notifyListeners();
+  }
+
+  List<TrackerOverviewData> getTrackerOverviewData({int monthCount = 5}) {
+    List<TrackerOverviewData> lineData = [];
+    final month = DateTime.now().month;
+    final monthRange = [];
+    for (int i = (month + 12) - (monthCount - 1) - 1; i < month + 12; i++) {
+      lineData.add(TrackerOverviewData(Constant.monthLabels[(i % 12)], 0, 0, 0));
+      monthRange.add((i % 12) + 1);
+    }
+
+    for (HistoryCard card in _historyCards.values.expand((element) => element)) {
+      int monthIndex = monthRange.indexOf(card.date.month);
+      if (monthIndex >= 0) {
+        lineData[monthIndex].addSavingsGoal(card.amount);
+      }
+    }
+    
+    return lineData;
   }
 
   List<MonitorGoalData> getMonitorGoalData({int monthCount = 5}) {

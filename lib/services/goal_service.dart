@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:financial_app/components/history_card.dart';
 
 import '../constants/notification_type.dart';
 import '../firebase_instance.dart';
@@ -45,6 +46,21 @@ class GoalService {
         .collection('history')
         .orderBy('date', descending: true)
         .snapshots();
+  }
+
+  static Future<List<HistoryCard>> getHistoryCards(String id) async {
+    List<HistoryCard> historyCards = [];
+    await goalsCollection
+        .doc(id)
+        .collection('history')
+        .get()
+        .then((snapshot) {
+          for (var doc in snapshot.docs) {
+            historyCards.add(HistoryCard.fromDocument(doc));
+          }
+        });
+
+    return historyCards;
   }
 
   static Future<dynamic> addGoal(Goal newGoal) async {
