@@ -99,7 +99,7 @@ class _DailySurplusChartState extends State<DailySurplusChart> {
                   }
                 },
                 series: <ChartSeries<DailySurplusData, String>>[
-                  SplineSeries(
+                  LineSeries <DailySurplusData, String>(
                     dataSource: dailySurplusData,
                     xValueMapper: (DailySurplusData record, _) =>
                         '${Constant.monthLabels[record.date.month - 1]} ${record.date.day}',
@@ -111,7 +111,6 @@ class _DailySurplusChartState extends State<DailySurplusChart> {
                     ),
                     dataLabelMapper: (DailySurplusData record, _) =>
                         record.surplus.toStringAsFixed(2),
-                    splineType: SplineType.cardinal,
                     markerSettings: const MarkerSettings(isVisible: true),
                     name: 'Daily Surplus or Deficit',
                   ),
