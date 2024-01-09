@@ -169,6 +169,8 @@ class _DebtFormState extends State<DebtForm> {
             ),
             const SizedBox(height: 24.0),
             TextFormField(
+              // not allowed to edit amount
+              enabled: !widget.isEditing,
               initialValue: _amount == 0 ? null : _amount.toStringAsFixed(2),
               decoration: customInputDecoration(labelText: 'Amount'),
               keyboardType:
