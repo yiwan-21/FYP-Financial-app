@@ -77,7 +77,7 @@ class _TrackerState extends State<Tracker> {
               padding: EdgeInsets.symmetric(
                   horizontal: Constant.isMobile(context) ? 0 : 8),
               child: const Text(
-                "Spending Categories",
+                "Overall Spending Categories",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
