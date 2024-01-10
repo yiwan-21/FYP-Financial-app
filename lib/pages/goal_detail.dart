@@ -46,7 +46,7 @@ class _GoalDetailState extends State<GoalDetail> {
           content: 'Are you sure you want to delete this goal?',
           cancelText: 'Cancel',
           confirmText: 'Delete',
-          confirmAction: () => _saved == 0 ? _deleteGoal(false) : _didSpentDialog,
+          confirmAction: () => _saved == 0 ? _deleteGoal(false) : _didSpentDialog(),
         );
       },
     );
@@ -56,6 +56,7 @@ class _GoalDetailState extends State<GoalDetail> {
     showDialog(
         context: context,
         builder: (context) {
+          debugPrint('showing didSpent dialog');
           return AlertConfirmAction(
             title: 'Did you spent the money?',
             content: 'Did you spent the money saved for this goal?',
