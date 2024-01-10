@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:financial_app/components/custom_input_decoration.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../constants/constant.dart';
 import '../constants/tour_example.dart';
@@ -23,7 +25,8 @@ class Budgeting extends StatefulWidget {
 
 class _BudgetingState extends State<Budgeting> {
   bool get _isMobile => Constant.isMobile(context);
-  final Future<Stream<QuerySnapshot>> _streamFuture = BudgetService.getBudgetingStream();
+  final Future<Stream<QuerySnapshot>> _streamFuture =
+      BudgetService.getBudgetingStream();
   final TextEditingController _textController = TextEditingController();
   DateTime _startingDate = DateTime.now();
   DateTime _resetDate = DateTime.now();
@@ -43,7 +46,7 @@ class _BudgetingState extends State<Budgeting> {
   ];
   bool _showcasingWebView = false;
   bool _runningShowcase = false;
-  
+
   @override
   void initState() {
     super.initState();
@@ -55,8 +58,9 @@ class _BudgetingState extends State<Budgeting> {
       });
       _textController.text = _selectedDate.toString().substring(0, 10);
     });
-    
-    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+
+    ShowcaseProvider showcaseProvider =
+        Provider.of<ShowcaseProvider>(context, listen: false);
     if (showcaseProvider.isFirstTime) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _mobileKeys.add(showcaseProvider.navMoreKey);
@@ -80,7 +84,8 @@ class _BudgetingState extends State<Budgeting> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    ShowcaseProvider showcaseProvider = Provider.of<ShowcaseProvider>(context, listen: false);
+    ShowcaseProvider showcaseProvider =
+        Provider.of<ShowcaseProvider>(context, listen: false);
     if (kIsWeb && showcaseProvider.isRunning) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (_showcasingWebView && _isMobile) {
@@ -110,6 +115,15 @@ class _BudgetingState extends State<Budgeting> {
         builder: (BuildContext context) {
           return const SetBudget();
         });
+  }
+
+  void goBudgetUserManual() async {
+    Uri _url = Uri.parse(
+        'https://drive.google.com/file/d/1guEoC2uSjCR0my8CeGJ-i9UwpwnqluZR/view?usp=drive_link');
+
+    if (!await launchUrl(_url)) {
+      throw Exception('Could not launch $_url');
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -201,10 +215,12 @@ class _BudgetingState extends State<Budgeting> {
                   ),
                   const Spacer(),
                   ShowcaseFrame(
-                    showcaseKey: _isMobile? _mobileKeys[0] : _webKeys[0],
-                    title: _isMobile? "Reset Next Starting Date\n(Resetting Date)":"Reset Next Starting Date(Resetting Date)",
+                    showcaseKey: _isMobile ? _mobileKeys[0] : _webKeys[0],
+                    title: _isMobile
+                        ? "Reset Next Starting Date\n(Resetting Date)"
+                        : "Reset Next Starting Date(Resetting Date)",
                     description: "Reset your upcoming starting date here",
-                    width:  _isMobile? 300: 400,
+                    width: _isMobile ? 300 : 400,
                     height: 100,
                     child: TextButton(
                       onPressed: setResetDate,
@@ -245,6 +261,35 @@ class _BudgetingState extends State<Budgeting> {
                         ),
                       ),
                     ),
+              Container(
+                alignment: Alignment.bottomRight,
+                margin: const EdgeInsets.only(top: 10, bottom: 10, right: 8),
+                child: Column(
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: const Size(200, 40),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4.0),
+                        ),
+                      ),
+                      onPressed: goBudgetUserManual,
+                      child: const Text('Budget Income Guide'),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right:10),
+                child: Text(
+                  '* View a .pdf guide at Google Drive',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 12
+                  ),
+                  textAlign: TextAlign.end,
+                ),
+              ),
               FutureBuilder(
                 future: _streamFuture,
                 builder: (context, snapshot) {
@@ -288,7 +333,7 @@ class _BudgetingState extends State<Budgeting> {
                         ));
                       }
                       return ShowcaseFrame(
-                        showcaseKey: _isMobile? _mobileKeys[2] : _webKeys[2],
+                        showcaseKey: _isMobile ? _mobileKeys[2] : _webKeys[2],
                         title: "Data Created",
                         description: "Tap here to view budget details",
                         width: 250,
@@ -315,9 +360,8 @@ class _BudgetingState extends State<Budgeting> {
           ),
         ),
       ),
-      floatingActionButtonLocation: _isMobile
-          ? FloatingActionButtonLocation.startFloat
-          : null,
+      floatingActionButtonLocation:
+          _isMobile ? FloatingActionButtonLocation.startFloat : null,
       floatingActionButton: _isMobile
           ? ShowcaseFrame(
               showcaseKey: _mobileKeys[1],
