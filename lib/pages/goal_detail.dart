@@ -56,7 +56,6 @@ class _GoalDetailState extends State<GoalDetail> {
     showDialog(
         context: context,
         builder: (context) {
-          debugPrint('showing didSpent dialog');
           return AlertConfirmAction(
             title: 'Did you spent the money?',
             content: 'Did you spent the money saved for this goal?',
