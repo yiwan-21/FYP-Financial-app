@@ -263,18 +263,23 @@ class TransactionProvider extends ChangeNotifier {
 
   List<MonthCategoryData> getMonthlyExpenseCategoryData({int monthCount = 5}) {
     DateTime now = DateTime.now();
+    List<TrackerTransaction> expenses = _transactions
+        .where((transaction) => transaction.isExpense && Constant.expenseCategories.contains(transaction.category))
+        .toList();
     Map<String, List<double>> categoryMonthlyTotals = {};
+    List<int> latestMonths = getLatestNmonthIndex(monthCount);
 
     for (int i = 0; i < monthCount; i++) {
       DateTime monthStart = DateTime(now.year, now.month - i, 1);
       DateTime monthEnd = DateTime(now.year, now.month - i + 1, 0);
 
-      var monthlyExpenses = _transactions.where((transaction) =>
-          transaction.date.isAfter(monthStart) &&
-          transaction.date.isBefore(monthEnd) &&
-          transaction.isExpense && Constant.expenseCategories.contains(transaction.category));
+      List<TrackerTransaction> monthlyExpenses = expenses
+          .where((transaction) =>
+            transaction.date.isAfter(monthStart) &&
+            transaction.date.isBefore(monthEnd))
+          .toList();
 
-      for (var transaction in monthlyExpenses) {
+      for (TrackerTransaction transaction in monthlyExpenses) {
         categoryMonthlyTotals.putIfAbsent(transaction.category, () => List.filled(monthCount, 0.0));
         categoryMonthlyTotals[transaction.category]?[i] += transaction.amount;
       }
@@ -282,12 +287,14 @@ class TransactionProvider extends ChangeNotifier {
 
     List<MonthCategoryData> monthlyData = [];
     categoryMonthlyTotals.forEach((category, monthlyTotals) {
-      for (int i = 0; i < monthCount; i++) {
-        monthlyData.add(MonthCategoryData(
-            Constant.monthLabels[(now.month - i - 1 + 12) % 12],
-            category,
-            monthlyTotals[i], 
-        ));
+      for (int i = 0; i < monthlyTotals.length; i++) {
+        if (monthlyTotals[i] != 0) {
+          monthlyData.add(MonthCategoryData(
+              Constant.monthLabels[latestMonths[i]],
+              category,
+              monthlyTotals[i], 
+          ));
+        }
       }
     });
 
