@@ -113,6 +113,13 @@ class MyApp extends StatelessWidget {
             title: 'Financial App',
             debugShowCheckedModeBanner: false,
             scrollBehavior: MyCustomScrollBehavior(),
+            builder: ((context, child) {
+              final scale = MediaQuery.of(context).textScaleFactor.clamp(1.0, 1.1);
+              return MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaleFactor: scale),
+                child: child!,
+              );
+            }),
             theme: ThemeData(
               primarySwatch: lightRed,
             ),

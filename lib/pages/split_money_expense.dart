@@ -266,6 +266,7 @@ class _ExpenseRecordsState extends State<ExpenseRecords> {
   }
 
   void _settleUp() {
+    double amount = _getMaxValue();
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -276,7 +277,8 @@ class _ExpenseRecordsState extends State<ExpenseRecords> {
             defaultChecked: true,
             onSaveFunction: _onSettleUp,
             checkedFunction: _checkedFunction,
-            maxValue: _getMaxValue(),
+            maxValue: amount,
+            defaultValue: amount,
           );
         });
   }

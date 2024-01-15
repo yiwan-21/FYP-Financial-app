@@ -46,7 +46,7 @@ class _GoalDetailState extends State<GoalDetail> {
           content: 'Are you sure you want to delete this goal?',
           cancelText: 'Cancel',
           confirmText: 'Delete',
-          confirmAction: () => _saved == 0 ? _deleteGoal(false) : _didSpentDialog,
+          confirmAction: () => _saved == 0 ? _deleteGoal(false) : _didSpentDialog(),
         );
       },
     );

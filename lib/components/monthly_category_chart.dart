@@ -64,7 +64,7 @@ class _MonthlyCategoryChartState extends State<MonthlyCategoryChart> {
             }).toList();
             
             return SfCircularChart(
-              title: ChartTitle(text: 'Monthly Expenses Category'),
+              title: ChartTitle(text: 'Monthly Expenses Category${filteredData.isEmpty ? '\n\nNo Data to Display' : ''}'),
               // Enable legend
               legend: Legend(
                 isVisible: true,
